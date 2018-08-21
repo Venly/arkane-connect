@@ -1,0 +1,5 @@
+export enum EVENT_TYPES {
+    TRANSACTION_SIGNED,
+    SEND_PARAMS,
+    POPUP_CLOSED,
+}
