@@ -1,0 +1,38 @@
+{
+  "name": "@arkane-network/arkane-connect",
+  "version": "0.0.1",
+  "description": "Arkane Connect - api library for 3th parties",
+  "main": "connect.js",
+  "scripts": {
+    "build": "webpack --mode development",
+    "build-prod": "webpack --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fundrequest/arkane"
+  },
+  "keywords": [
+    "ethereum",
+    "hd",
+    "wallet",
+    "mnemonic",
+    "provider",
+    "arkane",
+    "truffle"
+  ],
+  "author": "Steve Maris <steve.maris@fundrequest.io>",
+  "contributors": [
+    "Quinten De Swaef <quinten.de.swaef@fundrequest.io>"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fundrequest/arkane/issues"
+  },
+  "homepage": "https://arkane.network",
+  "dependencies": {},
+  "devDependencies": {
+    "ts-loader": "^4.5.0",
+    "typescript": "^3.0.1",
+    "webpack": "^4.16.5"
+  }
+}

@@ -42,7 +42,7 @@ export default class ArkaneConnect {
         return str.join('&');
     }
 
-    private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 450, h: number = 650) {
+    private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 300, h: number = 500) {
         const left = (screen.width / 2) - (w / 2);
         const top = (screen.height / 2) - (h / 2);
         let features = 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, ';
@@ -95,7 +95,7 @@ export default class ArkaneConnect {
         const data = event.data && {...event.data.data};
         switch (event.data && event.data.type) {
             case EVENT_TYPES.TRANSACTION_SIGNED:
-                //this.popup.close();
+                // this.popup.close();
                 return data;
             case EVENT_TYPES.POPUP_CLOSED:
                 delete this.popup;

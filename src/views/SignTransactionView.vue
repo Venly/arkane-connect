@@ -1,9 +1,10 @@
 <template>
     <div class="home">
         <div v-if="isLoggedIn">
-            <img class="logo" alt="Arkane Logo" src="../assets/logo-arkane-a-light.svg"/>
-            <h3>enter your pincode to sign this transaction.</h3>
-            <numpad></numpad>
+            <div class="logo-wrapper">
+                <img class="logo" alt="Arkane Logo" src="../assets/logo-arkane-animated.svg"/>
+            </div>
+            <numpad :title="'Enter your pincode to sign this transaction'"></numpad>
         </div>
         <div v-else>
             <p>{{loadingText}}</p>
@@ -60,17 +61,15 @@
 </script>
 
 <style lang="sass" scoped>
+    .logo-wrapper
+        padding-bottom: 5px
+        margin-bottom: 20px
+        border-bottom: 1px solid #e5e5e5
+
     .logo
-        width: 25px
-        height: 25px
-
-    h3
-        font-size: 12px
-
-    @media (min-height: 600px)
-        .logo
-            width: 100px
-            height: 100px
-        h3
-            font-size: 20px
+        padding: 5px
+        width: auto
+        height: 35px
+        @media (min-height: 600px)
+            height: 60px
 </style>

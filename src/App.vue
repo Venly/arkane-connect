@@ -1,25 +1,28 @@
 <template>
-  <div id="app">
-    <router-view/>
-  </div>
+    <div id="app">
+        <router-view/>
+    </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-#nav {
-  padding: 30px;
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
+<style lang="sass">
+    html
+        box-sizing: border-box
+
+    *, *::before, *::after
+        box-sizing: inherit
+
+    html, body
+        padding: 0
+        margin: 0
+
+    #app
+        font-family: Roboto, Helvetica, Arial, sans-serif
+        -webkit-font-smoothing: antialiased
+        -moz-osx-font-smoothing: grayscale
+        text-align: center
+        color: #4a4a4a
+        padding: 40px 0
+        @media (min-width: 380px)
+            padding: 40px
+
 </style>
