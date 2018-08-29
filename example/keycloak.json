@@ -1,0 +1,9 @@
+{
+  "clientId": "arkane-frontend",
+  "realm": "master",
+  "realm-public-key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4MZDDYShPNYcsSeSrVT36w63yHezHM57HbO6OejY8jZ4CRS/kDxl8tBk4uGifa9tJMAvPg/gYDwNCGNuw82HT/ToA71J9FBq7NP0+yI10oy4Pg5Gv/DssJAqGATdA/KMlagCXfBzeqv2io5cUGZUwxcH70Ri1IsG3MjSIMasbNTGVdGVgse5U5AiDjzVLSe3lxj+E9uQhK+4knCgilYBqI5DJSI1vNPB4+LM6FXeRWCbqnpLGhgqyUvWo5HjXQwHu8RSk0EaWOmqtjBApFcaDZUEBfisMkCw7DgJx3vMVTDRnKNvreMM85CFk+d0EbA8ndWek2SLIyw5DuSdTfp0EwIDAQAB",
+  "auth-server-url": "https://login-tst1.arkane.network/auth",
+  "ssl-required": "external",
+  "resource": "arkane",
+  "public-client": true
+}
