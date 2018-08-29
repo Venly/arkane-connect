@@ -17,7 +17,6 @@
     import axios from 'axios';
     import Numpad from '@/components/molecules/Numpad.vue';
     import Keycloak from 'keycloak-js';
-    import config from '../keycloak.json';
 
     declare const window: Window;
 
@@ -31,7 +30,16 @@
         public loadingText = 'Checking credentials ...';
 
         public created() {
-            const keycloak = Keycloak(config);
+            const keycloak = Keycloak({
+                'clientId': process.env.VUE_APP_CLIENT_ID,
+                'realm': process.env.VUE_APP_REALM,
+                'realm-public-key': process.env.VUE_APP_REALM_PUBLIC_KEY,
+                'url': process.env.VUE_APP_URL,
+                'auth-server-url': process.env.VUE_APP_AUTH_SERVER_URL,
+                'ssl-required': process.env.VUE_APP_SSL_REQUIRED,
+                'resource': process.env.VUE_APP_RESOURCE,
+                'public-client': process.env.VUE_APP_PUBLIC_CLIENT,
+            });
             keycloak.init({
                 onLoad: 'check-sso',
             }).success((authenticated: any) => {
@@ -66,10 +74,10 @@
         margin-bottom: 20px
         border-bottom: 1px solid #e5e5e5
 
-    .logo
-        padding: 5px
-        width: auto
-        height: 35px
-        @media (min-height: 600px)
-            height: 60px
+        .logo
+            padding: 5px
+            width: auto
+            height: 35px
+            @media (min-height: 600px)
+                height: 60px
 </style>
