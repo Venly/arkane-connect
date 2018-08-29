@@ -9,11 +9,10 @@ WORKDIR /app
 COPY package.json /app
 RUN npm install
 COPY . /app
-RUN npm run build
 
 ENV NODE_ENV=production
 ENV PORT=4001
 
-CMD npm run start
+CMD npx vue-cli-service serve --mode=$NODE_ENV --port=$PORT
 
-EXPOSE 4001
+EXPOSE $PORT
