@@ -9,11 +9,7 @@ export default new Router({
   base: process.env.BASE_URL,
   routes: [
     {
-      path: '/',
-      redirect: '/sign/transaction',
-    },
-    {
-      path: '/sign/transaction',
+      path: '/sign/transaction/:bearer',
       name: 'sign-transaction',
       component: SignTransactionView,
     },

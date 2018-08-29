@@ -20,13 +20,10 @@
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
     import NumpadNumber from '@/components/atoms/NumpadNumber.vue';
-    import Utils from '@/utils/Utils';
     import Api from '@/api';
-    import EthereumTransactionData from '@/api/EthereumTransactionData';
     import ResponseBody from '@/api/ResponseBody';
-    import {EVENT_TYPES} from '@/types/EventTypes';
-
-    declare const window: Window;
+    import EthereumTransactionData from '@/api/EthereumTransactionData';
+    import VechainTransactionData from '@/api/VechainTransactionData';
 
     @Component({
         components: {
@@ -35,41 +32,14 @@
     })
     export default class Numpad extends Vue {
         @Prop() public title!: string;
-
-        public params!: EthereumTransactionData;
+        @Prop() public params!: EthereumTransactionData | VechainTransactionData;
         public pincode: string = '';
         public array: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
         public numbers!: number[];
         public isError: boolean = false;
 
-        private isEventSet = false;
-        private event!: MessageEvent;
-
         public created() {
             this.numbers = this.array; // Utils.shuffleArray([...this.array]);
-            window.addEventListener('message', (event: MessageEvent) => {
-                if (!this.isEventSet && Utils.isWhitelistedOrigin(event.origin)) {
-                    const data = event.data;
-                    if (data && data.type === EVENT_TYPES.SEND_PARAMS) {
-                        this.params = Object.assign(new EthereumTransactionData(), data.params);
-                        this.event = event;
-                        this.isEventSet = true;
-                    }
-                }
-            }, false);
-            window.addEventListener('beforeunload', () => {
-                (this.event.source as Window).postMessage({
-                    type: EVENT_TYPES.POPUP_CLOSED,
-                }, this.event.origin);
-            });
-        }
-
-        public sendTransactionSigned(result: ResponseBody) {
-            (this.event.source as Window).postMessage({
-                type: EVENT_TYPES.TRANSACTION_SIGNED,
-                data: result,
-            }, this.event.origin);
-            this.isEventSet = false;
         }
 
         public numberClicked(num: number) {
@@ -79,10 +49,10 @@
 
         public sign() {
             if (/^[0-9]{4,6}$/.test(this.pincode)) {
-                Api.signEthereumTransaction(this.params, this.pincode).then((r: ResponseBody) => {
-                    this.sendTransactionSigned(r);
+                Api.signTransaction(this.params, this.pincode).then((r: ResponseBody) => {
+                    this.$emit('signed', r);
                 }).catch((e: Error) => {
-                    this.sendTransactionSigned({
+                    this.$emit('signed', {
                         success: false,
                         result: {},
                         errors: [e],

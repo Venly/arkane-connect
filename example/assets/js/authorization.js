@@ -4,6 +4,7 @@ var keycloak = Keycloak();
 keycloak.init({
   onLoad: 'check-sso'
 }).then(function(authenticated) {
+  window.arkaneConnect = new ArkaneConnect('http://localhost:8080', keycloak.token);
   document.body.classList.add(authenticated ? 'logged-in' : 'not-logged-in');
   document.getElementById('keycloak-username').innerText = keycloak.subject + ' - ' + keycloak.token + ' - ';
   document.getElementById('keycloak-loginlink').addEventListener('click', function(e) {

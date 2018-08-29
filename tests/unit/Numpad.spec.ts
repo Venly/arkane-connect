@@ -31,13 +31,14 @@ describe('Numpad.vue', () => {
         expect(wrapper.vm.$data.pincode).to.eq('');
         expect(wrapper.vm.$data.isError).to.eq(true, 'isError must be true');
     });
-    it('numbers are randomly shuffles', () => {
-        const wrapper: Wrapper<Numpad> = shallowMount(Numpad);
-        const numbers = (wrapper.vm as any).numbers;
-        const numberArray = wrapper.vm.$data.array;
+    // The numbers aren't shuffled anymore
+    // it('numbers are randomly shuffles', () => {
+    //     const wrapper: Wrapper<Numpad> = shallowMount(Numpad);
+    //     const numbers = (wrapper.vm as any).numbers;
+    //     const numberArray = wrapper.vm.$data.array;
 
-        expect(numbers.length).to.eq(numberArray.length);
-        expect(numbers.filter((n: number) => numberArray.indexOf(n) === -1)).to.eql([]);
-        expect(numbers).to.not.eql(numberArray);
-    });
+    //     expect(numbers.length).to.eq(numberArray.length);
+    //     expect(numbers.filter((n: number) => numberArray.indexOf(n) === -1)).to.eql([]);
+    //     expect(numbers).to.not.eql(numberArray);
+    // });
 });

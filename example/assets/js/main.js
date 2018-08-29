@@ -1,8 +1,7 @@
 $(function() {
-    let arkaneConnect = new ArkaneConnect('http://localhost:8080');
-
+    // window.arkaneConnect is initialized after keycloak login
     document.getElementById('arkane-sign-eth').addEventListener('click', function() {
-        arkaneConnect.signEthereumTransaction({
+        window.arkaneConnect.signEthereumTransaction({
             type: 'ETHEREUM_TRANSACTION',
             walletId: 44,
             submit: false,
@@ -20,7 +19,7 @@ $(function() {
     });
 
     document.getElementById('arkane-sign-vechain').addEventListener('click', function() {
-        arkaneConnect.signVechainTransaction({
+        window.arkaneConnect.signVechainTransaction({
             type: 'VECHAIN_TRANSACTION',
             walletId: 44,
             submit: false,

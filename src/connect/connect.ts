@@ -20,27 +20,29 @@ export default class ArkaneConnect {
 
     public popup!: Window;
     public loc: string = '';
+    public bearer: string = '';
 
-    constructor(loc: string) {
+    constructor(loc: string, bearer: string) {
         this.loc = loc;
+        this.bearer = bearer;
     }
 
     public async signEthereumTransaction(params: EthereumTransactionData) {
         return this.signTransaction(() => {
-            this.sendEthParams(params)
+            this.sendEthParams(params);
         });
     }
 
     public async signVechainTransaction(params: VechainTransactionData) {
         return this.signTransaction(() => {
-            this.sendVechainParams(params)
+            this.sendVechainParams(params);
         });
     }
 
     private async signTransaction(sendParams: any) {
         if (!this.popup) {
             return new Promise((resolve, reject) => {
-                const url = `${this.loc}/sign/transaction`;
+                const url = `${this.loc}/sign/transaction/${this.bearer}`;
                 this.popup = ArkaneConnect.openWindow(url) as Window;
                 const interval = sendParams();
                 this.addEventListener(interval, resolve, reject);
@@ -116,6 +118,6 @@ export default class ArkaneConnect {
     }
 }
 
-if(window) {
+if (window) {
     (window as any).ArkaneConnect = ArkaneConnect;
 }
