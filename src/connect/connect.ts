@@ -1,47 +1,10 @@
 import EthereumTransactionData from '@/api/EthereumTransactionData';
 import {EVENT_TYPES} from '../types/EventTypes';
+import {CHAIN_TYPES} from '../types/ChainTypes';
 import ResponseBody from '@/api/ResponseBody';
+import VechainTransactionData from '@/api/VechainTransactionData';
 
 export default class ArkaneConnect {
-    public static async signTransaction(params: EthereumTransactionData) {
-        const instance = ArkaneConnect.getInstance();
-
-        (console as any).log(!instance.popup);
-        if (!instance.popup) {
-            return new Promise((resolve, reject) => {
-                const url = `${instance.loc}/sign/transaction`;
-                instance.popup = ArkaneConnect.openWindow(url) as Window;
-                const interval = instance.sendParams(params);
-                instance.addEventListener(interval, resolve, reject);
-            });
-        }
-
-        instance.popup.focus();
-        return {
-            success: false,
-            errors: ['Popup already open'],
-        };
-    }
-
-    private static instance: ArkaneConnect;
-
-    private static getInstance() {
-        if (!this.instance) {
-            this.instance = new ArkaneConnect('http://localhost:8081');
-        }
-        return this.instance;
-    }
-
-    private static serialize(obj: any) {
-        const str = [];
-        for (const p in obj) {
-            if (obj.hasOwnProperty(p)) {
-                str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-            }
-        }
-        return str.join('&');
-    }
-
     private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 300, h: number = 500) {
         const left = (screen.width / 2) - (w / 2);
         const top = (screen.height / 2) - (h / 2);
@@ -62,17 +25,60 @@ export default class ArkaneConnect {
         this.loc = loc;
     }
 
-    public sendParams(params: EthereumTransactionData) {
+    public async signEthereumTransaction(params: EthereumTransactionData) {
+        return this.signTransaction(() => {
+            this.sendEthParams(params)
+        });
+    }
+
+    public async signVechainTransaction(params: VechainTransactionData) {
+        return this.signTransaction(() => {
+            this.sendVechainParams(params)
+        });
+    }
+
+    private async signTransaction(sendParams: any) {
+        if (!this.popup) {
+            return new Promise((resolve, reject) => {
+                const url = `${this.loc}/sign/transaction`;
+                this.popup = ArkaneConnect.openWindow(url) as Window;
+                const interval = sendParams();
+                this.addEventListener(interval, resolve, reject);
+            });
+        }
+
+        this.popup.focus();
+        return {
+            success: false,
+            errors: ['Popup already open'],
+        };
+    }
+
+    private sendEthParams(params: EthereumTransactionData) {
+        return this.sendMessage({
+            type: EVENT_TYPES.SEND_PARAMS,
+            chain: CHAIN_TYPES.ETHEREUM,
+            params,
+        });
+    }
+
+    private sendVechainParams(params: VechainTransactionData) {
+        return this.sendMessage({
+            type: EVENT_TYPES.SEND_PARAMS,
+            chain: CHAIN_TYPES.VECHAIN,
+            params,
+        });
+    }
+
+    private sendMessage(message: any) {
         const interval = setInterval(() => {
             if (!this.popup) {
                 clearInterval(interval);
             } else {
-                this.popup.postMessage({
-                    type: EVENT_TYPES.SEND_PARAMS,
-                    params,
-                }, this.loc);
+                this.popup.postMessage(message, this.loc);
             }
         }, 3000);
+        return interval;
     }
 
     private addEventListener(interval: any, resolve: any, reject: any) {
@@ -95,7 +101,7 @@ export default class ArkaneConnect {
         const data = event.data && {...event.data.data};
         switch (event.data && event.data.type) {
             case EVENT_TYPES.TRANSACTION_SIGNED:
-                // this.popup.close();
+                this.popup.close();
                 return data;
             case EVENT_TYPES.POPUP_CLOSED:
                 delete this.popup;
@@ -110,6 +116,6 @@ export default class ArkaneConnect {
     }
 }
 
-if (window) {
+if(window) {
     (window as any).ArkaneConnect = ArkaneConnect;
 }
