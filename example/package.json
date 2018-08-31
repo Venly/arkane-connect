@@ -4,6 +4,7 @@
   "description": "",
   "dependencies": {
     "@arkane-network/arkane-connect": "0.0.3",
+    "axios": "^0.18.0",
     "jquery": "^3.3.1",
     "keycloak-js": "^4.3.0"
   },

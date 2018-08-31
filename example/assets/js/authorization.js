@@ -1,20 +1,12 @@
 /* global Keycloak, console */
 
-var keycloak = Keycloak();
-keycloak.init({
+var app = app || {};
+app.keycloak = Keycloak();
+app.keycloak.init({
   onLoad: 'check-sso'
 }).then(function(authenticated) {
-  window.arkaneConnect = new ArkaneConnect('http://localhost:8080', keycloak.token);
-  document.body.classList.add(authenticated ? 'logged-in' : 'not-logged-in');
-  document.getElementById('keycloak-username').innerText = keycloak.subject + ' - ' + keycloak.token + ' - ';
-  document.getElementById('keycloak-loginlink').addEventListener('click', function(e) {
-    e.preventDefault();
-    keycloak.login({redirectUri: ''});
-  });
-  document.getElementById('keycloak-logout').addEventListener('click', function(e) {
-    e.preventDefault();
-    keycloak.logout();
-  });
+  // location of ArkaneConnect => local || tst1 || staging || prod
+  app.initApp(authenticated, app.keycloak);
 }).catch(function(e) {
   console.log(e);
 });

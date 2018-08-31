@@ -1,5 +1,32 @@
-$(function() {
-    // window.arkaneConnect is initialized after keycloak login
+var app = app || {};
+
+app.initApp = function(authenticated, keycloak) {
+    window.arkaneConnect = new ArkaneConnect('local', keycloak.token);
+    app.addKeycloakEvents(authenticated, keycloak);
+    app.addConnectEvents();
+    app.getWallets();
+};
+
+app.getWallets = function() {
+    window.arkaneConnect.getWallets().then(function(result) {
+        console.log(result);
+    })
+};
+
+app.addKeycloakEvents = function(authenticated, keycloak) {
+    document.body.classList.add(authenticated ? 'logged-in' : 'not-logged-in');
+    document.getElementById('keycloak-username').innerText = keycloak.subject + ' - ' + keycloak.token + ' - ';
+    document.getElementById('keycloak-loginlink').addEventListener('click', function(e) {
+        e.preventDefault();
+        keycloak.login({redirectUri: ''});
+    });
+    document.getElementById('keycloak-logout').addEventListener('click', function(e) {
+        e.preventDefault();
+        keycloak.logout();
+    });
+};
+
+app.addConnectEvents = function() {
     document.getElementById('arkane-sign-eth').addEventListener('click', function() {
         window.arkaneConnect.signEthereumTransaction({
             type: 'ETHEREUM_TRANSACTION',
@@ -40,4 +67,4 @@ $(function() {
             console.log(error);
         });
     });
-});
+};

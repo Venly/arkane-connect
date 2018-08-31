@@ -16,7 +16,7 @@ export default class Api {
             });
     }
 
-    private static defaultBaseUrl = 'https://api-tst1.arkane.network/api';
+    private static defaultBaseUrl = process.env.VUE_APP_API_URI || '';
     private static instance: Api;
 
     private static getInstance(): Api {

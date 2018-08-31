@@ -1,8 +1,9 @@
-import EthereumTransactionData from '@/api/EthereumTransactionData';
+import EthereumTransactionData from '../api/EthereumTransactionData';
+import VechainTransactionData from '../api/VechainTransactionData';
 import {EVENT_TYPES} from '../types/EventTypes';
 import {CHAIN_TYPES} from '../types/ChainTypes';
-import ResponseBody from '@/api/ResponseBody';
-import VechainTransactionData from '@/api/VechainTransactionData';
+import ResponseBody from '../api/ResponseBody';
+import RestApi from '../api/RestApi';
 
 export default class ArkaneConnect {
     private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 300, h: number = 500) {
@@ -20,11 +21,46 @@ export default class ArkaneConnect {
 
     public popup!: Window;
     public loc: string = '';
+    public apiLoc: string = '';
     public bearer: string = '';
 
+    public api: RestApi;
+
     constructor(loc: string, bearer: string) {
-        this.loc = loc;
+        const locPostfix = '.arkane.network';
+        const apiPostfix = '.arkane.network/api';
+
+        switch(loc) {
+            case 'local':
+                this.loc = 'http://localhost:8081';
+                this.apiLoc = `https://api-staging${apiPostfix}`;
+                break;
+            case 'tst1':
+                this.loc = `https://connect-tst1${locPostfix}`;
+                this.apiLoc = `https://api-tst1${apiPostfix}`;
+                break;
+            case 'staging':
+                this.loc = `https://connect-staging${locPostfix}`;
+                this.apiLoc = `https://api-staging${apiPostfix}`;
+                break;
+            case 'prod':
+                this.loc = `https://connect${locPostfix}`;
+                this.apiLoc = `https://api${apiPostfix}`;
+        }
+
+        this.api = new RestApi(this.apiLoc);
+        this.updateBearerToken(bearer);
+    }
+
+    public updateBearerToken(bearer: string) {
         this.bearer = bearer;
+        this.api.http.defaults.headers.common = {
+            Authorization: 'Bearer ' + this.bearer,
+        };
+    }
+
+    public async getWallets() {
+        return this.api.http.get('wallets');
     }
 
     public async signEthereumTransaction(params: EthereumTransactionData) {
