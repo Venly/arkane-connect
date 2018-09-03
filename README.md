@@ -1,13 +1,16 @@
+Arkane Connect
+===
 
-# Arkane Connect
-A platform for easy integration of ARKANE into 3rd party services
+A platform for easy integration of Arkane (https://arkane.network) into 3rd party services
 
 ## Project setup
+
 ```
-npm install
+npm i && npm i --prefix src/connect
 ```
 
 ### Compiles and hot-reloads for development
+
 ```
 npm run serve
 ```
