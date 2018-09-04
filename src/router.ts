@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import SignTransactionView from './views/SignTransactionView.vue';
+import MasterPinView from './views/MasterPinView.vue';
 
 Vue.use(Router);
 
@@ -20,6 +21,11 @@ export default new Router({
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import(/* webpackChunkName: "about" */ './views/About.vue'),
+    },
+    {
+      path: '/init',
+      name: 'init',
+      component: MasterPinView,
     },
   ],
 });

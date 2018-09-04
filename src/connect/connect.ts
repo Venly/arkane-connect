@@ -30,7 +30,7 @@ export default class ArkaneConnect {
         const locPostfix = '.arkane.network';
         const apiPostfix = '.arkane.network/api';
 
-        switch(loc) {
+        switch (loc) {
             case 'local':
                 this.loc = 'http://localhost:8081';
                 this.apiLoc = `https://api-staging${apiPostfix}`;
