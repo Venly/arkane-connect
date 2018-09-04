@@ -13,7 +13,8 @@ export default class Utils {
     }
 
     public static isWhitelistedOrigin(origin: string): boolean {
-        const array = ['http://localhost:4000', 'https://connect-staging.arkane.network'];
+        const array = ['http://localhost:4000', 'https://connect-staging.arkane.network',
+            'https://connect.arkane.network', 'https://connect-tst1.arkane.network'];
         return !!array.find((val: string) => val === origin);
     }
 }
