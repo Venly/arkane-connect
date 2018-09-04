@@ -15,6 +15,9 @@ export default class Utils {
     public static isWhitelistedOrigin(origin: string): boolean {
         const array = ['http://localhost:4000', 'https://connect-staging.arkane.network',
             'https://connect.arkane.network', 'https://connect-tst1.arkane.network'];
-        return !!array.find((val: string) => val === origin);
+        // return !!array.find((val: string) => val === origin);
+        // TODO: check if we can whitelist or add security here
+        // origin is the caller of the popup in this case
+        return true;
     }
 }
