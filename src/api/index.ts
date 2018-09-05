@@ -11,7 +11,7 @@ export default class Api {
             .catch((e: Error) => {
                 return {
                     success: false,
-                    result: {},
+                    result: e,
                 };
             });
     }
