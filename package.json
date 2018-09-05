@@ -13,6 +13,7 @@
   "dependencies": {
     "babel-preset-es2015": "^6.24.1",
     "jsrsasign": "^8.0.12",
+    "roboto-fontface": "^0.10.0",
     "sinon": "^6.1.5",
     "v-tooltip": "^2.0.0-rc.33",
     "vue": "^2.5.17",

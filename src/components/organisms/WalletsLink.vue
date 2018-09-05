@@ -63,4 +63,25 @@
 </script>
 
 <style lang="sass" scoped>
+    @import ../../assets/sass/mixins-and-vars
+
+    .box
+        margin-top: rem(30px)
+
+    .wallet-container
+        background-color: $color-white-smoke
+        max-height: rem(320px)
+        overflow: auto
+        padding: rem(16px)
+        margin-bottom: rem(16px)
+        border-top: 1px solid $color-border-gray
+        border-bottom: 1px solid $color-border-gray
+
+        .control__checkbox
+            + label
+                padding-right: 0
+                width: 100%
+
+    .actions
+        text-align: right
 </style>

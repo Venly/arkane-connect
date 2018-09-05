@@ -22,7 +22,8 @@
 </script>
 
 <style lang="sass" scoped>
+    @import ../../assets/sass/mixins-and-vars
 
     .success .check
-        stroke: green
+        stroke: $color-brand-light
 </style>

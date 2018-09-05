@@ -1,6 +1,5 @@
 <template>
-  <div class="whitelabel-page">
-    <div class="whitelabel-page__content">
+  <div class="container">
       <transition name="slide-left">
         <master-pin-dialog @done="updatePincode" v-if="!ready"></master-pin-dialog>
       </transition>
@@ -10,7 +9,6 @@
           <wallet-card :wallet="wallet" :showFunds="false"></wallet-card>
         </redirect-dialog>
       </transition>
-    </div>
   </div>
 </template>
 

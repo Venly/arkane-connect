@@ -1,0 +1,40 @@
+.form
+  display: grid
+  grid-template-columns: 1fr
+  grid-row-gap: rem(12px)
+  grid-column-gap: rem(40px)
+
+  > *:last-child
+    margin-bottom: 0
+
+  @include media(tablet)
+    grid-column-gap: rem(80px)
+    &--horizontal
+      grid-template-columns: 1fr 1fr
+
+.separator
+  text-align: center
+  position: relative
+  min-height: rem(20px)
+  grid-column: 1 / span 2
+
+  &::before
+    content: ''
+    display: block
+    left: 0
+    top: 50%
+    position: absolute
+    z-index: 0
+    background-color: $color-border-light
+    height: 1px
+    width: 100%
+
+
+  &__label
+    display: inline-block
+    background-color: $color-white
+    padding: 0 rem(8px)
+    font-size: $font-size-regular
+    position: relative
+    z-index: 1
+

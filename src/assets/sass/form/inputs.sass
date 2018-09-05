@@ -1,0 +1,58 @@
+.control
+  margin-bottom: rem(20px)
+  display: flex
+  flex-direction: column
+  position: relative
+
+  &--error
+    .control
+      &__label
+        color: $color-error
+      &__input
+        border-color: $color-error
+        color: $color-error
+      &__checkbox + label::before
+        box-shadow: 0 0 0 rem(1px) $color-error, rem(0 2px 3px 0) rgba(0, 0, 0, 0.08)
+      &__message
+        color: $color-error
+
+  &__label
+    display: block
+    padding: rem(0 10px)
+    font-size: $font-size-small
+    line-height: $line-height-base
+    margin: rem(2px 0)
+    &[for]
+      cursor: pointer
+
+  &__description,
+  &__message
+    font-size: $font-size-xsmall
+    padding: rem(0 10px)
+
+  &__message
+    position: absolute
+    bottom: 0
+    transform: translateY(100%)
+
+  &__input
+    display: block
+    width: 100%
+    line-height: rem(21px)
+    height: rem(38px)
+    padding: rem(9px 10px 8px 10px)
+    border-radius: rem(4px)
+    border: 1px solid $color-border
+    box-shadow: rem(0 1px 3px 0) rgba(0, 0, 0, 0.08)
+
+::placeholder
+  font-size: $font-size-small
+  opacity: 1
+
+::-ms-input-placeholder
+  font-size: $font-size-small
+
+*:-ms-input-placeholder
+  font-size: $font-size-small
+
+@import checkboxes

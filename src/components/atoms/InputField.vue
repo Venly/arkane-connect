@@ -16,4 +16,20 @@ export default class InputField extends Vue {
 </script>
 
 <style lang="sass" scoped>
+    @import ../../assets/sass/mixins-and-vars
+
+    .input
+        border-radius: $border-radius-small
+        border: 1px solid $color-gray
+        font-size: $font-size-small
+        line-height: 1rem
+        padding: .25rem
+
+        &::placeholder
+            font-style: italic
+            color: $color-light-gray
+            text-transform: capitalize
+        &:active, &:focus
+            border-color: $color-primary
+
 </style>
