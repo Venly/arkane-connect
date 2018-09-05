@@ -13,7 +13,6 @@ export default class RestApi {
     }
 
     public errorHandler(error: any) {
-        // console.error('errorHandler', error);
-        return Promise.resolve(undefined);
+        return Promise.resolve(error);
     }
 }
