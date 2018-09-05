@@ -2,16 +2,31 @@
 import {AxiosError, AxiosResponse} from 'axios';
 import RestApi from '@/api/RestApi';
 import ResponseBody from '@/api/ResponseBody';
+import undefinedError = Mocha.utils.undefinedError;
 
 export default class Api {
     // TODO: error handling
     public static signTransaction(data: any, pincode: string): Promise<ResponseBody> {
+        function getSafe(param: () => string) {
+            try {
+                return param();
+            } catch (e) {
+                return undefined;
+            }
+        }
+
         return Api.getApi().http.post('signatures', Object.assign(data, {pincode}))
             .then((axiosRes: AxiosResponse) => axiosRes.data as ResponseBody)
             .catch((e: AxiosError) => {
                 return {
                     success: false,
-                    result: e.response.data,
+                    result: (() => {
+                        if (e && e.response && e.response.data) {
+                            return e;
+                        } else {
+                            return undefined;
+                        }
+                    })(),
                 };
             });
     }
