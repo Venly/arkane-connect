@@ -9,7 +9,7 @@ export default class RestApi {
             baseURL: version ? `${basePath}/${version}` : basePath,
         });
 
-        this.http.interceptors.response.use(undefined, this.errorHandler);
+      //  this.http.interceptors.response.use(undefined, this.errorHandler);
     }
 
     public errorHandler(error: any) {
