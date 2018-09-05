@@ -16,9 +16,6 @@
 
 <script lang='ts'>
     import {Component, Vue} from 'vue-property-decorator';
-    import axios from 'axios';
-    import * as KJUR from 'jsrsasign';
-    import Keycloak, {KeycloakInstance} from 'keycloak-js';
     import Numpad from '@/components/molecules/Numpad.vue';
     import {EVENT_TYPES} from '../types/EventTypes';
     import {CHAIN_TYPES} from '../types/ChainTypes';
@@ -26,6 +23,7 @@
     import ResponseBody from '@/api/ResponseBody';
     import VechainTransactionData from '@/api/VechainTransactionData';
     import EthereumTransactionData from '@/api/EthereumTransactionData';
+    import Security from '../security';
 
     declare const window: Window;
 
@@ -35,34 +33,21 @@
         },
     })
     export default class SignTransactionView extends Vue {
-        public isLoggedIn = false;
         public loadingText = 'Checking credentials ...';
         public params: EthereumTransactionData | VechainTransactionData = new EthereumTransactionData();
 
         private isEventSet = false;
         private event!: MessageEvent;
-        private keycloak!: KeycloakInstance;
-        private updateTokenInterval: any;
 
         public created() {
             this.addEventListeners();
             const token = this.$route.params && (this.$route.params as any).bearer || '';
 
-            const publicKey = process.env.VUE_APP_REALM_PUBLIC_KEY || '';
-            const tokenParsed = this.verifyToken(token, publicKey);
-            if (tokenParsed) {
-                this.initializeAuth({
-                    'clientId': tokenParsed.aud,
-                    'realm': process.env.VUE_APP_REALM,
-                    'realm-public-key': process.env.VUE_APP_REALM_PUBLIC_KEY,
-                    'url': process.env.VUE_APP_URL,
-                    'auth-server-url': process.env.VUE_APP_AUTH_SERVER_URL,
-                    'ssl-required': process.env.VUE_APP_SSL_REQUIRED,
-                    'resource': process.env.VUE_APP_RESOURCE,
-                    'public-client': process.env.VUE_APP_PUBLIC_CLIENT,
-                });
-            } else {
-                this.notAuthenticated();
+            if (!Security.verifyAndLogin(token)) {
+                this.loadingText = 'Not authenticated, going back in 3 seconds.';
+                setTimeout(() => {
+                    (window as any).close();
+                }, 3000);
             }
         }
 
@@ -72,79 +57,6 @@
                 data: result,
             }, this.event.origin);
             this.isEventSet = false;
-        }
-
-        private verifyToken(token: string, publicKey: string): any {
-            const jws = new KJUR.jws.JWS();
-            jws.parseJWS(token);
-            if (publicKey.indexOf('-----BEGIN PUBLIC KEY-----') === -1) {
-                publicKey = `-----BEGIN PUBLIC KEY-----${publicKey}-----END PUBLIC KEY-----`;
-            }
-            const parsedToken = JSON.parse(jws.parsedJWS.payloadS);
-            const result = KJUR.jws.JWS.verifyJWT(token, publicKey, {alg: ['RS256']});
-
-            return result ? parsedToken : false;
-        }
-
-        private initializeAuth(config: string | {}) {
-            const keycloak = Keycloak(config);
-            keycloak.init({
-                onLoad: 'check-sso',
-            }).success((authenticated: any) => {
-                if (authenticated) {
-                    this.authenticated(keycloak.token);
-                    this.setUpdateTokenInterval();
-                } else {
-                    this.notAuthenticated();
-                }
-            }).error(() => {
-                this.notAuthenticated();
-            });
-        }
-
-        private authenticated(token: string = '') {
-            this.isLoggedIn = true;
-            axios.defaults.headers.common = {
-                Authorization: 'Bearer ' + token,
-            };
-        }
-
-        private setUpdateTokenInterval() {
-            if (this.updateTokenInterval) {
-                clearInterval(this.updateTokenInterval);
-                this.updateTokenInterval = null;
-            }
-            this.updateTokenInterval = setInterval(async () => {
-                new Promise((resolve, reject) => {
-                    if (this.keycloak) {
-                        this.keycloak.updateToken(70).success((refreshed: any) => {
-                            resolve(refreshed);
-                        });
-                    } else {
-                        reject(false);
-                    }
-                }).then((refreshed: any) => {
-                    if (refreshed) {
-                        this.authenticated(this.keycloak.token);
-                    }
-                }).catch(() => {
-                    (console as any).error('failed to refresh token');
-                    this.notAuthenticated();
-                    clearInterval(this.updateTokenInterval);
-                    this.updateTokenInterval = null;
-                });
-            }, 60000);
-        }
-
-        private notAuthenticated() {
-            this.isLoggedIn = false;
-            axios.defaults.headers.common = {
-                Authorization: '',
-            };
-            this.loadingText = 'Not authenticated, going back in 3 seconds.';
-            setTimeout(() => {
-                (window as any).close();
-            }, 3000);
         }
 
         private addEventListeners() {

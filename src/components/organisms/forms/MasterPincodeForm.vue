@@ -24,7 +24,7 @@
             <span class="control__message"
                   v-if="$v.pincodeConfirm.$error">You made a boo-boo, please enter the same Pin Code again</span>
         </div>
-        <action-button :type="'brand-light'" :disabled="$v.$invalid" @click.prevent="setPincode">
+        <action-button :disabled="$v.$invalid" @click.prevent="setPincode">
             Save Pin
         </action-button>
 
@@ -55,7 +55,7 @@ export default class MasterPincodeForm extends Vue {
     public pincode = '';
     public pincodeConfirm = '';
 
-    @State('userState.hasMasterPin')
+    @State
     private hasMasterPin!: boolean;
 
     @Validations

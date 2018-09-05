@@ -24,7 +24,7 @@ export default class MasterPinDialog extends Vue {
     @Prop()
     public chain!: string;
 
-    @State('userState.hasMasterPin')
+    @State
     private hasMasterPin!: boolean;
 
     @Emit('done')

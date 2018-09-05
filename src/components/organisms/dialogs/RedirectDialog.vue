@@ -41,4 +41,14 @@
     }
 </script>
 <style lang="sass" scoped>
+    @import "../../../assets/sass/mixins-and-vars"
+
+    .message
+        word-break: break-word
+
+    .icon-wrapper
+        height: rem(50px)
+        > svg
+            max-width: 100%
+            max-height: 100%
 </style>

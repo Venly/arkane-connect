@@ -1,15 +1,16 @@
 <template>
-  <div class="container">
-      <transition name="slide-left">
-        <master-pin-dialog @done="updatePincode" v-if="!ready"></master-pin-dialog>
-      </transition>
-      <transition name="slide-left">
-        <redirect-dialog :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri" :timeleft="timeleft" v-if="ready">
-          <p>A <strong>{{chain}}</strong> wallet with the following address has been created:</p>
-          <wallet-card :wallet="wallet" :showFunds="false"></wallet-card>
-        </redirect-dialog>
-      </transition>
-  </div>
+    <div class="container">
+        <transition name="slide-left">
+            <master-pin-dialog @done="updatePincode" v-if="!ready"></master-pin-dialog>
+        </transition>
+        <transition name="slide-left">
+            <redirect-dialog :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri"
+                             :timeleft="timeleft" v-if="ready">
+                <p>A <strong>{{chain}}</strong> wallet with the following address has been created:</p>
+                <wallet-card :wallet="wallet" :showFunds="false"></wallet-card>
+            </redirect-dialog>
+        </transition>
+    </div>
 </template>
 
 <script lang="ts">
@@ -18,6 +19,7 @@
     import MasterPinDialog from '@/components/organisms/dialogs/MasterPinDialog.vue';
     import RedirectDialog from '@/components/organisms/dialogs/RedirectDialog.vue';
     import {Wallet} from '@/models/Wallet';
+    import {State} from 'vuex-class';
 
     @Component({
         components: {
@@ -26,25 +28,23 @@
             WalletCard,
         },
     })
-    export default class MasterPinView extends Vue {
+    export default class InitView extends Vue {
+        @State
+        public hasMasterPin!: boolean;
+
         public chain!: string;
         public project!: string;
         public ready = false;
 
         // todo: create a real wallet on initial set wallet
-        public wallet: Wallet = Object.assign(new Wallet(), { alias: 'Fake wallet', address: '0x0' });
+        public wallet: Wallet = Object.assign(new Wallet(), {alias: 'Fake wallet', address: '0x0'});
 
         private timeleft = 3000;
         private redirectUri = '/';
         private interval!: any;
 
-
         public created(): void {
-            const params: any = this.$route.params;
-            this.chain = params.chain;
-            this.project = params.project || 'Arkane';
-            const redirect = this.$route.query ? (this.$route.query as any).redirect : null;
-            this.redirectUri = decodeURIComponent(redirect || '/');
+            // left blank intentionally
         }
 
         public updatePincode(pincode: string) {
