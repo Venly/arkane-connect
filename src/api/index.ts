@@ -1,5 +1,5 @@
 // this is aliased in webpack config based on server/client build
-import {AxiosResponse} from 'axios';
+import {AxiosError, AxiosResponse} from 'axios';
 import RestApi from '@/api/RestApi';
 import ResponseBody from '@/api/ResponseBody';
 
@@ -8,10 +8,10 @@ export default class Api {
     public static signTransaction(data: any, pincode: string): Promise<ResponseBody> {
         return Api.getApi().http.post('signatures', Object.assign(data, {pincode}))
             .then((axiosRes: AxiosResponse) => axiosRes.data as ResponseBody)
-            .catch((e) => {
+            .catch((e: AxiosError) => {
                 return {
                     success: false,
-                    result: e.response,
+                    result: e.response.data,
                 };
             });
     }
