@@ -8,10 +8,10 @@ export default class Api {
     public static signTransaction(data: any, pincode: string): Promise<ResponseBody> {
         return Api.getApi().http.post('signatures', Object.assign(data, {pincode}))
             .then((axiosRes: AxiosResponse) => axiosRes.data as ResponseBody)
-            .catch((e: Error) => {
+            .catch((e) => {
                 return {
                     success: false,
-                    result: e,
+                    result: e.response,
                 };
             });
     }
