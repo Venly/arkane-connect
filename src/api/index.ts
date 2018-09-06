@@ -4,7 +4,7 @@ import RestApi, {RestApiResponse} from './RestApi';
 import ResponseBody from './ResponseBody';
 import Utils from '../utils/Utils';
 import {Wallet} from '../models/Wallet';
-import {CreateWalletCommand} from '@/models/Commands';
+import {CreateWalletCommand, LinkWalletCommand} from '@/models/Commands';
 
 export default class Api {
     public static token: string = '';
@@ -55,6 +55,21 @@ export default class Api {
                 return Object.assign(new Wallet(), res.data.result);
             },
         );
+    }
+
+    public static async linkWallet(command: LinkWalletCommand): Promise<ResponseBody> {
+        return Api.getApi().http.post('wallets/link', Utils.removeNulls(command))
+            .then((axiosRes: AxiosResponse) => {
+                return {
+                    success: true,
+                    result: {},
+                };
+            }).catch((e: Error) => {
+                return {
+                    success: false,
+                    result: {},
+                };
+            });
     }
 
     private static instance: Api;

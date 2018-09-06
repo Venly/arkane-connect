@@ -55,8 +55,8 @@
 
         public async updatePincode(pincode: string) {
             if (pincode) {
-                this.wallet = await this.createWallet(pincode);
                 this.ready = true;
+                this.wallet = await this.createWallet(pincode);
                 this.interval = setInterval(() => {
                     this.timeleft = this.timeleft - 1000;
                     if (this.timeleft <= 0) {

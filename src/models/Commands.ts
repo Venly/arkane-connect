@@ -8,3 +8,8 @@ export interface CreateWalletCommand {
     masterPincode?: string;
     secretType: SecretType;
 }
+
+export interface LinkWalletCommand {
+    issuer: string;
+    walletIds: number[];
+}

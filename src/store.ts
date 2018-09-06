@@ -57,6 +57,7 @@ export default new Vuex.Store({
         },
         createWallet: async (store: any, {secretType, masterPincode}): Promise<Wallet> => {
             const wallet = await Api.createWallet({masterPincode, secretType});
+            await Api.linkWallet({issuer: '', walletIds: [wallet.id]});
             store.commit('addWallet', wallet);
             return wallet;
         },

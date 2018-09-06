@@ -35,7 +35,7 @@
         @Watch('timeleft')
         private onTimeleftChange() {
             if (this.timeleft <= 0) {
-                this.$router.push({path: this.redirectUri});
+                window.location.href = this.redirectUri;
             }
         }
     }
