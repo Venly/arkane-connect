@@ -23,7 +23,7 @@
     import ResponseBody from '@/api/ResponseBody';
     import VechainTransactionData from '@/api/VechainTransactionData';
     import EthereumTransactionData from '@/api/EthereumTransactionData';
-    import Security from '../security';
+    import {State} from 'vuex-class';
 
     declare const window: Window;
 
@@ -36,14 +36,16 @@
         public loadingText = 'Checking credentials ...';
         public params: EthereumTransactionData | VechainTransactionData = new EthereumTransactionData();
 
+        @State
+        public auth: any;
+
         private isEventSet = false;
         private event!: MessageEvent;
 
         public created() {
-            this.addEventListeners();
-            const token = this.$route.params && (this.$route.params as any).bearer || '';
-
-            if (!Security.verifyAndLogin(token)) {
+            if (this.auth) {
+                this.addEventListeners();
+            } else {
                 this.loadingText = 'Not authenticated, going back in 3 seconds.';
                 setTimeout(() => {
                     (window as any).close();

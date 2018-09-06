@@ -1,9 +1,17 @@
+/* tslint:disable */
+/// <reference path="./typings.d.ts" />
+/* tslint:enable */
+import {AxiosResponse} from 'axios';
 import EthereumTransactionData from '../api/EthereumTransactionData';
 import VechainTransactionData from '../api/VechainTransactionData';
 import {EVENT_TYPES} from '../types/EventTypes';
 import {CHAIN_TYPES} from '../types/ChainTypes';
 import ResponseBody from '../api/ResponseBody';
 import RestApi from '../api/RestApi';
+import Security from '../security';
+import {Wallet} from '../models/Wallet';
+import {KeycloakPromise} from 'keycloak-js';
+import Utils from '../utils/Utils';
 
 export default class ArkaneConnect {
     private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 300, h: number = 500) {
@@ -20,36 +28,40 @@ export default class ArkaneConnect {
     }
 
     public popup!: Window;
-    public loc: string = '';
-    public apiLoc: string = '';
     public bearer: string = '';
+    public auth!: any;
 
-    public api: RestApi;
+    public api!: RestApi;
+    public clientId: string;
 
-    constructor(loc: string, bearer: string) {
-        const locPostfix = '.arkane.network';
-        const apiPostfix = '.arkane.network/api';
+    constructor(clientId: string = 'Arkane', environment?: string) {
+        this.clientId = clientId;
+        Utils.environment = environment || 'prod';
+    }
 
-        switch (loc) {
-            case 'local':
-                this.loc = 'http://localhost:8081';
-                this.apiLoc = `https://api-staging${apiPostfix}`;
-                break;
-            case 'tst1':
-                this.loc = `https://connect-tst1${locPostfix}`;
-                this.apiLoc = `https://api-tst1${apiPostfix}`;
-                break;
-            case 'staging':
-                this.loc = `https://connect-staging${locPostfix}`;
-                this.apiLoc = `https://api-staging${apiPostfix}`;
-                break;
-            case 'prod':
-                this.loc = `https://connect${locPostfix}`;
-                this.apiLoc = `https://api${apiPostfix}`;
+    public login(params: any): KeycloakPromise<void, void> {
+        return this.auth.login(params);
+    }
+
+    public logout(): KeycloakPromise<void, void> {
+        return this.auth.logout();
+    }
+
+    public async init(): Promise<void> {
+        const {keycloak} = await Security.login(this.clientId);
+        this.auth = keycloak;
+        this.api = new RestApi(Utils.urls.api);
+        this.updateBearerToken(this.auth.token);
+
+        if (this.auth.authenticated) {
+            const wallets = await this.getWallets();
+            if (!(wallets && wallets.length > 0)) {
+                const url = `${Utils.urls.connect}/init/${this.bearer}/${Utils.environment}`;
+                window.location.href = url;
+            }
         }
 
-        this.api = new RestApi(this.apiLoc);
-        this.updateBearerToken(bearer);
+        return this.auth;
     }
 
     public updateBearerToken(bearer: string) {
@@ -59,8 +71,13 @@ export default class ArkaneConnect {
         };
     }
 
-    public async getWallets() {
-        return this.api.http.get('wallets');
+    public async getWallets(): Promise<Wallet[]> {
+        const response: AxiosResponse = await this.api.http.get('wallets');
+        if (response && response.data && response.data.success) {
+            return response.data.result;
+        } else {
+            return [];
+        }
     }
 
     public async signEthereumTransaction(params: EthereumTransactionData) {
@@ -76,9 +93,10 @@ export default class ArkaneConnect {
     }
 
     private async signTransaction(sendParams: any) {
-        if (!this.popup) {
+        if (!this.popup || this.popup.closed) {
             return new Promise((resolve, reject) => {
-                const url = `${this.loc}/sign/transaction/${this.bearer}`;
+                const url =
+                    `${Utils.urls.connect}/sign/transaction/${this.clientId}/${Utils.environment}/${this.bearer}`;
                 this.popup = ArkaneConnect.openWindow(url) as Window;
                 const interval = sendParams();
                 this.addEventListener(interval, resolve, reject);
@@ -113,7 +131,7 @@ export default class ArkaneConnect {
             if (!this.popup) {
                 clearInterval(interval);
             } else {
-                this.popup.postMessage(message, this.loc);
+                this.popup.postMessage(message, Utils.urls.connect);
             }
         }, 3000);
         return interval;
@@ -121,7 +139,7 @@ export default class ArkaneConnect {
 
     private addEventListener(interval: any, resolve: any, reject: any) {
         window.addEventListener('message', (e) => {
-            if (e.origin === this.loc) {
+            if (e.origin === Utils.urls.connect) {
                 const data = this.messageHandler(e);
                 if (data) {
                     clearInterval(interval);

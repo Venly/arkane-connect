@@ -20,6 +20,9 @@
     import RedirectDialog from '@/components/organisms/dialogs/RedirectDialog.vue';
     import {Wallet} from '@/models/Wallet';
     import {State} from 'vuex-class';
+    import {AsyncData} from '../decorators/decorators';
+    import {Store} from 'vuex';
+    import {Route} from 'vue-router';
 
     @Component({
         components: {
@@ -57,6 +60,11 @@
                     }
                 }, 1000);
             }
+        }
+
+        @AsyncData
+        public async asyncData(store: Store<any>, to: Route): Promise<any> {
+            store.dispatch('getUserData');
         }
     }
 </script>

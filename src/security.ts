@@ -1,27 +1,44 @@
 import axios from 'axios';
-import * as KJUR from 'jsrsasign';
 import Keycloak, {KeycloakInstance} from 'keycloak-js';
+
+import * as KJUR from 'jsrsasign';
+import Api from './api';
+import Utils from './utils/Utils';
 
 export default class Security {
     public static isLoggedIn = false;
 
-    public static verifyAndLogin(token: string, useTokenToLogin: boolean = true): Promise<any> {
-        const publicKey = process.env.VUE_APP_REALM_PUBLIC_KEY || '';
-        const tokenParsed = Security.verifyToken(token, publicKey);
+    public static getConfig(clientId: string): any {
+        return {
+            'clientId': clientId || Utils.env.VUE_APP_CLIENT_ID,
+            'realm': Utils.env.VUE_APP_REALM,
+            'realm-public-key': Utils.env.VUE_APP_REALM_PUBLIC_KEY,
+            'url': Utils.urls.login,
+            'auth-server-url': Utils.urls.login,
+            'ssl-required': Utils.env.VUE_APP_SSL_REQUIRED,
+            'resource': clientId,
+            'public-client': Utils.env.VUE_APP_PUBLIC_CLIENT
+        };
+    }
+
+    public static login(clientId: string) {
+        return Security.initializeAuth(Security.getConfig(clientId));
+    }
+
+    public static verifyAndLogin(
+        clientId: string, token: string,
+        environment: string, useTokenToLogin: boolean = true,
+    ): Promise<any> {
+        const config = Security.getConfig(clientId);
+        const tokenParsed = Security.verifyToken(token, config['realm-public-key']);
         if (tokenParsed) {
-            return Security.initializeAuth({
-                'clientId': useTokenToLogin ? tokenParsed.aud : process.env.VUE_APP_CLIENT_ID,
-                'realm': process.env.VUE_APP_REALM,
-                'realm-public-key': process.env.VUE_APP_REALM_PUBLIC_KEY,
-                'url': process.env.VUE_APP_URL,
-                'auth-server-url': process.env.VUE_APP_AUTH_SERVER_URL,
-                'ssl-required': process.env.VUE_APP_SSL_REQUIRED,
-                'resource': useTokenToLogin ? tokenParsed.aud : process.env.VUE_APP_RESOURCE,
-                'public-client': process.env.VUE_APP_PUBLIC_CLIENT,
-            });
+            return Security.initializeAuth(Object.assign(config, {
+                clientId: useTokenToLogin ? tokenParsed.aud : config.clientId,
+                resource: useTokenToLogin ? tokenParsed.aud : config.resource,
+            }));
         } else {
             Security.notAuthenticated();
-            return Promise.resolve({ keycloak: {}, authenticated: false });
+            return Promise.resolve({keycloak: {}, authenticated: false});
         }
     }
 
@@ -78,20 +95,20 @@ export default class Security {
         }
     }
 
-    private static initializeAuth(config: string | {}): Promise<any> {
+    private static initializeAuth(config: any): Promise<any> {
         return new Promise((resolve, reject) => {
-            const keycloak = Keycloak(config);
-            keycloak.init({
+            Security.keycloak = Keycloak(config);
+            Security.keycloak.init({
                 onLoad: 'check-sso',
             }).success((authenticated: any) => {
                 if (authenticated) {
-                    Security.authenticated(keycloak.token);
+                    Security.authenticated(Security.keycloak.token);
                     Security.setUpdateTokenInterval();
                 } else {
                     Security.notAuthenticated();
                 }
                 resolve({
-                    keycloak,
+                    keycloak: Security.keycloak,
                     authenticated,
                 });
             }).error(() => {
@@ -103,8 +120,6 @@ export default class Security {
 
     private static authenticated(token: string = '') {
         Security.isLoggedIn = true;
-        axios.defaults.headers.common = {
-            Authorization: 'Bearer ' + token,
-        };
+        Api.token = token;
     }
 }
