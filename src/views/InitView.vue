@@ -45,7 +45,7 @@
 
         public wallet!: Wallet;
 
-        private timeleft = 3000;
+        private timeleft = 5000;
         private redirectUri = '/';
         private interval!: any;
 
@@ -55,18 +55,14 @@
 
         public async updatePincode(pincode: string) {
             if (pincode) {
-                try {
-                    this.wallet = await this.createWallet(pincode).catch();
-                    this.ready = true;
-                    this.interval = setInterval(() => {
-                        this.timeleft = this.timeleft - 1000;
-                        if (this.timeleft <= 0) {
-                            clearInterval(this.interval);
-                        }
-                    }, 1000);
-                } catch (e) {
-                    //
-                }
+                this.wallet = await this.createWallet(pincode);
+                this.ready = true;
+                this.interval = setInterval(() => {
+                    this.timeleft = this.timeleft - 1000;
+                    if (this.timeleft <= 0) {
+                        clearInterval(this.interval);
+                    }
+                }, 1000);
             }
         }
 

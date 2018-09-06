@@ -58,8 +58,11 @@ export default class ArkaneConnect {
         if (this.auth.authenticated) {
             const wallets = await this.getWallets();
             if (!(wallets && wallets.length > 0)) {
+                const currentLocation = window.location;
+                const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
                 window.location.href =
-                    `${Utils.urls.connect}/init/${this.clientId}/${this.chain}/${this.bearer}/${Utils.environment}`;
+                    `${Utils.urls.connect}/init/${this.clientId}/${this.chain}/${this.bearer}?redirectUri=${redirectUri}` +
+                    `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
             }
         }
 
@@ -101,7 +104,7 @@ export default class ArkaneConnect {
             return new Promise((resolve, reject) => {
                 const url =
                     `${Utils.urls.connect}/sign/transaction/${this.clientId}/` +
-                    `${this.chain}/${this.bearer}/${Utils.environment}`;
+                    `${this.chain}/${this.bearer}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
                 this.popup = ArkaneConnect.openWindow(url) as Window;
                 const interval = sendParams();
                 this.addEventListener(interval, resolve, reject);

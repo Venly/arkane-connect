@@ -18,7 +18,7 @@ const router = new Router({
     base: process.env.BASE_URL,
     routes: [
         {
-            path: '/sign/transaction/:clientId/:chain/:bearer/:environment?',
+            path: '/sign/transaction/:clientId/:chain/:bearer',
             name: 'sign-transaction',
             component: SignTransactionView,
             meta: {
@@ -26,7 +26,7 @@ const router = new Router({
             },
         },
         {
-            path: '/init/:clientId/:chain/:bearer/:environment?',
+            path: '/init/:clientId/:chain/:bearer',
             name: 'init',
             component: loadView('Init'),
             meta: {
@@ -48,7 +48,7 @@ function checkAuthorize(to: Route): Promise<any> {
     if (to.params) {
         clientId = (to.params as any).clientId;
         token = (to.params as any).bearer;
-        environment = (to.params as any).environment;
+        environment = (to.query as any).environment;
         Utils.environment = environment;
         store.commit('setEnvironment', environment);
         const chain = (to.params as any).chain;
