@@ -8,7 +8,7 @@ import {EVENT_TYPES} from '../types/EventTypes';
 import {CHAIN_TYPES} from '../types/ChainTypes';
 import ResponseBody from '../api/ResponseBody';
 import RestApi from '../api/RestApi';
-import Security from '../security';
+import Security from '../Security';
 import {Wallet} from '../models/Wallet';
 import {KeycloakPromise} from 'keycloak-js';
 import Utils from '../utils/Utils';
@@ -33,9 +33,11 @@ export default class ArkaneConnect {
 
     public api!: RestApi;
     public clientId: string;
+    public chain: string;
 
-    constructor(clientId: string = 'Arkane', environment?: string) {
+    constructor(clientId: string = 'Arkane', chain: string, environment?: string) {
         this.clientId = clientId;
+        this.chain = chain.toLowerCase();
         Utils.environment = environment || 'prod';
     }
 
@@ -56,8 +58,8 @@ export default class ArkaneConnect {
         if (this.auth.authenticated) {
             const wallets = await this.getWallets();
             if (!(wallets && wallets.length > 0)) {
-                const url = `${Utils.urls.connect}/init/${this.bearer}/${Utils.environment}`;
-                window.location.href = url;
+                window.location.href =
+                    `${Utils.urls.connect}/init/${this.clientId}/${this.chain}/${this.bearer}/${Utils.environment}`;
             }
         }
 
@@ -67,7 +69,7 @@ export default class ArkaneConnect {
     public updateBearerToken(bearer: string) {
         this.bearer = bearer;
         this.api.http.defaults.headers.common = {
-            Authorization: 'Bearer ' + this.bearer,
+            Authorization: this.bearer ? `Bearer ${this.bearer}` : '',
         };
     }
 
@@ -80,23 +82,26 @@ export default class ArkaneConnect {
         }
     }
 
-    public async signEthereumTransaction(params: EthereumTransactionData) {
-        return this.signTransaction(() => {
-            this.sendEthParams(params);
-        });
+    public async signTransaction(params: EthereumTransactionData | VechainTransactionData) {
+
+        switch (this.chain) {
+            case 'vechain':
+                return this.signTransactionInPopup(() => {
+                    this.sendVechainParams((params as VechainTransactionData));
+                });
+            case 'ethereum':
+                return this.signTransactionInPopup(() => {
+                    this.sendEthParams((params as EthereumTransactionData));
+                });
+        }
     }
 
-    public async signVechainTransaction(params: VechainTransactionData) {
-        return this.signTransaction(() => {
-            this.sendVechainParams(params);
-        });
-    }
-
-    private async signTransaction(sendParams: any) {
+    private async signTransactionInPopup(sendParams: any) {
         if (!this.popup || this.popup.closed) {
             return new Promise((resolve, reject) => {
                 const url =
-                    `${Utils.urls.connect}/sign/transaction/${this.clientId}/${Utils.environment}/${this.bearer}`;
+                    `${Utils.urls.connect}/sign/transaction/${this.clientId}/` +
+                    `${this.chain}/${this.bearer}/${Utils.environment}`;
                 this.popup = ArkaneConnect.openWindow(url) as Window;
                 const interval = sendParams();
                 this.addEventListener(interval, resolve, reject);

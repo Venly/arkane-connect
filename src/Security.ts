@@ -1,4 +1,3 @@
-import axios from 'axios';
 import Keycloak, {KeycloakInstance} from 'keycloak-js';
 
 import * as KJUR from 'jsrsasign';
@@ -17,7 +16,7 @@ export default class Security {
             'auth-server-url': Utils.urls.login,
             'ssl-required': Utils.env.VUE_APP_SSL_REQUIRED,
             'resource': clientId,
-            'public-client': Utils.env.VUE_APP_PUBLIC_CLIENT
+            'public-client': Utils.env.VUE_APP_PUBLIC_CLIENT,
         };
     }
 
@@ -72,13 +71,6 @@ export default class Security {
         }, 60000);
     }
 
-    private static notAuthenticated() {
-        Security.isLoggedIn = false;
-        axios.defaults.headers.common = {
-            Authorization: '',
-        };
-    }
-
     private static verifyToken(token: string, publicKey: string): any {
         const jws = new KJUR.jws.JWS();
         try {
@@ -121,5 +113,9 @@ export default class Security {
     private static authenticated(token: string = '') {
         Security.isLoggedIn = true;
         Api.token = token;
+    }
+
+    private static notAuthenticated() {
+        Security.isLoggedIn = false;
     }
 }

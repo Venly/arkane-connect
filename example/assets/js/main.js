@@ -63,7 +63,7 @@ app.addConnectEvents = function() {
 };
 
 app.initApp = function() {
-    window.arkaneConnect = new ArkaneConnect('ThorBlock', 'local');
+    window.arkaneConnect = new ArkaneConnect('ThorBlock', 'vechain', 'local');
     window.arkaneConnect.init().then(function(auth) {
         console.log(auth);
         app.addAuthEvents(auth.authenticated, auth);

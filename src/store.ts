@@ -17,18 +17,18 @@ export default new Vuex.Store({
         setEnvironment: (state: any, environment: string) => {
             state.environment = environment;
         },
-        setHasMasterPin: (state: any, pin: string) => {
-            state.hasMasterPin = pin;
+        setProfile: (state: any, {userId, hasMasterPin}) => {
+            state.userId = userId;
+            state.hasMasterPin = hasMasterPin;
         },
         setAuth: (state: any, auth: any) => {
             state.auth = auth;
         },
     },
     actions: {
-        getUserData: (state: any) => {
-            const profile = Api.getProfile() as any;
-            state.hasMasterPin = profile.hasMasterPin;
-            state.userId = profile.userId;
+        getUserData: async (store: any) => {
+            const profile = await Api.getProfile() as any;
+            store.commit('setProfile', profile);
         },
     },
 });

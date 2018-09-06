@@ -34,6 +34,8 @@
     export default class InitView extends Vue {
         @State
         public hasMasterPin!: boolean;
+        @State
+        public userId!: string;
 
         public chain!: string;
         public project!: string;
@@ -46,8 +48,8 @@
         private redirectUri = '/';
         private interval!: any;
 
-        public created(): void {
-            // left blank intentionally
+        public mounted(): void {
+            console.log(this.hasMasterPin, this.userId);
         }
 
         public updatePincode(pincode: string) {
@@ -64,7 +66,7 @@
 
         @AsyncData
         public async asyncData(store: Store<any>, to: Route): Promise<any> {
-            store.dispatch('getUserData');
+            return store.dispatch('getUserData');
         }
     }
 </script>

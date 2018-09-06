@@ -3,6 +3,7 @@ import {AxiosResponse} from 'axios';
 import RestApi from './RestApi';
 import ResponseBody from './ResponseBody';
 import Utils from '../utils/Utils';
+import {Wallet} from '../models/Wallet';
 
 export default class Api {
     public static token: string = '';
@@ -19,7 +20,17 @@ export default class Api {
             });
     }
 
-    public static getProfile() {
+    public static getWallets(): Promise<Wallet[]> {
+        return Api.getApi().http.get('wallets').then((result: any) => {
+            return result.data && result.data.success
+                ? result.data.result
+                : [];
+        }).catch(() => {
+            return [];
+        });
+    }
+
+    public static getProfile(): Promise<{userId: string, hasMasterPin: boolean}> {
         return Api.getApi().http.get('profile').then((result: any) => {
             return result.data && result.data.success
                 ? result.data.result

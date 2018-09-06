@@ -1,5 +1,5 @@
 <template>
-    <div id="app">
+    <div id="app" class="page">
         <router-view/>
     </div>
 </template>
@@ -20,10 +20,4 @@
         html, body
             padding: 0
             margin: 0
-
-        #app
-            font-family: Roboto, Helvetica, Arial, sans-serif
-            -webkit-font-smoothing: antialiased
-            -moz-osx-font-smoothing: grayscale
-            color: $color-text
 </style>

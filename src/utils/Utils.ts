@@ -4,9 +4,8 @@ export default class Utils {
     public static environment: string = 'prod';
 
     public static get env() {
-        let env: any = ENV;
-        let environment = Utils.environment;
-        switch(environment) {
+        const env: any = ENV;
+        switch (Utils.environment) {
             case 'local':
             case 'tst1':
                 env.VUE_APP_REALM_PUBLIC_KEY = env.VUE_APP_REALM_PUBLIC_KEY_TST1;
@@ -37,14 +36,13 @@ export default class Utils {
     public static isWhitelistedOrigin(origin: string): boolean {
         // const array = ['http://localhost:4000'];
         // return !!array.find((val: string) => val === origin);
-        return true
+        return true;
     }
 
     public static get urls() {
-        const env = Utils.environment;
         let prefix = '';
 
-        switch (env) {
+        switch (Utils.environment) {
             case 'local':
                 prefix = '-tst1';
                 break;
@@ -58,7 +56,8 @@ export default class Utils {
 
         return {
             api: `https://api${prefix}.arkane.network/api`,
-            connect: env === 'local' ? 'http://localhost:8081' : `https://connect${prefix}.arkane.network`,
+            connect: Utils.environment === 'local' ?
+                'http://localhost:8081' : `https://connect${prefix}.arkane.network`,
             login: `https://login${prefix}.arkane.network/auth`,
         };
     }

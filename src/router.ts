@@ -3,7 +3,7 @@ import Router from 'vue-router';
 import {Component, Route} from 'vue-router/types/router';
 
 import SignTransactionView from './views/SignTransactionView.vue';
-import Security from './security';
+import Security from './Security';
 import Utils from './utils/Utils';
 import store from './store';
 
@@ -18,7 +18,7 @@ const router = new Router({
     base: process.env.BASE_URL,
     routes: [
         {
-            path: '/sign/transaction/:clientId/:bearer/:environment?',
+            path: '/sign/transaction/:clientId/:chain/:bearer/:environment?',
             name: 'sign-transaction',
             component: SignTransactionView,
             meta: {
@@ -26,7 +26,7 @@ const router = new Router({
             },
         },
         {
-            path: '/init/:bearer/:environment?',
+            path: '/init/:clientId/:chain/:bearer/:environment?',
             name: 'init',
             component: loadView('Init'),
             meta: {
