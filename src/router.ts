@@ -50,7 +50,11 @@ function checkAuthorize(to: Route): Promise<any> {
         token = (to.params as any).bearer;
         environment = (to.params as any).environment;
         Utils.environment = environment;
-        store.commit( 'setEnvironment', environment);
+        store.commit('setEnvironment', environment);
+        const chain = (to.params as any).chain;
+        if (chain) {
+            store.commit('setChain', chain);
+        }
     }
 
     if (to.matched.some((record) => record.meta.authArkane)) {

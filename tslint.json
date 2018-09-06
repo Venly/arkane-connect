@@ -9,8 +9,9 @@
     ]
   },
   "rules": {
+    "max-line-length": {"options" : {"limit": 180}},
     "quotemark": [true, "single"],
-    "indent": [true, "spaces", 2],
+    "indent": [true, "spaces", 4],
     "interface-name": false,
     "ordered-imports": false,
     "object-literal-sort-keys": false,

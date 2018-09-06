@@ -1,8 +1,6 @@
 import {Fund} from './Fund';
+import {SecretType} from '@/models/SecretType';
 
-export enum SecretType {
-    ETHEREUM = 'ETHEREUM',
-}
 export enum WalletType {
     THREEWAY_SHARED = 'THREEWAY_SHARED',
 }

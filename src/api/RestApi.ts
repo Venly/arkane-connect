@@ -1,5 +1,16 @@
 import axios, {AxiosInstance} from 'axios';
 
+export interface RestApiResponseError {
+    code: string;
+    message: string;
+}
+
+export interface RestApiResponse<T> {
+    success: boolean;
+    errors: RestApiResponseError[];
+    result: T;
+}
+
 export default class RestApi {
     public http: AxiosInstance;
 

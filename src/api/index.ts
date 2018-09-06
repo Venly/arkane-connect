@@ -1,9 +1,10 @@
 // this is aliased in webpack config based on server/client build
 import {AxiosResponse} from 'axios';
-import RestApi from './RestApi';
+import RestApi, {RestApiResponse} from './RestApi';
 import ResponseBody from './ResponseBody';
 import Utils from '../utils/Utils';
 import {Wallet} from '../models/Wallet';
+import {CreateWalletCommand} from '@/models/Commands';
 
 export default class Api {
     public static token: string = '';
@@ -30,7 +31,7 @@ export default class Api {
         });
     }
 
-    public static getProfile(): Promise<{userId: string, hasMasterPin: boolean}> {
+    public static getProfile(): Promise<{ userId: string, hasMasterPin: boolean }> {
         return Api.getApi().http.get('profile').then((result: any) => {
             return result.data && result.data.success
                 ? result.data.result
@@ -38,6 +39,22 @@ export default class Api {
         }).catch(() => {
             return {userId: '', hasMasterPin: false};
         });
+    }
+
+    public static async setMasterPin(newPin: string, oldPin?: string): Promise<boolean> {
+        return Api.getApi().http.patch('profile', Utils.removeNulls({
+            pincode: oldPin,
+            newPincode: newPin,
+        })).then((res: AxiosResponse<RestApiResponse<any>>) => {
+            return res && res.data && res.data.success;
+        });
+    }
+
+    public static createWallet(command: CreateWalletCommand): Promise<Wallet> {
+        return Api.getApi().http.post('wallets', Utils.removeNulls(command)).then((res: AxiosResponse<RestApiResponse<Wallet>>) => {
+                return Object.assign(new Wallet(), res.data.result);
+            },
+        );
     }
 
     private static instance: Api;

@@ -61,4 +61,14 @@ export default class Utils {
             login: `https://login${prefix}.arkane.network/auth`,
         };
     }
+
+    public static removeNulls(obj: any): any {
+        return Object.keys(obj)
+            .filter((k) => obj[k] !== null && obj[k] !== undefined)  // Remove undef. and null.
+            .reduce((newObj, k) =>
+                    typeof obj[k] === 'object' ?
+                        Object.assign(newObj, {[k]: Utils.removeNulls(obj[k])}) :  // Recurse.
+                        Object.assign(newObj, {[k]: obj[k]}),  // Copy value.
+                {});
+    }
 }

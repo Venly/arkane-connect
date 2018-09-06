@@ -1,59 +1,62 @@
 <template>
-    <div class="container">
-        <transition name="slide-left">
-            <master-pin-dialog @done="updatePincode" v-if="!ready"></master-pin-dialog>
-        </transition>
-        <transition name="slide-left">
-            <redirect-dialog :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri"
-                             :timeleft="timeleft" v-if="ready">
-                <p>A <strong>{{chain}}</strong> wallet with the following address has been created:</p>
-                <wallet-card :wallet="wallet" :showFunds="false"></wallet-card>
-            </redirect-dialog>
-        </transition>
-    </div>
+  <div class="container">
+    <transition name="slide-left">
+      <master-pin-dialog @done="updatePincode" v-if="!ready"></master-pin-dialog>
+    </transition>
+    <transition name="slide-left">
+      <redirect-dialog :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri"
+                       :timeleft="timeleft" v-if="ready">
+        <p>A <strong>{{chain}}</strong> wallet with the following address has been created:</p>
+        <wallet-card :wallet="wallet" :showFunds="false"></wallet-card>
+      </redirect-dialog>
+    </transition>
+  </div>
 </template>
 
 <script lang="ts">
-    import {Component, Vue} from 'vue-property-decorator';
-    import WalletCard from '@/components/molecules/WalletCard.vue';
-    import MasterPinDialog from '@/components/organisms/dialogs/MasterPinDialog.vue';
-    import RedirectDialog from '@/components/organisms/dialogs/RedirectDialog.vue';
-    import {Wallet} from '@/models/Wallet';
-    import {State} from 'vuex-class';
-    import {AsyncData} from '../decorators/decorators';
-    import {Store} from 'vuex';
-    import {Route} from 'vue-router';
+import {Component, Vue} from 'vue-property-decorator';
+import WalletCard from '@/components/molecules/WalletCard.vue';
+import MasterPinDialog from '@/components/organisms/dialogs/MasterPinDialog.vue';
+import RedirectDialog from '@/components/organisms/dialogs/RedirectDialog.vue';
+import {Wallet} from '@/models/Wallet';
+import {Getter, State} from 'vuex-class';
+import {AsyncData} from '../decorators/decorators';
+import {Store} from 'vuex';
+import {Route} from 'vue-router';
+import {SecretType} from '../models/Wallet';
 
-    @Component({
-        components: {
-            RedirectDialog,
-            MasterPinDialog,
-            WalletCard,
-        },
-    })
-    export default class InitView extends Vue {
-        @State
-        public hasMasterPin!: boolean;
-        @State
-        public userId!: string;
+@Component({
+    components: {
+        RedirectDialog,
+        MasterPinDialog,
+        WalletCard,
+    },
+})
+export default class InitView extends Vue {
+    @State
+    public hasMasterPin!: boolean;
+    @State
+    public userId!: string;
+    @Getter
+    public secretType!: SecretType;
 
-        public chain!: string;
-        public project!: string;
-        public ready = false;
+    public project!: string;
+    public ready = false;
 
-        // todo: create a real wallet on initial set wallet
-        public wallet: Wallet = Object.assign(new Wallet(), {alias: 'Fake wallet', address: '0x0'});
+    public wallet!: Wallet;
 
-        private timeleft = 3000;
-        private redirectUri = '/';
-        private interval!: any;
+    private timeleft = 3000;
+    private redirectUri = '/';
+    private interval!: any;
 
-        public mounted(): void {
-            console.log(this.hasMasterPin, this.userId);
-        }
+    public mounted(): void {
+        this.redirectUri = this.$route.query.redirectUri;
+    }
 
-        public updatePincode(pincode: string) {
-            if (pincode) {
+    public async updatePincode(pincode: string) {
+        if (pincode) {
+            try {
+                this.wallet = await this.createWallet(pincode).catch();
                 this.ready = true;
                 this.interval = setInterval(() => {
                     this.timeleft = this.timeleft - 1000;
@@ -61,12 +64,19 @@
                         clearInterval(this.interval);
                     }
                 }, 1000);
+            } catch (e) {
+                //
             }
         }
-
-        @AsyncData
-        public async asyncData(store: Store<any>, to: Route): Promise<any> {
-            return store.dispatch('getUserData');
-        }
     }
+
+    public createWallet(pincode: string) {
+        return this.$store.dispatch('createWallet', {secretType: this.secretType, masterPincode: pincode});
+    }
+
+    @AsyncData
+    public async asyncData(store: Store<any>, to: Route): Promise<any> {
+        return store.dispatch('getUserData');
+    }
+}
 </script>
