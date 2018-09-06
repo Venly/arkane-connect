@@ -1,4 +1,4 @@
-import {SecretType} from './Wallet';
+import {SecretType} from '@/models/SecretType';
 
 export interface CreateWalletCommand {
     alias?: string;
