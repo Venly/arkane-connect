@@ -31,6 +31,9 @@ export default new Vuex.Store({
         setHasMasterPin: (state: any, hasMasterPin: boolean) => {
             state.hasMasterPin = hasMasterPin;
         },
+        setWallets: (state: any, wallets: Wallet[]) => {
+            state.wallets = wallets;
+        },
         addWallet: (state: any, wallet: Wallet) => {
             state.wallets = [...state.wallets, wallet];
         },
@@ -42,6 +45,10 @@ export default new Vuex.Store({
         getUserData: async (store: any) => {
             const profile = await Api.getProfile() as any;
             store.commit('setProfile', profile);
+        },
+        getUserWallets: async (store: any) => {
+            const wallets = await Api.getWallets();
+            store.commit('setWallets', wallets);
         },
         updateMasterPin: async (store: any, {oldMasterPin, masterPin}): Promise<boolean> => {
             const success = await Api.setMasterPin(masterPin, oldMasterPin);
@@ -57,7 +64,6 @@ export default new Vuex.Store({
         },
         createWallet: async (store: any, {secretType, masterPincode}): Promise<Wallet> => {
             const wallet = await Api.createWallet({masterPincode, secretType});
-            await Api.linkWallet({issuer: '', walletIds: [wallet.id]});
             store.commit('addWallet', wallet);
             return wallet;
         },

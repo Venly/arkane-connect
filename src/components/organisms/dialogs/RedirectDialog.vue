@@ -1,5 +1,5 @@
 <template>
-    <dialog-template :title="'Congrats!'">
+    <dialog-template :title="title">
         <template slot="aboveTitle" v-if="icon">
             <div class="icon-wrapper">
                 <svg-checkmark class="success" v-if="icon === 'success'"></svg-checkmark>
