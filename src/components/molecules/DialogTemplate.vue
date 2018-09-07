@@ -56,12 +56,8 @@ export default class DialogTemplate extends Vue {
         display: flex
         align-items: center
         flex-wrap: wrap
-
-        grid-column: 2 / span 10
-        @include media(tablet)
-            grid-column: 4 / span 6
-        @include media(wide)
-            grid-column: 5 / span 4
+        width: 100%
+        max-width: rem(320px)
 
         &__content
             margin-top: rem(32px)
