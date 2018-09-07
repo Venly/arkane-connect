@@ -73,6 +73,7 @@ export default class DialogTemplate extends Vue {
             text-align: justify
             margin-bottom: rem(40px)
         &__footer
+            width: 100%
             height: rem(32px)
             margin-bottom: rem(32px)
             display: flex

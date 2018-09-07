@@ -17,6 +17,7 @@ export default new Vuex.Store({
         wallets: [],
         chain: {},
         thirdPartytoken: {},
+        loading: false,
     },
     mutations: {
         setEnvironment: (state: any, environment: string) => {
@@ -44,6 +45,9 @@ export default new Vuex.Store({
         setThirdPartyToken: (state: any, thirdPartytoken: any) => {
             state.thirdPartytoken = thirdPartytoken;
         },
+        setLoading: (state: any, isLoading: boolean) => {
+            state.loading = isLoading;
+        },
     },
     actions: {
         getUserData: async (store: any) => {
@@ -70,6 +74,12 @@ export default new Vuex.Store({
             const wallet = await Api.createWallet({masterPincode, secretType, clients});
             store.commit('addWallet', wallet);
             return wallet;
+        },
+        startLoading: (store: any): void => {
+            store.commit('setLoading', true);
+        },
+        stopLoading: (store: any): void => {
+            store.commit('setLoading', false);
         },
     },
     getters: {

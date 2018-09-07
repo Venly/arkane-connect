@@ -1,14 +1,25 @@
 <template>
     <div id="app" class="page">
+        <progress-bar></progress-bar>
         <router-view/>
     </div>
 </template>
+<script lang='ts'>
+    import Vue from 'vue';
+    import {Component} from 'vue-property-decorator';
+    import ProgressBar from './components/atoms/ProgressBar.vue';
+
+    @Component({
+        components: {
+            ProgressBar,
+        },
+    })
+    export default class App extends Vue {
+    }
+</script>
 
 <style lang="sass">
     @import ./assets/sass/main
-</style>
-
-<style lang="sass">
     @import ./assets/sass/mixins-and-vars
 
     html
