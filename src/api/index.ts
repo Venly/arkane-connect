@@ -51,7 +51,7 @@ export default class Api {
     }
 
     public static createWallet(command: CreateWalletCommand): Promise<Wallet> {
-        return Api.getApi().http.post('wallets', Utils.removeNulls(command)).then((res: AxiosResponse<RestApiResponse<Wallet>>) => {
+        return Api.getApi().http.post('wallets', command).then((res: AxiosResponse<RestApiResponse<Wallet>>) => {
                 return Object.assign(new Wallet(), res.data.result);
             },
         );

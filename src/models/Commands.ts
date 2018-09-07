@@ -7,6 +7,7 @@ export interface CreateWalletCommand {
     primary?: boolean;
     masterPincode?: string;
     secretType: SecretType;
+    clients?: string[];
 }
 
 export interface LinkWalletCommand {

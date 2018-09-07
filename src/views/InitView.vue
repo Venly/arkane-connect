@@ -61,6 +61,8 @@
         public chain!: string;
         @Getter
         public secretType!: SecretType;
+        @Getter
+        public thirdPartyClientId!: string;
 
         public wallet!: Wallet;
 
@@ -118,7 +120,7 @@
         }
 
         public async createWallet(pincode: string): Promise<Wallet> {
-            this.wallet = await this.$store.dispatch('createWallet', {secretType: this.secretType, masterPincode: pincode});
+            this.wallet = await this.$store.dispatch('createWallet', {secretType: this.secretType, masterPincode: pincode, clients: [this.thirdPartyClientId]});
             this.isWalletPresent = !!(this.wallet);
             return this.wallet;
         }
@@ -132,12 +134,16 @@
 </script>
 
 <style lang="sass">
-  @import ../../assets/sass/mixins-and-vars
+  @import ../assets/sass/mixins-and-vars
 
   body
     background-color: $color-white
+
 </style>
 <style lang="sass" scoped>
+  .container
+    min-height: 100vh
+
   .dialog-container
     display: flex
     height: 100%

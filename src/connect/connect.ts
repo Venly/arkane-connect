@@ -61,7 +61,7 @@ export default class ArkaneConnect {
                 const currentLocation = window.location;
                 const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
                 window.location.href =
-                    `${Utils.urls.connect}/init/${this.clientId}/${this.chain}/${this.bearer}?redirectUri=${redirectUri}` +
+                    `${Utils.urls.connect}/init/${this.chain}/${this.bearer}?redirectUri=${redirectUri}` +
                     `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
             }
         }
@@ -103,8 +103,7 @@ export default class ArkaneConnect {
         if (!this.popup || this.popup.closed) {
             return new Promise((resolve, reject) => {
                 const url =
-                    `${Utils.urls.connect}/sign/transaction/${this.clientId}/` +
-                    `${this.chain}/${this.bearer}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
+                    `${Utils.urls.connect}/sign/transaction/${this.chain}/${this.bearer}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
                 this.popup = ArkaneConnect.openWindow(url) as Window;
                 const interval = sendParams();
                 this.addEventListener(interval, resolve, reject);

@@ -24,16 +24,22 @@ export default class Security {
         return Security.initializeAuth(Security.getConfig(clientId));
     }
 
-    public static verifyAndLogin(
-        clientId: string, token: string,
-        environment: string, useTokenToLogin: boolean = true,
-    ): Promise<any> {
+    public static parseToken(token: string): any {
+        try {
+            const jws = new KJUR.jws.JWS();
+            jws.parseJWS(token);
+            return JSON.parse(jws.parsedJWS.payloadS);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    public static verifyAndLogin(clientId: string, rawBearerToken: string, token: any, environment: string, useTokenToLogin: boolean = true): Promise<any> {
         const config = Security.getConfig(clientId);
-        const tokenParsed = Security.verifyToken(token, config['realm-public-key']);
-        if (tokenParsed) {
+        if (Security.verifyToken(rawBearerToken, config['realm-public-key'])) {
             return Security.initializeAuth(Object.assign(config, {
-                clientId: useTokenToLogin ? tokenParsed.aud : config.clientId,
-                resource: useTokenToLogin ? tokenParsed.aud : config.resource,
+                clientId: useTokenToLogin ? token.aud : config.clientId,
+                resource: useTokenToLogin ? token.aud : config.resource,
             }));
         } else {
             Security.notAuthenticated();
@@ -42,7 +48,19 @@ export default class Security {
     }
 
     private static keycloak: KeycloakInstance;
+
     private static updateTokenInterval: any;
+
+    private static verifyToken(token: any, publicKey: string): any {
+        try {
+            if (publicKey.indexOf('-----BEGIN PUBLIC KEY-----') === -1) {
+                publicKey = `-----BEGIN PUBLIC KEY-----${publicKey}-----END PUBLIC KEY-----`;
+            }
+            return KJUR.jws.JWS.verifyJWT(token, publicKey, {alg: ['RS256']});
+        } catch (e) {
+            return false;
+        }
+    }
 
     private static setUpdateTokenInterval() {
         if (Security.updateTokenInterval) {
@@ -69,22 +87,6 @@ export default class Security {
                 Security.updateTokenInterval = null;
             });
         }, 60000);
-    }
-
-    private static verifyToken(token: string, publicKey: string): any {
-        const jws = new KJUR.jws.JWS();
-        try {
-            jws.parseJWS(token);
-            if (publicKey.indexOf('-----BEGIN PUBLIC KEY-----') === -1) {
-                publicKey = `-----BEGIN PUBLIC KEY-----${publicKey}-----END PUBLIC KEY-----`;
-            }
-            const parsedToken = JSON.parse(jws.parsedJWS.payloadS);
-            const result = KJUR.jws.JWS.verifyJWT(token, publicKey, {alg: ['RS256']});
-
-            return result ? parsedToken : false;
-        } catch (e) {
-            return false;
-        }
     }
 
     private static initializeAuth(config: any): Promise<any> {

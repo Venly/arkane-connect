@@ -18,7 +18,7 @@ const router = new Router({
     base: process.env.BASE_URL,
     routes: [
         {
-            path: '/sign/transaction/:clientId/:chain/:bearer',
+            path: '/sign/transaction/:chain/:bearer',
             name: 'sign-transaction',
             component: SignTransactionView,
             meta: {
@@ -26,7 +26,7 @@ const router = new Router({
             },
         },
         {
-            path: '/init/:clientId/:chain/:bearer',
+            path: '/init/:chain/:bearer',
             name: 'init',
             component: loadView('Init'),
             meta: {
@@ -39,15 +39,18 @@ const router = new Router({
 });
 
 function checkAuthorize(to: Route): Promise<any> {
-    let token = '';
+    let bearer: '';
+    let token: any;
     let environment: any;
     let clientId: any;
     let doLogin = false;
     let useTokenToLogin = false;
 
     if (to.params) {
-        clientId = (to.params as any).clientId;
-        token = (to.params as any).bearer;
+        bearer = (to.params as any).bearer;
+        token = Security.parseToken(bearer);
+        store.commit('setThirdPartyToken', token);
+        clientId = token ? token.azp : '';
         environment = (to.query as any).environment;
         Utils.environment = environment;
         store.commit('setEnvironment', environment);
@@ -68,7 +71,7 @@ function checkAuthorize(to: Route): Promise<any> {
 
     if (doLogin) {
         return new Promise((resolve) => {
-            Security.verifyAndLogin(clientId, token, environment, useTokenToLogin)
+            Security.verifyAndLogin(clientId, bearer, token, environment, useTokenToLogin)
                 .then((result: any) => {
                     store.commit('setAuth', result.keycloak);
                     resolve(result.authenticated);

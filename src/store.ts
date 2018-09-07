@@ -16,6 +16,7 @@ export default new Vuex.Store({
         tokens: {},
         wallets: [],
         chain: {},
+        thirdPartytoken: {},
     },
     mutations: {
         setEnvironment: (state: any, environment: string) => {
@@ -40,6 +41,9 @@ export default new Vuex.Store({
         setChain: (state: any, chain: string) => {
             state.chain = chain;
         },
+        setThirdPartyToken: (state: any, thirdPartytoken: any) => {
+            state.thirdPartytoken = thirdPartytoken;
+        },
     },
     actions: {
         getUserData: async (store: any) => {
@@ -62,8 +66,8 @@ export default new Vuex.Store({
             store.commit('setHasMasterPin', success);
             return success;
         },
-        createWallet: async (store: any, {secretType, masterPincode}): Promise<Wallet> => {
-            const wallet = await Api.createWallet({masterPincode, secretType});
+        createWallet: async (store: any, {secretType, masterPincode, clients}): Promise<Wallet> => {
+            const wallet = await Api.createWallet({masterPincode, secretType, clients});
             store.commit('addWallet', wallet);
             return wallet;
         },
@@ -71,6 +75,9 @@ export default new Vuex.Store({
     getters: {
         secretType: (state) => {
             return SecretTypeUtil.byChain(state.chain);
+        },
+        thirdPartyClientId: (state) => {
+            return state.thirdPartytoken.azp;
         },
     },
 });
