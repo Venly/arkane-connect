@@ -1,5 +1,5 @@
 {
-  "name": "arkane-connect",
+  "name": "@arkane-network/arkane-connect",
   "version": "0.1.0",
   "private": true,
   "scripts": {
