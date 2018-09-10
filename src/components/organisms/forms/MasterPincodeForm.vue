@@ -21,7 +21,6 @@
     import {Validations} from '@/decorators/decorators';
     import ActionButton from '@/components/atoms/ActionButton.vue';
     import {differentFrom} from '@/validators/validators';
-    import {State} from 'vuex-class';
 
     @Component({
         components: {

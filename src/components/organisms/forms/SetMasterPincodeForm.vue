@@ -49,7 +49,7 @@
         },
         mixins: [validationMixin],
     })
-    export default class MasterPincodeForm extends Vue {
+    export default class SetMasterPincodeForm extends Vue {
 
         public oldPincode = '';
         public pincode = '';
