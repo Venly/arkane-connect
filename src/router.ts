@@ -39,13 +39,12 @@ const router = new Router({
 });
 
 function checkAuthorize(to: Route): Promise<any> {
-    let bearer: '';
+    let bearer = '';
     let token: any;
     let environment: any;
     let clientId: any;
     let doLogin = false;
     let useTokenToLogin = false;
-
     if (to.params) {
         bearer = (to.params as any).bearer;
         token = Security.parseToken(bearer);

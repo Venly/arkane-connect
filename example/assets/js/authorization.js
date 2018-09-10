@@ -1,12 +1,14 @@
 /* global Keycloak, console */
 
 var app = app || {};
-app.keycloak = Keycloak();
-app.keycloak.init({
+app.auth = Keycloak();
+app.auth.init({
   onLoad: 'check-sso'
 }).then(function (authenticated) {
-  // location of ArkaneConnect => local || tst1 || staging || prod
-  app.initApp(authenticated, app.keycloak);
+  app.initApp(authenticated, app.auth);
+  if (authenticated) {
+    app.initAuthenticatedApp(authenticated, app.auth);
+  }
 }).catch(function (e) {
-  console.log(e);
+    console.error('Authentication failed');
 });
