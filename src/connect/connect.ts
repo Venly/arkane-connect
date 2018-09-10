@@ -1,9 +1,15 @@
+/* tslint:disable */
+/// <reference path="./typings.d.ts" />
+/* tslint:enable */
+import {AxiosResponse} from 'axios';
 import EthereumTransactionData from '../api/EthereumTransactionData';
 import VechainTransactionData from '../api/VechainTransactionData';
 import {EVENT_TYPES} from '../types/EventTypes';
 import {CHAIN_TYPES} from '../types/ChainTypes';
 import ResponseBody from '../api/ResponseBody';
 import RestApi from '../api/RestApi';
+import {Wallet} from '../models/Wallet';
+import Utils from '../utils/Utils';
 
 export default class ArkaneConnect {
     private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 300, h: number = 500) {
@@ -20,65 +26,76 @@ export default class ArkaneConnect {
     }
 
     public popup!: Window;
-    public loc: string = '';
-    public apiLoc: string = '';
     public bearer: string = '';
+    // public auth!: any;
 
-    public api: RestApi;
+    public api!: RestApi;
+    public clientId: string;
+    public chain: string;
 
-    constructor(loc: string, bearer: string) {
-        const locPostfix = '.arkane.network';
-        const apiPostfix = '.arkane.network/api';
+    constructor(clientId: string = 'Arkane', chain: string, bearerToken: string, environment?: string) {
+        this.clientId = clientId;
+        this.chain = chain.toLowerCase();
+        Utils.environment = environment || 'prod';
+        this.api = new RestApi(Utils.urls.api);
+        this.updateBearerToken(bearerToken);
+    }
 
-        switch(loc) {
-            case 'local':
-                this.loc = 'http://localhost:8081';
-                this.apiLoc = `https://api-staging${apiPostfix}`;
-                break;
-            case 'tst1':
-                this.loc = `https://connect-tst1${locPostfix}`;
-                this.apiLoc = `https://api-tst1${apiPostfix}`;
-                break;
-            case 'staging':
-                this.loc = `https://connect-staging${locPostfix}`;
-                this.apiLoc = `https://api-staging${apiPostfix}`;
-                break;
-            case 'prod':
-                this.loc = `https://connect${locPostfix}`;
-                this.apiLoc = `https://api${apiPostfix}`;
+    // public login(params: any): KeycloakPromise<void, void> {
+    //     return this.auth.login(params);
+    // }
+    //
+    // public logout(): KeycloakPromise<void, void> {
+    //     return this.auth.logout();
+    // }
+
+    public async init(): Promise<void> {
+        const wallets = await this.getWallets();
+        if (!(wallets && wallets.length > 0)) {
+            const currentLocation = window.location;
+            const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
+            window.location.href =
+                `${Utils.urls.connect}/init/${this.chain}/${this.bearer}?redirectUri=${redirectUri}` +
+                `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
         }
-
-        this.api = new RestApi(this.apiLoc);
-        this.updateBearerToken(bearer);
+        return;
     }
 
     public updateBearerToken(bearer: string) {
         this.bearer = bearer;
         this.api.http.defaults.headers.common = {
-            Authorization: 'Bearer ' + this.bearer,
+            Authorization: this.bearer ? `Bearer ${this.bearer}` : '',
         };
     }
 
-    public async getWallets() {
-        return this.api.http.get('wallets');
+    public async getWallets(): Promise<Wallet[]> {
+        const response: AxiosResponse = await this.api.http.get('wallets');
+        if (response && response.data && response.data.success) {
+            return response.data.result;
+        } else {
+            return [];
+        }
     }
 
-    public async signEthereumTransaction(params: EthereumTransactionData) {
-        return this.signTransaction(() => {
-            this.sendEthParams(params);
-        });
+    public async signTransaction(params: EthereumTransactionData | VechainTransactionData) {
+
+        switch (this.chain) {
+            case 'vechain':
+                return this.signTransactionInPopup(() => {
+                    this.sendVechainParams((params as VechainTransactionData));
+                });
+            case 'ethereum':
+                return this.signTransactionInPopup(() => {
+                    this.sendEthParams((params as EthereumTransactionData));
+                });
+        }
     }
 
-    public async signVechainTransaction(params: VechainTransactionData) {
-        return this.signTransaction(() => {
-            this.sendVechainParams(params);
-        });
-    }
-
-    private async signTransaction(sendParams: any) {
-        if (!this.popup) {
+    private async signTransactionInPopup(sendParams: any) {
+        if (!this.popup || this.popup.closed) {
             return new Promise((resolve, reject) => {
-                const url = `${this.loc}/sign/transaction/${this.bearer}`;
+                const url =
+                    `${Utils.urls.connect}/sign/transaction/${this.chain}/${this.bearer}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
                 this.popup = ArkaneConnect.openWindow(url) as Window;
                 const interval = sendParams();
                 this.addEventListener(interval, resolve, reject);
@@ -113,7 +130,7 @@ export default class ArkaneConnect {
             if (!this.popup) {
                 clearInterval(interval);
             } else {
-                this.popup.postMessage(message, this.loc);
+                this.popup.postMessage(message, Utils.urls.connect);
             }
         }, 3000);
         return interval;
@@ -121,7 +138,7 @@ export default class ArkaneConnect {
 
     private addEventListener(interval: any, resolve: any, reject: any) {
         window.addEventListener('message', (e) => {
-            if (e.origin === this.loc) {
+            if (e.origin === Utils.urls.connect) {
                 const data = this.messageHandler(e);
                 if (data) {
                     clearInterval(interval);

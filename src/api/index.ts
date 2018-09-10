@@ -1,9 +1,14 @@
 // this is aliased in webpack config based on server/client build
 import {AxiosError, AxiosResponse} from 'axios';
-import RestApi from '@/api/RestApi';
-import ResponseBody from '@/api/ResponseBody';
+import RestApi, {RestApiResponse} from './RestApi';
+import ResponseBody from './ResponseBody';
+import Utils from '../utils/Utils';
+import {Wallet} from '../models/Wallet';
+import {CreateWalletCommand, LinkWalletCommand} from '@/models/Commands';
 
 export default class Api {
+    public static token: string = '';
+
     // TODO: error handling
     public static signTransaction(data: any, pincode: string): Promise<ResponseBody> {
 
@@ -25,7 +30,57 @@ export default class Api {
             });
     }
 
-    private static defaultBaseUrl = process.env.VUE_APP_API_URI || '';
+    public static getWallets(): Promise<Wallet[]> {
+        return Api.getApi().http.get('wallets').then((result: any) => {
+            return result.data && result.data.success
+                ? result.data.result
+                : [];
+        }).catch(() => {
+            return [];
+        });
+    }
+
+    public static getProfile(): Promise<{ userId: string, hasMasterPin: boolean }> {
+        return Api.getApi().http.get('profile').then((result: any) => {
+            return result.data && result.data.success
+                ? result.data.result
+                : {userId: '', hasMasterPin: false};
+        }).catch(() => {
+            return {userId: '', hasMasterPin: false};
+        });
+    }
+
+    public static async setMasterPin(newPin: string, oldPin?: string): Promise<boolean> {
+        return Api.getApi().http.patch('profile', Utils.removeNulls({
+            pincode: oldPin,
+            newPincode: newPin,
+        })).then((res: AxiosResponse<RestApiResponse<any>>) => {
+            return res && res.data && res.data.success;
+        });
+    }
+
+    public static createWallet(command: CreateWalletCommand): Promise<Wallet> {
+        return Api.getApi().http.post('wallets', command).then((res: AxiosResponse<RestApiResponse<Wallet>>) => {
+                return Object.assign(new Wallet(), res.data.result);
+            },
+        );
+    }
+
+    public static async linkWallet(command: LinkWalletCommand): Promise<ResponseBody> {
+        return Api.getApi().http.post('wallets/link', Utils.removeNulls(command))
+            .then((axiosRes: AxiosResponse) => {
+                return {
+                    success: true,
+                    result: {},
+                };
+            }).catch((e: Error) => {
+                return {
+                    success: false,
+                    result: {},
+                };
+            });
+    }
+
     private static instance: Api;
 
     private static getInstance(): Api {
@@ -42,7 +97,7 @@ export default class Api {
 
     private api: RestApi;
 
-    public constructor(baseUrl?: string) {
-        this.api = new RestApi(baseUrl || Api.defaultBaseUrl);
+    public constructor() {
+        this.api = new RestApi(Utils.urls.api, undefined, Api.token);
     }
 }

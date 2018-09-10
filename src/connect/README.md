@@ -3,12 +3,16 @@ Arkane Connect
 
 # Create a new ArkaneConnect instance
 
-```
-const arkaneConnect = new ArkaneConnect('local', bearerToken);
+```javascript
+new ArkaneConnect(<clientID>, <chain>, <bearerToken>[, <environment*>]);
 ```
 
-Possible values are *local*, *tst1*, *staging*, *prod*
+\* Possible values are *local*, *tst1*, *staging*, *prod*
 
+e.g.
+```javascript
+const arkaneConnect = new ArkaneConnect('Arkane', 'VeChain', 'iamabearertoken');
+```
 
 # Get Wallets
 

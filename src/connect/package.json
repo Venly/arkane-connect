@@ -3,6 +3,7 @@
   "version": "0.0.5",
   "description": "Arkane Connect - api library for 3th parties",
   "main": "connect.js",
+  "typings": "connect.d.ts",
   "scripts": {
     "build": "npx webpack --mode development",
     "build-prod": "npx webpack --mode production"
@@ -23,12 +24,14 @@
     "url": "https://github.com/fundrequest/arkane-connect/issues"
   },
   "homepage": "https://arkane.network",
-  "dependencies": {},
-  "devDependencies": {
-    "ts-loader": "^4.5.0",
-    "awesome-typescript-loader": "^5.2.0",
-    "typescript": "^3.0.1",
+  "dependencies": {
     "axios": "^0.18.0",
+    "jsrsasign": "^8.0.12"
+  },
+  "devDependencies": {
+    "awesome-typescript-loader": "^5.2.0",
+    "ts-loader": "^4.5.0",
+    "typescript": "^3.0.1",
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0"
   }

@@ -1,28 +1,15 @@
 var app = app || {};
 
-app.initApp = function (authenticated, keycloak) {
-  window.arkaneConnect = new ArkaneConnect('local', keycloak.token);
-  app.addKeycloakEvents(authenticated, keycloak);
-  app.addConnectEvents();
-  app.getWallets();
-};
-
-app.getWallets = function () {
-  window.arkaneConnect.getWallets().then(function (result) {
-    console.log(result);
-  })
-};
-
-app.addKeycloakEvents = function (authenticated, keycloak) {
+app.addAuthEvents = function (authenticated, auth) {
   document.body.classList.add(authenticated ? 'logged-in' : 'not-logged-in');
-  document.getElementById('keycloak-username').innerText = keycloak.subject + ' - ' + keycloak.token + ' - ';
-  document.getElementById('keycloak-loginlink').addEventListener('click', function (e) {
+  document.getElementById('auth-username').innerText = auth.subject + ' - ' + auth.token + ' - ';
+  document.getElementById('auth-loginlink').addEventListener('click', function (e) {
     e.preventDefault();
-    keycloak.login({redirectUri: ''});
+    auth.login({redirectUri: ''});
   });
-  document.getElementById('keycloak-logout').addEventListener('click', function (e) {
+  document.getElementById('auth-logout').addEventListener('click', function (e) {
     e.preventDefault();
-    keycloak.logout();
+    auth.logout();
   });
 };
 
@@ -73,4 +60,19 @@ app.addConnectEvents = function () {
       console.log(error);
     });
   });
+};
+
+app.initApp = function (authenticated, auth) {
+  window.arkaneConnect = new ArkaneConnect('ThorBlock', 'vechain', auth.token, 'local');
+  window.arkaneConnect.init().then(function () {
+    app.addAuthEvents(authenticated, auth);
+    app.addConnectEvents();
+    app.getWallets();
+  });
+};
+
+app.getWallets = function () {
+  window.arkaneConnect.getWallets().then(function (result) {
+    console.log(result);
+  })
 };
