@@ -25,7 +25,7 @@ arkaneConnect.getWallets().then(function(result) {
 # Signing an Ethereum Transaction
 
 ```
-arkaneConnect.signEthereumTransaction({
+arkaneConnect.signTransaction({
             type: 'ETHEREUM_TRANSACTION',
             walletId: 44,
             submit: false,
@@ -45,7 +45,7 @@ arkaneConnect.signEthereumTransaction({
 # Signing a VeChain Transaction
 
 ```
-arkaneConnect.signVechainTransaction({
+arkaneConnect.signTransaction({
             type: 'VECHAIN_TRANSACTION',
             walletId: 44,
             submit: false,

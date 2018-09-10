@@ -15,7 +15,7 @@ app.addAuthEvents = function (authenticated, auth) {
 
 app.addConnectEvents = function () {
   document.getElementById('arkane-sign-eth').addEventListener('click', function () {
-    window.arkaneConnect.signEthereumTransaction({
+    window.arkaneConnect.signTransaction({
       type: 'ETHEREUM_TRANSACTION',
       walletId: 44,
       submit: false,
@@ -39,7 +39,7 @@ app.addConnectEvents = function () {
   });
 
   document.getElementById('arkane-sign-vechain').addEventListener('click', function () {
-    window.arkaneConnect.signVechainTransaction({
+    window.arkaneConnect.signTransaction({
       type: 'VECHAIN_TRANSACTION',
       walletId: 44,
       submit: false,
