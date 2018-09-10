@@ -41,14 +41,6 @@ export default class ArkaneConnect {
         this.updateBearerToken(bearerToken);
     }
 
-    // public login(params: any): KeycloakPromise<void, void> {
-    //     return this.auth.login(params);
-    // }
-    //
-    // public logout(): KeycloakPromise<void, void> {
-    //     return this.auth.logout();
-    // }
-
     public async init(): Promise<void> {
         const wallets = await this.getWallets();
         if (!(wallets && wallets.length > 0)) {
