@@ -5,6 +5,7 @@ import ResponseBody from './ResponseBody';
 import Utils from '../utils/Utils';
 import {Wallet} from '../models/Wallet';
 import {CreateWalletCommand, LinkWalletCommand} from '@/models/Commands';
+import {Profile} from '@/models/Profile';
 
 export default class Api {
     public static token: string = '';
@@ -40,13 +41,13 @@ export default class Api {
         });
     }
 
-    public static getProfile(): Promise<{ userId: string, hasMasterPin: boolean }> {
+    public static getProfile(): Promise<Profile> {
         return Api.getApi().http.get('profile').then((result: any) => {
             return result.data && result.data.success
                 ? result.data.result
-                : {userId: '', hasMasterPin: false};
+                : new Profile();
         }).catch(() => {
-            return {userId: '', hasMasterPin: false};
+            return new Profile();
         });
     }
 

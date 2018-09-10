@@ -38,6 +38,12 @@ app.addConnectEvents = function () {
     });
   });
 
+  document.getElementById('get-profile').addEventListener('click', function () {
+    window.arkaneConnect.getProfile().then(function (e) {
+      console.log(e);
+    });
+  });
+
   document.getElementById('arkane-sign-vechain').addEventListener('click', function () {
     window.arkaneConnect.signTransaction({
       type: 'VECHAIN_TRANSACTION',

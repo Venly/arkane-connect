@@ -10,6 +10,7 @@ import ResponseBody from '../api/ResponseBody';
 import RestApi from '../api/RestApi';
 import {Wallet} from '../models/Wallet';
 import Utils from '../utils/Utils';
+import {Profile} from '../models/Profile';
 
 export default class ArkaneConnect {
     private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 300, h: number = 500) {
@@ -66,6 +67,15 @@ export default class ArkaneConnect {
             return response.data.result;
         } else {
             return [];
+        }
+    }
+
+    public async getProfile(): Promise<Profile> {
+        const response: AxiosResponse = await this.api.http.get('profile');
+        if (response && response.data && response.data.success) {
+            return response.data.result;
+        } else {
+            return new Profile();
         }
     }
 
