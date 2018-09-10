@@ -8,9 +8,7 @@ import {EVENT_TYPES} from '../types/EventTypes';
 import {CHAIN_TYPES} from '../types/ChainTypes';
 import ResponseBody from '../api/ResponseBody';
 import RestApi from '../api/RestApi';
-import Security from '../Security';
 import {Wallet} from '../models/Wallet';
-import {KeycloakPromise} from 'keycloak-js';
 import Utils from '../utils/Utils';
 
 export default class ArkaneConnect {
@@ -29,44 +27,38 @@ export default class ArkaneConnect {
 
     public popup!: Window;
     public bearer: string = '';
-    public auth!: any;
+    // public auth!: any;
 
     public api!: RestApi;
     public clientId: string;
     public chain: string;
 
-    constructor(clientId: string = 'Arkane', chain: string, environment?: string) {
+    constructor(clientId: string = 'Arkane', chain: string, bearerToken: string, environment?: string) {
         this.clientId = clientId;
         this.chain = chain.toLowerCase();
         Utils.environment = environment || 'prod';
+        this.api = new RestApi(Utils.urls.api);
+        this.updateBearerToken(bearerToken);
     }
 
-    public login(params: any): KeycloakPromise<void, void> {
-        return this.auth.login(params);
-    }
-
-    public logout(): KeycloakPromise<void, void> {
-        return this.auth.logout();
-    }
+    // public login(params: any): KeycloakPromise<void, void> {
+    //     return this.auth.login(params);
+    // }
+    //
+    // public logout(): KeycloakPromise<void, void> {
+    //     return this.auth.logout();
+    // }
 
     public async init(): Promise<void> {
-        const {keycloak} = await Security.login(this.clientId);
-        this.auth = keycloak;
-        this.api = new RestApi(Utils.urls.api);
-        this.updateBearerToken(this.auth.token);
-
-        if (this.auth.authenticated) {
-            const wallets = await this.getWallets();
-            if (!(wallets && wallets.length > 0)) {
-                const currentLocation = window.location;
-                const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
-                window.location.href =
-                    `${Utils.urls.connect}/init/${this.chain}/${this.bearer}?redirectUri=${redirectUri}` +
-                    `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
-            }
+        const wallets = await this.getWallets();
+        if (!(wallets && wallets.length > 0)) {
+            const currentLocation = window.location;
+            const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
+            window.location.href =
+                `${Utils.urls.connect}/init/${this.chain}/${this.bearer}?redirectUri=${redirectUri}` +
+                `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
         }
-
-        return this.auth;
+        return;
     }
 
     public updateBearerToken(bearer: string) {
