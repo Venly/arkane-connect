@@ -12,8 +12,10 @@ new ArkaneConnect(<clientID>, <chain>, <bearerToken>[, <environment*>]);
 e.g.
 ```javascript
 const arkaneConnect = new ArkaneConnect('Arkane', 'VeChain', 'iamabearertoken');
+arkaneConnect.init().then(function () { ... })
+                    .catch(function() { ... });
 ```
-
+(The `init()` call makes sure that the user has an Arkane master pincode and at least one wallet necessary for the third party app)
 # Get Wallets
 
 ```
