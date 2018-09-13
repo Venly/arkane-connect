@@ -46,13 +46,13 @@
         public numberClicked(num: number) {
             this.isError = false;
             this.pincode += num;
-            this.$refs.pinInput.focus();
+            (this.$refs.pinInput as HTMLElement).focus();
         }
 
         public resetPincode() {
             this.isError = false;
             this.pincode = '';
-            this.$refs.pinInput.focus();
+            (this.$refs.pinInput as HTMLElement).focus();
         }
 
         public sign() {
