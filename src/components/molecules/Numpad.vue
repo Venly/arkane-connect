@@ -17,7 +17,7 @@
         </svg>
       </button>
     </div>
-    <button class="action-button" @click.prevent="sign" :disabled="pincode === ''" tabindex="12" @keyup.native.enter="sign">Sign Transaction</button>
+    <button ref="actionButton" class="action-button" @click.prevent="sign" :disabled="pincode === ''" tabindex="12" @keyup.native.enter="sign">Sign Transaction</button>
     <div class="modal" v-bind:style="{ display: modalDisplay}"></div>
   </div>
 </template>
@@ -62,7 +62,7 @@
 
         public sign() {
             if (/^[0-9]{4,6}$/.test(this.pincode)) {
-                this.modalDisplay = 'block';
+                this.showModal();
                 this.$store.dispatch('startLoading');
                 Api.signTransaction(this.params, this.pincode).then((r: ResponseBody) => {
                     this.$emit('signed', r);
@@ -77,6 +77,11 @@
                 this.isError = true;
                 this.pincode = '';
             }
+        }
+
+        private showModal() {
+            this.modalDisplay = 'block';
+            (this.$refs.actionButton as HTMLElement).focus();
         }
     }
 </script>
