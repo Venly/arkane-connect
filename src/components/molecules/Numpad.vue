@@ -132,7 +132,7 @@
 
         svg
             color: #4a4a4a
-            width: 38px
+            width: 100%
             height: auto
 
         &:hover, &:focus
