@@ -92,7 +92,7 @@ export default class ArkaneConnect {
         }
     }
 
-    public async initTransaction() {
+    public async initPopup() {
         const url =
             `${Utils.urls.connect}/sign/transaction/init`;
         this.popup = ArkaneConnect.openWindow(url) as Window;
@@ -104,7 +104,7 @@ export default class ArkaneConnect {
 
     private async signTransactionInPopup(sendParams: any) {
         if (!this.popup || this.popup.closed) {
-            await this.initTransaction();
+            await this.initPopup();
         }
         this.popup.focus();
         return new Promise((resolve, reject) => {

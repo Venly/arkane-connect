@@ -44,13 +44,13 @@ arkaneConnect.signTransaction({
         });
 ```
 
-### (Optional) initialize transaction
+### (Optional) initialize popup
 If the popup blocker of the browser is triggered (this might happen if you call a different api before calling the 'signTransaction'), please call the 'initializeTransaction' first.
 This will open the popup for the signature already and redirect the popup to the correct page when signature is needed.
 
  
 ```
-arkaneConnect.initTransaction();
+arkaneConnect.initPopup();
 
 //custom logic
 
@@ -96,13 +96,13 @@ arkaneConnect.signTransaction({
             console.log(error);
         });
 ```
-### (Optional) initialize transaction
+### (Optional) initialize popup
 If the popup blocker of the browser is triggered (this might happen if you call a different api before calling the 'signTransaction'), please call the 'initializeTransaction' first.
 This will open the popup for the signature already and redirect the popup to the correct page when signature is needed.
 
  
 ```
-arkaneConnect.initTransaction();
+arkaneConnect.initPopup();
 
 //custom logic
 

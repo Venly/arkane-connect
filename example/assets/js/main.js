@@ -45,35 +45,30 @@ app.addConnectEvents = function () {
   });
 
   document.getElementById('arkane-sign-vechain').addEventListener('click', function () {
-    //init is done first because there is a fetch before launching the 'signTransaction': this might trigger popup blockers
-    window.arkaneConnect.initTransaction();
-    fetch('https://arkane.network')
-      .then(function (response) {
-        setTimeout(go, 2000);
-
-        function go() {
-          window.arkaneConnect.signTransaction({
-            type: 'VECHAIN_TRANSACTION',
-            walletId: 44,
-            submit: false,
-            blockRef: "0x1",
-            chainTag: "0x2",
-            expiration: 10,
-            gas: 23000,
-            gasPriceCoef: 0,
-            nonce: 0,
-            clauses: [{
-              to: '0xdc71b72db51e227e65a45004ab2798d31e8934c9',
-              amount: "10000",
-              data: '0x0',
-            }]
-          }).then(function (result) {
-            console.log(result);
-          }).catch(function (error) {
-            console.log(error);
-          });
-        }
-      });
+    //if you want to do custom logic between the user pressing a button and signing a transaction, please initialize the popup first as shown below
+    // otherwise the browser might block the popup
+    window.arkaneConnect.initPopup();
+    //custom logic
+    window.arkaneConnect.signTransaction({
+      type: 'VECHAIN_TRANSACTION',
+      walletId: 44,
+      submit: false,
+      blockRef: "0x1",
+      chainTag: "0x2",
+      expiration: 10,
+      gas: 23000,
+      gasPriceCoef: 0,
+      nonce: 0,
+      clauses: [{
+        to: '0xdc71b72db51e227e65a45004ab2798d31e8934c9',
+        amount: "10000",
+        data: '0x0',
+      }]
+    }).then(function (result) {
+      console.log(result);
+    }).catch(function (error) {
+      console.log(error);
+    });
   });
 };
 
