@@ -97,11 +97,12 @@ export default class SignTransactionView extends Vue {
         padding-bottom: 5px
         margin-bottom: 20px
         border-bottom: 1px solid #e5e5e5
+        text-align: center
 
         .logo
             padding: 5px
             width: auto
-            height: 35px
+            height: 48px
             @media (min-height: 600px)
                 height: 60px
 </style>
