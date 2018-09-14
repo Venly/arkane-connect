@@ -18,6 +18,11 @@ const router = new Router({
     base: process.env.BASE_URL,
     routes: [
         {
+            path: '/sign/transaction/init',
+            name: 'init',
+            component: loadView('InitTransaction'),
+        },
+        {
             path: '/sign/transaction/:chain/:bearer',
             name: 'sign-transaction',
             component: SignTransactionView,
