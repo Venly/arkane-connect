@@ -45,6 +45,10 @@ app.addConnectEvents = function () {
   });
 
   document.getElementById('arkane-sign-vechain').addEventListener('click', function () {
+    //if you want to do custom logic between the user pressing a button and signing a transaction, please initialize the popup first as shown below
+    // otherwise the browser might block the popup
+    window.arkaneConnect.initPopup();
+    //custom logic
     window.arkaneConnect.signTransaction({
       type: 'VECHAIN_TRANSACTION',
       walletId: 44,

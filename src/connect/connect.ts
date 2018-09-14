@@ -80,7 +80,6 @@ export default class ArkaneConnect {
     }
 
     public async signTransaction(params: EthereumTransactionData | VechainTransactionData) {
-
         switch (this.chain) {
             case 'vechain':
                 return this.signTransactionInPopup(() => {
@@ -93,22 +92,28 @@ export default class ArkaneConnect {
         }
     }
 
-    private async signTransactionInPopup(sendParams: any) {
-        if (!this.popup || this.popup.closed) {
-            return new Promise((resolve, reject) => {
-                const url =
-                    `${Utils.urls.connect}/sign/transaction/${this.chain}/${this.bearer}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
-                this.popup = ArkaneConnect.openWindow(url) as Window;
-                const interval = sendParams();
-                this.addEventListener(interval, resolve, reject);
-            });
-        }
-
-        this.popup.focus();
+    public async initPopup() {
+        const url =
+            `${Utils.urls.connect}/sign/transaction/init`;
+        this.popup = ArkaneConnect.openWindow(url) as Window;
         return {
             success: false,
             errors: ['Popup already open'],
         };
+    }
+
+    private async signTransactionInPopup(sendParams: any) {
+        if (!this.popup || this.popup.closed) {
+            await this.initPopup();
+        }
+        this.popup.focus();
+        return new Promise((resolve, reject) => {
+            const url =
+                `${Utils.urls.connect}/sign/transaction/${this.chain}/${this.bearer}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
+            this.popup = ArkaneConnect.openWindow(url) as Window;
+            const interval = sendParams();
+            this.addEventListener(interval, resolve, reject);
+        });
     }
 
     private sendEthParams(params: EthereumTransactionData) {
