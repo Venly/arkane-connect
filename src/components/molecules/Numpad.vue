@@ -2,7 +2,7 @@
     <div class="numpad">
         <h3>{{title}}</h3>
         <input type="password" style="visibility: hidden" />
-        <input class="password" ref="pinInput" autofocus="autofocus" autocomplete="off" data-lpignore="true" type="password" v-model="pincode" v-if="!isError" />
+        <input class="password" @keypress.enter="sign" ref="pinInput" autofocus="autofocus" autocomplete="off" data-lpignore="true" type="password" v-model="pincode" v-if="!isError" />
         <div class="error" v-if="isError">Pin should be between 4 and 6 numbers long.</div>
         <div class="numbers">
             <numpad-number class="number" v-for="(num, index) in numbers.slice(0,9)" :num="num" :key="num" :tabindex="index + 1"
