@@ -28,7 +28,6 @@ export default class ArkaneConnect {
 
     public popup!: Window;
     public bearer: string = '';
-    // public auth!: any;
 
     public api!: RestApi;
     public clientId: string;
