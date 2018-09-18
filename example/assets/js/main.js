@@ -55,7 +55,7 @@ app.addConnectEvents = function () {
     //custom logic
     window.arkaneConnect.signTransaction({
       type: 'VECHAIN_TRANSACTION',
-      walletId: 44,
+      walletId: 111,
       submit: false,
       blockRef: "0x1",
       chainTag: "0x2",

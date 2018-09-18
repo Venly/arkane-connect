@@ -65,13 +65,12 @@
                 this.showModal();
                 this.$store.dispatch('startLoading');
                 Api.signTransaction(this.params, this.pincode).then((r: ResponseBody) => {
-                    if ((!r.success) && r.errors && r.errors.includes('pincode.incorrect')) {
-                        this.$emit('pincode.incorrect');
-                    } else if (!(r.success) && r.errors && r.errors.includes('pincode.no-tries-left')) {
-                        this.$emit('pincode.no-tries-left');
-                    } else {
-                        this.$emit('signed', r);
-                    }
+                    /*   if ((!r.success) && r.errors && r.errors.includes('pincode.incorrect')) {
+                           this.$emit('pincode.incorrect');
+                       } else if (!(r.success) && r.errors && r.errors.includes('pincode.no-tries-left')) {
+                           this.$emit('pincode.no-tries-left');
+                       } else { */
+                    this.$emit('signed', r);
                 }).catch((e: Error) => {
                     this.$emit('signed', {
                         success: false,
