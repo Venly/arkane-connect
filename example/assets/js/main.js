@@ -15,6 +15,10 @@ app.addAuthEvents = function (authenticated, auth) {
 
 app.addConnectEvents = function () {
   document.getElementById('arkane-sign-eth').addEventListener('click', function () {
+    //if you want to do custom logic between the user pressing a button and signing a transaction, please initialize the popup first as shown below
+    // otherwise the browser might block the popup
+    window.arkaneConnect.initPopup();
+    //custom logic
     window.arkaneConnect.signTransaction({
       type: 'ETHEREUM_TRANSACTION',
       walletId: 44,
@@ -77,8 +81,8 @@ app.initApp = function (authenticated, auth) {
 };
 
 app.initAuthenticatedApp = function (authenticated, auth) {
-  window.arkaneConnect = new ArkaneConnect('ThorBlock', 'vechain', auth.token, 'local');
-  window.arkaneConnect.init().then(function () {
+  window.arkaneConnect = new ArkaneConnect('ThorBlock', auth.token, 'local');
+  window.arkaneConnect.init('VeChain').then(function () {
     app.addConnectEvents();
     app.getWallets();
   });

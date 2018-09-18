@@ -19,11 +19,11 @@ const router = new Router({
     routes: [
         {
             path: '/sign/transaction/init',
-            name: 'init',
+            name: 'init-sign-transaction',
             component: loadView('InitTransaction'),
         },
         {
-            path: '/sign/transaction/:chain/:bearer',
+            path: '/sign/transaction/:bearer',
             name: 'sign-transaction',
             component: SignTransactionView,
             meta: {

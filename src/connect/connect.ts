@@ -2,10 +2,7 @@
 /// <reference path="./typings.d.ts" />
 /* tslint:enable */
 import {AxiosResponse} from 'axios';
-import EthereumTransactionData from '../api/EthereumTransactionData';
-import VechainTransactionData from '../api/VechainTransactionData';
 import {EVENT_TYPES} from '../types/EventTypes';
-import {CHAIN_TYPES} from '../types/ChainTypes';
 import ResponseBody from '../api/ResponseBody';
 import RestApi from '../api/RestApi';
 import {Wallet} from '../models/Wallet';
@@ -32,23 +29,21 @@ export default class ArkaneConnect {
 
     public api!: RestApi;
     public clientId: string;
-    public chain: string;
 
-    constructor(clientId: string = 'Arkane', chain: string, bearerToken: string, environment?: string) {
+    constructor(clientId: string = 'Arkane', bearerToken: string, environment?: string) {
         this.clientId = clientId;
-        this.chain = chain.toLowerCase();
         Utils.environment = environment || 'prod';
         this.api = new RestApi(Utils.urls.api);
         this.updateBearerToken(bearerToken);
     }
 
-    public async init(): Promise<void> {
+    public async init(chain: string): Promise<void> {
         const wallets = await this.getWallets();
         if (!(wallets && wallets.length > 0)) {
             const currentLocation = window.location;
             const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
             window.location.href =
-                `${Utils.urls.connect}/init/${this.chain}/${this.bearer}?redirectUri=${redirectUri}` +
+                `${Utils.urls.connect}/init/${chain}/${this.bearer}?redirectUri=${redirectUri}` +
                 `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
         }
         return;
@@ -79,17 +74,10 @@ export default class ArkaneConnect {
         }
     }
 
-    public async signTransaction(params: EthereumTransactionData | VechainTransactionData) {
-        switch (this.chain) {
-            case 'vechain':
-                return this.signTransactionInPopup(() => {
-                    this.sendVechainParams((params as VechainTransactionData));
-                });
-            case 'ethereum':
-                return this.signTransactionInPopup(() => {
-                    this.sendEthParams((params as EthereumTransactionData));
-                });
-        }
+    public async signTransaction(params: any) {
+        return this.signTransactionInPopup(() => {
+            this.sendParams(params);
+        });
     }
 
     public async initPopup() {
@@ -108,26 +96,16 @@ export default class ArkaneConnect {
         }
         this.popup.focus();
         return new Promise((resolve, reject) => {
-            const url =
-                `${Utils.urls.connect}/sign/transaction/${this.chain}/${this.bearer}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
+            const url = `${Utils.urls.connect}/sign/transaction/${this.bearer}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
             this.popup = ArkaneConnect.openWindow(url) as Window;
             const interval = sendParams();
             this.addEventListener(interval, resolve, reject);
         });
     }
 
-    private sendEthParams(params: EthereumTransactionData) {
+    private sendParams(params: any) {
         return this.sendMessage({
             type: EVENT_TYPES.SEND_PARAMS,
-            chain: CHAIN_TYPES.ETHEREUM,
-            params,
-        });
-    }
-
-    private sendVechainParams(params: VechainTransactionData) {
-        return this.sendMessage({
-            type: EVENT_TYPES.SEND_PARAMS,
-            chain: CHAIN_TYPES.VECHAIN,
             params,
         });
     }
@@ -144,9 +122,9 @@ export default class ArkaneConnect {
     }
 
     private addEventListener(interval: any, resolve: any, reject: any) {
-        window.addEventListener('message', (e) => {
-            if (e.origin === Utils.urls.connect) {
-                const data = this.messageHandler(e);
+        window.addEventListener('message', (event) => {
+            if (event.origin === Utils.urls.connect) {
+                const data = this.messageHandler(event);
                 if (data) {
                     clearInterval(interval);
                     if (data && data.success) {
