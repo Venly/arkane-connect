@@ -74,6 +74,10 @@ app.addConnectEvents = function () {
       console.log(error);
     });
   });
+
+  document.getElementById('close-popup').addEventListener('click', function () {
+    window.arkaneConnect.closePopup();
+  });
 };
 
 app.initApp = function (authenticated, auth) {

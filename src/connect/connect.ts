@@ -34,6 +34,7 @@ export default class ArkaneConnect {
         Utils.environment = environment || 'prod';
         this.api = new RestApi(Utils.urls.api);
         this.updateBearerToken(bearerToken);
+        this.addBeforeUnloadListener();
     }
 
     public async init(chain: string): Promise<void> {
@@ -74,22 +75,6 @@ export default class ArkaneConnect {
     }
 
     public async signTransaction(params: any) {
-        return this.signTransactionInPopup(() => {
-            this.sendParams(params);
-        });
-    }
-
-    public async initPopup() {
-        const url =
-            `${Utils.urls.connect}/sign/transaction/init`;
-        this.popup = ArkaneConnect.openWindow(url) as Window;
-        return {
-            success: false,
-            errors: ['Popup already open'],
-        };
-    }
-
-    private async signTransactionInPopup(sendParams: any) {
         if (!this.popup || this.popup.closed) {
             await this.initPopup();
         }
@@ -97,43 +82,48 @@ export default class ArkaneConnect {
         return new Promise((resolve, reject) => {
             const url = `${Utils.urls.connect}/sign/transaction/${this.bearer}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
             this.popup = ArkaneConnect.openWindow(url) as Window;
-            const interval = sendParams();
-            this.addEventListener(interval, resolve, reject);
+            this.postTransactionData(params);
+            this.addEventListeners(params, resolve, reject);
         });
     }
 
-    private sendParams(params: any) {
-        return this.sendMessage({
-            type: EVENT_TYPES.SEND_PARAMS,
-            params,
-        });
+    public async initPopup() {
+        const url = `${Utils.urls.connect}/sign/transaction/init`;
+        this.popup = ArkaneConnect.openWindow(url) as Window;
+        return {
+            success: false,
+            errors: ['Popup already open'],
+        };
     }
 
-    private sendMessage(message: any) {
-        const interval = setInterval(() => {
-            if (!this.popup) {
-                clearInterval(interval);
-            } else {
-                this.popup.postMessage(message, Utils.urls.connect);
-            }
-        }, 3000);
-        return interval;
+    public closePopup() {
+        if (this.popup) {
+            this.popup.close();
+            delete this.popup;
+        }
     }
 
-    private addEventListener(interval: any, resolve: any, reject: any) {
+    private addEventListeners(params: any, resolve: any, reject: any) {
         window.addEventListener('message', (event) => {
-            if (event.origin === Utils.urls.connect) {
-                const data = this.messageHandler(event);
-                if (data) {
-                    clearInterval(interval);
-                    if (data && data.success) {
-                        resolve(data);
-                    } else {
-                        reject(data);
+                if (event.origin === Utils.urls.connect) {
+                    if (event.data && event.data.type) {
+                        if (event.data.type === EVENT_TYPES.SIGNER_MOUNTED) {
+                            this.popup = (event.source as Window);
+                            this.postTransactionData(params);
+                        } else {
+                            const data = this.messageHandler(event);
+                            if (data) {
+                                if (data && data.success) {
+                                    resolve(data);
+                                } else {
+                                    reject(data);
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        }, false);
+            },
+            false);
     }
 
     private messageHandler(event: MessageEvent): ResponseBody | false {
@@ -152,6 +142,18 @@ export default class ArkaneConnect {
             default:
                 return false;
         }
+    }
+
+    private postTransactionData(params: any) {
+        this.popup.postMessage({type: EVENT_TYPES.SEND_TRANSACTION_DATA, params}, Utils.urls.connect);
+    }
+
+    private addBeforeUnloadListener() {
+        window.addEventListener('beforeunload', () => {
+            if (this.popup) {
+                this.popup.close();
+            }
+        });
     }
 }
 
