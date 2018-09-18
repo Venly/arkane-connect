@@ -33,12 +33,6 @@ export default class Utils {
         return array;
     }
 
-    public static isWhitelistedOrigin(origin: string): boolean {
-        // const array = ['http://localhost:4000'];
-        // return !!array.find((val: string) => val === origin);
-        return true;
-    }
-
     public static get urls() {
         let prefix = '';
 
