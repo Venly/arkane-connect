@@ -1,12 +1,12 @@
 <template>
   <div class="home">
-    <div v-if="isInitialized">
+    <div v-if="isInitialised">
       <div class="logo-wrapper">
         <img class="logo" alt="Arkane Logo" src="../assets/logo-arkane-animated.svg"/>
         <p>{{errorText}}</p>
       </div>
       <numpad :title="'Enter your pincode to sign this transaction'"
-              :params="params"
+              :params="transactionData"
               @signed="sendTransactionSignedMessage"></numpad>
     </div>
     <div v-else>
@@ -32,27 +32,25 @@
     })
     export default class SignTransactionView extends Vue {
         public loadingText = 'Initializing signer ...';
-        public params?: any;
-        public errorText = '';
 
+        public transactionData?: any;
+        public errorText = '';
 
         @State
         public auth: any;
 
-        private isEventSet = false;
-        private event!: MessageEvent;
+        private parentWindow!: Window;
+        private parentOrigin!: string;
+        private hasTransactionData: boolean = false;
 
         public created() {
-            if (this.auth) {
-                this.addEventListeners();
-            } else {
+            if (!this.auth) {
                 this.loadingText = 'Not authenticated, going back in 3 seconds.';
                 setTimeout(() => {
                     (window as any).close();
                 }, 3000);
             }
         }
-
 
         public noTriesLeftMessage() {
             this.errorText = 'You entered a wrong pincode too many times.';
@@ -62,33 +60,35 @@
             this.errorText = 'Wrong pincode';
         }
 
-
-        public sendTransactionSignedMessage(result: ResponseBody) {
-            (this.event.source as Window).postMessage({
-                type: EVENT_TYPES.TRANSACTION_SIGNED,
-                data: result,
-            }, this.event.origin);
+        public mounted() {
+            this.addEventListeners();
+            window.opener.postMessage({type: EVENT_TYPES.SIGNER_MOUNTED}, '*');
         }
 
-        private get isInitialized() {
-            return Security.isLoggedIn && this.isEventSet;
+        private sendTransactionSignedMessage(result: ResponseBody) {
+            this.parentWindow.postMessage({
+                type: EVENT_TYPES.TRANSACTION_SIGNED,
+                data: result,
+            }, this.parentOrigin);
+        }
+
+        private get isInitialised() {
+            return Security.isLoggedIn && this.hasTransactionData;
         }
 
         private addEventListeners() {
             window.addEventListener('message', (event: MessageEvent) => {
-                if (!this.isEventSet) {
-                    const data = event.data;
-                    if (data && data.type === EVENT_TYPES.SEND_PARAMS) {
-                        this.params = {...data.params};
-                        this.event = event;
-                        this.isEventSet = true;
-                    }
+                const data = event.data;
+                if (data && data.type === EVENT_TYPES.SEND_TRANSACTION_DATA) {
+                    this.transactionData = {...data.params};
+                    this.parentOrigin = event.origin;
+                    this.parentWindow = (event.source as Window);
+                    this.hasTransactionData = true;
                 }
             }, false);
+
             window.addEventListener('beforeunload', () => {
-                (this.event.source as Window).postMessage({
-                    type: EVENT_TYPES.POPUP_CLOSED,
-                }, this.event.origin);
+                this.parentWindow.postMessage({type: EVENT_TYPES.POPUP_CLOSED}, this.parentOrigin);
             });
         }
     }
