@@ -12,6 +12,7 @@ pipeline {
             steps {
               sh 'npm i'
               sh 'npm i --prefix src/connect'
+              sh 'npm run build-prod --prefix src/connect'
               sh 'npx vue-cli-service build'
               sh 'cp src/connect/connect.js dist/.'
             }

@@ -3,6 +3,7 @@
     <div v-if="isInitialised">
       <div class="logo-wrapper">
         <img class="logo" alt="Arkane Logo" src="../assets/logo-arkane-animated.svg"/>
+        <p>{{errorText}}</p>
       </div>
       <numpad :title="'Enter your pincode to sign this transaction'"
               :params="transactionData"
@@ -33,6 +34,7 @@
         public loadingText = 'Initializing signer ...';
 
         public transactionData?: any;
+        public errorText = '';
 
         @State
         public auth: any;
@@ -48,6 +50,14 @@
                     (window as any).close();
                 }, 3000);
             }
+        }
+
+        public noTriesLeftMessage() {
+            this.errorText = 'You entered a wrong pincode too many times.';
+        }
+
+        public wrongPincodeMessage() {
+            this.errorText = 'Wrong pincode';
         }
 
         public mounted() {

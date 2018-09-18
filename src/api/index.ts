@@ -6,11 +6,11 @@ import Utils from '../utils/Utils';
 import {Wallet} from '../models/Wallet';
 import {CreateWalletCommand, LinkWalletCommand} from '@/models/Commands';
 import {Profile} from '@/models/Profile';
+import {RestApiResponseError} from '@/api/RestApi';
 
 export default class Api {
     public static token: string = '';
 
-    // TODO: error handling
     public static signTransaction(data: any, pincode: string): Promise<ResponseBody> {
 
         return Api.getApi().http.post('signatures', Object.assign(data, {pincode}))
