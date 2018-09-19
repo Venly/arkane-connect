@@ -57,12 +57,8 @@ app.addConnectEvents = function () {
       type: 'VECHAIN_TRANSACTION',
       walletId: 111,
       submit: false,
-      blockRef: "0x1",
-      chainTag: "0x2",
-      expiration: 10,
       gas: 23000,
       gasPriceCoef: 0,
-      nonce: 0,
       clauses: [{
         to: '0xdc71b72db51e227e65a45004ab2798d31e8934c9',
         amount: "10000",

@@ -25,8 +25,6 @@ export default class RestApi {
                 Authorization: 'Bearer ' + token,
             };
         }
-
-        this.http.interceptors.response.use(undefined, this.errorHandler);
     }
 
     public errorHandler(error: any) {
