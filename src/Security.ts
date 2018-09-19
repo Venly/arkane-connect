@@ -71,6 +71,7 @@ export default class Security {
             new Promise((resolve, reject) => {
                 if (Security.keycloak) {
                     Security.keycloak.updateToken(70).success((refreshed: any) => {
+                        Security.authenticated(Security.keycloak.token);
                         resolve(refreshed);
                     });
                 } else {

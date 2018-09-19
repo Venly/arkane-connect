@@ -85,7 +85,7 @@ app.initApp = function (authenticated, auth) {
 };
 
 app.initAuthenticatedApp = function (authenticated, auth) {
-  window.arkaneConnect = new ArkaneConnect('ThorBlock', auth.token, 'local');
+  window.arkaneConnect = new ArkaneConnect('ThorBlock', () => auth.token, 'local');
   window.arkaneConnect.init('VeChain').then(function () {
     app.addConnectEvents();
     app.getWallets();

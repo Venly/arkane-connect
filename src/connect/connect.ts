@@ -10,7 +10,8 @@ import Utils from '../utils/Utils';
 import {Profile} from '../models/Profile';
 
 export default class ArkaneConnect {
-    private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 300, h: number = 500) {
+
+    private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 300, h: number = 530) {
         const left = (screen.width / 2) - (w / 2);
         const top = (screen.height / 2) - (h / 2);
         let features = 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, ';
@@ -24,16 +25,16 @@ export default class ArkaneConnect {
     }
 
     public popup!: Window;
-    public bearer: string = '';
 
     public api!: RestApi;
     public clientId: string;
+    private bearerTokenProvider: any;
 
-    constructor(clientId: string = 'Arkane', bearerToken: string, environment?: string) {
+    constructor(clientId: string = 'Arkane', bearerTokenProvider: any, environment?: string) {
         this.clientId = clientId;
         Utils.environment = environment || 'prod';
-        this.api = new RestApi(Utils.urls.api);
-        this.updateBearerToken(bearerToken);
+        this.api = new RestApi(Utils.urls.api, bearerTokenProvider);
+        this.bearerTokenProvider = bearerTokenProvider;
         this.addBeforeUnloadListener();
     }
 
@@ -43,17 +44,10 @@ export default class ArkaneConnect {
             const currentLocation = window.location;
             const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
             window.location.href =
-                `${Utils.urls.connect}/init/${chain}/${this.bearer}?redirectUri=${redirectUri}` +
+                `${Utils.urls.connect}/init/${chain}/${this.bearerTokenProvider()}?redirectUri=${redirectUri}` +
                 `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
         }
         return;
-    }
-
-    public updateBearerToken(bearer: string) {
-        this.bearer = bearer;
-        this.api.http.defaults.headers.common = {
-            Authorization: this.bearer ? `Bearer ${this.bearer}` : '',
-        };
     }
 
     public async getWallets(): Promise<Wallet[]> {
@@ -80,7 +74,7 @@ export default class ArkaneConnect {
         }
         this.popup.focus();
         return new Promise((resolve, reject) => {
-            const url = `${Utils.urls.connect}/sign/transaction/${this.bearer}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
+            const url = `${Utils.urls.connect}/sign/transaction/${this.bearerTokenProvider()}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
             this.popup = ArkaneConnect.openWindow(url) as Window;
             this.postTransactionData(params);
             this.addEventListeners(params, resolve, reject);

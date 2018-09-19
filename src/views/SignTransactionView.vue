@@ -96,7 +96,7 @@
 
 <style lang='sass' scoped>
   .logo-wrapper
-    padding-bottom: 5px
+    margin-top: 10px
     margin-bottom: 20px
     border-bottom: 1px solid #e5e5e5
     text-align: center
