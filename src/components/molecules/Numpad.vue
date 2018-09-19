@@ -67,9 +67,9 @@ export default class Numpad extends Vue {
             Api.signTransaction(this.params, this.pincode).then((r: ResponseBody) => {
                 this.$store.dispatch('stopLoading');
                 this.modalDisplay = 'none';
-                if ((!r.success) && r.result && r.result.errors && r.result.errors.map((error) => error.code).includes('pincode.incorrect')) {
+                if ((!r.success) && r.result && r.result.errors && r.result.errors.map((error: any) => error.code).includes('pincode.incorrect')) {
                     this.$emit('pincode_incorrect');
-                } else if (!(r.success) && r.result && r.result.errors && r.result.errors.map((error) => error.code).includes('pincode.no-tries-left')) {
+                } else if (!(r.success) && r.result && r.result.errors && r.result.errors.map((error: any) => error.code).includes('pincode.no-tries-left')) {
                     this.$emit('pincode_no_tries_left');
                 } else {
                     this.$emit('signed', r);
