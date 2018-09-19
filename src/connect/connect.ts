@@ -74,7 +74,7 @@ export default class ArkaneConnect {
         }
         this.popup.focus();
         return new Promise((resolve, reject) => {
-            const url = `${Utils.urls.connect}/sign/transaction/${this.bearerTokenProvider()}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
+            const url = `${Utils.urls.connect}/sign/transaction/${params.type}/${this.bearerTokenProvider()}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
             this.popup = ArkaneConnect.openWindow(url) as Window;
             this.postTransactionData(params);
             this.addEventListeners(params, resolve, reject);
