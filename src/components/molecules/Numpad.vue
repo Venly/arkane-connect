@@ -92,113 +92,112 @@
 </script>
 
 <style scoped lang="sass">
-  h3
-    margin: 0
-    font-size: 16px
-    text-align: center
-    @media (min-height: 600px)
-      font-size: 22px
+    h3
+        margin: 0
+        font-size: 16px
+        text-align: center
+        @media (min-height: 600px)
+            font-size: 22px
 
     .numpad
-      margin: 0 auto
-      max-width: 225px
+        margin: 0 auto
+        max-width: 225px
 
     .numbers
-      display: flex
-      flex-wrap: wrap
-      justify-content: center
-      margin-bottom: 10px
+        display: flex
+        flex-wrap: wrap
+        justify-content: center
+        margin-bottom: 10px
 
     .password
-      font-size: 25px
-      border: 0 none
-      text-align: center
-      margin: 5px
-      border-bottom: 2px solid #e5e5e5
-      width: 90%
-      width: calc(100% - 10px)
+        font-size: 25px
+        border: 0 none
+        text-align: center
+        margin: 5px
+        border-bottom: 2px solid #e5e5e5
+        width: 90%
+        width: calc(100% - 10px)
 
-      @media (min-height: 600px)
-        font-size: 50px
+        @media (min-height: 600px)
+            font-size: 50px
 
     .error
-      text-align: center
-      color: red
-      font-size: 12px
-      display: block
-      height: 30px
-      @media (min-height: 600px)
-        height: 60px
-        font-size: 16px
+        text-align: center
+        color: red
+        font-size: 12px
+        display: block
+        height: 30px
+        @media (min-height: 600px)
+            height: 60px
+            font-size: 16px
 
     .btn,
     .action-button,
     .number
-      position: relative
-      cursor: pointer
-      font-weight: bold
-      display: flex
-      justify-content: center
-      align-items: center
-      &:focus
-        z-index: 1
+        position: relative
+        cursor: pointer
+        font-weight: bold
+        display: flex
+        justify-content: center
+        align-items: center
+        &:focus
+            z-index: 1
 
     .btn,
     .number
-      font-size: 30px
-      width: 75px
-      height: 50px
-      background-color: #f3f3f3
-      color: #4a4a4a
-      border: 1px solid white
-      flex-basis: 33.333333%
-      @media (min-height: 600px)
-        font-size: 45px
-        height: 75px
-
-      svg
+        font-size: 30px
+        width: 75px
+        height: 50px
+        background-color: #f3f3f3
         color: #4a4a4a
-        width: 100%
-        height: auto
+        border: 1px solid white
+        flex-basis: 33.333333%
+        @media (min-height: 600px)
+            font-size: 45px
+            height: 75px
 
-      &:hover, &:focus
-        background-color: #e5e5e5
-      &:disabled
-        color: #aaa
         svg
-          color: #aaa
+            color: #4a4a4a
+            width: 100%
+            height: auto
+
+        &:hover, &:focus
+            background-color: #e5e5e5
+        &:disabled
+            color: #aaa
+            svg
+                color: #aaa
 
     .action-button
-      width: 100%
-      border: 0 none
-      border-radius: 5px
-      line-height: 25px
-      padding: 5px
-      color: white
-      background-color: #007cbb
-      &:disabled
-        background-color: lightgray
-        color: black
+        width: 100%
+        border: 0 none
+        border-radius: 5px
+        line-height: 25px
+        padding: 5px
+        color: white
+        background-color: #007cbb
+        &:disabled
+            background-color: lightgray
+            color: black
 
     .btn,
     .action-button
-      &:disabled
-        pointer-events: none
-        cursor: not-allowed
+        &:disabled
+            pointer-events: none
+            cursor: not-allowed
 
     .btn--dummy:disabled
-      background-color: #f3f3f3
+        background-color: #f3f3f3
 
     .modal
-      position: fixed
-      z-index: 1
-      left: 0
-      top: 0
-      width: 100%
-      height: 100%
-      overflow: auto
-      background: rgb(0, 0, 0)
-      background: transparent
-      \9
-      background: rgba(0, 0, 0, 0.4)
+        position: fixed
+        z-index: 1
+        left: 0
+        top: 0
+        width: 100%
+        height: 100%
+        overflow: auto
+        background: rgb(0,0,0)
+        background: transparent\9
+        background: rgba(0,0,0,0.4)
 </style>
