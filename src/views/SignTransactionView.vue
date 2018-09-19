@@ -7,7 +7,9 @@
       </div>
       <numpad :title="'Enter your pincode to sign this transaction'"
               :params="transactionData"
-              @signed="sendTransactionSignedMessage"></numpad>
+              @signed="sendTransactionSignedMessage"
+              @pincode_incorrect="wrongPincodeMessage"
+              @pincode_no_tries_left="noTriesLeftMessage"></numpad>
     </div>
     <div v-else>
       <p>{{loadingText}}</p>

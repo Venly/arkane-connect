@@ -23,72 +23,75 @@
 </template>
 
 <script lang="ts">
-    import {Component, Prop, Vue} from 'vue-property-decorator';
-    import NumpadNumber from '@/components/atoms/NumpadNumber.vue';
-    import Api from '@/api';
-    import ResponseBody from '@/api/ResponseBody';
-    import EthereumTransactionData from '@/api/EthereumTransactionData';
-    import VechainTransactionData from '@/api/VechainTransactionData';
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import NumpadNumber from '@/components/atoms/NumpadNumber.vue';
+import Api from '@/api';
+import ResponseBody from '@/api/ResponseBody';
+import EthereumTransactionData from '@/api/EthereumTransactionData';
+import VechainTransactionData from '@/api/VechainTransactionData';
 
-    @Component({
-        components: {
-            NumpadNumber,
-        },
-    })
-    export default class Numpad extends Vue {
-        @Prop() public title!: string;
-        @Prop() public params!: EthereumTransactionData | VechainTransactionData;
-        public pincode: string = '';
-        public array: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
-        public numbers!: number[];
-        public isError: boolean = false;
-        public modalDisplay: string = 'none';
+@Component({
+    components: {
+        NumpadNumber,
+    },
+})
+export default class Numpad extends Vue {
+    @Prop() public title!: string;
+    @Prop() public params!: EthereumTransactionData | VechainTransactionData;
+    public pincode: string = '';
+    public array: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+    public numbers!: number[];
+    public isError: boolean = false;
+    public modalDisplay: string = 'none';
 
-        public created() {
-            this.numbers = this.array;
-        }
+    public created() {
+        this.numbers = this.array;
+    }
 
-        public numberClicked(num: number) {
-            this.isError = false;
-            this.pincode += num;
-            (this.$refs.pinInput as HTMLElement).focus();
-        }
+    public numberClicked(num: number) {
+        this.isError = false;
+        this.pincode += num;
+        (this.$refs.pinInput as HTMLElement).focus();
+    }
 
-        public resetPincode() {
-            this.isError = false;
-            this.pincode = '';
-            (this.$refs.pinInput as HTMLElement).focus();
-        }
+    public resetPincode() {
+        this.isError = false;
+        this.pincode = '';
+        (this.$refs.pinInput as HTMLElement).focus();
+    }
 
-        public sign() {
-            if (/^[0-9]{4,6}$/.test(this.pincode)) {
-                this.showModal();
-                this.$store.dispatch('startLoading');
-                Api.signTransaction(this.params, this.pincode).then((r: ResponseBody) => {
-                    /*   if ((!r.success) && r.errors && r.errors.includes('pincode.incorrect')) {
-                           this.$emit('pincode.incorrect');
-                       } else if (!(r.success) && r.errors && r.errors.includes('pincode.no-tries-left')) {
-                           this.$emit('pincode.no-tries-left');
-                       } else { */
+    public sign() {
+        if (/^[0-9]{4,6}$/.test(this.pincode)) {
+            this.showModal();
+            this.$store.dispatch('startLoading');
+            Api.signTransaction(this.params, this.pincode).then((r: ResponseBody) => {
+                this.$store.dispatch('stopLoading');
+                this.modalDisplay = 'none';
+                if ((!r.success) && r.result && r.result.errors && r.result.errors.map((error) => error.code).includes('pincode.incorrect')) {
+                    this.$emit('pincode_incorrect');
+                } else if (!(r.success) && r.result && r.result.errors && r.result.errors.map((error) => error.code).includes('pincode.no-tries-left')) {
+                    this.$emit('pincode_no_tries_left');
+                } else {
                     this.$emit('signed', r);
-                }).catch((e: Error) => {
-                    this.$emit('signed', {
-                        success: false,
-                        result: {},
-                        errors: [e],
-                    });
+                }
+            }).catch((e: Error) => {
+                this.$emit('signed', {
+                    success: false,
+                    result: {},
+                    errors: [e],
                 });
-            } else {
-                this.isError = true;
-                this.pincode = '';
-            }
-        }
-
-        private showModal() {
-            this.modalDisplay = 'block';
-            (this.$refs.actionButton as HTMLElement).focus();
+            });
+        } else {
+            this.isError = true;
+            this.pincode = '';
         }
     }
+
+    private showModal() {
+        this.modalDisplay = 'block';
+        (this.$refs.actionButton as HTMLElement).focus();
+    }
+}
 </script>
 
 <style scoped lang="sass">
