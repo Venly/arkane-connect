@@ -6,7 +6,6 @@ import Utils from '../utils/Utils';
 import {Wallet} from '../models/Wallet';
 import {CreateWalletCommand, LinkWalletCommand} from '@/models/Commands';
 import {Profile} from '@/models/Profile';
-import {RestApiResponseError} from '@/api/RestApi';
 
 export default class Api {
     public static token: string = '';
@@ -99,6 +98,6 @@ export default class Api {
     private api: RestApi;
 
     public constructor() {
-        this.api = new RestApi(Utils.urls.api, undefined, Api.token);
+        this.api = new RestApi(Utils.urls.api, () => Api.token);
     }
 }
