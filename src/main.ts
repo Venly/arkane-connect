@@ -3,6 +3,8 @@ import App from './App.vue';
 import store from './store';
 import router, {onReady} from './router';
 
+import '@/utils/FontAwesome';
+
 Vue.config.productionTip = false;
 
 const app = new Vue({

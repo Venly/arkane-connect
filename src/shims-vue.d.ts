@@ -11,3 +11,4 @@ declare module '*.json' {
 declare module 'jsrsasign';
 declare module 'v-tooltip';
 declare module 'vue.env';
+declare module '@fortawesome/*';

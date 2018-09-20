@@ -111,7 +111,7 @@
         top: 0
         left: 0
         right: 0
-        height: 2px
+        height: rem(2px)
         width: 0
         transition: width 0.2s, opacity 0.4s
         opacity: 1

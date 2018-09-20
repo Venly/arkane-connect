@@ -1,6 +1,5 @@
 <template>
   <div class="numpad">
-    <h3>{{title}}</h3>
     <input type="password" style="visibility: hidden"/>
     <input class="password" @keypress.enter="sign" ref="pinInput" autofocus="autofocus" autocomplete="off" data-lpignore="true" type="password" v-model="pincode" v-if="!isError"/>
     <div class="error" v-if="isError">Pin should be between 4 and 6 numbers long.</div>
@@ -36,7 +35,6 @@ import VechainTransactionData from '@/api/VechainTransactionData';
     },
 })
 export default class Numpad extends Vue {
-    @Prop() public title!: string;
     @Prop() public params!: EthereumTransactionData | VechainTransactionData;
     public pincode: string = '';
     public array: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
@@ -104,19 +102,18 @@ export default class Numpad extends Vue {
 
     .numpad
         margin: 0 auto
-        max-width: 225px
 
     .numbers
         display: flex
         flex-wrap: wrap
         justify-content: center
-        margin-bottom: 10px
+        margin-bottom: rem(10px)
 
     .password
         font-size: 25px
         border: 0 none
         text-align: center
-        margin: 5px
+        margin: rem(5px)
         border-bottom: 2px solid #e5e5e5
         width: 90%
         width: calc(100% - 10px)
@@ -129,9 +126,9 @@ export default class Numpad extends Vue {
         color: red
         font-size: 12px
         display: block
-        height: 30px
+        height: rem(30px)
         @media (min-height: 600px)
-            height: 60px
+            height: rem(60px)
             font-size: 16px
 
     .btn,
@@ -149,15 +146,15 @@ export default class Numpad extends Vue {
     .btn,
     .number
         font-size: 30px
-        width: 75px
-        height: 50px
+        width: rem(75px)
+        height: rem(50px)
         background-color: #f3f3f3
         color: #4a4a4a
         border: 1px solid white
         flex-basis: 33.333333%
         @media (min-height: 600px)
             font-size: 45px
-            height: 75px
+            height: rem(75px)
 
         svg
             color: #4a4a4a
@@ -174,9 +171,9 @@ export default class Numpad extends Vue {
     .action-button
         width: 100%
         border: 0 none
-        border-radius: 5px
-        line-height: 25px
-        padding: 5px
+        border-radius: rem(5px)
+        line-height: rem(25px)
+        padding: rem(5px)
         color: white
         background-color: #007cbb
         &:disabled

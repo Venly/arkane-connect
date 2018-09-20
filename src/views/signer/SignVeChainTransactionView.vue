@@ -5,8 +5,8 @@
         <img class="logo" alt="Arkane Logo" src="../../assets/logo-arkane-animated.svg"/>
         <p>{{errorText}}</p>
       </div>
-      <numpad :title="'Enter your pincode to sign this transaction'"
-              :params="transactionData"
+      <h3>Enter your pincode to sign this transaction</h3>
+      <numpad :params="transactionData"
               @signed="sendTransactionSignedMessage"
               @pincode_incorrect="wrongPincodeMessage"
               @pincode_no_tries_left="noTriesLeftMessage"></numpad>
@@ -36,15 +36,15 @@
 
 <style lang='sass' scoped>
   .logo-wrapper
-    margin-top: 10px
-    margin-bottom: 20px
+    margin-top: rem(10px)
+    margin-bottom: rem(20px)
     border-bottom: 1px solid #e5e5e5
     text-align: center
 
     .logo
-      padding: 5px
+      padding: rem(5px)
       width: auto
-      height: 48px
+      height: rem(48px)
       @media (min-height: 600px)
-        height: 60px
+        height: rem(60px)
 </style>

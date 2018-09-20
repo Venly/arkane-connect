@@ -25,7 +25,7 @@ const router = new Router({
         },
         {
             path: '/sign/transaction/ethereum_transaction/:bearer',
-            name: 'sign-transaction',
+            name: 'sign-ethereum-transaction',
             component: SignEthereumTransactionView,
             meta: {
                 auth: true,
@@ -33,7 +33,7 @@ const router = new Router({
         },
         {
             path: '/sign/transaction/vechain_transaction/:bearer',
-            name: 'sign-transaction',
+            name: 'sign-vechain-transaction',
             component: SignVeChainTransactionView,
             meta: {
                 auth: true,
