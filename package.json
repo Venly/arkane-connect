@@ -28,7 +28,8 @@
     "@fortawesome/free-brands-svg-icons": "^5.2.0",
     "@fortawesome/free-regular-svg-icons": "^5.2.0",
     "@fortawesome/free-solid-svg-icons": "^5.2.0",
-    "@fortawesome/vue-fontawesome": "^0.1.1"
+    "@fortawesome/vue-fontawesome": "^0.1.1",
+    "vue-slider-component": "^2.7.7"
   },
   "devDependencies": {
     "@types/chai": "^4.1.0",

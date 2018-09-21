@@ -1,5 +1,5 @@
 <template>
-  <div class="address-card" :class="stripeClass">
+  <div class="address-card" :class="stripeClass" :title="address">
     <div class="address-card__details">
       <div class="address-card__label">
         {{label}}

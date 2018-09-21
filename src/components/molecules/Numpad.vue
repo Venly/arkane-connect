@@ -93,111 +93,114 @@ export default class Numpad extends Vue {
 </script>
 
 <style scoped lang="sass">
-    h3
-        margin: 0
-        font-size: 16px
-        text-align: center
-        @media (min-height: 600px)
-            font-size: 22px
+  @import "../../assets/sass/mixins-and-vars"
 
-    .numpad
-        margin: 0 auto
+  h3
+    margin: 0
+    font-size: 16px
+    text-align: center
+    @media (min-height: 600px)
+      font-size: 22px
 
-    .numbers
-        display: flex
-        flex-wrap: wrap
-        justify-content: center
-        margin-bottom: rem(10px)
+  .numpad
+    margin: 0 auto
 
-    .password
-        font-size: 25px
-        border: 0 none
-        text-align: center
-        margin: rem(5px)
-        border-bottom: 2px solid #e5e5e5
-        width: 90%
-        width: calc(100% - 10px)
+  .numbers
+    display: flex
+    margin-top: rem(20px)
+    flex-wrap: wrap
+    justify-content: center
+    margin-bottom: rem(10px)
 
-        @media (min-height: 600px)
-            font-size: 50px
+  .password
+    font-size: 25px
+    border: 0 none
+    text-align: center
+    border-bottom: 2px solid $color-light-grey
+    width: 100%
 
-    .error
-        text-align: center
-        color: red
-        font-size: 12px
-        display: block
-        height: rem(30px)
-        @media (min-height: 600px)
-            height: rem(60px)
-            font-size: 16px
+    @media (min-height: 600px)
+      font-size: 50px
 
-    .btn,
-    .action-button,
-    .number
-        position: relative
-        cursor: pointer
-        font-weight: bold
-        display: flex
-        justify-content: center
-        align-items: center
-        &:focus
-            z-index: 1
+  .error
+    text-align: center
+    color: red
+    font-size: 12px
+    display: block
+    height: rem(30px)
+    @media (min-height: 600px)
+      height: rem(60px)
+      font-size: 16px
 
-    .btn,
-    .number
-        font-size: 30px
-        width: rem(75px)
-        height: rem(50px)
-        background-color: #f3f3f3
-        color: #4a4a4a
-        border: 1px solid white
-        flex-basis: 33.333333%
-        @media (min-height: 600px)
-            font-size: 45px
-            height: rem(75px)
+  .btn,
+  .action-button,
+  .number
+    position: relative
+    cursor: pointer
+    font-weight: bold
+    display: flex
+    justify-content: center
+    align-items: center
+    &:focus
+      z-index: 1
 
-        svg
-            color: #4a4a4a
-            width: 100%
-            height: auto
+  .btn,
+  .number
+    font-size: 30px
+    font-weight: normal
+    width: rem(75px)
+    height: rem(50px)
+    background-color: #f3f3f3
+    color: #4a4a4a
+    border: 1px solid white
+    flex-basis: 33.333333%
+    @media (min-height: 600px)
+      font-size: 45px
+      height: rem(75px)
 
-        &:hover, &:focus
-            background-color: #e5e5e5
-        &:disabled
-            color: #aaa
-            svg
-                color: #aaa
+    svg
+      color: #4a4a4a
+      width: 100%
+      height: auto
 
-    .action-button
-        width: 100%
-        border: 0 none
-        border-radius: rem(5px)
-        line-height: rem(25px)
-        padding: rem(5px)
-        color: white
-        background-color: #007cbb
-        &:disabled
-            background-color: lightgray
-            color: black
+    &:hover, &:focus
+      background-color: #e5e5e5
+    &:disabled
+      color: #aaa
+      svg
+        color: #aaa
 
-    .btn,
-    .action-button
-        &:disabled
-            pointer-events: none
-            cursor: not-allowed
+  .action-button
+    width: 100%
+    border: 0 none
+    border-radius: rem(5px)
+    line-height: rem(25px)
+    padding: rem(5px)
+    color: white
+    background-color: #007cbb
+    &:disabled
+      background-color: lightgray
+      color: $color-white
 
-    .btn--dummy:disabled
-        background-color: #f3f3f3
+  .btn,
+  .action-button
+    &:disabled
+      pointer-events: none
+      cursor: not-allowed
 
-    .modal
-        position: fixed
-        z-index: 1
-        left: 0
-        top: 0
-        width: 100%
-        height: 100%
-        overflow: auto
-        background: rgb(0,0,0)
-        background: transparent\9
-        background: rgba(0,0,0,0.4)
+  .btn--dummy:disabled
+    background-color: #f3f3f3
+
+  .modal
+    position: fixed
+    z-index: 1
+    left: 0
+    top: 0
+    width: 100%
+    height: 100%
+    overflow: auto
+    background: rgb(0, 0, 0)
+    background: transparent
+    \9
+    background: rgba(0, 0, 0, 0.4)
 </style>

@@ -12,7 +12,7 @@
         <span class="totals-box__fee-currency"> {{feeCurrency}}</span>
       </div>
     </div>
-    <div class="totals-box__settings_icon">
+    <div class="totals-box__settings_icon" v-if="showAdvancedIcon" @click="$emit('advanced-clicked')">
       <font-awesome-icon icon="sliders-h" class="icon"></font-awesome-icon>
     </div>
   </div>
@@ -31,6 +31,11 @@
         public feeValue!: number;
         @Prop()
         public feeCurrency!: string;
+
+        @Prop({required: false, default: false})
+        public showAdvancedIcon?: boolean;
+
+
     }
 </script>
 
@@ -66,9 +71,13 @@
       top: 7px
       right: 7px
       padding: rem(2px)
-      border: 1px solid $color-bluish
       border-radius: rem(2px)
+      border: 1px solid $color-bluish
       color: $color-bluish
+      &:hover
+        border-color: $color-warm-gray
+        color: $color-warm-gray
+        cursor: pointer
 
       & .icon
         width: rem(15px)
