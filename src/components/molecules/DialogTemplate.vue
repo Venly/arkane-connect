@@ -1,18 +1,20 @@
 <template>
     <div class="dialog">
-        <div class="dialog__content">
-            <slot name="aboveTitle"></slot>
-            <h3 class="dialog__title" v-if="title">{{title}}</h3>
-            <slot>
-                <p>
-                    Description
-                </p>
-            </slot>
+        <div class="dialog__box">
+            <div class="dialog__box__header">
+                <img class="logo" src="../../assets/logo-arkane-animated.svg" alt="Logo Arkane">
+                <div class="separator"></div>
+            </div>
+            <div class="dialog__box__content">
+                <slot name="aboveTitle"></slot>
+                <h3 class="dialog__box__title" v-if="title">{{title}}</h3>
+                <slot>
+                    <p>Description</p>
+                </slot>
+            </div>
         </div>
         <div class="dialog__footer" v-if="showFooter">
             <div class="dialog-poweredby">
-                <span>Powered by</span>
-                <svg-arkane class="dialog-poweredby__logo"></svg-arkane>
             </div>
             <div>
                 <action-link type="brand-light">Terms</action-link>
@@ -23,11 +25,11 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import ActionLink from '@/components/atoms/ActionLink.vue';
-import SvgArkane from '@/components/atoms/SvgArkane.vue';
+    import {Component, Prop, Vue} from 'vue-property-decorator';
+    import ActionLink from '@/components/atoms/ActionLink.vue';
+    import SvgArkane from '@/components/atoms/SvgArkane.vue';
 
-@Component({
+    @Component({
     components: {
         ActionLink,
         SvgArkane,
@@ -53,25 +55,37 @@ export default class DialogTemplate extends Vue {
             height: 100%
 
     .dialog
-        display: flex
-        align-items: center
-        flex-wrap: wrap
         width: 100%
-        max-width: rem(320px)
+        max-width: rem(480px)
 
-        &__content
-            margin-top: rem(32px)
-            background-color: $color-white
-            box-shadow: rem(0 2px 4px 0) rgba(0, 0, 0, 0.5)
+        &__box
+            display: flex
+            align-items: center
+            flex-wrap: wrap
+            width: 100%
+            box-shadow: rem(0 2px 2px 0) rgba(0,0,0,0.14), rem(0 3px 1px -2px) rgba(0,0,0,0.12), rem(0 1px 5px 0) rgba(0,0,0,0.2)
             border-radius: $border-radius-small
-            padding: rem(40px 50px)
-        &__title
-            margin-top: 0
-            text-align: center
-        p
-            line-height: $line-height-base
-            text-align: justify
-            margin-bottom: rem(40px)
+            overflow: hidden
+            background-color: $color-white
+
+            &__header
+                padding: rem(10px 0)
+                text-align: center
+                margin: 0
+                width: 100%
+                img
+                    max-width: rem(140px)
+            &__content
+                padding: rem(0 50px 40px 50px)
+                width: 100%
+            &__title
+                margin-top: 0
+                text-align: center
+            p
+                line-height: $line-height-base
+                text-align: justify
+                &:last-of-type
+                    margin-bottom: rem(40px)
         &__footer
             width: 100%
             height: rem(32px)
@@ -80,7 +94,8 @@ export default class DialogTemplate extends Vue {
             align-items: center
             justify-content: space-between
             font-size: $font-size-xsmall
-
+            font-weight: 400
             a
+                text-decoration: none
                 margin: rem(8px)
 </style>

@@ -6,7 +6,7 @@
       </transition>
       <transition name="slide-left">
         <master-pin-dialog :title="'Create a wallet'" @done="masterpinEntered" v-if="showEnterMasterPin">
-          <p>Please confirm by providing your Master Pin Code.</p>
+          <p>Please confirm by providing your Master Pin Code</p>
         </master-pin-dialog>
       </transition>
       <transition name="slide-left">
@@ -141,7 +141,7 @@ export default class InitView extends Vue {
   @import ../assets/sass/mixins-and-vars
 
   body
-    background-color: $color-white
+    background-color: #fcfcfc
 
 </style>
 <style lang="sass" scoped>
