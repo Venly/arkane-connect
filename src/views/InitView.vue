@@ -1,26 +1,27 @@
 <template>
   <div class="container">
     <div class="dialog-container">
-      <transition name="slide-left">
-        <set-master-pin-dialog @done="masterpinEntered" v-if="showSetupMasterPin"></set-master-pin-dialog>
-      </transition>
-      <transition name="slide-left">
-        <master-pin-dialog :title="'Create a wallet'" @done="masterpinEntered" v-if="showEnterMasterPin">
-          <p>Please confirm by providing your Master Pin Code</p>
-        </master-pin-dialog>
-      </transition>
-      <transition name="slide-left">
-        <dialog-template v-if="showCreatingWallet" :title="'Creating wallet'">
-          <p>A <strong>{{chain}}</strong> wallet is being created...</p>
-        </dialog-template>
-      </transition>
-      <transition name="slide-left">
-        <redirect-dialog :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri" :timeleft="timeleft" v-if="showWalletCreated">
-          <p>A <strong>{{chain}}</strong> wallet with the following address has been created:</p>
-          <p><wallet-card :wallet="wallet" :showFunds="false"></wallet-card></p>
-          <p><action-button @click="redirectBack">Continue to ThorBlock ({{timeleft / 1000}})</action-button></p>
-        </redirect-dialog>
-      </transition>
+
+      <set-master-pin-dialog @done="masterpinEntered" v-if="showSetupMasterPin"></set-master-pin-dialog>
+
+      <master-pin-dialog :title="'Create a wallet'" @done="masterpinEntered" v-if="showEnterMasterPin">
+        <p>Please confirm by providing your Master Pin Code</p>
+      </master-pin-dialog>
+
+      <dialog-template v-if="showCreatingWallet" :title="'Creating wallet'">
+        <p>A <strong>{{chain}}</strong> wallet is being created...</p>
+      </dialog-template>
+
+      <redirect-dialog :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri" :timeleft="timeleft" v-if="showWalletCreated">
+        <p>A <strong>{{chain}}</strong> wallet with the following address has been created:</p>
+        <p>
+          <wallet-card :wallet="wallet" :showFunds="false"></wallet-card>
+        </p>
+        <p>
+          <action-button @click="redirectBack">Continue to ThorBlock ({{timeleft / 1000}})</action-button>
+        </p>
+      </redirect-dialog>
+
     </div>
   </div>
 </template>
