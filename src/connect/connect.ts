@@ -1,12 +1,17 @@
-import EthereumTransactionData from '../api/EthereumTransactionData';
-import VechainTransactionData from '../api/VechainTransactionData';
+/* tslint:disable */
+/// <reference path="./typings.d.ts" />
+/* tslint:enable */
+import {AxiosResponse} from 'axios';
 import {EVENT_TYPES} from '../types/EventTypes';
-import {CHAIN_TYPES} from '../types/ChainTypes';
 import ResponseBody from '../api/ResponseBody';
 import RestApi from '../api/RestApi';
+import {Wallet} from '../models/Wallet';
+import Utils from '../utils/Utils';
+import {Profile} from '../models/Profile';
 
 export default class ArkaneConnect {
-    private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 300, h: number = 500) {
+
+    private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 300, h: number = 530) {
         const left = (screen.width / 2) - (w / 2);
         const top = (screen.height / 2) - (h / 2);
         let features = 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, ';
@@ -20,119 +25,99 @@ export default class ArkaneConnect {
     }
 
     public popup!: Window;
-    public loc: string = '';
-    public apiLoc: string = '';
-    public bearer: string = '';
 
-    public api: RestApi;
+    public api!: RestApi;
+    public clientId: string;
+    private bearerTokenProvider: any;
 
-    constructor(loc: string, bearer: string) {
-        const locPostfix = '.arkane.network';
-        const apiPostfix = '.arkane.network/api';
+    constructor(clientId: string = 'Arkane', bearerTokenProvider: any, environment?: string) {
+        this.clientId = clientId;
+        Utils.environment = environment || 'prod';
+        this.api = new RestApi(Utils.urls.api, bearerTokenProvider);
+        this.bearerTokenProvider = bearerTokenProvider;
+        this.addBeforeUnloadListener();
+    }
 
-        switch(loc) {
-            case 'local':
-                this.loc = 'http://localhost:8081';
-                this.apiLoc = `https://api-staging${apiPostfix}`;
-                break;
-            case 'tst1':
-                this.loc = `https://connect-tst1${locPostfix}`;
-                this.apiLoc = `https://api-tst1${apiPostfix}`;
-                break;
-            case 'staging':
-                this.loc = `https://connect-staging${locPostfix}`;
-                this.apiLoc = `https://api-staging${apiPostfix}`;
-                break;
-            case 'prod':
-                this.loc = `https://connect${locPostfix}`;
-                this.apiLoc = `https://api${apiPostfix}`;
+    public async init(chain: string): Promise<void> {
+        const wallets = await this.getWallets();
+        if (!(wallets && wallets.length > 0)) {
+            const currentLocation = window.location;
+            const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
+            window.location.href =
+                `${Utils.urls.connect}/init/${chain}/${this.bearerTokenProvider()}?redirectUri=${redirectUri}` +
+                `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
         }
-
-        this.api = new RestApi(this.apiLoc);
-        this.updateBearerToken(bearer);
+        return;
     }
 
-    public updateBearerToken(bearer: string) {
-        this.bearer = bearer;
-        this.api.http.defaults.headers.common = {
-            Authorization: 'Bearer ' + this.bearer,
-        };
-    }
-
-    public async getWallets() {
-        return this.api.http.get('wallets');
-    }
-
-    public async signEthereumTransaction(params: EthereumTransactionData) {
-        return this.signTransaction(() => {
-            this.sendEthParams(params);
-        });
-    }
-
-    public async signVechainTransaction(params: VechainTransactionData) {
-        return this.signTransaction(() => {
-            this.sendVechainParams(params);
-        });
-    }
-
-    private async signTransaction(sendParams: any) {
-        if (!this.popup) {
-            return new Promise((resolve, reject) => {
-                const url = `${this.loc}/sign/transaction/${this.bearer}`;
-                this.popup = ArkaneConnect.openWindow(url) as Window;
-                const interval = sendParams();
-                this.addEventListener(interval, resolve, reject);
-            });
+    public async getWallets(): Promise<Wallet[]> {
+        const response: AxiosResponse = await this.api.http.get('wallets');
+        if (response && response.data && response.data.success) {
+            return response.data.result;
+        } else {
+            return [];
         }
+    }
 
+    public async getProfile(): Promise<Profile> {
+        const response: AxiosResponse = await this.api.http.get('profile');
+        if (response && response.data && response.data.success) {
+            return response.data.result;
+        } else {
+            return new Profile();
+        }
+    }
+
+    public async signTransaction(params: any) {
+        if (!this.popup || this.popup.closed) {
+            await this.initPopup();
+        }
         this.popup.focus();
+        return new Promise((resolve, reject) => {
+            const url = `${Utils.urls.connect}/sign/transaction/${this.bearerTokenProvider()}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
+            this.popup = ArkaneConnect.openWindow(url) as Window;
+            this.postTransactionData(params);
+            this.addEventListeners(params, resolve, reject);
+        });
+    }
+
+    public async initPopup() {
+        const url = `${Utils.urls.connect}/sign/transaction/init`;
+        this.popup = ArkaneConnect.openWindow(url) as Window;
         return {
             success: false,
             errors: ['Popup already open'],
         };
     }
 
-    private sendEthParams(params: EthereumTransactionData) {
-        return this.sendMessage({
-            type: EVENT_TYPES.SEND_PARAMS,
-            chain: CHAIN_TYPES.ETHEREUM,
-            params,
-        });
+    public closePopup() {
+        if (this.popup) {
+            this.popup.close();
+            delete this.popup;
+        }
     }
 
-    private sendVechainParams(params: VechainTransactionData) {
-        return this.sendMessage({
-            type: EVENT_TYPES.SEND_PARAMS,
-            chain: CHAIN_TYPES.VECHAIN,
-            params,
-        });
-    }
-
-    private sendMessage(message: any) {
-        const interval = setInterval(() => {
-            if (!this.popup) {
-                clearInterval(interval);
-            } else {
-                this.popup.postMessage(message, this.loc);
-            }
-        }, 3000);
-        return interval;
-    }
-
-    private addEventListener(interval: any, resolve: any, reject: any) {
-        window.addEventListener('message', (e) => {
-            if (e.origin === this.loc) {
-                const data = this.messageHandler(e);
-                if (data) {
-                    clearInterval(interval);
-                    if (data && data.success) {
-                        resolve(data);
-                    } else {
-                        reject(data);
+    private addEventListeners(params: any, resolve: any, reject: any) {
+        window.addEventListener('message', (event) => {
+                if (event.origin === Utils.urls.connect) {
+                    if (event.data && event.data.type) {
+                        if (event.data.type === EVENT_TYPES.SIGNER_MOUNTED) {
+                            this.popup = (event.source as Window);
+                            this.postTransactionData(params);
+                        } else {
+                            const data = this.messageHandler(event);
+                            if (data) {
+                                if (data && data.success) {
+                                    resolve(data);
+                                } else {
+                                    reject(data);
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        }, false);
+            },
+            false);
     }
 
     private messageHandler(event: MessageEvent): ResponseBody | false {
@@ -151,6 +136,18 @@ export default class ArkaneConnect {
             default:
                 return false;
         }
+    }
+
+    private postTransactionData(params: any) {
+        this.popup.postMessage({type: EVENT_TYPES.SEND_TRANSACTION_DATA, params}, Utils.urls.connect);
+    }
+
+    private addBeforeUnloadListener() {
+        window.addEventListener('beforeunload', () => {
+            if (this.popup) {
+                this.popup.close();
+            }
+        });
     }
 }
 

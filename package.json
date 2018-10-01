@@ -1,9 +1,9 @@
 {
-  "name": "arkane-connect",
-  "version": "0.1.0",
+  "name": "@arkane-network/arkane-connect",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --port=8081",
     "serve-prod": "vue-cli-service serve --mode=production --port=8080",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
@@ -13,18 +13,23 @@
   "dependencies": {
     "babel-preset-es2015": "^6.24.1",
     "jsrsasign": "^8.0.12",
+    "roboto-fontface": "^0.10.0",
     "sinon": "^6.1.5",
+    "v-tooltip": "^2.0.0-rc.33",
     "vue": "^2.5.17",
     "vue-class-component": "^6.0.0",
     "vue-property-decorator": "^7.0.0",
     "vue-router": "^3.0.1",
-    "vuex": "^3.0.1"
+    "vuelidate": "^0.7.4",
+    "vuex": "^3.0.1",
+    "vuex-class": "^0.3.1"
   },
   "devDependencies": {
     "@types/chai": "^4.1.0",
     "@types/jquery": "^3.3.6",
     "@types/mocha": "^5.2.4",
     "@types/node": "^10.7.1",
+    "@types/vuelidate": "github:Simsteve7/vuelidate.ts#master",
     "@vue/cli-plugin-babel": "^3.0.1",
     "@vue/cli-plugin-e2e-cypress": "^3.0.1",
     "@vue/cli-plugin-typescript": "^3.0.1",

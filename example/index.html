@@ -11,7 +11,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link rel="stylesheet" href="/assets/css/keycloak.css" />
+    <link rel="stylesheet" href="/assets/css/auth.css" />
     <script src="/node_modules/keycloak-js/dist/keycloak.min.js"></script>
 </head>
 
@@ -20,16 +20,19 @@
 <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
 <![endif]-->
 <!-- Add your site or application content here -->
-<div class="keycloak-logged-in">
-    <div><span id="keycloak-username">Anoniem</span></div>
-    <a id="keycloak-logout" href="#"><span>Logout</span></a>
-    <a id="keycloak-requestaccess" href="#"><span>Get access</span></a>
+<div class="auth-logged-in">
+    <div><span id="auth-username">Anoniem</span></div>
+    <a id="auth-logout" href="#"><span>Logout</span></a>
+    <a id="auth-requestaccess" href="#"><span>Get access</span></a>
 
     <a id="arkane-sign-eth" href="#"><span>Sign eth transaction</span></a>
     <a id="arkane-sign-vechain" href="#"><span>Sign vechain transaction</span></a>
+    <a id="close-popup" href="#"><span>Close popup</span></a>
+    <a id="get-wallets" href="#"><span>Get Wallets</span></a>
+    <a id="get-profile" href="#"><span>Get Profile</span></a>
 </div>
-<div class="keycloak-not-logged-in">
-    <a id="keycloak-loginlink" href="#">Login in</a>
+<div class="auth-not-logged-in">
+    <a id="auth-loginlink" href="#">Login in</a>
 </div>
 
 <script src="/node_modules/jquery/dist/jquery.min.js"></script>

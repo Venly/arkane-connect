@@ -3,9 +3,11 @@ declare module '*.vue' {
     export default Vue;
 }
 
-declare module "*.json" {
+declare module '*.json' {
     const value: any;
     export default value;
 }
 
-declare module "jsrsasign";
+declare module 'jsrsasign';
+declare module 'v-tooltip';
+declare module 'vue.env';
