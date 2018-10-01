@@ -87,8 +87,7 @@ export default new Vuex.Store({
             store.commit('setLoading', false);
         },
         setErrorSnack: async (store: any, message: string) => {
-            const longMessage = message + message + message;
-            store.commit('setSnack', {type: SnackType.DANGER, message: longMessage});
+            store.commit('setSnack', {type: SnackType.DANGER, message});
         },
         resetErrorSnack: async (store: any) => {
             store.commit('setSnack', {});
