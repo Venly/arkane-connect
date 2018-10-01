@@ -47,7 +47,7 @@ export default class Numpad extends Vue {
     }
 
     public mounted() {
-        this.$refs.pinInput.focus();
+        (this.$refs.pinInput as HTMLElement).focus();
     }
 
     public numberClicked(num: number) {
