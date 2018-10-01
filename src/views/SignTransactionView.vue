@@ -3,7 +3,6 @@
     <div v-if="isInitialised">
       <div class="logo-wrapper">
         <img class="logo" alt="Arkane Logo" src="../assets/logo-arkane-animated.svg"/>
-        <p>{{errorText}}</p>
       </div>
       <numpad :title="'Enter your pincode to sign this transaction'"
               :params="transactionData"
@@ -24,22 +23,26 @@
     import ResponseBody from '@/api/ResponseBody';
     import {State} from 'vuex-class';
     import Security from '../Security';
+    import Snackbar from '@/components/atoms/Snackbar.vue';
+    import {Snack} from '@/models/Snack';
 
     declare const window: Window;
 
     @Component({
         components: {
             Numpad,
+            Snackbar,
         },
     })
     export default class SignTransactionView extends Vue {
         public loadingText = 'Initializing signer ...';
 
         public transactionData?: any;
-        public errorText = '';
 
         @State
         public auth: any;
+        @State
+        public snack!: Snack;
 
         private parentWindow!: Window;
         private parentOrigin!: string;
@@ -55,11 +58,11 @@
         }
 
         public noTriesLeftMessage() {
-            this.errorText = 'You entered a wrong pincode too many times.';
+            this.$store.dispatch('setErrorSnack', 'You entered a wrong pincode too many times.');
         }
 
         public wrongPincodeMessage() {
-            this.errorText = 'Wrong pincode';
+            this.$store.dispatch('setErrorSnack', 'Wrong pincode');
         }
 
         public mounted() {

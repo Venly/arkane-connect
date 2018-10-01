@@ -2,8 +2,7 @@
   <div class="numpad">
     <h3>{{title}}</h3>
     <input type="password" style="visibility: hidden"/>
-    <input class="password" @keypress.enter="sign" ref="pinInput" autofocus="autofocus" autocomplete="off" data-lpignore="true" type="password" v-model="pincode" v-if="!isError"/>
-    <div class="error" v-if="isError">Pin should be between 4 and 6 numbers long.</div>
+    <input class="password" @keypress.enter="sign" ref="pinInput" tabindex="0" autofocus="autofocus" autocomplete="off" data-lpignore="true" type="password" v-model="pincode" v-if="!isError"/>
     <div class="numbers">
       <numpad-number class="number" v-for="(num, index) in numbers.slice(0,9)" :num="num" :key="num" :tabindex="index + 1"
                      @click.prevent="numberClicked(num)" @keyup.native.enter="numberClicked(num)"></numpad-number>
@@ -23,14 +22,14 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import NumpadNumber from '@/components/atoms/NumpadNumber.vue';
-import Api from '@/api';
-import ResponseBody from '@/api/ResponseBody';
-import EthereumTransactionData from '@/api/EthereumTransactionData';
-import VechainTransactionData from '@/api/VechainTransactionData';
+    import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
+    import NumpadNumber from '@/components/atoms/NumpadNumber.vue';
+    import Api from '@/api';
+    import ResponseBody from '@/api/ResponseBody';
+    import EthereumTransactionData from '@/api/EthereumTransactionData';
+    import VechainTransactionData from '@/api/VechainTransactionData';
 
-@Component({
+    @Component({
     components: {
         NumpadNumber,
     },
@@ -41,23 +40,32 @@ export default class Numpad extends Vue {
     public pincode: string = '';
     public array: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
     public numbers!: number[];
-    public isError: boolean = false;
     public modalDisplay: string = 'none';
 
     public created() {
         this.numbers = this.array;
     }
 
+    public mounted() {
+        this.$refs.pinInput.focus();
+    }
+
     public numberClicked(num: number) {
-        this.isError = false;
         this.pincode += num;
         (this.$refs.pinInput as HTMLElement).focus();
     }
 
     public resetPincode() {
-        this.isError = false;
         this.pincode = '';
         (this.$refs.pinInput as HTMLElement).focus();
+        this.$store.dispatch('resetErrorSnack');
+    }
+
+    @Watch('pincode')
+    public onPincodeChange(newPincode: string, oldPincode: string): void {
+        if (newPincode !== '') {
+            this.$store.dispatch('resetErrorSnack');
+        }
     }
 
     public sign() {
@@ -82,8 +90,8 @@ export default class Numpad extends Vue {
                 });
             });
         } else {
-            this.isError = true;
             this.pincode = '';
+            this.$store.dispatch('setErrorSnack', 'Pin should be between 4 and 6 numbers long');
         }
     }
 
@@ -181,7 +189,7 @@ export default class Numpad extends Vue {
         background-color: #007cbb
         &:disabled
             background-color: lightgray
-            color: black
+            color: white
 
     .btn,
     .action-button

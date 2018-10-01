@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import Api from './api';
 import {Wallet} from '@/models/Wallet';
 import {SecretTypeUtil} from '@/models/SecretType';
+import {Snack, SnackType} from '@/models/Snack';
 
 Vue.use(Vuex);
 
@@ -18,6 +19,7 @@ export default new Vuex.Store({
         chain: {},
         thirdPartytoken: {},
         loading: false,
+        snack: {},
     },
     mutations: {
         setEnvironment: (state: any, environment: string) => {
@@ -47,6 +49,9 @@ export default new Vuex.Store({
         },
         setLoading: (state: any, isLoading: boolean) => {
             state.loading = isLoading;
+        },
+        setSnack: (state: any, snack: Snack) => {
+            state.snack = snack;
         },
     },
     actions: {
@@ -80,6 +85,13 @@ export default new Vuex.Store({
         },
         stopLoading: (store: any): void => {
             store.commit('setLoading', false);
+        },
+        setErrorSnack: async (store: any, message: string) => {
+            const longMessage = message + message + message;
+            store.commit('setSnack', {type: SnackType.DANGER, message: longMessage});
+        },
+        resetErrorSnack: async (store: any) => {
+            store.commit('setSnack', {});
         },
     },
     getters: {
