@@ -20,6 +20,8 @@ export default new Vuex.Store({
         thirdPartytoken: {},
         loading: false,
         snack: {},
+        hasBlockingError: false,
+        showModal: false,
     },
     mutations: {
         setEnvironment: (state: any, environment: string) => {
@@ -52,6 +54,12 @@ export default new Vuex.Store({
         },
         setSnack: (state: any, snack: Snack) => {
             state.snack = snack;
+        },
+        setHasBlockingError: (state: any, hasBlockingError: boolean) => {
+            state.hasBlockingError = hasBlockingError;
+        },
+        setShowModal: (state: any, showModal: boolean) => {
+            state.showModal = showModal;
         },
     },
     actions: {
@@ -86,11 +94,22 @@ export default new Vuex.Store({
         stopLoading: (store: any): void => {
             store.commit('setLoading', false);
         },
-        setErrorSnack: async (store: any, message: string) => {
-            store.commit('setSnack', {type: SnackType.DANGER, message});
+        setError: async (store: any, message: string) => {
+            store.commit('setSnack', {type: SnackType.DANGER, message, blocking: false});
         },
-        resetErrorSnack: async (store: any) => {
+        setBlockingError: async (store: any, message) => {
+            store.commit('setHasBlockingError', true);
+            store.commit('setShowModal', true);
+            store.commit('setSnack', {type: SnackType.DANGER, message, blocking: true});
+        },
+        resetError: async (store: any) => {
             store.commit('setSnack', {});
+        },
+        showModal: async (store: any) => {
+            store.commit('setShowModal', true);
+        },
+        hideModal: async (store: any) => {
+            store.commit('setShowModal', false);
         },
     },
     getters: {
