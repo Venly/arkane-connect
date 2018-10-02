@@ -22,6 +22,7 @@ export default new Vuex.Store({
         snack: {},
         hasBlockingError: false,
         showModal: false,
+        transactionWallet: {},
     },
     mutations: {
         setEnvironment: (state: any, environment: string) => {
@@ -60,6 +61,9 @@ export default new Vuex.Store({
         },
         setShowModal: (state: any, showModal: boolean) => {
             state.showModal = showModal;
+        },
+        setTransactionWallet: async (state: any, wallet: Wallet) => {
+            state.transactionWallet = wallet;
         },
     },
     actions: {
@@ -110,6 +114,9 @@ export default new Vuex.Store({
         },
         hideModal: async (store: any) => {
             store.commit('setShowModal', false);
+        },
+        setTransactionWallet: async (store: any, wallet: Wallet) => {
+            store.commit('setTransactionWallet', wallet);
         },
     },
     getters: {

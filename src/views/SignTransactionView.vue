@@ -25,7 +25,7 @@
     import {State} from 'vuex-class';
     import Security from '../Security';
     import Api from '../api';
-    import {Balance} from '../models/Balance';
+    import {Wallet} from '../models/Wallet';
 
     declare const window: Window;
 
@@ -88,7 +88,7 @@
                     this.transactionData = {...data.params};
                     this.parentOrigin = event.origin;
                     this.parentWindow = (event.source as Window);
-                    await this.checkGas(this.transactionData);
+                    await this.fetchWallet(this.transactionData);
                     this.hasTransactionData = true;
                 }
             }, false);
@@ -98,9 +98,10 @@
             });
         }
 
-        private async checkGas(transactionData: any): Promise<boolean> {
-            return Api.getBalance(transactionData.walletId).then((balance: Balance) => {
-                if (balance && balance.gasBalance <= 0) {
+        private async fetchWallet(transactionData: any): Promise<boolean> {
+            return Api.getWallet(transactionData.walletId).then((wallet: Wallet) => {
+                this.$store.dispatch('setTransactionWallet', wallet);
+                if (wallet && wallet.balance && wallet.balance.gasBalance <= 0) {
                     this.$store.dispatch('setBlockingError', 'This wallet has insufficient gas to execute a transaction');
                     return false;
                 } else {
