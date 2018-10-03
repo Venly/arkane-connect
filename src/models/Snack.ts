@@ -6,6 +6,7 @@ export enum SnackType {
 }
 
 export interface Snack {
-    type: SnackType;
-    message: string;
+    'type': SnackType;
+    'message': string;
+    'blocking': boolean;
 }

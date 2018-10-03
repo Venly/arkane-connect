@@ -6,6 +6,7 @@
       </div>
       <numpad :title="'Enter your pincode to sign this transaction'"
               :params="transactionData"
+              :disabled="hasBlockingError"
               @signed="sendTransactionSignedMessage"
               @pincode_incorrect="wrongPincodeMessage"
               @pincode_no_tries_left="noTriesLeftMessage"></numpad>
@@ -23,15 +24,14 @@
     import ResponseBody from '@/api/ResponseBody';
     import {State} from 'vuex-class';
     import Security from '../Security';
-    import Snackbar from '@/components/atoms/Snackbar.vue';
-    import {Snack} from '@/models/Snack';
+    import Api from '../api';
+    import {Wallet} from '../models/Wallet';
 
     declare const window: Window;
 
     @Component({
         components: {
             Numpad,
-            Snackbar,
         },
     })
     export default class SignTransactionView extends Vue {
@@ -42,7 +42,7 @@
         @State
         public auth: any;
         @State
-        public snack!: Snack;
+        public hasBlockingError!: boolean;
 
         private parentWindow!: Window;
         private parentOrigin!: string;
@@ -58,11 +58,11 @@
         }
 
         public noTriesLeftMessage() {
-            this.$store.dispatch('setErrorSnack', 'You entered a wrong pincode too many times.');
+            this.$store.dispatch('setError', 'You entered a wrong pincode too many times.');
         }
 
         public wrongPincodeMessage() {
-            this.$store.dispatch('setErrorSnack', 'Wrong pincode');
+            this.$store.dispatch('setError', 'Wrong pincode');
         }
 
         public mounted() {
@@ -82,18 +82,33 @@
         }
 
         private addEventListeners() {
-            window.addEventListener('message', (event: MessageEvent) => {
+            window.addEventListener('message', async (event: MessageEvent) => {
                 const data = event.data;
                 if (data && data.type === EVENT_TYPES.SEND_TRANSACTION_DATA) {
                     this.transactionData = {...data.params};
                     this.parentOrigin = event.origin;
                     this.parentWindow = (event.source as Window);
+                    await this.fetchWallet(this.transactionData);
                     this.hasTransactionData = true;
                 }
             }, false);
 
             window.addEventListener('beforeunload', () => {
                 this.parentWindow.postMessage({type: EVENT_TYPES.POPUP_CLOSED}, this.parentOrigin);
+            });
+        }
+
+        private async fetchWallet(transactionData: any): Promise<boolean> {
+            return Api.getWallet(transactionData.walletId).then((wallet: Wallet) => {
+                this.$store.dispatch('setTransactionWallet', wallet);
+                if (wallet && wallet.balance && wallet.balance.gasBalance <= 0) {
+                    this.$store.dispatch('setBlockingError', 'This wallet has insufficient gas to execute a transaction');
+                    return false;
+                } else {
+                    return true;
+                }
+            }).catch((result: any) => {
+                return true;
             });
         }
     }
