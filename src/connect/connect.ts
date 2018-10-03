@@ -3,7 +3,6 @@
 /* tslint:enable */
 import {AxiosResponse} from 'axios';
 import {EVENT_TYPES} from '../types/EventTypes';
-import ResponseBody from '../api/ResponseBody';
 import RestApi from '../api/RestApi';
 import {Wallet} from '../models/Wallet';
 import Utils from '../utils/Utils';
@@ -24,10 +23,11 @@ export default class ArkaneConnect {
         return newWindow;
     }
 
-    public popup!: Window;
+    private popup?: Window;
+    private messagePort?: MessagePort;
 
-    public api!: RestApi;
-    public clientId: string;
+    private api!: RestApi;
+    private clientId: string;
     private bearerTokenProvider: any;
 
     constructor(clientId: string = 'Arkane', bearerTokenProvider: any, environment?: string) {
@@ -72,12 +72,17 @@ export default class ArkaneConnect {
         if (!this.popup || this.popup.closed) {
             await this.initPopup();
         }
-        this.popup.focus();
+        if (this.popup) {
+            this.popup.focus();
+        }
         return new Promise((resolve, reject) => {
             const url = `${Utils.urls.connect}/sign/transaction/${this.bearerTokenProvider()}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
             this.popup = ArkaneConnect.openWindow(url) as Window;
-            this.postTransactionData(params);
-            this.addEventListeners(params, resolve, reject);
+            window.addEventListener('message', (message: MessageEvent) => {
+                if (Utils.messages().hasValidOrigin(message) && Utils.messages().isOfType(message, EVENT_TYPES.SIGNER_MOUNTED)) {
+                    this.initMessageChannel(params, message, resolve, reject);
+                }
+            });
         });
     }
 
@@ -95,58 +100,43 @@ export default class ArkaneConnect {
             this.popup.close();
             delete this.popup;
         }
-    }
-
-    private addEventListeners(params: any, resolve: any, reject: any) {
-        window.addEventListener('message', (event) => {
-                if (event.origin === Utils.urls.connect) {
-                    if (event.data && event.data.type) {
-                        if (event.data.type === EVENT_TYPES.SIGNER_MOUNTED) {
-                            this.popup = (event.source as Window);
-                            this.postTransactionData(params);
-                        } else {
-                            const data = this.messageHandler(event);
-                            if (data) {
-                                if (data && data.success) {
-                                    resolve(data);
-                                } else {
-                                    reject(data);
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            false);
-    }
-
-    private messageHandler(event: MessageEvent): ResponseBody | false {
-        const data = event.data && {...event.data.data};
-        switch (event.data && event.data.type) {
-            case EVENT_TYPES.TRANSACTION_SIGNED:
-                this.popup.close();
-                return data;
-            case EVENT_TYPES.POPUP_CLOSED:
-                delete this.popup;
-                return {
-                    success: false,
-                    errors: ['Popup closed'],
-                    result: {},
-                };
-            default:
-                return false;
+        if (this.messagePort) {
+            this.messagePort.close();
+            delete this.messagePort;
         }
     }
 
-    private postTransactionData(params: any) {
-        this.popup.postMessage({type: EVENT_TYPES.SEND_TRANSACTION_DATA, params}, Utils.urls.connect);
+
+    private initMessageChannel(params: any, message: MessageEvent, resolve: any, reject: any) {
+        this.messagePort = message.ports[0];
+        this.messagePort.onmessage = this.createMessageHandler(resolve, reject);
+        this.messagePort.postMessage({type: EVENT_TYPES.SEND_TRANSACTION_DATA, params});
+    }
+
+    private createMessageHandler(resolve: any, reject: any) {
+        return (message: MessageEvent) => {
+            if (Utils.messages().hasType(message)) {
+                switch (message.data.type) {
+                    case EVENT_TYPES.TRANSACTION_SIGNED:
+                        this.closePopup();
+                        resolve(message.data && {...message.data.data});
+                        break;
+                    case EVENT_TYPES.POPUP_CLOSED:
+                        delete this.popup;
+                        reject({
+                            success: false,
+                            errors: ['Popup closed'],
+                            result: {},
+                        });
+                        break;
+                }
+            }
+        };
     }
 
     private addBeforeUnloadListener() {
         window.addEventListener('beforeunload', () => {
-            if (this.popup) {
-                this.popup.close();
-            }
+            this.closePopup();
         });
     }
 }

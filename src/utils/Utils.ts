@@ -1,4 +1,5 @@
 import ENV from '../../vue.env';
+import {EVENT_TYPES} from '@/types/EventTypes';
 
 export default class Utils {
     public static environment: string = 'prod';
@@ -64,5 +65,19 @@ export default class Utils {
                         Object.assign(newObj, {[k]: Utils.removeNulls(obj[k])}) :  // Recurse.
                         Object.assign(newObj, {[k]: obj[k]}),  // Copy value.
                 {});
+    }
+
+    public static messages() {
+        return {
+            hasValidOrigin: (message: MessageEvent) => {
+                return message.origin === Utils.urls.connect;
+            },
+            hasType: (message: MessageEvent) => {
+                return message.data && message.data.type && message.data.type !== '';
+            },
+            isOfType: (message: MessageEvent, eventType: EVENT_TYPES) => {
+                return Utils.messages().hasType(message) && message.data.type === eventType;
+            },
+        };
     }
 }
