@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-    entry: path.join(__dirname, './connect.ts'),
+    entry: path.join(__dirname, 'src/index.ts'),
     output: {
         filename: 'connect.js',
         path:  path.join(__dirname, '.'),
