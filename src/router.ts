@@ -6,6 +6,8 @@ import SignTransactionView from './views/SignTransactionView.vue';
 import Security from './Security';
 import Utils from './utils/Utils';
 import store from './store';
+import {Profile} from '@/models/Profile';
+import {Wallet} from '@/models/Wallet';
 
 Vue.use(Router);
 
@@ -31,11 +33,90 @@ const router = new Router({
             },
         },
         {
+            path: '/init/:chain/:bearer/createwallet',
+            name: 'create-wallet',
+            component: loadView('CreateWallet'),
+            // meta: {
+            //     authArkane: true,
+            // },
+            // beforeEnter: async (to, from, next) => {
+            //     if (!store.state.auth.authenticated) {
+            //         checkAuthorize(to);
+            //     }
+            //     Promise.all([
+            //         store.dispatch('fetchUserData'),
+            //         store.dispatch('fetchUserWallets'),
+            //     ]).then((result: any) => {
+            //         const profile: Profile = result[0];
+            //         const wallets: Wallet[] = result[1];
+            //         const chain = (to.params as any).chain;
+            //
+            //         if (profile.hasMasterPin && hasWalletsForChainType(wallets, chain)) {
+            //             next({name: 'link-wallet', params: to.params, query: to.query});
+            //         } else {
+            //             next();
+            //         }
+            //     }).catch((reason: any) => {
+            //         // TODO got to error screen
+            //     });
+            // },
+        },
+        {
+            path: '/init/:chain/:bearer/linkwallet',
+            name: 'link-wallet',
+            component: loadView('LinkWallet'),
+            // meta: {
+            //     authArkane: true,
+            // },
+            // beforeEnter: async (to, from, next) => {
+            //     if (!store.state.auth.authenticated) {
+            //         checkAuthorize(to);
+            //     }
+            //     Promise.all([
+            //         store.dispatch('fetchUserData'),
+            //         store.dispatch('fetchUserWallets'),
+            //     ]).then((result: any) => {
+            //         const profile: Profile = result[0];
+            //         const wallets: Wallet[] = result[1];
+            //         const chain = (to.params as any).chain;
+            //
+            //         if (profile.hasMasterPin && hasWalletsForChainType(wallets, chain)) {
+            //             next();
+            //         } else {
+            //             next({name: 'create-wallet', params: to.params, query: to.query});
+            //         }
+            //     }).catch((reason: any) => {
+            //         // TODO got to error screen
+            //     });
+            // },
+        },
+        {
             path: '/init/:chain/:bearer',
             name: 'init',
             component: loadView('Init'),
             meta: {
                 authArkane: true,
+            },
+            beforeEnter: async (to, from, next) => {
+                if (!store.state.auth.authenticated) {
+                    checkAuthorize(to);
+                }
+                await Promise.all([
+                    store.dispatch('fetchUserData'),
+                    store.dispatch('fetchUserWallets'),
+                ]).then((result: any) => {
+                    const profile: Profile = result[0];
+                    const wallets: Wallet[] = result[1];
+                    const chain = (to.params as any).chain;
+
+                    if (profile.hasMasterPin && Utils.wallets.hasWalletsForChainType(wallets, chain)) {
+                        next({name: 'link-wallet', params: to.params, query: to.query});
+                    } else {
+                        next({name: 'create-wallet', params: to.params, query: to.query});
+                    }
+                }).catch((reason: any) => {
+                    // TODO got to error screen
+                });
             },
         },
         {path: '*', component: loadView('Error404')},
@@ -120,17 +201,18 @@ const resolveRoute = async (to: Route, from?: Route) => {
     return proceed;
 };
 
+router.beforeEach(async (to: Route, from: Route, next: any) => {
+    const proceed = await resolveRoute(to, from);
+
+    if (!proceed) {
+        next({name: 'unauthorized'});
+    } else {
+        next();
+    }
+});
+
 export const onReady = (callback: any) => {
     router.onReady(() => {
-        router.beforeResolve(async (to: Route, from: Route, next: any) => {
-            const proceed = await resolveRoute(to, from);
-
-            if (!proceed) {
-                next({name: 'unauthorized'});
-            } else {
-                next();
-            }
-        });
         resolveRoute(router.currentRoute).then((proceed: boolean) => {
             if (!proceed) {
                 router.replace({name: 'unauthorized'});

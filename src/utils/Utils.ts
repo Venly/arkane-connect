@@ -1,7 +1,20 @@
 import ENV from '../../vue.env';
+import {Wallet} from '@/models/Wallet';
+import store from '@/store';
 
 export default class Utils {
     public static environment: string = 'prod';
+
+    public static wallets = {
+        filterWalletsForChainType: (wallets: Wallet[], chain: string): Wallet[] => {
+            return wallets.filter((wallet: Wallet) => {
+                return wallet.secretType === store.getters.secretType;
+            });
+        },
+        hasWalletsForChainType: (wallets: Wallet[], chain: string): boolean => {
+            return Utils.wallets.filterWalletsForChainType(wallets, chain).length > 0;
+        },
+    };
 
     public static get env() {
         const env: any = ENV;

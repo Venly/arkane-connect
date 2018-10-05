@@ -34,11 +34,9 @@
     import RedirectDialog from '@/components/organisms/dialogs/RedirectDialog.vue';
     import DialogTemplate from '@/components/molecules/DialogTemplate.vue';
     import ActionButton from '@/components/atoms/ActionButton.vue';
-    import {Wallet} from '@/models/Wallet';
+    import {Wallet} from '../models/Wallet';
     import {Getter, State} from 'vuex-class';
     import {AsyncData} from '@/decorators/decorators';
-    import {Store} from 'vuex';
-    import {Route} from 'vue-router';
     import {SecretType} from '@/models/SecretType';
 
     @Component({
@@ -51,7 +49,7 @@
             WalletCard,
         },
     })
-    export default class InitView extends Vue {
+    export default class CreateWalletView extends Vue {
 
         private get showSetupMasterPin(): boolean {
             return !this.isMasterPinInitiallyPresent && !this.isMasterPinEntered;
@@ -62,19 +60,15 @@
         }
 
         private get showCreatingWallet(): boolean {
-            return this.hasMasterPin && this.isMasterPinEntered && !this.isWalletPresent;
+            return this.isMasterPinEntered && !this.isWalletPresent;
         }
 
         private get showWalletCreated(): boolean {
-            return this.hasMasterPin && this.isMasterPinEntered && this.isWalletPresent;
+            return this.isMasterPinEntered && this.isWalletPresent;
         }
 
         @State
         public hasMasterPin!: boolean;
-        @State
-        public userId!: string;
-        @State
-        public wallets!: Wallet[];
         @State
         public chain!: string;
         @Getter
@@ -95,43 +89,32 @@
         public mounted(): void {
             this.redirectUri = (this.$route.query as any).redirectUri;
             this.isMasterPinInitiallyPresent = this.hasMasterPin;
-            if (this.hasMasterPin
-                && this.secretType
-                && this.wallets
-                && this.wallets.length > 0
-                && this.wallets.filter((wallet) => this.secretType === wallet.secretType).length > 0) {
-
-                this.isWalletPresent = true;
-                this.redirectBack();
-            }
-        }
-
-        @AsyncData
-        public async asyncData(store: Store<any>, to: Route): Promise<any> {
-            await store.dispatch('fetchUserData');
-            return store.dispatch('fetchUserWallets');
         }
 
         private async masterpinEntered(pincode: string) {
             if (pincode) {
                 this.isMasterPinEntered = true;
                 this.$store.dispatch('startLoading');
-                this.wallet = await this.createWallet(pincode);
-                this.isWalletPresent = !!(this.wallet);
-                this.$store.dispatch('stopLoading');
-                this.interval = setInterval(() => {
-                    this.timeleft = this.timeleft - 1000;
-                    if (this.timeleft <= 0) {
-                        clearInterval(this.interval);
-                    }
-                }, 1000);
+                this.createWallet(pincode)
+                    .then((newWallet: Wallet) => {
+                        this.wallet = newWallet;
+                        this.isWalletPresent = !!(this.wallet);
+                        this.$store.dispatch('stopLoading');
+                        this.interval = setInterval(() => {
+                            this.timeleft = this.timeleft - 1000;
+                            if (this.timeleft <= 0) {
+                                clearInterval(this.interval);
+                            }
+                        }, 1000);
+                    })
+                    .catch((reason: any) => {
+                        // TODO Error page
+                    });
             }
         }
 
         private async createWallet(pincode: string): Promise<Wallet> {
-            this.isWalletPresent = !!(this.wallet);
-            this.wallet = await this.$store.dispatch('createWallet', {secretType: this.secretType, masterPincode: pincode, clients: [this.thirdPartyClientId]});
-            return this.wallet;
+            return this.$store.dispatch('createWallet', {secretType: this.secretType, masterPincode: pincode, clients: [this.thirdPartyClientId]});
         }
 
         private redirectBack() {

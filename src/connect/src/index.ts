@@ -1,1 +1,1 @@
-export {ArkaneConnect} from './connect'
+export {ArkaneConnect} from './connect';

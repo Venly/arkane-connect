@@ -4,6 +4,7 @@ import Api from './api';
 import {Wallet} from '@/models/Wallet';
 import {SecretTypeUtil} from '@/models/SecretType';
 import {Snack, SnackType} from '@/models/Snack';
+import {Profile} from '@/models/Profile';
 
 Vue.use(Vuex);
 
@@ -67,13 +68,17 @@ export default new Vuex.Store({
         },
     },
     actions: {
-        getUserData: async (store: any) => {
-            const profile = await Api.getProfile() as any;
-            store.commit('setProfile', profile);
+        fetchUserData: async (store: any): Promise<Profile> => {
+            return Api.getProfile().then((profile: Profile) => {
+                store.commit('setProfile', profile);
+                return profile;
+            });
         },
-        getUserWallets: async (store: any) => {
-            const wallets = await Api.getWallets();
-            store.commit('setWallets', wallets);
+        fetchUserWallets: async (store: any): Promise<Wallet[]> => {
+            return Api.getWallets().then((wallets: Wallet[]) => {
+                store.commit('setWallets', wallets);
+                return wallets;
+            });
         },
         updateMasterPin: async (store: any, {oldMasterPin, masterPin}): Promise<boolean> => {
             const success = await Api.setMasterPin(masterPin, oldMasterPin);
