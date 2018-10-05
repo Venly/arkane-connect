@@ -1,8 +1,8 @@
 {
   "name": "@arkane-network/arkane-connect",
-  "version": "0.0.13",
+  "version": "0.0.15",
   "description": "Arkane Connect - api library for 3th parties",
-  "main": "dist/src/conncet/src/index.js",
+  "main": "dist/src/connect/src/index.js",
   "types": "dist/src/connect/src/index.d.ts",
   "scripts": {
     "build-ts":  "tsc -p .",
