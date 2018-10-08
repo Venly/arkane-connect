@@ -63,19 +63,20 @@ export default class Utils {
 
         return {
             api: `https://api${prefix}.arkane.network/api`,
-            connect: Utils.environment === 'local' ?
-                'http://localhost:8081' : `https://connect${prefix}.arkane.network`,
+            connect: Utils.environment === 'local' ? 'http://localhost:8081' : `https://connect${prefix}.arkane.network`,
             login: `https://login${prefix}.arkane.network/auth`,
         };
     }
 
     public static removeNulls(obj: any): any {
         return Object.keys(obj)
-            .filter((k) => obj[k] !== null && obj[k] !== undefined)  // Remove undef. and null.
-            .reduce((newObj, k) =>
-                    typeof obj[k] === 'object' ?
-                        Object.assign(newObj, {[k]: Utils.removeNulls(obj[k])}) :  // Recurse.
-                        Object.assign(newObj, {[k]: obj[k]}),  // Copy value.
-                {});
+            .filter((key) => obj[key] !== null && obj[key] !== undefined)  // Remove undef. and null.
+            .reduce((newObj, key) => {
+                if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+                    return Object.assign(newObj, {[key]: Utils.removeNulls(obj[key])});
+                } else {
+                    return Object.assign(newObj, {[key]: obj[key]});
+                }
+            }, {});
     }
 }

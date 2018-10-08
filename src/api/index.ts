@@ -92,17 +92,18 @@ export default class Api {
 
     public static async linkWallet(command: LinkWalletCommand): Promise<ResponseBody> {
         return Api.getApi().http.post('wallets/link', Utils.removeNulls(command))
-            .then((axiosRes: AxiosResponse) => {
-                return {
-                    success: true,
-                    result: {},
-                };
-            }).catch((e: Error) => {
-                return {
-                    success: false,
-                    result: {},
-                };
-            });
+                  .then((axiosRes: AxiosResponse) => {
+                      return {
+                          success: true,
+                          result: {},
+                      };
+                  })
+                  .catch((e: Error) => {
+                      return {
+                          success: false,
+                          result: {},
+                      };
+                  });
     }
 
     private static instance: Api;

@@ -5,10 +5,10 @@
                 <svg-checkmark class="success" v-if="icon === 'success'"></svg-checkmark>
             </div>
         </template>
-        <p class="message">
+        <div class="message">
             <span v-if="timeleft > 0"><slot></slot></span>
             <span v-else>Loading <strong>{{redirectUri}}</strong> ...</span>
-        </p>
+        </div>
     </dialog-template>
 </template>
 <script lang="ts">
@@ -48,6 +48,7 @@
 
     .icon-wrapper
         height: rem(50px)
+        margin-bottom: 20px
         > svg
             max-width: 100%
             max-height: 100%

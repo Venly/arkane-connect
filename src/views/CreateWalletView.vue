@@ -38,6 +38,7 @@
     import {Getter, State} from 'vuex-class';
     import {AsyncData} from '@/decorators/decorators';
     import {SecretType} from '@/models/SecretType';
+    import Utils from '../utils/Utils';
 
     @Component({
         components: {
@@ -67,6 +68,8 @@
             return this.isMasterPinEntered && this.isWalletPresent;
         }
 
+        // @State
+        // private wallets!: Wallet[];
         @State
         public hasMasterPin!: boolean;
         @State
@@ -86,10 +89,22 @@
         private redirectUri = '/';
         private interval!: any;
 
+        // public created() {
+        //     console.log(this.wallets);
+        //     console.log(this.walletsForChainType);
+        //     if (this.wallets && this.walletsForChainType > 0) {
+        //         this.$router.replace({name: 'init', params: this.$route.params, query: this.$route.query});
+        //     }
+        // }
+
         public mounted(): void {
             this.redirectUri = (this.$route.query as any).redirectUri;
             this.isMasterPinInitiallyPresent = this.hasMasterPin;
         }
+
+        // private get walletsForChainType() {
+        //     return Utils.wallets.filterWalletsForChainType(this.wallets, this.chain);
+        // }
 
         private async masterpinEntered(pincode: string) {
             if (pincode) {

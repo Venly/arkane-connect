@@ -1,32 +1,21 @@
 <template>
-  <div class="container" v-if="walletsForChainType.length > 0">
+  <div class="container">
     <div class="dialog-container">
 
-      <dialog-template v-if="showLinkWallet" :title="'Access to your wallets'">
-        <p class="description no-margin-bottom">Select the wallets that application <b>{{thirdPartyClientId}}</b> is allowed to access:</p>
-        <form class="form">
-          <div class="wallets">
-            <div class="wallet-control" v-for="wallet in walletsForChainType">
-              <div class="control control--checkbox">
-                <input :ref="`wallet-${wallet.id}`" :id="`wallet-${wallet.id}`" :value="wallet" v-model="selectedWallets"
-                       class="control__checkbox control__checkbox--check wallet-select" type="checkbox"/>
-                <label class="control__label" :for="`wallet-${wallet.id}`"></label>
-              </div>
-              <wallet-card :wallet="wallet" :showFunds="false" @click="walletSelected(wallet)"></wallet-card>
-            </div>
-          </div>
-          <action-button :type="'brand-light'"
-                         @click="linkWallets"
-                         :disabled="selectedWallets.length <= 0"
-                         :title="selectedWallets.length <= 0 ? 'At least one wallet needs to be selected' : ''">
-            Link Wallets
-          </action-button>
-        </form>
-        <div class="separator">
-          <div class="separator__label">or</div>
+      <link-wallets-dialog :wallets="walletsForChainType" :chain="chain" :thirdPartylClientId="thirdPartyClientId" v-if="showLinkWallet"
+                           @linkWalletsClicked="linkWallets"
+                           @createWalletClicked="toCreateWallet"></link-wallets-dialog>
+
+
+      <redirect-dialog :class="'success'" :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri" :timeleft="timeleft" v-if="showWalletsLinked">
+        <p>The following wallets have been linked successfully:</p>
+        <div class="wallets">
+          <wallet-card :wallet="wallet" :showFunds="false" v-for="wallet in selectedWallets"></wallet-card>
         </div>
-        <action-button @click="createWallet">Create a New Wallet</action-button>
-      </dialog-template>
+        <div class="no-margin-bottom">
+          <action-button @click="redirectBack">Continue to ThorBlock ({{timeleft / 1000}})</action-button>
+        </div>
+      </redirect-dialog>
 
     </div>
   </div>
@@ -45,9 +34,13 @@
     import {AsyncData} from '@/decorators/decorators';
     import {SecretType} from '@/models/SecretType';
     import Utils from '../utils/Utils';
+    import Api from '../api';
+    import ResponseBody from '../api/ResponseBody';
+    import LinkWalletsDialog from '../components/organisms/dialogs/LinkWalletsDialog.vue';
 
     @Component({
         components: {
+            LinkWalletsDialog,
             ActionButton,
             RedirectDialog,
             MasterPinDialog,
@@ -65,7 +58,10 @@
         @Getter
         private thirdPartyClientId!: string;
 
-        private selectedWallets: Wallet[] = [];
+        private selectedWallets?: Wallet[];
+
+        private showWalletsLinked: boolean = false;
+        private showWalletsLinkedError: boolean = false;
 
         private timeleft = 5000;
 
@@ -73,7 +69,7 @@
         private interval!: any;
 
         public created() {
-            if (!(this.wallets && this.wallets.length > 0)) {
+            if (!(this.wallets && this.walletsForChainType.length > 0)) {
                 this.$router.replace({name: 'init', params: this.$route.params, query: this.$route.query});
             }
         }
@@ -82,28 +78,41 @@
             this.redirectUri = (this.$route.query as any).redirectUri;
         }
 
-        public get walletsForChainType() {
+        private get walletsForChainType() {
             return Utils.wallets.filterWalletsForChainType(this.wallets, this.chain);
         }
 
-        private walletSelected(selectedWallet: Wallet) {
-            if (this.selectedWallets.indexOf(selectedWallet) > -1) {
-                this.selectedWallets = this.selectedWallets.filter((wallet: Wallet) => wallet.id !== selectedWallet.id);
-            } else {
-                this.selectedWallets.push(selectedWallet);
+        private get showLinkWallet(): boolean {
+            return !this.showWalletsLinked && !this.showWalletsLinkedError;
+        }
+
+        private async linkWallets(selectedWalletsDto: { wallets: Wallet[] }) {
+            this.$store.dispatch('startLoading');
+            Api.linkWallet({issuer: this.thirdPartyClientId, walletIds: selectedWalletsDto.wallets.map((wallet: Wallet) => wallet.id)})
+                .then((response: ResponseBody) => {
+                    if (response.success) {
+                        this.showWalletsLinked = true;
+                    } else {
+                        this.showWalletsLinkedError = false;
+                    }
+                    this.selectedWallets = selectedWalletsDto.wallets;
+                    this.$store.dispatch('stopLoading');
+                });
+        }
+
+        @Watch('showWalletsLinked')
+        private onWalletsLinked(newValue: boolean, curValue: boolean) {
+            if (newValue) {
+                this.interval = setInterval(() => {
+                    this.timeleft = this.timeleft - 1000;
+                    if (this.timeleft <= 0) {
+                        clearInterval(this.interval);
+                    }
+                }, 1000);
             }
         }
 
-        private get showLinkWallet(): boolean {
-            return true;
-        }
-
-        private async linkWallets(): Promise<Wallet> {
-            // return this.$store.dispatch('createWallet', {secretType: this.secretType, masterPincode: pincode, clients: [this.thirdPartyClientId]});
-            return new Wallet();
-        }
-
-        private createWallet() {
+        private toCreateWallet() {
             this.$router.replace({name: 'create-wallet', params: this.$route.params, query: this.$route.query});
         }
 
@@ -154,6 +163,16 @@
   .control--checkbox
     margin-bottom: 0
 
+  .link-button
+    margin-bottom: 0
+    margin-top: rem(20px)
+
   .separator
     margin: rem(30px 0)
+
+  .success
+    .wallet-card
+      width: 100%
+      margin-bottom: rem(10px)
+
 </style>
