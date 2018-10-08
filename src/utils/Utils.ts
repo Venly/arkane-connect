@@ -1,6 +1,6 @@
 import ENV from '../../vue.env';
-import {Wallet} from '@/models/Wallet';
-import store from '@/store';
+import {Wallet} from '../models/Wallet';
+import store from '../store';
 
 export default class Utils {
     public static environment: string = 'prod';

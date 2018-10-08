@@ -3,19 +3,24 @@
     <div class="dialog-container">
 
       <dialog-template v-if="showLinkWallet" :title="'Access to your wallets'">
+        <p class="description no-margin-bottom">Select the wallets that application <b>{{thirdPartyClientId}}</b> is allowed to access:</p>
         <form class="form">
           <div class="wallets">
             <div class="wallet-control" v-for="wallet in walletsForChainType">
-                 <!--@click="walletSelected(wallet)">-->
               <div class="control control--checkbox">
                 <input :ref="`wallet-${wallet.id}`" :id="`wallet-${wallet.id}`" :value="wallet" v-model="selectedWallets"
-                       class="control__checkbox control__checkbox--check wallet-select" type="checkbox" @change="logWallets"/>
+                       class="control__checkbox control__checkbox--check wallet-select" type="checkbox"/>
                 <label class="control__label" :for="`wallet-${wallet.id}`"></label>
               </div>
-              <wallet-card :wallet="wallet" :showFunds="false"></wallet-card>
+              <wallet-card :wallet="wallet" :showFunds="false" @click="walletSelected(wallet)"></wallet-card>
             </div>
           </div>
-          <action-button class="" :type="'brand-light'" @click="linkWallets">Link Wallets</action-button>
+          <action-button :type="'brand-light'"
+                         @click="linkWallets"
+                         :disabled="selectedWallets.length <= 0"
+                         :title="selectedWallets.length <= 0 ? 'At least one wallet needs to be selected' : ''">
+            Link Wallets
+          </action-button>
         </form>
         <div class="separator">
           <div class="separator__label">or</div>
@@ -36,7 +41,7 @@
     import DialogTemplate from '@/components/molecules/DialogTemplate.vue';
     import ActionButton from '@/components/atoms/ActionButton.vue';
     import {Wallet} from '../models/Wallet';
-    import {State} from 'vuex-class';
+    import {State, Getter} from 'vuex-class';
     import {AsyncData} from '@/decorators/decorators';
     import {SecretType} from '@/models/SecretType';
     import Utils from '../utils/Utils';
@@ -57,6 +62,8 @@
         private wallets!: Wallet[];
         @State
         private chain!: string;
+        @Getter
+        private thirdPartyClientId!: string;
 
         private selectedWallets: Wallet[] = [];
 
@@ -79,13 +86,13 @@
             return Utils.wallets.filterWalletsForChainType(this.wallets, this.chain);
         }
 
-        // private walletSelected(selectedWallet: Wallet) {
-        //     if (this.selectedWallets.indexOf(selectedWallet) > -1) {
-        //         this.selectedWallets = this.selectedWallets.filter((wallet: Wallet) => wallet.id != selectedWallet.id);
-        //     } else {
-        //         this.selectedWallets.push(selectedWallet);
-        //     }
-        // }
+        private walletSelected(selectedWallet: Wallet) {
+            if (this.selectedWallets.indexOf(selectedWallet) > -1) {
+                this.selectedWallets = this.selectedWallets.filter((wallet: Wallet) => wallet.id !== selectedWallet.id);
+            } else {
+                this.selectedWallets.push(selectedWallet);
+            }
+        }
 
         private get showLinkWallet(): boolean {
             return true;
@@ -128,7 +135,7 @@
 
   .wallets
     margin: rem(20px 0 20px 0)
-    padding: rem(0 30px)
+    padding: rem(0 10px)
     max-height: rem(300px)
     overflow-y: auto
     overflow-x: hidden
@@ -141,7 +148,8 @@
       margin-top: 0
 
   .wallet-card
-    max-width: calc(100% - #{rem(35px)})
+    width: calc(100% - #{rem(35px)})
+    cursor: pointer
 
   .control--checkbox
     margin-bottom: 0

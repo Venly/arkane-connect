@@ -3,10 +3,10 @@ import {AxiosError, AxiosResponse} from 'axios';
 import RestApi, {RestApiResponse} from './RestApi';
 import ResponseBody from './ResponseBody';
 import Utils from '../utils/Utils';
-import {Wallet} from '@/models/Wallet';
-import {CreateWalletCommand, LinkWalletCommand} from '@/models/Commands';
-import {Profile} from '@/models/Profile';
-import {Balance} from '@/models/Balance';
+import {Wallet} from '../models/Wallet';
+import {CreateWalletCommand, LinkWalletCommand} from '../models/Commands';
+import {Profile} from '../models/Profile';
+import {Balance} from '../models/Balance';
 
 export default class Api {
     public static token: string = '';

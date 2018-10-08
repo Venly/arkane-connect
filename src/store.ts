@@ -1,10 +1,10 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import Api from './api';
-import {Wallet} from '@/models/Wallet';
-import {SecretTypeUtil} from '@/models/SecretType';
-import {Snack, SnackType} from '@/models/Snack';
-import {Profile} from '@/models/Profile';
+import {Wallet} from './models/Wallet';
+import {SecretTypeUtil} from './models/SecretType';
+import {Snack, SnackType} from './models/Snack';
+import {Profile} from './models/Profile';
 
 Vue.use(Vuex);
 
