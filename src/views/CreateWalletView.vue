@@ -13,15 +13,19 @@
       </dialog-template>
 
       <redirect-dialog :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri" :timeleft="timeleft" v-if="showWalletCreated">
-        <p>A <strong>{{chain}}</strong> wallet with the following address has been created:</p>
+        <p>A {{chain}} wallet with the following address has been created and linked to your <strong>{{thirdPartyClientId}}</strong> account:</p>
         <p>
           <wallet-card :wallet="wallet" :showFunds="false"></wallet-card>
         </p>
-        <p>
-          <action-button @click="redirectBack">Continue to ThorBlock ({{timeleft / 1000}})</action-button>
-        </p>
+        <div>
+          <action-button @click="redirectBack">Continue to {{thirdPartyClientId}} ({{timeleft / 1000}})</action-button>
+        </div>
       </redirect-dialog>
 
+      <error-dialog v-if="showWalletCreationFailed" :title="'Something went wrong'" :buttonText="'Try Again'" @button-clicked="tryAgain">
+        <p>Something went wrong while trying to create your {{chain}} wallet.</p>
+        <p>Please try again. If the problem persists, contact support via <a href="mailto:support@arkane.network">support@arkane.network</a></p>
+      </error-dialog>
     </div>
   </div>
 </template>
@@ -38,18 +42,21 @@
     import {Getter, State} from 'vuex-class';
     import {AsyncData} from '@/decorators/decorators';
     import {SecretType} from '@/models/SecretType';
-    import Utils from '../utils/Utils';
+    import SvgCross from '../components/atoms/SvgCross.vue';
+    import ErrorDialog from '../components/organisms/dialogs/ErrorDialog.vue';
 
     @Component({
-        components: {
-            ActionButton,
-            RedirectDialog,
-            MasterPinDialog,
-            SetMasterPinDialog,
-            DialogTemplate,
-            WalletCard,
-        },
-    })
+                   components: {
+                       ErrorDialog,
+                       SvgCross,
+                       ActionButton,
+                       RedirectDialog,
+                       MasterPinDialog,
+                       SetMasterPinDialog,
+                       DialogTemplate,
+                       WalletCard,
+                   },
+               })
     export default class CreateWalletView extends Vue {
 
         private get showSetupMasterPin(): boolean {
@@ -61,11 +68,15 @@
         }
 
         private get showCreatingWallet(): boolean {
-            return this.isMasterPinEntered && !this.isWalletPresent;
+            return this.isMasterPinEntered && !this.isWalletPresent && !this.isWalletCreationFailed;
         }
 
         private get showWalletCreated(): boolean {
             return this.isMasterPinEntered && this.isWalletPresent;
+        }
+
+        private get showWalletCreationFailed(): boolean {
+            return this.isMasterPinEntered && !this.isWalletPresent && this.isWalletCreationFailed;
         }
 
         // @State
@@ -84,6 +95,7 @@
         private isMasterPinInitiallyPresent = false;
         private isMasterPinEntered = false;
         private isWalletPresent = false;
+        private isWalletCreationFailed = false;
 
         private timeleft = 5000;
         private redirectUri = '/';
@@ -115,17 +127,23 @@
                         this.wallet = newWallet;
                         this.isWalletPresent = !!(this.wallet);
                         this.$store.dispatch('stopLoading');
-                        this.interval = setInterval(() => {
-                            this.timeleft = this.timeleft - 1000;
-                            if (this.timeleft <= 0) {
-                                clearInterval(this.interval);
-                            }
-                        }, 1000);
+                        // this.interval = setInterval(() => {
+                        //     this.timeleft = this.timeleft - 1000;
+                        //     if (this.timeleft <= 0) {
+                        //         clearInterval(this.interval);
+                        //     }
+                        // }, 1000);
                     })
                     .catch((reason: any) => {
-                        // TODO Error page
+                        this.$store.dispatch('stopLoading');
+                        this.isWalletCreationFailed = true;
                     });
             }
+        }
+
+        private tryAgain() {
+            this.isWalletCreationFailed = false;
+            this.isMasterPinEntered = false;
         }
 
         private async createWallet(pincode: string): Promise<Wallet> {
@@ -146,6 +164,8 @@
 
 </style>
 <style lang="sass" scoped>
+  @import ../assets/sass/mixins-and-vars
+
   .container
     min-height: 100vh
 
@@ -154,4 +174,5 @@
       height: 100%
       justify-content: center
       align-items: center
+
 </style>

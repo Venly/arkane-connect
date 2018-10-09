@@ -13,85 +13,92 @@ export default class Api {
 
     public static signTransaction(data: any, pincode: string): Promise<ResponseBody> {
 
-        return Api.getApi().http.post('signatures', Object.assign(data, {pincode}))
-            .then((axiosRes: AxiosResponse) => {
-                return axiosRes.data as ResponseBody;
-            })
-            .catch((error: AxiosError) => {
-                let response;
-                if (error.response) {
-                    response = error.response.data;
-                } else {
-                    response = 'unknown js error';
-                }
-                return {
-                    success: false,
-                    result: response,
-                };
-            });
+        return Api.getApi().http
+                  .post('signatures', Object.assign(data, {pincode}))
+                  .then((axiosRes: AxiosResponse) => {
+                      return axiosRes.data as ResponseBody;
+                  })
+                  .catch((error: AxiosError) => {
+                      let response;
+                      if (error.response) {
+                          response = error.response.data;
+                      } else {
+                          response = 'unknown js error';
+                      }
+                      return {
+                          success: false,
+                          result: response,
+                      };
+                  });
     }
 
     public static getWallets(): Promise<Wallet[]> {
-        return Api.getApi().http.get('wallets').then((result: any) => {
-            return result.data && result.data.success
-                ? result.data.result
-                : [];
-        }).catch(() => {
-            return [];
-        });
+        return Api.getApi().http
+                  .get('wallets')
+                  .then((result: any) => {
+                      return result.data && result.data.success ? result.data.result : [];
+                  })
+                  .catch(() => {
+                      return [];
+                  });
     }
 
     public static getWallet(walletId: number): Promise<Wallet> {
-        return Api.getApi().http.get(`wallets/${walletId}`).then((result: any) => {
-            return result.data && result.data.success
-                ? result.data.result
-                : [];
-        }).catch(() => {
-            return [];
-        });
+        return Api.getApi().http
+                  .get(`wallets/${walletId}`)
+                  .then((result: any) => {
+                      return result.data && result.data.success ? result.data.result : [];
+                  })
+                  .catch(() => {
+                      return [];
+                  });
     }
 
     public static getBalance(walletId: number): Promise<Balance> {
-        return Api.getApi().http.get(`wallets/${walletId}/balance`).then((result: any) => {
-            return result.data && result.data.success
-                ? result.data.result
-                : [];
-        }).catch(() => {
-            return {
-                success: false,
-                result: {},
-            };
-        });
+        return Api.getApi().http
+                  .get(`wallets/${walletId}/balance`)
+                  .then((result: any) => {
+                      return result.data && result.data.success ? result.data.result : [];
+                  })
+                  .catch(() => {
+                      return {
+                          success: false,
+                          result: {},
+                      };
+                  });
     }
 
     public static getProfile(): Promise<Profile> {
-        return Api.getApi().http.get('profile').then((result: any) => {
-            return result.data && result.data.success
-                ? result.data.result
-                : new Profile();
-        }).catch(() => {
-            return new Profile();
-        });
+        return Api.getApi().http
+                  .get('profile')
+                  .then((result: any) => {
+                      return result.data && result.data.success ? result.data.result : new Profile();
+                  })
+                  .catch(() => {
+                      return new Profile();
+                  });
     }
 
     public static async setMasterPin(newPin: string, oldPin?: string): Promise<boolean> {
-        return Api.getApi().http.patch('profile', Utils.removeNulls({
-            pincode: oldPin,
-            newPincode: newPin,
-        })).then((res: AxiosResponse<RestApiResponse<any>>) => {
-            return res && res.data && res.data.success;
-        });
+        return Api.getApi().http
+                  .patch('profile', Utils.removeNulls({pincode: oldPin, newPincode: newPin}))
+                  .then((res: AxiosResponse<RestApiResponse<any>>) => {
+                      return res && res.data && res.data.success;
+                  });
     }
 
-    public static createWallet(command: CreateWalletCommand): Promise<Wallet> {
-        return Api.getApi().http.post('wallets', command).then((res: AxiosResponse<RestApiResponse<Wallet>>) => {
-                return Object.assign(new Wallet(), res.data.result);
-            },
-        );
+    public static createWallet(command: CreateWalletCommand): Promise<RestApiResponse<Wallet>> {
+        return Api.getApi().http
+                  .post('wallets', command)
+                  .then((res: AxiosResponse<RestApiResponse<Wallet>>) => {
+                            return res.data;
+                        },
+                  );
     }
 
     public static async linkWallet(command: LinkWalletCommand): Promise<ResponseBody> {
-        return Api.getApi().http.post('wallets/link', Utils.removeNulls(command))
+        return Api.getApi().http
+                  .post('wallets/link', Utils.removeNulls(command))
                   .then((axiosRes: AxiosResponse) => {
                       return {
                           success: true,

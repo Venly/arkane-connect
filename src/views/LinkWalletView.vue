@@ -2,13 +2,12 @@
   <div class="container">
     <div class="dialog-container">
 
-      <link-wallets-dialog :wallets="walletsForChainType" :chain="chain" :thirdPartylClientId="thirdPartyClientId" v-if="showLinkWallet"
-                           @linkWalletsClicked="linkWallets"
-                           @createWalletClicked="toCreateWallet"></link-wallets-dialog>
-
+      <link-wallets-dialog v-if="showLinkWallet" :wallets="walletsForChainType" :chain="chain" :thirdPartylClientId="thirdPartyClientId"
+                           @linkWalletsClicked="linkWallets" @createWalletClicked="toCreateWallet">
+      </link-wallets-dialog>
 
       <redirect-dialog :class="'success'" :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri" :timeleft="timeleft" v-if="showWalletsLinked">
-        <p>The following wallets have been linked successfully:</p>
+        <p>The following wallets have been successfully linked to <strong>{{thirdPartyClientId}}</strong>:</p>
         <div class="wallets">
           <wallet-card :wallet="wallet" :showFunds="false" v-for="wallet in selectedWallets"></wallet-card>
         </div>
@@ -17,6 +16,13 @@
         </div>
       </redirect-dialog>
 
+      <error-dialog v-if="showWalletsLinkedError" :title="'Something went wrong'" :buttonText="'Try Again'" @button-clicked="tryAgain">
+        <p>Something went wrong while trying to link bellow wallets:</p>
+        <div class="wallets">
+          <wallet-card :wallet="wallet" :showFunds="false" v-for="wallet in selectedWallets"></wallet-card>
+        </div>
+        <p>Please try again. If the problem persists, contact support via <a href="mailto:support@arkane.network">support@arkane.network</a></p>
+      </error-dialog>
     </div>
   </div>
 </template>
@@ -37,18 +43,20 @@
     import Api from '../api';
     import ResponseBody from '../api/ResponseBody';
     import LinkWalletsDialog from '../components/organisms/dialogs/LinkWalletsDialog.vue';
+    import ErrorDialog from '../components/organisms/dialogs/ErrorDialog.vue';
 
     @Component({
-        components: {
-            LinkWalletsDialog,
-            ActionButton,
-            RedirectDialog,
-            MasterPinDialog,
-            SetMasterPinDialog,
-            DialogTemplate,
-            WalletCard,
-        },
-    })
+                   components: {
+                       ErrorDialog,
+                       LinkWalletsDialog,
+                       ActionButton,
+                       RedirectDialog,
+                       MasterPinDialog,
+                       SetMasterPinDialog,
+                       DialogTemplate,
+                       WalletCard,
+                   },
+               })
     export default class LinkWalletView extends Vue {
 
         @State
@@ -88,28 +96,38 @@
 
         private async linkWallets(selectedWalletsDto: { wallets: Wallet[] }) {
             this.$store.dispatch('startLoading');
-            Api.linkWallet({issuer: this.thirdPartyClientId, walletIds: selectedWalletsDto.wallets.map((wallet: Wallet) => wallet.id)})
-                .then((response: ResponseBody) => {
-                    if (response.success) {
-                        this.showWalletsLinked = true;
-                    } else {
-                        this.showWalletsLinkedError = false;
-                    }
-                    this.selectedWallets = selectedWalletsDto.wallets;
-                    this.$store.dispatch('stopLoading');
-                });
+            Api.linkWallet({client: this.thirdPartyClientId, walletIds: selectedWalletsDto.wallets.map((wallet: Wallet) => wallet.id)})
+               .then((response: ResponseBody) => {
+                   if (response.success) {
+                       this.showWalletsLinked = true;
+                   } else {
+                       this.showWalletsLinkedError = true;
+                   }
+                   this.selectedWallets = selectedWalletsDto.wallets;
+                   this.$store.dispatch('stopLoading');
+               })
+               .catch((reason: any) => {
+                   this.showWalletsLinkedError = true;
+                   this.selectedWallets = selectedWalletsDto.wallets;
+                   this.$store.dispatch('stopLoading');
+               });
         }
 
         @Watch('showWalletsLinked')
         private onWalletsLinked(newValue: boolean, curValue: boolean) {
             if (newValue) {
-                this.interval = setInterval(() => {
-                    this.timeleft = this.timeleft - 1000;
-                    if (this.timeleft <= 0) {
-                        clearInterval(this.interval);
-                    }
-                }, 1000);
+                // this.interval = setInterval(() => {
+                //     this.timeleft = this.timeleft - 1000;
+                //     if (this.timeleft <= 0) {
+                //         clearInterval(this.interval);
+                //     }
+                // }, 1000);
             }
+        }
+
+        private tryAgain() {
+            this.showWalletsLinked = false;
+            this.showWalletsLinkedError = false;
         }
 
         private toCreateWallet() {
