@@ -5,7 +5,7 @@ import {Wallet} from './models/Wallet';
 import {SecretTypeUtil} from './models/SecretType';
 import {Snack, SnackType} from './models/Snack';
 import {Profile} from './models/Profile';
-import {RestApiResponse} from '@/api/RestApi';
+import {RestApiResponse} from './api/RestApi';
 
 Vue.use(Vuex);
 
