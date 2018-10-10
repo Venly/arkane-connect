@@ -1,5 +1,5 @@
 import ENV from '../../vue.env';
-import {EVENT_TYPES} from '@/types/EventTypes';
+import {EVENT_TYPES} from '../types/EventTypes';
 
 export default class Utils {
     public static environment: string = 'prod';
