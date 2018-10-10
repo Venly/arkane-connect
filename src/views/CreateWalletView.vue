@@ -142,13 +142,6 @@
     }
 </script>
 
-<style lang="sass">
-  @import ../assets/sass/mixins-and-vars
-
-  body
-    background-color: #fcfcfc
-
-</style>
 <style lang="sass" scoped>
   @import ../assets/sass/mixins-and-vars
 

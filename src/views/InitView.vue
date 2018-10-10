@@ -140,13 +140,6 @@
     }
 </script>
 
-<style lang="sass">
-  @import ../assets/sass/mixins-and-vars
-
-  body
-    background-color: #fcfcfc
-
-</style>
 <style lang="sass" scoped>
   .container
     min-height: 100vh
