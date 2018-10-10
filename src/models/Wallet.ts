@@ -1,6 +1,6 @@
 import {Fund} from './Fund';
-import {SecretType} from '@/models/SecretType';
-import {Balance} from '@/models/Balance';
+import {SecretType} from './SecretType';
+import {Balance} from './Balance';
 
 export enum WalletType {
     THREEWAY_SHARED = 'THREEWAY_SHARED',
