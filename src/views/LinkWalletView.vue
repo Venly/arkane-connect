@@ -125,7 +125,7 @@
         }
 
         private toCreateWallet() {
-            this.$router.replace({name: 'create-wallet', params: this.$route.params, query: this.$route.query});
+            this.$router.push({name: 'create-wallet', params: this.$route.params, query: this.$route.query});
         }
 
         private redirectBack() {
