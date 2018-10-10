@@ -76,12 +76,6 @@
         private redirectUri = '/';
         private interval!: any;
 
-        public created() {
-            if (!(this.wallets && this.walletsForChainType.length > 0)) {
-                this.$router.replace({name: 'init', params: this.$route.params, query: this.$route.query});
-            }
-        }
-
         public mounted(): void {
             this.redirectUri = (this.$route.query as any).redirectUri;
         }
@@ -116,12 +110,12 @@
         @Watch('showWalletsLinked')
         private onWalletsLinked(newValue: boolean, curValue: boolean) {
             if (newValue) {
-                // this.interval = setInterval(() => {
-                //     this.timeleft = this.timeleft - 1000;
-                //     if (this.timeleft <= 0) {
-                //         clearInterval(this.interval);
-                //     }
-                // }, 1000);
+                this.interval = setInterval(() => {
+                    this.timeleft = this.timeleft - 1000;
+                    if (this.timeleft <= 0) {
+                        clearInterval(this.interval);
+                    }
+                }, 1000);
             }
         }
 

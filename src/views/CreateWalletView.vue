@@ -79,8 +79,6 @@
             return this.isMasterPinEntered && !this.isWalletPresent && this.isWalletCreationFailed;
         }
 
-        // @State
-        // private wallets!: Wallet[];
         @State
         public hasMasterPin!: boolean;
         @State
@@ -101,22 +99,10 @@
         private redirectUri = '/';
         private interval!: any;
 
-        // public created() {
-        //     console.log(this.wallets);
-        //     console.log(this.walletsForChainType);
-        //     if (this.wallets && this.walletsForChainType > 0) {
-        //         this.$router.replace({name: 'init', params: this.$route.params, query: this.$route.query});
-        //     }
-        // }
-
         public mounted(): void {
             this.redirectUri = (this.$route.query as any).redirectUri;
             this.isMasterPinInitiallyPresent = this.hasMasterPin;
         }
-
-        // private get walletsForChainType() {
-        //     return Utils.wallets.filterWalletsForChainType(this.wallets, this.chain);
-        // }
 
         private async masterpinEntered(pincode: string) {
             if (pincode) {
@@ -127,12 +113,12 @@
                         this.wallet = newWallet;
                         this.isWalletPresent = !!(this.wallet);
                         this.$store.dispatch('stopLoading');
-                        // this.interval = setInterval(() => {
-                        //     this.timeleft = this.timeleft - 1000;
-                        //     if (this.timeleft <= 0) {
-                        //         clearInterval(this.interval);
-                        //     }
-                        // }, 1000);
+                        this.interval = setInterval(() => {
+                            this.timeleft = this.timeleft - 1000;
+                            if (this.timeleft <= 0) {
+                                clearInterval(this.interval);
+                            }
+                        }, 1000);
                     })
                     .catch((reason: any) => {
                         this.$store.dispatch('stopLoading');
