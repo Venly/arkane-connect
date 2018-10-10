@@ -10,7 +10,7 @@
                     {{wallet.alias}}
                 </div>
                 <div class="wallet-card__address">
-                    <a :title="wallet.address">{{wallet.address}}</a>
+                    <span :v-tooltip="wallet.address" :title="wallet.address">{{wallet.address}}</span>
                 </div>
             </div>
         </div>
