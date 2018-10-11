@@ -44,10 +44,11 @@ export default class Api {
     }
 
     public static getWallet(walletId: number): Promise<Wallet> {
-        return Api.getApi().http.get(`wallets/${walletId}`)
-            .then((result: any) => {
-                return result.data && result.data.success ? result.data.result : {};
-            });
+        return Api.getApi().http
+                  .get(`wallets/${walletId}`)
+                  .then((result: any) => {
+                      return result.data && result.data.success ? result.data.result : {};
+                  });
     }
 
     public static getBalance(walletId: number): Promise<Balance> {

@@ -94,8 +94,8 @@ export default new Vuex.Store(
                 store.commit('setHasMasterPin', success);
                 return success;
             },
-            createWallet: async (store: any, {secretType, masterPincode, clients}): Promise<Wallet> => {
-                return Api.createWallet({masterPincode, secretType, clients})
+            createWallet: async (store: any, {secretType, pincode, clients}): Promise<Wallet> => {
+                return Api.createWallet({pincode, secretType, clients})
                           .then((response: RestApiResponse<Wallet>) => {
                               return new Promise<Wallet>((resolve, reject) => {
                                   if (response.success) {

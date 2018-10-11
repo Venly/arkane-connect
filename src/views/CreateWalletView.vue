@@ -133,7 +133,7 @@
         }
 
         private async createWallet(pincode: string): Promise<Wallet> {
-            return this.$store.dispatch('createWallet', {secretType: this.secretType, masterPincode: pincode, clients: [this.thirdPartyClientId]});
+            return this.$store.dispatch('createWallet', {secretType: this.secretType, pincode, clients: [this.thirdPartyClientId]});
         }
 
         private redirectBack() {
