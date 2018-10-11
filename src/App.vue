@@ -38,4 +38,22 @@
       padding: 0
       margin: 0
       background-color: #fcfcfc
+
+      .btn,
+      .action-button
+        &:disabled
+          pointer-events: none
+          cursor: not-allowed
+
+      .btn,
+      .action-button,
+      .number
+        position: relative
+        cursor: pointer
+        font-weight: bold
+        display: flex
+        justify-content: center
+        align-items: center
+        &:focus
+          z-index: 1
 </style>

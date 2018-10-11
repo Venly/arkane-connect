@@ -53,7 +53,9 @@
     padding: rem(15px 10px)
     line-height: rem(12px)
     letter-spacing: 0
-    position: relative
+    display: flex
+    align-items: center
+    justify-content: space-between
 
     &__amount
       &-value,
@@ -67,13 +69,15 @@
         font-weight: $font-weight-light
 
     &__settings_icon
-      position: absolute
-      top: 7px
-      right: 7px
       padding: rem(2px)
       border-radius: rem(2px)
       border: 1px solid $color-bluish
       color: $color-bluish
+      height: rem(21px)
+      width: rem(21px)
+      display: flex
+      align-items: center
+      justify-content: center
       &:hover
         border-color: $color-warm-gray
         color: $color-warm-gray
