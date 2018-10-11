@@ -13,15 +13,19 @@
       </dialog-template>
 
       <redirect-dialog :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri" :timeleft="timeleft" v-if="showWalletCreated">
-        <p>A <strong>{{chain}}</strong> wallet with the following address has been created:</p>
+        <p>A {{chain}} wallet with the following address has been created and linked to your <strong>{{thirdPartyClientId}}</strong> account:</p>
         <p>
           <wallet-card :wallet="wallet" :showFunds="false"></wallet-card>
         </p>
-        <p>
-          <action-button @click="redirectBack">Continue to ThorBlock ({{timeleft / 1000}})</action-button>
-        </p>
+        <div>
+          <action-button @click="redirectBack">Continue to {{thirdPartyClientId}} ({{timeleft / 1000}})</action-button>
+        </div>
       </redirect-dialog>
 
+      <error-dialog v-if="showWalletCreationFailed" :title="'Something went wrong'" :buttonText="'Try Again'" @button-clicked="tryAgain">
+        <p>Something went wrong while trying to create your {{chain}} wallet.</p>
+        <p>Please try again. If the problem persists, contact support via <a href="mailto:support@arkane.network">support@arkane.network</a></p>
+      </error-dialog>
     </div>
   </div>
 </template>
@@ -34,24 +38,26 @@
     import RedirectDialog from '@/components/organisms/dialogs/RedirectDialog.vue';
     import DialogTemplate from '@/components/molecules/DialogTemplate.vue';
     import ActionButton from '@/components/atoms/ActionButton.vue';
-    import {Wallet} from '@/models/Wallet';
+    import {Wallet} from '../models/Wallet';
     import {Getter, State} from 'vuex-class';
     import {AsyncData} from '@/decorators/decorators';
-    import {Store} from 'vuex';
-    import {Route} from 'vue-router';
     import {SecretType} from '@/models/SecretType';
+    import SvgCross from '../components/atoms/SvgCross.vue';
+    import ErrorDialog from '../components/organisms/dialogs/ErrorDialog.vue';
 
     @Component({
-        components: {
-            ActionButton,
-            RedirectDialog,
-            MasterPinDialog,
-            SetMasterPinDialog,
-            DialogTemplate,
-            WalletCard,
-        },
-    })
-    export default class InitView extends Vue {
+                   components: {
+                       ErrorDialog,
+                       SvgCross,
+                       ActionButton,
+                       RedirectDialog,
+                       MasterPinDialog,
+                       SetMasterPinDialog,
+                       DialogTemplate,
+                       WalletCard,
+                   },
+               })
+    export default class CreateWalletView extends Vue {
 
         private get showSetupMasterPin(): boolean {
             return !this.isMasterPinInitiallyPresent && !this.isMasterPinEntered;
@@ -62,19 +68,19 @@
         }
 
         private get showCreatingWallet(): boolean {
-            return this.hasMasterPin && this.isMasterPinEntered && !this.isWalletPresent;
+            return this.isMasterPinEntered && !this.isWalletPresent && !this.isWalletCreationFailed;
         }
 
         private get showWalletCreated(): boolean {
-            return this.hasMasterPin && this.isMasterPinEntered && this.isWalletPresent;
+            return this.isMasterPinEntered && this.isWalletPresent;
+        }
+
+        private get showWalletCreationFailed(): boolean {
+            return this.isMasterPinEntered && !this.isWalletPresent && this.isWalletCreationFailed;
         }
 
         @State
         public hasMasterPin!: boolean;
-        @State
-        public userId!: string;
-        @State
-        public wallets!: Wallet[];
         @State
         public chain!: string;
         @Getter
@@ -87,6 +93,7 @@
         private isMasterPinInitiallyPresent = false;
         private isMasterPinEntered = false;
         private isWalletPresent = false;
+        private isWalletCreationFailed = false;
 
         private timeleft = 5000;
         private redirectUri = '/';
@@ -95,43 +102,38 @@
         public mounted(): void {
             this.redirectUri = (this.$route.query as any).redirectUri;
             this.isMasterPinInitiallyPresent = this.hasMasterPin;
-            if (this.hasMasterPin
-                && this.secretType
-                && this.wallets
-                && this.wallets.length > 0
-                && this.wallets.filter((wallet) => this.secretType === wallet.secretType).length > 0) {
-
-                this.isWalletPresent = true;
-                this.redirectBack();
-            }
-        }
-
-        @AsyncData
-        public async asyncData(store: Store<any>, to: Route): Promise<any> {
-            await store.dispatch('fetchUserData');
-            return store.dispatch('fetchUserWallets');
         }
 
         private async masterpinEntered(pincode: string) {
             if (pincode) {
                 this.isMasterPinEntered = true;
                 this.$store.dispatch('startLoading');
-                this.wallet = await this.createWallet(pincode);
-                this.isWalletPresent = !!(this.wallet);
-                this.$store.dispatch('stopLoading');
-                this.interval = setInterval(() => {
-                    this.timeleft = this.timeleft - 1000;
-                    if (this.timeleft <= 0) {
-                        clearInterval(this.interval);
-                    }
-                }, 1000);
+                this.createWallet(pincode)
+                    .then((newWallet: Wallet) => {
+                        this.wallet = newWallet;
+                        this.isWalletPresent = !!(this.wallet);
+                        this.$store.dispatch('stopLoading');
+                        this.interval = setInterval(() => {
+                            this.timeleft = this.timeleft - 1000;
+                            if (this.timeleft <= 0) {
+                                clearInterval(this.interval);
+                            }
+                        }, 1000);
+                    })
+                    .catch((reason: any) => {
+                        this.$store.dispatch('stopLoading');
+                        this.isWalletCreationFailed = true;
+                    });
             }
         }
 
+        private tryAgain() {
+            this.isWalletCreationFailed = false;
+            this.isMasterPinEntered = false;
+        }
+
         private async createWallet(pincode: string): Promise<Wallet> {
-            this.isWalletPresent = !!(this.wallet);
-            this.wallet = await this.$store.dispatch('createWallet', {secretType: this.secretType, masterPincode: pincode, clients: [this.thirdPartyClientId]});
-            return this.wallet;
+            return this.$store.dispatch('createWallet', {secretType: this.secretType, masterPincode: pincode, clients: [this.thirdPartyClientId]});
         }
 
         private redirectBack() {
@@ -141,6 +143,8 @@
 </script>
 
 <style lang="sass" scoped>
+  @import ../assets/sass/mixins-and-vars
+
   .container
     min-height: 100vh
 
@@ -149,4 +153,5 @@
       height: 100%
       justify-content: center
       align-items: center
+
 </style>

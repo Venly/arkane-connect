@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import App from './App.vue';
 import store from './store';
-import router, {onReady} from './router';
+import router from './router';
 
 import '@/utils/FontAwesome';
 
@@ -13,7 +13,7 @@ const app = new Vue({
     render: (h) => h(App),
 });
 
-onReady(() => {
+router.onReady(() => {
     app.$mount('#app');
 });
 

@@ -7,6 +7,8 @@ import SignVeChainTransactionView from './views/signer/SignVeChainTransactionVie
 import Security from './Security';
 import Utils from './utils/Utils';
 import store from './store';
+import {Profile} from '@/models/Profile';
+import {Wallet} from '@/models/Wallet';
 
 Vue.use(Router);
 
@@ -14,19 +16,30 @@ const loadView = (view: string) => {
     return () => import (`./views/${view}View.vue`);
 };
 
-const router = new Router({
-    mode: 'history',
-    base: process.env.BASE_URL,
-    routes: [
-        {
-            path: '/sign/transaction/init',
-            name: 'init-sign-transaction',
-            component: loadView('InitTransaction'),
-        },
-        {
-            path: '/sign/transaction/ethereum_transaction/:bearer',
-            name: 'sign-ethereum-transaction',
-            component: SignEthereumTransactionView,
+async function fetchProfileAndWallets(to: Route) {
+    if (!store.state.auth.authenticated) {
+        await checkAuthorize(to);
+    }
+    return Promise.all([
+                           store.dispatch('fetchUserData'),
+                           store.dispatch('fetchUserWallets'),
+                       ]);
+}
+
+const router = new Router(
+    {
+        mode: 'history',
+        base: process.env.BASE_URL,
+        routes: [
+            {
+                path: '/sign/transaction/init',
+                name: 'init-sign-transaction',
+                component: loadView('InitTransaction'),
+            },
+            {
+                path: '/sign/transaction/ethereum_transaction/:bearer',
+                name: 'sign-ethereum-transaction',
+                component: SignEthereumTransactionView,
             meta: {
                 auth: true,
             },
@@ -35,22 +48,72 @@ const router = new Router({
             path: '/sign/transaction/vechain_transaction/:bearer',
             name: 'sign-vechain-transaction',
             component: SignVeChainTransactionView,
-            meta: {
-                auth: true,
+                meta: {
+                    auth: true,
+                },
             },
-        },
-        {
-            path: '/init/:chain/:bearer',
-            name: 'init',
-            component: loadView('Init'),
-            meta: {
-                authArkane: true,
+            {
+                path: '/init/:chain/:bearer/createwallet',
+                name: 'create-wallet',
+                component: loadView('CreateWallet'),
+                meta: {
+                    authArkane: true,
+                },
+                beforeEnter: async (to, from, next) => {
+                    await fetchProfileAndWallets(to).then(() => next())
+                                                    .catch(() => next({name: 'generic-error'}));
+                },
             },
-        },
-        {path: '*', component: loadView('Error404')},
-        {path: '/unauthorized', name: 'unauthorized', component: loadView('Unauthorized')},
-    ],
-});
+            {
+                path: '/init/:chain/:bearer/linkwallet',
+                name: 'link-wallet',
+                component: loadView('LinkWallet'),
+                meta: {
+                    authArkane: true,
+                },
+                beforeEnter: async (to, from, next) => {
+                    await fetchProfileAndWallets(to).then((result: any) => {
+                                                        const profile: Profile = result[0];
+                                                        const wallets: Wallet[] = result[1];
+                                                        const chain = (to.params as any).chain;
+
+                                                        if (profile.hasMasterPin && Utils.wallets.hasWalletsForChainType(wallets, chain)) {
+                                                            next();
+                                                        } else {
+                                                            next({name: 'create-wallet', params: to.params, query: to.query});
+                                                        }
+                                                    })
+                                                    .catch(() => next({name: 'generic-error'}));
+                },
+            },
+            {
+                path: '/init/:chain/:bearer',
+                name: 'init',
+                component: loadView('Init'),
+                meta: {
+                    authArkane: true,
+                },
+                beforeEnter: async (to, from, next) => {
+                    await fetchProfileAndWallets(to).then((result: any) => {
+                                                        const profile: Profile = result[0];
+                                                        const wallets: Wallet[] = result[1];
+                                                        const chain = (to.params as any).chain;
+
+                                                        if (profile.hasMasterPin && Utils.wallets.hasWalletsForChainType(wallets, chain)) {
+                                                            next({name: 'link-wallet', params: to.params, query: to.query});
+                                                        } else {
+                                                            next({name: 'create-wallet', params: to.params, query: to.query});
+                                                        }
+                                                    })
+                                                    .catch(() => next({name: 'generic-error'}));
+                },
+            },
+            {path: '/error', name: 'generic-error', component: loadView('Error')},
+            {path: '*', component: loadView('Error404')},
+            {path: '/unauthorized', name: 'unauthorized', component: loadView('Unauthorized')},
+        ],
+    },
+);
 
 function checkAuthorize(to: Route): Promise<any> {
     let bearer = '';
@@ -84,14 +147,14 @@ function checkAuthorize(to: Route): Promise<any> {
 
     if (doLogin) {
         return new Promise((resolve) => {
-            Security.verifyAndLogin(clientId, bearer, token, environment, useTokenToLogin)
-                .then((result: any) => {
-                    store.commit('setAuth', result.keycloak);
-                    resolve(result.authenticated);
-                })
-                .catch(() => {
-                    resolve(false);
-                });
+            Security.verifyAndLogin(clientId, bearer, token, environment, useTokenToLogin, Utils.urls.connect + to.fullPath)
+                    .then((result: any) => {
+                        store.commit('setAuth', result.keycloak);
+                        resolve(result.authenticated);
+                    })
+                    .catch(() => {
+                        resolve(false);
+                    });
         });
     } else {
         return Promise.resolve(true);
@@ -129,24 +192,14 @@ const resolveRoute = async (to: Route, from?: Route) => {
     return proceed;
 };
 
-export const onReady = (callback: any) => {
-    router.onReady(() => {
-        router.beforeResolve(async (to: Route, from: Route, next: any) => {
-            const proceed = await resolveRoute(to, from);
+router.beforeEach(async (to: Route, from: Route, next: any) => {
+    const proceed = await resolveRoute(to, from);
 
-            if (!proceed) {
-                next({name: 'unauthorized'});
-            } else {
-                next();
-            }
-        });
-        resolveRoute(router.currentRoute).then((proceed: boolean) => {
-            if (!proceed) {
-                router.replace({name: 'unauthorized'});
-            }
-            callback();
-        });
-    });
-};
+    if (!proceed) {
+        next({name: 'unauthorized'});
+    } else {
+        next();
+    }
+});
 
 export default router;

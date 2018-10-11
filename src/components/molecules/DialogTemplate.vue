@@ -82,9 +82,8 @@ export default class DialogTemplate extends Vue {
                 margin-top: 0
                 text-align: center
             p
-                line-height: $line-height-base
                 text-align: justify
-                &:last-of-type
+                &:last-of-type:not(.no-margin-bottom)
                     margin-bottom: rem(40px)
         &__footer
             width: 100%

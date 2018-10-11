@@ -1,4 +1,4 @@
-import Keycloak, {KeycloakInstance} from 'keycloak-js';
+import Keycloak, {KeycloakInitOptions, KeycloakInstance} from 'keycloak-js';
 
 import * as KJUR from 'jsrsasign';
 import Api from './api';
@@ -34,13 +34,13 @@ export default class Security {
         }
     }
 
-    public static verifyAndLogin(clientId: string, rawBearerToken: string, token: any, environment: string, useTokenToLogin: boolean = true): Promise<any> {
+    public static verifyAndLogin(clientId: string, rawBearerToken: string, token: any, environment: string, useTokenToLogin: boolean = true, redirectUrl?: string): Promise<any> {
         const config = Security.getConfig(clientId);
         if (Security.verifyToken(rawBearerToken, config['realm-public-key'])) {
             return Security.initializeAuth(Object.assign(config, {
                 clientId: useTokenToLogin ? token.aud : config.clientId,
                 resource: useTokenToLogin ? token.aud : config.resource,
-            }));
+            }), redirectUrl);
         } else {
             Security.notAuthenticated();
             return Promise.resolve({keycloak: {}, authenticated: false});
@@ -90,26 +90,34 @@ export default class Security {
         }, 60000);
     }
 
-    private static initializeAuth(config: any): Promise<any> {
+    private static initializeAuth(config: any, redirectUrl?: string): Promise<any> {
         return new Promise((resolve, reject) => {
             Security.keycloak = Keycloak(config);
-            Security.keycloak.init({
+            const initOptions: KeycloakInitOptions = {
                 onLoad: 'check-sso',
-            }).success((authenticated: any) => {
-                if (authenticated) {
-                    Security.authenticated(Security.keycloak.token);
-                    Security.setUpdateTokenInterval();
-                } else {
-                    Security.notAuthenticated();
-                }
-                resolve({
-                    keycloak: Security.keycloak,
-                    authenticated,
+            };
+            if (redirectUrl) {
+                Object.assign(initOptions, {
+                    redirectUri: redirectUrl,
                 });
-            }).error(() => {
-                Security.notAuthenticated();
-                reject(false);
-            });
+            }
+            Security.keycloak.init(initOptions)
+                    .success((authenticated: any) => {
+                        if (authenticated) {
+                            Security.authenticated(Security.keycloak.token);
+                            Security.setUpdateTokenInterval();
+                        } else {
+                            Security.notAuthenticated();
+                        }
+                        resolve({
+                                    keycloak: Security.keycloak,
+                                    authenticated,
+                                });
+                    })
+                    .error(() => {
+                        Security.notAuthenticated();
+                        reject(false);
+                    });
         });
     }
 
