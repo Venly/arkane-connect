@@ -5,7 +5,7 @@ export interface CreateWalletCommand {
     pincode?: string;
     description?: string;
     primary?: boolean;
-    masterPincode?: string;
+    hasCustomPin?: boolean;
     secretType: SecretType;
     clients?: string[];
 }
