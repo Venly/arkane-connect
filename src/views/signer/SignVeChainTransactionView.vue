@@ -21,6 +21,8 @@
     import {Component} from 'vue-property-decorator';
     import Numpad from '../../components/molecules/Numpad.vue';
     import SignTransactionView from './SignTransactionView';
+    import Api from '../../api';
+    import {Wallet} from '../../models/Wallet';
 
     declare const window: Window;
 

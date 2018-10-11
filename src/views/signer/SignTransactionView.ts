@@ -1,21 +1,20 @@
-import {Component, Vue} from 'vue-property-decorator';
-import Numpad from '../../components/molecules/Numpad.vue';
+import {Vue} from 'vue-property-decorator';
 import {EVENT_TYPES} from '../../types/EventTypes';
 import ResponseBody from '../../api/ResponseBody';
 import {State} from 'vuex-class';
 import Security from '../../Security';
+import Api from '../../api';
+import {Wallet} from '../../models/Wallet';
+import Component from 'vue-class-component';
 
 declare const window: Window;
 
 @Component({
-    components: {
-        Numpad,
-    },
 })
 export default class SignTransactionView extends Vue {
     public loadingText = 'Initializing signer ...';
 
-    public transactionData?: any;
+    public transactionData!: any;
     public errorText = '';
 
     @State
@@ -24,6 +23,7 @@ export default class SignTransactionView extends Vue {
     private parentWindow!: Window;
     private parentOrigin!: string;
     private hasTransactionData: boolean = false;
+    private messagePort!: MessagePort;
 
     public created() {
         if (!this.auth) {
@@ -34,6 +34,11 @@ export default class SignTransactionView extends Vue {
         }
     }
 
+    public mounted() {
+        this.initMessageChannel();
+        this.addEventListeners();
+    }
+
     public noTriesLeftMessage() {
         this.errorText = 'You entered a wrong pincode too many times.';
     }
@@ -42,35 +47,58 @@ export default class SignTransactionView extends Vue {
         this.errorText = 'Wrong pincode';
     }
 
-    public mounted() {
-        this.addEventListeners();
-        window.opener.postMessage({type: EVENT_TYPES.SIGNER_MOUNTED}, '*');
-    }
-
     private sendTransactionSignedMessage(result: ResponseBody) {
         this.parentWindow.postMessage({
-            type: EVENT_TYPES.TRANSACTION_SIGNED,
-            data: result,
-        }, this.parentOrigin);
+                                          type: EVENT_TYPES.TRANSACTION_SIGNED,
+                                          data: result,
+                                      }, this.parentOrigin);
     }
 
     private get isInitialised() {
         return Security.isLoggedIn && this.hasTransactionData;
     }
 
-    private addEventListeners() {
-        window.addEventListener('message', (event: MessageEvent) => {
-            const data = event.data;
-            if (data && data.type === EVENT_TYPES.SEND_TRANSACTION_DATA) {
-                this.transactionData = {...data.params};
-                this.parentOrigin = event.origin;
-                this.parentWindow = (event.source as Window);
-                this.hasTransactionData = true;
-            }
-        }, false);
+    private initMessageChannel() {
+        const messageChannel = new MessageChannel();
+        this.messagePort = messageChannel.port1;
+        this.messagePort.onmessage = this.onMessage;
+        window.opener.postMessage({type: EVENT_TYPES.SIGNER_MOUNTED}, '*', [messageChannel.port2]);
+    }
 
+    private async onMessage(event: MessageEvent) {
+        const data = event.data;
+        if (data && data.type === EVENT_TYPES.SEND_TRANSACTION_DATA) {
+            this.transactionData = {...data.params};
+            this.parentOrigin = event.origin;
+            this.parentWindow = (event.source as Window);
+            await this.fetchWallet(this.transactionData);
+            this.hasTransactionData = true;
+        }
+    }
+
+    private addEventListeners() {
         window.addEventListener('beforeunload', () => {
-            this.parentWindow.postMessage({type: EVENT_TYPES.POPUP_CLOSED}, this.parentOrigin);
+            if (this.messagePort) {
+                this.messagePort.postMessage({type: EVENT_TYPES.POPUP_CLOSED});
+                this.messagePort.close();
+            }
         });
+    }
+
+    private async fetchWallet(transactionData: any): Promise<boolean> {
+        return Api.getWallet(transactionData.walletId)
+                  .then((wallet: Wallet) => {
+                      this.$store.dispatch('setTransactionWallet', wallet);
+                      if (wallet && wallet.balance && wallet.balance.gasBalance <= 0) {
+                          this.$store.dispatch('setBlockingError', 'This wallet has insufficient gas to execute a transaction');
+                          return false;
+                      } else {
+                          return true;
+                      }
+                  }).catch((result: any) => {
+                this.$store.dispatch('setBlockingError', 'Something went wrong while trying to fetch the wallet. Please close this window and try again. If the problem ' +
+                    'persists, contact support at support@arkane.network');
+                return false;
+            });
     }
 }

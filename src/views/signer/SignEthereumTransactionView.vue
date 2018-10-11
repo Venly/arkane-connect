@@ -23,7 +23,7 @@
           <h3>Transaction details</h3>
           <from-to :from="'0x0da0170bbce933599450c44ddd850fe9fa9f542a'" :to="transactionData.to"></from-to>
           <totals-box class="totals-box" :amount-value="25" :amount-currency="'ETH'" :fee-value="0.01" :fee-currency="'ETH'"></totals-box>
-          <vue-slider ></vue-slider>
+          <vue-slider></vue-slider>
           <a @click="showAdvanced = false">Back</a>
         </div>
       </transition>
@@ -35,31 +35,30 @@
 </template>
 
 <script lang='ts'>
-import {Component} from 'vue-property-decorator';
-import Numpad from '../../components/molecules/Numpad.vue';
-import SignTransactionView from './SignTransactionView';
-import AddressCard from '../../components/atoms/AddressCard.vue';
-import FromTo from '../../components/molecules/FromTo.vue';
-import TotalsBox from '../../components/atoms/TotalsBox.vue';
-import VueSlider from 'vue-slider-component';
+    import {Component} from 'vue-property-decorator';
+    import Numpad from '../../components/molecules/Numpad.vue';
+    import SignTransactionView from './SignTransactionView';
+    import AddressCard from '../../components/atoms/AddressCard.vue';
+    import FromTo from '../../components/molecules/FromTo.vue';
+    import TotalsBox from '../../components/atoms/TotalsBox.vue';
+    import VueSlider from 'vue-slider-component';
+    import Api from '../../api';
+    import {Wallet} from '../../models/Wallet';
 
-declare const window: Window;
+    declare const window: Window;
 
-@Component({
-    components: {
-        TotalsBox,
-        FromTo,
-        AddressCard,
-        Numpad,
-        VueSlider,
-    },
-})
-export default class SignEthereumTransactionView extends SignTransactionView {
+    @Component({
+                   components: {
+                       TotalsBox,
+                       FromTo,
+                       AddressCard,
+                       Numpad,
+                       VueSlider,
+                   },
+               })
+    export default class SignEthereumTransactionView extends SignTransactionView {
 
-    private showAdvanced: boolean = false;
-
-    private transactionPrice: 1;
-}
+    }
 </script>
 
 <style lang='sass' scoped>
