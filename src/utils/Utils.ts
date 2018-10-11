@@ -1,6 +1,7 @@
 import ENV from '../../vue.env';
-import {Wallet} from '../models/Wallet';
 import store from '../store';
+import {Wallet} from '../models/Wallet';
+import {EVENT_TYPES} from '../types/EventTypes';
 
 export default class Utils {
     public static environment: string = 'prod';
@@ -78,5 +79,19 @@ export default class Utils {
                     return Object.assign(newObj, {[key]: obj[key]});
                 }
             }, {});
+    }
+
+    public static messages() {
+        return {
+            hasValidOrigin: (message: MessageEvent) => {
+                return message.origin === Utils.urls.connect;
+            },
+            hasType: (message: MessageEvent) => {
+                return message.data && message.data.type && message.data.type !== '';
+            },
+            isOfType: (message: MessageEvent, eventType: EVENT_TYPES) => {
+                return Utils.messages().hasType(message) && message.data.type === eventType;
+            },
+        };
     }
 }

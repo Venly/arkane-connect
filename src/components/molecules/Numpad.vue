@@ -35,7 +35,7 @@
     export default class Numpad extends Vue {
         @Prop() private title!: string;
         @Prop() private params!: EthereumTransactionData | VechainTransactionData;
-        @Prop({required: false, default: false}) private disabled: boolean = false;
+        @Prop({required: false, default: false}) private disabled?: boolean;
 
         private pincode: string = '';
         private array: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];

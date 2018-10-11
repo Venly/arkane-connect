@@ -2,7 +2,7 @@
   <transition name="snackbar" mode="out-in">
     <div class="snackbar" :class="`snackbar--${snack.type}`" v-if="showSnack">
       <div class="snackbar__content">
-        <div class="snackbar__message">{{snack.message}}</div>
+        <div class="snackbar__message" v-html="snack.message"></div>
         <div class="snackbar__close_window"><a ref="closeWindow" @click="closeWindow" tabindex="1" v-if="snack.blocking">Close window</a></div>
       </div>
     </div>
