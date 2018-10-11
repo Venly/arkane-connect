@@ -3,9 +3,10 @@ import {AxiosError, AxiosResponse} from 'axios';
 import RestApi, {RestApiResponse} from './RestApi';
 import ResponseBody from './ResponseBody';
 import Utils from '../utils/Utils';
-import {Wallet} from '../models/Wallet';
+import {Wallet} from '@/models/Wallet';
 import {CreateWalletCommand, LinkWalletCommand} from '@/models/Commands';
 import {Profile} from '@/models/Profile';
+import {Balance} from '@/models/Balance';
 
 export default class Api {
     public static token: string = '';
@@ -37,6 +38,29 @@ export default class Api {
                 : [];
         }).catch(() => {
             return [];
+        });
+    }
+
+    public static getWallet(walletId: number): Promise<Wallet> {
+        return Api.getApi().http.get(`wallets/${walletId}`).then((result: any) => {
+            return result.data && result.data.success
+                ? result.data.result
+                : [];
+        }).catch(() => {
+            return [];
+        });
+    }
+
+    public static getBalance(walletId: number): Promise<Balance> {
+        return Api.getApi().http.get(`wallets/${walletId}/balance`).then((result: any) => {
+            return result.data && result.data.success
+                ? result.data.result
+                : [];
+        }).catch(() => {
+            return {
+                success: false,
+                result: {},
+            };
         });
     }
 

@@ -1,5 +1,6 @@
 import {Fund} from './Fund';
-import {SecretType} from '@/models/SecretType';
+import {SecretType} from './SecretType';
+import {Balance} from './Balance';
 
 export enum WalletType {
     THREEWAY_SHARED = 'THREEWAY_SHARED',
@@ -33,6 +34,7 @@ export class Wallet {
     public description = '';
     public archived = false;
     public primary = false;
+    public balance?: Balance;
 }
 
 export interface Wallets extends Array<Wallet> {

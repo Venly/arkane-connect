@@ -1,16 +1,22 @@
 <template>
     <div id="app" class="page">
         <progress-bar></progress-bar>
+        <snackbar class="snackbar snackbar--header"></snackbar>
         <router-view/>
+        <modal></modal>
     </div>
 </template>
 <script lang='ts'>
     import Vue from 'vue';
     import {Component} from 'vue-property-decorator';
     import ProgressBar from './components/atoms/ProgressBar.vue';
+    import Snackbar from './components/atoms/Snackbar.vue';
+    import Modal from './components/atoms/Modal.vue';
 
     @Component({
         components: {
+            Modal,
+            Snackbar,
             ProgressBar,
         },
     })

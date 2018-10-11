@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import Api from './api';
 import {Wallet} from '@/models/Wallet';
 import {SecretTypeUtil} from '@/models/SecretType';
+import {Snack, SnackType} from '@/models/Snack';
 
 Vue.use(Vuex);
 
@@ -18,6 +19,10 @@ export default new Vuex.Store({
         chain: {},
         thirdPartytoken: {},
         loading: false,
+        snack: {},
+        hasBlockingError: false,
+        showModal: false,
+        transactionWallet: {},
     },
     mutations: {
         setEnvironment: (state: any, environment: string) => {
@@ -47,6 +52,18 @@ export default new Vuex.Store({
         },
         setLoading: (state: any, isLoading: boolean) => {
             state.loading = isLoading;
+        },
+        setSnack: (state: any, snack: Snack) => {
+            state.snack = snack;
+        },
+        setHasBlockingError: (state: any, hasBlockingError: boolean) => {
+            state.hasBlockingError = hasBlockingError;
+        },
+        setShowModal: (state: any, showModal: boolean) => {
+            state.showModal = showModal;
+        },
+        setTransactionWallet: async (state: any, wallet: Wallet) => {
+            state.transactionWallet = wallet;
         },
     },
     actions: {
@@ -80,6 +97,26 @@ export default new Vuex.Store({
         },
         stopLoading: (store: any): void => {
             store.commit('setLoading', false);
+        },
+        setError: async (store: any, message: string) => {
+            store.commit('setSnack', {type: SnackType.DANGER, message, blocking: false});
+        },
+        setBlockingError: async (store: any, message) => {
+            store.commit('setHasBlockingError', true);
+            store.commit('setShowModal', true);
+            store.commit('setSnack', {type: SnackType.DANGER, message, blocking: true});
+        },
+        resetError: async (store: any) => {
+            store.commit('setSnack', {});
+        },
+        showModal: async (store: any) => {
+            store.commit('setShowModal', true);
+        },
+        hideModal: async (store: any) => {
+            store.commit('setShowModal', false);
+        },
+        setTransactionWallet: async (store: any, wallet: Wallet) => {
+            store.commit('setTransactionWallet', wallet);
         },
     },
     getters: {

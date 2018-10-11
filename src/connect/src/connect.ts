@@ -2,14 +2,14 @@
 /// <reference path="./typings.d.ts" />
 /* tslint:enable */
 import {AxiosResponse} from 'axios';
-import {EVENT_TYPES} from '../types/EventTypes';
-import ResponseBody from '../api/ResponseBody';
-import RestApi from '../api/RestApi';
-import {Wallet} from '../models/Wallet';
-import Utils from '../utils/Utils';
-import {Profile} from '../models/Profile';
+import {EVENT_TYPES} from '../../types/EventTypes';
+import ResponseBody from '../../api/ResponseBody';
+import RestApi from '../../api/RestApi';
+import {Wallet} from '../../models/Wallet';
+import {Profile} from '../../models/Profile';
+import Utils from '../../utils/Utils';
 
-export default class ArkaneConnect {
+export class ArkaneConnect {
 
     private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 350, h: number = 870) {
         const left = (screen.width / 2) - (w / 2);
@@ -98,7 +98,7 @@ export default class ArkaneConnect {
     }
 
     private addEventListeners(params: any, resolve: any, reject: any) {
-        window.addEventListener('message', (event) => {
+        window.addEventListener('message', (event: MessageEvent) => {
                 if (event.origin === Utils.urls.connect) {
                     if (event.data && event.data.type) {
                         if (event.data.type === EVENT_TYPES.SIGNER_MOUNTED) {
@@ -151,6 +151,6 @@ export default class ArkaneConnect {
     }
 }
 
-if (window) {
+if (typeof window !== 'undefined') {
     (window as any).ArkaneConnect = ArkaneConnect;
 }
