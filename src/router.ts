@@ -89,7 +89,6 @@ const router = new Router(
             {
                 path: '/init/:chain/:bearer',
                 name: 'init',
-                component: loadView('Init'),
                 meta: {
                     authArkane: true,
                 },
@@ -109,8 +108,9 @@ const router = new Router(
                 },
             },
             {path: '/error', name: 'generic-error', component: loadView('Error')},
-            {path: '*', component: loadView('Error404')},
             {path: '/unauthorized', name: 'unauthorized', component: loadView('Unauthorized')},
+            {path: '/', component: loadView('Index')},
+            {path: '*', component: loadView('Error404')},
         ],
     },
 );
