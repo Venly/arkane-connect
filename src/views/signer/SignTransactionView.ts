@@ -12,6 +12,10 @@ declare const window: Window;
 @Component({
 })
 export default class SignTransactionView extends Vue {
+
+    private get isInitialised() {
+        return Security.isLoggedIn && this.hasTransactionData;
+    }
     public loadingText = 'Initializing signer ...';
 
     public transactionData!: any;
@@ -19,6 +23,8 @@ export default class SignTransactionView extends Vue {
 
     @State
     public auth: any;
+
+    protected onTransactionDataReceivedCallback?: (transactionData: any) => void;
 
     private parentWindow!: Window;
     private parentOrigin!: string;
@@ -54,10 +60,6 @@ export default class SignTransactionView extends Vue {
                                       }, this.parentOrigin);
     }
 
-    private get isInitialised() {
-        return Security.isLoggedIn && this.hasTransactionData;
-    }
-
     private initMessageChannel() {
         const messageChannel = new MessageChannel();
         this.messagePort = messageChannel.port1;
@@ -72,6 +74,9 @@ export default class SignTransactionView extends Vue {
             this.parentOrigin = event.origin;
             this.parentWindow = (event.source as Window);
             await this.fetchWallet(this.transactionData);
+            if (this.onTransactionDataReceivedCallback) {
+                this.onTransactionDataReceivedCallback(this.transactionData);
+            }
             this.hasTransactionData = true;
         }
     }

@@ -2,14 +2,14 @@
   <div class="totals-box">
     <div class="totals-box__container">
       <div class="totals-box__amount">
-        <span class="totals-box__amount-label">Amount:</span>
-        <span class="totals-box__amount-value"> {{amountValue}}</span>
-        <span class="totals-box__amount-currency"> {{amountCurrency}}</span>
+        <span class="label">Amount:</span>
+        <span class="value"> {{formattedAmountValue}}</span>
+        <span class="currency"> {{amountCurrency}}</span>
       </div>
       <div class="totals-box__fee">
-        <span class="totals-box__fee-label">Max transaction fee:</span>
-        <span class="totals-box__fee-value"> {{feeValue}}</span>
-        <span class="totals-box__fee-currency"> {{feeCurrency}}</span>
+        <span class="label">Max fee:</span>
+        <span class="value"> {{formattedFeeValue}}</span>
+        <span class="currency"> {{feeCurrency}}</span>
       </div>
     </div>
     <div class="totals-box__settings_icon" v-if="showAdvancedIcon" @click="$emit('advanced-clicked')">
@@ -20,6 +20,7 @@
 <script lang="ts">
     import Vue from 'vue';
     import {Component, Prop} from 'vue-property-decorator';
+    import Utils from '../../utils/Utils';
 
     @Component
     export default class TotalsBox extends Vue {
@@ -35,7 +36,13 @@
         @Prop({required: false, default: false})
         public showAdvancedIcon?: boolean;
 
+        public get formattedAmountValue() {
+            return Utils.formatNumber(this.amountValue, 2);
+        }
 
+        public get formattedFeeValue() {
+            return Utils.formatNumber(this.feeValue, 2);
+        }
     }
 </script>
 
@@ -57,16 +64,29 @@
     align-items: center
     justify-content: space-between
 
+    .label
+      width: rem(60px)
+
     &__amount
-      &-value,
-      &-currency
+      display: flex
+      justify-content: left
+      align-items: center
+      .value,
+      .currency
         font-size: $font-size-bigger
+      > *
+        margin-right: rem(5px)
 
     &__fee
       margin-top: rem(12px)
-      &-value,
-      &-currency
+      display: flex
+      justify-content: left
+      align-items: center
+      .value,
+      .currency
         font-weight: $font-weight-light
+      > *
+        margin-right: rem(5px)
 
     &__settings_icon
       padding: rem(2px)

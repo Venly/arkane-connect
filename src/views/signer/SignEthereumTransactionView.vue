@@ -5,49 +5,68 @@
       <p>{{errorText}}</p>
     </div>
     <div v-if="isInitialised" class="content">
+
+
       <transition name="slide-left">
         <div v-if="!showAdvanced">
           <h3>Enter your pincode to sign this transaction</h3>
+
           <from-to :from="'0x0da0170bbce933599450c44ddd850fe9fa9f542a'" :to="transactionData.to"></from-to>
-          <!--<address-card :label="'Some label'" :address="'0x0da0170bbce933599450c44ddd850fe9fa9f542a'" :stripeClass="'blue'"></address-card>-->
-          <totals-box class="totals-box" :amount-value="25" :amount-currency="'ETH'" :fee-value="0.01" :fee-currency="'ETH'" :show-advanced-icon="true"
-                      @advanced-clicked="onAdvancedButtonClicked()"></totals-box>
+
+          <totals-box :amount-value="transactionData.value" :amount-currency="'ETH'" :fee-value="maxTransactionFee" :fee-currency="'GWEI'" :show-advanced-icon="true"
+                      @advanced-clicked="showAdvanced = true"></totals-box>
+
           <numpad :params="transactionData"
                   @signed="sendTransactionSignedMessage"
                   @pincode_incorrect="wrongPincodeMessage"
                   @pincode_no_tries_left="noTriesLeftMessage"></numpad>
         </div>
       </transition>
+
+
       <transition name="slide-right" @after-enter="afterAdvancedEnter">
         <div v-if="showAdvanced" class="advanced">
           <h3>Transaction details</h3>
 
           <from-to :from="'0x0da0170bbce933599450c44ddd850fe9fa9f542a'" :to="transactionData.to"></from-to>
 
-          <totals-box class="totals-box" :amount-value="25" :amount-currency="'ETH'" :fee-value="0.01" :fee-currency="'ETH'"></totals-box>
+          <totals-box :amount-value="transactionData.value" :amount-currency="'ETH'" :fee-value="maxTransactionFee" :fee-currency="'GWEI'"></totals-box>
 
           <div class="speed-slider-box">
-            <vue-slider ref="speedSlider" class="speed-slider" v-model="speed" v-bind="speedSelectorOptions"></vue-slider>
+            <vue-slider ref="speedSlider" class="speed-slider"
+                        v-model="gasPrice"
+                        :data="gasOptions"
+                        :piecewise="speedSelectorOptions.piecewise"
+                        :dotSize="speedSelectorOptions.dotSize"
+                        :formatter="speedSelectorOptions.formatter"
+                        :bgStyle="speedSelectorOptions.bgStyle"
+                        :processStyle="speedSelectorOptions.processStyle"
+                        :tooltipStyle="speedSelectorOptions.tooltipStyle"
+                        :piecewiseStyle="speedSelectorOptions.piecewiseStyle"
+                        :piecewiseActiveStyle="speedSelectorOptions.piecewiseActiveStyle"
+                        :lazy="speedSelectorOptions.lazy">
+            </vue-slider>
             <div class="speed-slider-box--labels">
               <div>slow</div>
               <div>fast</div>
             </div>
           </div>
-
           <form class="form">
             <div class="gas-limit control">
               <label for="gas-limit" class="control__label">Gas limit</label>
-              <input id="gas-limit" class="control__input" type="number" v-model="gasLimit"/>
+              <input id="gas-limit" class="control__input" type="number" v-model="gas"/>
             </div>
 
             <div class="data control">
               <label for="data" class="control__label">Data</label>
-              <textarea id="data" class="control__input" v-model="data" readonly="readonly"></textarea>
+              <textarea id="data" class="control__input" v-model="transactionData.data" readonly="readonly"></textarea>
             </div>
           </form>
           <button class="save-button btn" @click.prevent="showAdvanced = false" @keyup.native.enter="showAdvanced = false">Save</button>
         </div>
       </transition>
+
+
     </div>
     <div v-else class="loading">
       <p>{{loadingText}}</p>
@@ -56,13 +75,14 @@
 </template>
 
 <script lang='ts'>
-    import {Component, Watch} from 'vue-property-decorator';
+    import {Component} from 'vue-property-decorator';
     import Numpad from '../../components/molecules/Numpad.vue';
     import SignTransactionView from './SignTransactionView';
     import AddressCard from '../../components/atoms/AddressCard.vue';
     import FromTo from '../../components/molecules/FromTo.vue';
     import TotalsBox from '../../components/atoms/TotalsBox.vue';
     import VueSlider from 'vue-slider-component';
+    import Utils from '../../utils/Utils';
 
     declare const window: Window;
 
@@ -77,29 +97,14 @@
                })
     export default class SignEthereumTransactionView extends SignTransactionView {
 
-        private showAdvanced: boolean = false;
-        private speed: number = 0;
-        private gasLimit: number = 21000;
-        private data: string = '0x606060405260008060146101000a81548160ff0219169083151502179055506001600960006101000a81548160ff021916908315150217905550341561004457600080f' +
-            'd5b6040516' +
-            '0c080611eff83398101604052808051906020019091908051906020019091908051906020019091908051906020019091908051906020019091908051906020019091905050336000806101000a8' +
-            '1548173ff' +
-            'fffffffffffffffffff ';
+        public showAdvanced: boolean = false;
+        public gas: number = 0;
+        public gasPrice: number = 0;
 
         private speedSelectorOptions: any = {
-            eventType: 'auto',
             piecewise: true,
             dotSize: 16,
-            show: true,
-            speed: 1,
-            tooltipDir: 'top',
-            formatter: ((value: number) => `${value} Gwei`),
-            data: [
-                '3',
-                '3.1300001',
-                '19.841269841',
-                '23',
-            ],
+            formatter: ((value: number) => `${Utils.formatNumber(value, 2)} GWEI`),
             bgStyle: {
                 backgroundColor: '#9b9b9b',
             },
@@ -121,6 +126,27 @@
             },
             lazy: true,
         };
+
+        public created() {
+            super.onTransactionDataReceivedCallback = (transactionData: any): void => {
+                this.gas = transactionData.gas;
+                this.gasPrice = transactionData.gasPrice;
+            };
+        }
+
+        private get maxTransactionFee(): number {
+            return (this.gas * this.gasPrice);
+        }
+
+        private get gasOptions(): number[] {
+            const originalValue: number = this.transactionData.gasPrice;
+            const options = [3, 3.1300001, 20, 23];
+            if (options.findIndex((value: number) => value === originalValue) < 0) {
+              options.push(originalValue);
+            }
+            return options.sort(((a, b) => (a < b) ? -1 : ((a > b) ? 1 : 0)));
+        }
+
 
         private onAdvancedButtonClicked() {
             this.showAdvanced = true;
