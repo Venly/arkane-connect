@@ -80,7 +80,6 @@ const router = new Router(
             {
                 path: '/init/:chain/:bearer',
                 name: 'init',
-                component: loadView('Init'),
                 meta: {
                     authArkane: true,
                 },
