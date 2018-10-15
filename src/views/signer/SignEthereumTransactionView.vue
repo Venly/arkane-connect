@@ -11,12 +11,13 @@
         <div v-if="!showAdvanced">
           <h3>Enter your pincode to sign this transaction</h3>
 
-          <from-to :from="'0x0da0170bbce933599450c44ddd850fe9fa9f542a'" :to="transactionData.to"></from-to>
+          <from-to :from="fromAddress" :to="transactionData.to"></from-to>
 
-          <totals-box :amount-value="transactionData.value" :amount-currency="'ETH'" :fee-value="maxTransactionFee" :fee-currency="'GWEI'" :show-advanced-icon="true"
+          <totals-box :amount-value="transactionData.value" :amount-currency="'ETH'" :fee-value="maxTransactionFee()" :fee-currency="'ETH'" :show-advanced-icon="true"
                       @advanced-clicked="showAdvanced = true"></totals-box>
 
           <numpad :params="transactionData"
+                  :disabled="hasBlockingError"
                   @signed="sendTransactionSignedMessage"
                   @pincode_incorrect="wrongPincodeMessage"
                   @pincode_no_tries_left="noTriesLeftMessage"></numpad>
@@ -28,9 +29,9 @@
         <div v-if="showAdvanced" class="advanced">
           <h3>Transaction details</h3>
 
-          <from-to :from="'0x0da0170bbce933599450c44ddd850fe9fa9f542a'" :to="transactionData.to"></from-to>
+          <from-to :from="transactionWallet.address" :to="transactionData.to"></from-to>
 
-          <totals-box :amount-value="transactionData.value" :amount-currency="'ETH'" :fee-value="maxTransactionFee" :fee-currency="'GWEI'"></totals-box>
+          <totals-box :amount-value="transactionData.value" :amount-currency="'ETH'" :fee-value="maxEditedTransactionFee" :fee-currency="'ETH'"></totals-box>
 
           <div class="speed-slider-box">
             <vue-slider ref="speedSlider" class="speed-slider"
@@ -51,10 +52,10 @@
               <div>fast</div>
             </div>
           </div>
-          <form class="form">
+          <form class="form" @submit.prevent="doNothing">
             <div class="gas-limit control">
               <label for="gas-limit" class="control__label">Gas limit</label>
-              <input id="gas-limit" class="control__input" type="number" v-model="gas"/>
+              <input id="gas-limit" class="control__input" type="number" v-model="gasLimit"/>
             </div>
 
             <div class="data control">
@@ -62,7 +63,7 @@
               <textarea id="data" class="control__input" v-model="transactionData.data" readonly="readonly"></textarea>
             </div>
           </form>
-          <button class="save-button btn" @click.prevent="showAdvanced = false" @keyup.native.enter="showAdvanced = false">Save</button>
+          <button class="save-button btn" @click.prevent="saveChanges" @keyup.native.enter="saveChanges">Save</button>
         </div>
       </transition>
 
@@ -98,7 +99,7 @@
     export default class SignEthereumTransactionView extends SignTransactionView {
 
         public showAdvanced: boolean = false;
-        public gas: number = 0;
+        public gasLimit: number = 0;
         public gasPrice: number = 0;
 
         private speedSelectorOptions: any = {
@@ -129,20 +130,28 @@
 
         public created() {
             super.onTransactionDataReceivedCallback = (transactionData: any): void => {
-                this.gas = transactionData.gas;
+                this.gasLimit = transactionData.gas;
                 this.gasPrice = transactionData.gasPrice;
             };
         }
 
-        private get maxTransactionFee(): number {
-            return (this.gas * this.gasPrice);
+        public get fromAddress(): string {
+            return !(!super.transactionWallet) ? super.transactionWallet.address : '0x0000000000000000000000000000000000000000';
+        }
+
+        private maxTransactionFee(): number {
+            return (this.transactionData.gas * this.transactionData.gasPrice) / 1000000000;
+        }
+
+        private get maxEditedTransactionFee(): number {
+            return (this.gasLimit * this.gasPrice) / 1000000000;
         }
 
         private get gasOptions(): number[] {
             const originalValue: number = this.transactionData.gasPrice;
             const options = [3, 3.1300001, 20, 23];
             if (options.findIndex((value: number) => value === originalValue) < 0) {
-              options.push(originalValue);
+                options.push(originalValue);
             }
             return options.sort(((a, b) => (a < b) ? -1 : ((a > b) ? 1 : 0)));
         }
@@ -156,6 +165,15 @@
             (this.$refs.speedSlider as any).refresh();
         }
 
+        private saveChanges() {
+            this.transactionData.gas = this.gasLimit;
+            this.transactionData.gasPrice = this.gasPrice;
+            this.showAdvanced = false;
+        }
+
+        private doNothing() {
+            // Do nothing
+        }
     }
 </script>
 

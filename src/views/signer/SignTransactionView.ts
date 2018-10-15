@@ -9,20 +9,25 @@ import Component from 'vue-class-component';
 
 declare const window: Window;
 
-@Component({
-})
+@Component({})
 export default class SignTransactionView extends Vue {
 
     private get isInitialised() {
         return Security.isLoggedIn && this.hasTransactionData;
     }
+
     public loadingText = 'Initializing signer ...';
 
     public transactionData!: any;
     public errorText = '';
 
     @State
+    public transactionWallet?: Wallet;
+
+    @State
     public auth: any;
+    @State
+    public hasBlockingError!: boolean;
 
     protected onTransactionDataReceivedCallback?: (transactionData: any) => void;
 
@@ -54,10 +59,12 @@ export default class SignTransactionView extends Vue {
     }
 
     private sendTransactionSignedMessage(result: ResponseBody) {
-        this.parentWindow.postMessage({
-                                          type: EVENT_TYPES.TRANSACTION_SIGNED,
-                                          data: result,
-                                      }, this.parentOrigin);
+        if (this.parentWindow) {
+            this.parentWindow.postMessage({
+                                              type: EVENT_TYPES.TRANSACTION_SIGNED,
+                                              data: result,
+                                          }, this.parentOrigin);
+        }
     }
 
     private initMessageChannel() {

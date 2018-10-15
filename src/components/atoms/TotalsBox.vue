@@ -41,7 +41,7 @@
         }
 
         public get formattedFeeValue() {
-            return Utils.formatNumber(this.feeValue, 2);
+            return Utils.formatNumber(this.feeValue, 2, 8);
         }
     }
 </script>

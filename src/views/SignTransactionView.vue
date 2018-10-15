@@ -30,10 +30,10 @@
     declare const window: Window;
 
     @Component({
-        components: {
-            Numpad,
-        },
-    })
+                   components: {
+                       Numpad,
+                   },
+               })
     export default class SignTransactionView extends Vue {
         public loadingText = 'Initializing signer ...';
 
@@ -43,6 +43,8 @@
         public auth: any;
         @State
         public hasBlockingError!: boolean;
+        @State
+        public transactionWallet?: Wallet;
 
         private parentWindow!: Window;
         private parentOrigin!: string;
@@ -110,15 +112,15 @@
 
         private async fetchWallet(transactionData: any): Promise<boolean> {
             return Api.getWallet(transactionData.walletId)
-                .then((wallet: Wallet) => {
-                    this.$store.dispatch('setTransactionWallet', wallet);
-                    if (wallet && wallet.balance && wallet.balance.gasBalance <= 0) {
-                        this.$store.dispatch('setBlockingError', 'This wallet has insufficient gas to execute a transaction');
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }).catch((result: any) => {
+                      .then((wallet: Wallet) => {
+                          this.$store.dispatch('setTransactionWallet', wallet);
+                          if (wallet && wallet.balance && wallet.balance.gasBalance <= 0) {
+                              this.$store.dispatch('setBlockingError', 'This wallet has insufficient gas to execute a transaction');
+                              return false;
+                          } else {
+                              return true;
+                          }
+                      }).catch((result: any) => {
                     this.$store.dispatch('setBlockingError', 'Something went wrong while trying to fetch the wallet. Please close this window and try again. If the problem ' +
                         'persists, contact support at support@arkane.network');
                     return false;

@@ -95,10 +95,10 @@ export default class Utils {
         };
     }
 
-    public static formatNumber(value: number, decimals: number = 2) {
+    public static formatNumber(value: number, minDecimals: number = 2, maxDecimals: number = minDecimals) {
         return new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals,
+            minimumFractionDigits: minDecimals,
+            maximumFractionDigits: maxDecimals,
         }).format(value);
     }
 }
