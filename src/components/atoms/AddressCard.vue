@@ -5,25 +5,27 @@
         {{label}}
       </div>
       <div class="address-card__address">
-        <div class="address-card__address-piece address-card__address-front">{{address}}</div>
-        <div class="address-card__address-piece address-card__address-back">{{address}}</div>
+        <dots-in-between :chars="9" :text="address"></dots-in-between>
       </div>
     </div>
   </div>
 </template>
 <script lang="ts">
-    import Vue from 'vue';
-    import {Component, Prop} from 'vue-property-decorator';
+import Vue from 'vue';
+import {Component, Prop} from 'vue-property-decorator';
+import DotsInBetween from './DotsInBetween.vue';
 
-    @Component
-    export default class AddressCard extends Vue {
-        @Prop()
-        public address!: string;
-        @Prop()
-        public label!: string;
-        @Prop()
-        public stripeClass!: string;
-    }
+@Component({
+               components: {DotsInBetween},
+           })
+export default class AddressCard extends Vue {
+    @Prop()
+    public address!: string;
+    @Prop()
+    public label!: string;
+    @Prop()
+    public stripeClass!: string;
+}
 </script>
 
 <style lang="sass" scoped>
