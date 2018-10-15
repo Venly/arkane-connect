@@ -184,6 +184,7 @@
     width: 100%
     margin-bottom: auto
     background-color: $color-white
+    overflow: hidden
 
     .logo-wrapper
       height: rem(50px)
@@ -203,6 +204,10 @@
     .content
       width: rem(250px)
       margin: 0 auto
+      display: flex
+
+      > div
+        width: 100%
 
       h3
         margin: 0 auto 30px auto
