@@ -1,11 +1,11 @@
 {
   "name": "@arkane-network/arkane-connect",
-  "version": "0.0.16",
+  "version": "0.0.18",
   "description": "Arkane Connect - api library for 3th parties",
   "main": "dist/src/connect/src/index.js",
   "types": "dist/src/connect/src/index.d.ts",
   "scripts": {
-    "build-ts":  "tsc -p .",
+    "build-ts": "tsc -p .",
     "build-js": "npx webpack --mode production"
   },
   "repository": {
