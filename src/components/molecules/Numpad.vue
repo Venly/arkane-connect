@@ -1,7 +1,7 @@
 <template>
   <div class="numpad">
     <input type="password" style="visibility: hidden" :disabled="disabled"/>
-    <input class="password" @keypress.enter="sign" ref="pinInput" tabindex="0" autocomplete="off" data-lpignore="true" type="password" v-model="pincode" :disabled="disabled"/>
+    <input class="password" @keyup.prevent.enter="pinEntered" ref="pinInput" tabindex="0" autocomplete="off" data-lpignore="true" type="password" v-model="pincode" :disabled="disabled"/>
     <div class="numbers">
       <numpad-number class="number" v-for="(num, index) in numbers.slice(0,9)" :num="num" :key="num" :tabindex="-1"
                      @click.prevent="numberClicked(num)" @keyup.native.enter="numberClicked(num)"></numpad-number>
@@ -15,12 +15,12 @@
         </svg>
       </button>
     </div>
-    <button ref="actionButton" class="action-button" @click.prevent="sign" :disabled="!isSubmitable" tabindex="1" @keyup.native.enter="sign">Sign Transaction</button>
+    <button ref="actionButton" class="action-button" @click.prevent="pinEntered" :disabled="!isSubmitable" tabindex="1" @keyup.prevent.enter="pinEntered">Sign Transaction</button>
   </div>
 </template>
 
 <script lang="ts">
-    import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
+    import {Component, Emit, Prop, Vue, Watch} from 'vue-property-decorator';
     import NumpadNumber from '@/components/atoms/NumpadNumber.vue';
     import Api from '@/api';
     import ResponseBody from '@/api/ResponseBody';
@@ -51,6 +51,15 @@
             }
         }
 
+        public pinEntered() {
+            if (/^[0-9]{4,6}$/.test(this.pincode)) {
+                this.$emit('pincode_entered', this.pincode);
+            } else {
+                this.pincode = '';
+                this.$store.dispatch('setError', 'Pin should be between 4 and 6 numbers long');
+            }
+        }
+
         private numberClicked(num: number) {
             this.pincode += num;
             (this.$refs.pinInput as HTMLElement).focus();
@@ -71,33 +80,6 @@
 
         private get isSubmitable() {
             return !this.disabled && this.pincode !== '';
-        }
-
-        private sign() {
-            if (/^[0-9]{4,6}$/.test(this.pincode)) {
-                this.$store.dispatch('showModal');
-                this.$store.dispatch('startLoading');
-                Api.signTransaction(this.params, this.pincode).then((r: ResponseBody) => {
-                    this.$store.dispatch('stopLoading');
-                    this.$store.dispatch('hideModal');
-                    if ((!r.success) && r.result && r.result.errors && r.result.errors.map((error: any) => error.code).includes('pincode.incorrect')) {
-                        this.$emit('pincode_incorrect');
-                    } else if (!(r.success) && r.result && r.result.errors && r.result.errors.map((error: any) => error.code).includes('pincode.no-tries-left')) {
-                        this.$emit('pincode_no_tries_left');
-                    } else {
-                        this.$emit('signed', r);
-                    }
-                }).catch((e: Error) => {
-                    this.$emit('signed', {
-                        success: false,
-                        result: {},
-                        errors: [e],
-                    });
-                });
-            } else {
-                this.pincode = '';
-                this.$store.dispatch('setError', 'Pin should be between 4 and 6 numbers long');
-            }
         }
     }
 </script>

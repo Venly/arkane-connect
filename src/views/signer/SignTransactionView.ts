@@ -19,7 +19,6 @@ export default class SignTransactionView extends Vue {
     public loadingText = 'Initializing signer ...';
 
     public transactionData!: any;
-    public errorText = '';
 
     @State
     public transactionWallet?: Wallet;
@@ -30,11 +29,15 @@ export default class SignTransactionView extends Vue {
     public hasBlockingError!: boolean;
 
     protected onTransactionDataReceivedCallback?: (transactionData: any) => void;
+    protected postTransaction: (pincode: string, transactionData: any) => Promise<any> = (
+        (pincode, txData) => new Promise((resolve, reject) => {
+            reject();
+        })
+    );
 
-    private parentWindow!: Window;
-    private parentOrigin!: string;
     private hasTransactionData: boolean = false;
     private messagePort!: MessagePort;
+
 
     public created() {
         if (!this.auth) {
@@ -50,20 +53,44 @@ export default class SignTransactionView extends Vue {
         this.addEventListeners();
     }
 
-    public noTriesLeftMessage() {
-        this.errorText = 'You entered a wrong pincode too many times.';
+    public pinEntered(pincode: string) {
+        this.$store.dispatch('showModal');
+        this.$store.dispatch('startLoading');
+        this.postTransaction(pincode, this.transactionData)
+            .then((r: ResponseBody) => {
+                this.$store.dispatch('stopLoading');
+                this.$store.dispatch('hideModal');
+                if (this.responseHasErrors(r)) {
+                    if (this.errorsContains(r, 'pincode.incorrect')) {
+                        this.$store.dispatch('setError', 'Wrong pincode');
+                    } else if (this.errorsContains(r, 'pincode.no-tries-left')) {
+                        this.$store.dispatch('setError', 'You entered a wrong pincode too many times');
+                    } else {
+                        this.$store.dispatch('setError', r.result.errors.map((error: any) => error.message)[0]);
+                    }
+                } else {
+                    this.sendTransactionSignedMessage(r);
+                }
+            })
+            .catch((e: Error) => {
+                this.$store.dispatch('stopLoading');
+                this.$store.dispatch('hideModal');
+                this.$store.dispatch('setError', 'Something went wrong when submitting your transaction. Please try again. If the problem persists, contact support ' +
+                    'via support@arkane.network');
+            });
     }
 
-    public wrongPincodeMessage() {
-        this.errorText = 'Wrong pincode';
+    private responseHasErrors(r: ResponseBody) {
+        return (!r.success) && r.result && r.result.errors && r.result.errors.length > 0;
+    }
+
+    private errorsContains(r: ResponseBody, errorCode: string) {
+        return r.result.errors.map((error: any) => error.code).includes(errorCode);
     }
 
     private sendTransactionSignedMessage(result: ResponseBody) {
-        if (this.parentWindow) {
-            this.parentWindow.postMessage({
-                                              type: EVENT_TYPES.TRANSACTION_SIGNED,
-                                              data: result,
-                                          }, this.parentOrigin);
+        if (this.messagePort) {
+            this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_SIGNED, data: result});
         }
     }
 
@@ -78,8 +105,6 @@ export default class SignTransactionView extends Vue {
         const data = event.data;
         if (data && data.type === EVENT_TYPES.SEND_TRANSACTION_DATA) {
             this.transactionData = {...data.params};
-            this.parentOrigin = event.origin;
-            this.parentWindow = (event.source as Window);
             await this.fetchWallet(this.transactionData);
             if (this.onTransactionDataReceivedCallback) {
                 this.onTransactionDataReceivedCallback(this.transactionData);

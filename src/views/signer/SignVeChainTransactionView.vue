@@ -2,7 +2,6 @@
   <div class="signer">
     <div class="logo-wrapper">
       <img class="logo" alt="Arkane Logo" src="../../assets/logo-arkane-animated.svg"/>
-      <p>{{errorText}}</p>
     </div>
     <div v-if="isInitialised" class="content">
 
@@ -13,15 +12,11 @@
 
           <from-to :from="fromAddress" :toAddresses="toAddresses" :max-lines="3"></from-to>
 
-          <totals-box :amount-value="amount" :amount-currency="'VET'"  :amount-decimals="{min: 2, max: 3}"
+          <totals-box :amount-value="amount" :amount-currency="'VET'" :amount-decimals="{min: 2, max: 3}"
                       :fee-value="maxTransactionFee()" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 11}"
                       :show-advanced-icon="true" @advanced-clicked="showAdvanced = true"></totals-box>
 
-          <numpad :params="transactionData"
-                  :disabled="hasBlockingError"
-                  @signed="sendTransactionSignedMessage"
-                  @pincode_incorrect="wrongPincodeMessage"
-                  @pincode_no_tries_left="noTriesLeftMessage"></numpad>
+          <numpad :params="transactionData" :disabled="hasBlockingError" @pincode_entered="pinEntered"></numpad>
         </div>
       </transition>
 
@@ -32,7 +27,7 @@
 
           <from-to :from="fromAddress" :toAddresses="toAddresses" :max-lines="3"></from-to>
 
-          <totals-box :amount-value="amount" :amount-currency="'VET'"  :amount-decimals="{min: 2, max: 3}"
+          <totals-box :amount-value="amount" :amount-currency="'VET'" :amount-decimals="{min: 2, max: 3}"
                       :fee-value="maxEditedTransactionFee" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 11}"></totals-box>
 
           <form class="form" @submit.prevent="doNothing">
@@ -67,6 +62,8 @@
     import TotalsBox from '../../components/atoms/TotalsBox.vue';
     import VueSlider from 'vue-slider-component';
     import Utils from '../../utils/Utils';
+    import Api from '../../api';
+    import ResponseBody from '../../api/ResponseBody';
 
     declare const window: Window;
 
@@ -86,10 +83,11 @@
         public gasPriceCoef: number = 0;
 
         public created() {
-            super.onTransactionDataReceivedCallback = (transactionData: any): void => {
+            this.onTransactionDataReceivedCallback = (transactionData: any): void => {
                 this.gasLimit = transactionData.gas;
                 this.gasPriceCoef = transactionData.gasPriceCoef;
             };
+            this.postTransaction = (pincode: string, transactionData: any) => Api.signTransaction(transactionData, pincode);
         }
 
         public get fromAddress(): string {
@@ -103,8 +101,8 @@
         public get amount(): number {
             return this.transactionData
                 ? (this.transactionData.clauses as any[])
-                      .map((clause) => parseInt(clause.amount, 10))
-                      .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0)
+                    .map((clause) => parseInt(clause.amount, 10))
+                    .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0)
                 : 0;
         }
 
@@ -205,6 +203,4 @@
 
       .save-button
         margin-top: rem(30px)
-
-
 </style>

@@ -2,7 +2,6 @@
   <div class="signer">
     <div class="logo-wrapper">
       <img class="logo" alt="Arkane Logo" src="../../assets/logo-arkane-animated.svg"/>
-      <p>{{errorText}}</p>
     </div>
     <div v-if="isInitialised" class="content">
 
@@ -17,11 +16,7 @@
                       :fee-value="maxTransactionFee()" :fee-currency="'ETH'" :fee-decimals="{min: 6, max: 11}"
                       :show-advanced-icon="true" @advanced-clicked="showAdvanced = true"></totals-box>
 
-          <numpad :params="transactionData"
-                  :disabled="hasBlockingError"
-                  @signed="sendTransactionSignedMessage"
-                  @pincode_incorrect="wrongPincodeMessage"
-                  @pincode_no_tries_left="noTriesLeftMessage"></numpad>
+          <numpad :params="transactionData" :disabled="hasBlockingError" @pincode_entered="pinEntered"></numpad>
         </div>
       </transition>
 
@@ -86,6 +81,7 @@
     import TotalsBox from '../../components/atoms/TotalsBox.vue';
     import VueSlider from 'vue-slider-component';
     import Utils from '../../utils/Utils';
+    import Api from '../../api';
 
     declare const window: Window;
 
@@ -131,10 +127,11 @@
         };
 
         public created() {
-            super.onTransactionDataReceivedCallback = (transactionData: any): void => {
+            this.onTransactionDataReceivedCallback = (transactionData: any): void => {
                 this.gasLimit = transactionData.gas;
                 this.gasPrice = transactionData.gasPrice;
             };
+            this.postTransaction = (pincode: string, transactionData: any) => Api.signTransaction(transactionData, pincode);
         }
 
         public get fromAddress(): string {
