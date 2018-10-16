@@ -1,31 +1,45 @@
 <template>
-  <div class="address-card" :class="stripeClass" :title="address">
-    <div class="address-card__details">
-      <div class="address-card__label">
-        {{label}}
-      </div>
-      <div class="address-card__address">
-        <dots-in-between :chars="9" :text="address"></dots-in-between>
+  <div>
+    <div class="address-card" :class="stripeClass" :title="address">
+      <div class="address-card__details">
+        <div class="address-card__label">
+          {{label}}
+        </div>
+        <div class="address-card__address">
+          <dots-in-between v-if="address !== ''" :chars="9" :text="address"></dots-in-between>
+          <div v-if="(addresses !== [] && index < maxLines)" v-for="(address, index) in addresses">
+            <dots-in-between v-if="(index < maxLines - 1) || (addresses.length == maxLines)" :chars="9" :text="address"></dots-in-between>
+            <span v-if="(addresses.length !== maxLines) && (index == maxLines - 1)">&hellip;</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script lang="ts">
-import Vue from 'vue';
-import {Component, Prop} from 'vue-property-decorator';
-import DotsInBetween from './DotsInBetween.vue';
+    import Vue from 'vue';
+    import {Component, Prop} from 'vue-property-decorator';
+    import DotsInBetween from './DotsInBetween.vue';
 
-@Component({
-               components: {DotsInBetween},
-           })
-export default class AddressCard extends Vue {
-    @Prop()
-    public address!: string;
-    @Prop()
-    public label!: string;
-    @Prop()
-    public stripeClass!: string;
-}
+    @Component({
+                   components: {DotsInBetween},
+               })
+    export default class AddressCard extends Vue {
+        @Prop({required: false, default: ''})
+        public address?: string;
+
+        @Prop({required: false, default: () => []})
+        public addresses?: string[];
+
+        @Prop()
+        public label!: string;
+
+        @Prop()
+        public stripeClass!: string;
+
+        @Prop({required: false, default: 1})
+        public maxLines!: number;
+    }
 </script>
 
 <style lang="sass" scoped>
@@ -34,9 +48,8 @@ export default class AddressCard extends Vue {
   .address-card
     border-radius: $border-radius-small
     border: 1px solid $color-border
-    margin: 0 auto
     font-size: $font-size-small
-    height: rem(53px)
+    margin: 0 auto
     overflow: hidden
 
     &.blue

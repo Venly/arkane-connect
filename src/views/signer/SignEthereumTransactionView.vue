@@ -13,8 +13,9 @@
 
           <from-to :from="fromAddress" :to="transactionData.to"></from-to>
 
-          <totals-box :amount-value="transactionData.value" :amount-currency="'ETH'" :fee-value="maxTransactionFee()" :fee-currency="'ETH'" :show-advanced-icon="true"
-                      @advanced-clicked="showAdvanced = true"></totals-box>
+          <totals-box :amount-value="transactionData.value" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
+                      :fee-value="maxTransactionFee()" :fee-currency="'ETH'" :fee-decimals="{min: 6, max: 11}"
+                      :show-advanced-icon="true" @advanced-clicked="showAdvanced = true"></totals-box>
 
           <numpad :params="transactionData"
                   :disabled="hasBlockingError"
@@ -31,7 +32,8 @@
 
           <from-to :from="transactionWallet.address" :to="transactionData.to"></from-to>
 
-          <totals-box :amount-value="transactionData.value" :amount-currency="'ETH'" :fee-value="maxEditedTransactionFee" :fee-currency="'ETH'"></totals-box>
+          <totals-box :amount-value="transactionData.value" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
+                      :fee-value="maxEditedTransactionFee" :fee-currency="'ETH'" :fee-decimals="{min: 6, max: 11}"></totals-box>
 
           <div class="speed-slider-box">
             <vue-slider ref="speedSlider" class="speed-slider"
@@ -105,7 +107,7 @@
         private speedSelectorOptions: any = {
             piecewise: true,
             dotSize: 16,
-            formatter: ((value: number) => `${Utils.formatNumber(value, 2)} GWEI`),
+            formatter: ((value: number) => `${Utils.formatNumber(value, 0, 3)} GWEI`),
             bgStyle: {
                 backgroundColor: '#9b9b9b',
             },

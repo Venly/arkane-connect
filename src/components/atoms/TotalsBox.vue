@@ -24,24 +24,30 @@
 
     @Component
     export default class TotalsBox extends Vue {
+
         @Prop()
         public amountValue!: number;
         @Prop()
         public amountCurrency!: string;
+        @Prop({required: false, default: {min: 2, max: 2}})
+        public amountDecimals!: {min: number, max: number};
+
         @Prop()
         public feeValue!: number;
         @Prop()
         public feeCurrency!: string;
+        @Prop({required: false, default: {min: 2, max: 2}})
+        public feeDecimals!: {min: number, max: number};
 
         @Prop({required: false, default: false})
         public showAdvancedIcon?: boolean;
 
         public get formattedAmountValue() {
-            return Utils.formatNumber(this.amountValue, 2);
+            return Utils.formatNumber(this.amountValue, this.amountDecimals.min, this.amountDecimals.max);
         }
 
         public get formattedFeeValue() {
-            return Utils.formatNumber(this.feeValue, 2, 8);
+            return Utils.formatNumber(this.feeValue, this.feeDecimals.min, this.feeDecimals.max);
         }
     }
 </script>
