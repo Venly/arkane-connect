@@ -12,7 +12,7 @@
 
           <from-to :from="fromAddress" :toAddresses="toAddresses" :max-lines="3"></from-to>
 
-          <totals-box :amount-value="amount" :amount-currency="'VET'" :amount-decimals="{min: 2, max: 3}"
+          <totals-box :amount-value="totalAmountInVet" :amount-currency="'VET'" :amount-decimals="{min: 2, max: 3}"
                       :fee-value="maxTransactionFee()" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 11}"
                       :show-advanced-icon="true" @advanced-clicked="showAdvanced = true"></totals-box>
 
@@ -27,7 +27,7 @@
 
           <from-to :from="fromAddress" :toAddresses="toAddresses" :max-lines="3"></from-to>
 
-          <totals-box :amount-value="amount" :amount-currency="'VET'" :amount-decimals="{min: 2, max: 3}"
+          <totals-box :amount-value="totalAmountInVet" :amount-currency="'VET'" :amount-decimals="{min: 2, max: 3}"
                       :fee-value="maxEditedTransactionFee" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 11}"></totals-box>
 
           <form class="form" @submit.prevent="doNothing">
@@ -98,11 +98,10 @@
             return this.transactionData ? (this.transactionData.clauses as any[]).map((clause) => clause.to) : [];
         }
 
-        public get amount(): number {
+        public get totalAmountInVet(): number {
             return this.transactionData
-                ? (this.transactionData.clauses as any[])
-                    .map((clause) => parseInt(clause.amount, 10))
-                    .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0)
+                ? ((this.transactionData.clauses as any[]).map((clause) => parseInt(clause.amount, 10))
+                                                         .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0)) / Math.pow(10, 18)
                 : 0;
         }
 

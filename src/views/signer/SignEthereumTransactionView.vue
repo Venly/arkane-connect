@@ -12,8 +12,8 @@
 
           <from-to :from="fromAddress" :to="transactionData.to"></from-to>
 
-          <totals-box :amount-value="transactionData.value" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
-                      :fee-value="maxTransactionFee()" :fee-currency="'ETH'" :fee-decimals="{min: 6, max: 11}"
+          <totals-box :amount-value="amountInEther" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
+                      :fee-value="maxTransactionFee()" :fee-currency="'GWEI'" :fee-decimals="{min: 2, max: 6}"
                       :show-advanced-icon="true" @advanced-clicked="showAdvanced = true"></totals-box>
 
           <numpad :params="transactionData" :disabled="hasBlockingError" @pincode_entered="pinEntered"></numpad>
@@ -27,8 +27,8 @@
 
           <from-to :from="transactionWallet.address" :to="transactionData.to"></from-to>
 
-          <totals-box :amount-value="transactionData.value" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
-                      :fee-value="maxEditedTransactionFee" :fee-currency="'ETH'" :fee-decimals="{min: 6, max: 11}"></totals-box>
+          <totals-box :amount-value="amountInEther" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
+                      :fee-value="maxEditedTransactionFee" :fee-currency="'GWEI'" :fee-decimals="{min: 2, max: 6}"></totals-box>
 
           <div class="speed-slider-box">
             <vue-slider ref="speedSlider" class="speed-slider"
@@ -129,7 +129,7 @@
         public created() {
             this.onTransactionDataReceivedCallback = (transactionData: any): void => {
                 this.gasLimit = transactionData.gas;
-                this.gasPrice = transactionData.gasPrice;
+                this.gasPrice = this.gasPriceInGWei();
             };
             this.postTransaction = (pincode: string, transactionData: any) => Api.signTransaction(transactionData, pincode);
         }
@@ -139,16 +139,24 @@
         }
 
         private maxTransactionFee(): number {
-            return (this.transactionData.gas * this.transactionData.gasPrice) / 1000000000;
+            return (this.transactionData.gas * this.gasPriceInGWei());
         }
 
         private get maxEditedTransactionFee(): number {
-            return (this.gasLimit * this.gasPrice) / 1000000000;
+            return (this.gasLimit * this.gasPrice);
+        }
+
+        private get amountInEther(): number {
+            return this.transactionData.value / Math.pow(10, 18);
+        }
+
+        private gasPriceInGWei(): number {
+            return this.transactionData.gasPrice / Math.pow(10, 9);
         }
 
         private get gasOptions(): number[] {
-            const originalValue: number = this.transactionData.gasPrice;
-            const options = [3, 3.1300001, 20, 23];
+            const originalValue: number = this.gasPriceInGWei();
+            const options = [3, 3.1300001, 20, 53];
             if (options.findIndex((value: number) => value === originalValue) < 0) {
                 options.push(originalValue);
             }
@@ -165,8 +173,8 @@
         }
 
         private saveChanges() {
+            this.transactionData.gasPrice = this.gasPrice * Math.pow(10, 9);
             this.transactionData.gas = this.gasLimit;
-            this.transactionData.gasPrice = this.gasPrice;
             this.showAdvanced = false;
         }
 
