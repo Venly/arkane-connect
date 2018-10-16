@@ -74,8 +74,8 @@
         overflow: auto
         padding: rem(16px)
         margin-bottom: rem(16px)
-        border-top: 1px solid $color-border-gray
-        border-bottom: 1px solid $color-border-gray
+        border-top: 1px solid $color-border-grey
+        border-bottom: 1px solid $color-border-grey
 
         .control__checkbox
             + label

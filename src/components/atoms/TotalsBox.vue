@@ -105,8 +105,8 @@
       align-items: center
       justify-content: center
       &:hover
-        border-color: $color-warm-gray
-        color: $color-warm-gray
+        border-color: $color-warm-grey
+        color: $color-warm-grey
         cursor: pointer
 
       & .icon

@@ -100,8 +100,8 @@
 
         public get totalAmountInVet(): number {
             return this.transactionData
-                ? ((this.transactionData.clauses as any[]).map((clause) => parseInt(clause.amount, 10))
-                                                         .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0)) / Math.pow(10, 18)
+                ? Utils.rawValue().toTokenValue((this.transactionData.clauses as any[]).map((clause) => parseInt(clause.amount, 10))
+                                                                                       .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0))
                 : 0;
         }
 
@@ -186,8 +186,8 @@
         &--labels
           display: flex
           justify-content: space-between
-          font-size: 12px
-          color: $color-warm-gray
+          font-size: $font-size-small
+          color: $color-warm-grey
 
       .control
         margin-bottom: 0

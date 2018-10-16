@@ -147,11 +147,11 @@
         }
 
         private get amountInEther(): number {
-            return this.transactionData.value / Math.pow(10, 18);
+            return Utils.rawValue().toTokenValue(this.transactionData.value);
         }
 
         private gasPriceInGWei(): number {
-            return this.transactionData.gasPrice / Math.pow(10, 9);
+            return Utils.rawValue().toGwei(this.transactionData.gasPrice);
         }
 
         private get gasOptions(): number[] {
@@ -160,7 +160,7 @@
             if (options.findIndex((value: number) => value === originalValue) < 0) {
                 options.push(originalValue);
             }
-            return options.sort(((a, b) => (a < b) ? -1 : ((a > b) ? 1 : 0)));
+            return options.sort((a, b) => a - b);
         }
 
 
@@ -173,7 +173,7 @@
         }
 
         private saveChanges() {
-            this.transactionData.gasPrice = this.gasPrice * Math.pow(10, 9);
+            this.transactionData.gasPrice = Utils.gwei().toRawValue(this.gasPrice);
             this.transactionData.gas = this.gasLimit;
             this.showAdvanced = false;
         }
@@ -233,8 +233,8 @@
         &--labels
           display: flex
           justify-content: space-between
-          font-size: 12px
-          color: $color-warm-gray
+          font-size: $font-size-small
+          color: $color-warm-grey
 
       .control
         margin-bottom: 0

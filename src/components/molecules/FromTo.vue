@@ -43,7 +43,7 @@
       margin-right: 0
 
     &__arrow
-      width: rem(12.6px)
+      width: rem(12px)
       height: rem(53px)
 
 </style>

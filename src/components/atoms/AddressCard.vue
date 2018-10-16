@@ -63,8 +63,8 @@
       padding: rem(7px 5px)
       margin-left: rem(10px)
       background-color: $color-white
-      font-size: rem(14px)
-      line-height: rem(17px)
+      font-size: $font-size-regular
+      line-height: $line-height-regular
       letter-spacing: rem(0.5px)
 
     &__label

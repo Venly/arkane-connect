@@ -101,4 +101,17 @@ export default class Utils {
             maximumFractionDigits: maxDecimals,
         }).format(value);
     }
+
+    public static rawValue() {
+        return {
+            toTokenValue: (rawValue: number) => rawValue / Math.pow(10, 18),
+            toGwei: (rawValue: number) => rawValue / Math.pow(10, 9),
+        };
+    }
+
+    public static gwei() {
+        return {
+            toRawValue: (rawValue: number) => rawValue * Math.pow(10, 9),
+        };
+    }
 }

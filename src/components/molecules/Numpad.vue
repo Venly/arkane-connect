@@ -5,17 +5,17 @@
     <div class="numbers">
       <numpad-number class="number" v-for="(num, index) in numbers.slice(0,9)" :num="num" :key="num" :tabindex="-1"
                      @click.prevent="numberClicked(num)" @keyup.native.enter="numberClicked(num)"></numpad-number>
-      <button class="btn btn--dummy" :disabled="true"></button>
+      <button class="numpad-btn numpad-btn--dummy" :disabled="true"></button>
       <numpad-number class="number" v-for="num in numbers.slice(9)" :num="num" :key="num" tabindex="-1"
                      @click.prevent="numberClicked(num)" @keyup.native.enter="numberClicked(num)"></numpad-number>
-      <button class="btn btn--revert" @click.prevent="resetPincode()" @keyup.native.enter="resetPincode()" :disabled="pincode === ''" title="reset pincode" tabindex="-1">
+      <button class="numpad-btn numpad-btn--revert" @click.prevent="resetPincode()" @keyup.native.enter="resetPincode()" :disabled="pincode === ''" title="reset pincode" tabindex="-1">
         <svg viewBox="0 0 640 512">
           <path fill="currentColor"
                 d="M576 64H205.26A63.97 63.97 0 0 0 160 82.75L9.37 233.37c-12.5 12.5-12.5 32.76 0 45.25L160 429.25c12 12 28.28 18.75 45.25 18.75H576c35.35 0 64-28.65 64-64V128c0-35.35-28.65-64-64-64zm-84.69 254.06c6.25 6.25 6.25 16.38 0 22.63l-22.62 22.62c-6.25 6.25-16.38 6.25-22.63 0L384 301.25l-62.06 62.06c-6.25 6.25-16.38 6.25-22.63 0l-22.62-22.62c-6.25-6.25-6.25-16.38 0-22.63L338.75 256l-62.06-62.06c-6.25-6.25-6.25-16.38 0-22.63l22.62-22.62c6.25-6.25 16.38-6.25 22.63 0L384 210.75l62.06-62.06c6.25-6.25 16.38-6.25 22.63 0l22.62 22.62c6.25 6.25 6.25 16.38 0 22.63L429.25 256l62.06 62.06z"></path>
         </svg>
       </button>
     </div>
-    <button ref="actionButton" class="action-button" @click.prevent="pinEntered" :disabled="!isSubmitable" tabindex="1" @keyup.prevent.enter="pinEntered">Sign Transaction</button>
+    <button ref="actionButton" class="btn sign-btn" @click.prevent="pinEntered" :disabled="!isSubmitable" tabindex="1" @keyup.prevent.enter="pinEntered">Sign Transaction</button>
   </div>
 </template>
 
@@ -124,7 +124,7 @@
       height: rem(60px)
       font-size: 16px
 
-  .btn,
+  .numpad-btn,
   .action-button,
   .number
     position: relative
@@ -136,7 +136,7 @@
     &:focus
       z-index: 1
 
-  .btn,
+  .numpad-btn,
   .number
     font-size: 30px
     font-weight: normal
@@ -162,6 +162,7 @@
       svg
         color: #aaa
 
+
   .action-button
     width: 100%
     border: 0 none
@@ -174,14 +175,19 @@
       background-color: lightgray
       color: $color-white
 
-  .btn,
+  .numpad-btn,
   .action-button
     &:disabled
       pointer-events: none
       cursor: not-allowed
 
-  .btn--dummy:disabled
+  .numpad-btn--revert
+    padding: rem(0 20px)
+
+  .numpad-btn--dummy:disabled
     background-color: #f3f3f3
 
+  .sign-btn
+    margin-top: rem(30px)
 
 </style>

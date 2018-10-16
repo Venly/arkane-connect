@@ -20,14 +20,14 @@ export default class InputField extends Vue {
 
     .input
         border-radius: $border-radius-small
-        border: 1px solid $color-gray
+        border: 1px solid $color-dark-grey
         font-size: $font-size-small
         line-height: 1rem
         padding: .25rem
 
         &::placeholder
             font-style: italic
-            color: $color-light-gray
+            color: $color-warm-grey
             text-transform: capitalize
         &:active, &:focus
             border-color: $color-primary
