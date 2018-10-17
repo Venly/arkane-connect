@@ -99,14 +99,12 @@
       border-radius: rem(2px)
       border: 1px solid $color-bluish
       color: $color-bluish
-      height: rem(21px)
-      width: rem(21px)
       display: flex
       align-items: center
       justify-content: center
       &:hover
-        border-color: $color-warm-grey
-        color: $color-warm-grey
+        border-color: $color-dark-grey
+        color: $color-dark-grey
         cursor: pointer
 
       & .icon
