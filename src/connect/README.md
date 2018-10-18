@@ -112,7 +112,7 @@ arkaneConnect.init(<bearerTokenProvider>);
 This call makes sure that the user has an Arkane master pincode and at least one wallet necessary for the third party app.
  
 ## Full integration example
-Below you can find a full example of how setting up ArkaneConnect might look like. We also made an [example project](https://github.com/ArkaneNetwork/Arketype) as a more 
+Below you can find a full example of how setting up Arkane Connect might look like. We also made an [example project](https://github.com/ArkaneNetwork/Arketype) as a more 
 complete example. 
 ```javascript
 let authenticated = false;
