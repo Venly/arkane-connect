@@ -21,7 +21,7 @@ app.addConnectEvents = function () {
     //custom logic
     window.arkaneConnect.signTransaction({
       type: 'ETHEREUM_TRANSACTION',
-      walletId: 44,
+      walletId: 173,
       submit: false,
       gasPrice: 10000000000,
       gas: 23000,

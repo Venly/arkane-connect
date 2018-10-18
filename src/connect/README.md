@@ -22,7 +22,7 @@ arkaneConnect.init(<chain>)
 
 | Parameter | Description | Example |
 |-----------|-------------|---------|
-| chain | The chain for which you want to check there is at least one wallet present | `'Etherem'`, `'VeChain'`|
+| chain | The chain for which you want to check there is at least one wallet present | `'Ethereum'`, `'VeChain'`|
 
 This call makes sure that the user has an Arkane master pincode and at least one wallet necessary for the third party app.
  
@@ -35,7 +35,7 @@ arkaneConnect.init('Ethereum').then(function () { ... })
 ```
 # Get Wallets
 
-```
+```javascript
 arkaneConnect.getWallets().then(function(result) {
     console.log(result);
 })
@@ -55,18 +55,18 @@ If the popup blocker of the browser is triggered (this might happen if you call 
 This will open the popup for the signature already and redirect the popup to the correct page when signature is needed.
 
  
-```
+```javascript
 arkaneConnect.initPopup();
 
 //custom logic
 
-arkaneConnect.signTransaction({<TransactionData>);
+arkaneConnect.signTransaction(<TransactionData>);
 ```
 
 ## Signing a Ethereum Transaction
 
 
-```
+```javascript
 arkaneConnect.signTransaction({
     type: 'ETHEREUM_TRANSACTION',
     walletId: 44,
@@ -82,7 +82,7 @@ arkaneConnect.signTransaction({
 
 ## Signing a VeChain Transaction
 
-```
+```javascript
 arkaneConnect.signTransaction({
     type: 'VECHAIN_TRANSACTION',
     walletId: 44,

@@ -34,8 +34,9 @@
     *, *::before, *::after
       box-sizing: inherit
 
-    html, body
-      padding: 0
-      margin: 0
-      background-color: #fcfcfc
+  html, body
+    padding: 0
+    margin: 0
+    background-color: #fcfcfc
+
 </style>

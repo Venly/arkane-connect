@@ -47,10 +47,7 @@ export default class Api {
         return Api.getApi().http
                   .get(`wallets/${walletId}`)
                   .then((result: any) => {
-                      return result.data && result.data.success ? result.data.result : [];
-                  })
-                  .catch(() => {
-                      return [];
+                      return result.data && result.data.success ? result.data.result : {};
                   });
     }
 

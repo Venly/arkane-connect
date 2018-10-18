@@ -1,6 +1,6 @@
 import ENV from '../../vue.env';
-import {Wallet} from '../models/Wallet';
 import store from '../store';
+import {Wallet} from '../models/Wallet';
 import {EVENT_TYPES} from '../types/EventTypes';
 
 export default class Utils {
@@ -92,6 +92,26 @@ export default class Utils {
             isOfType: (message: MessageEvent, eventType: EVENT_TYPES) => {
                 return Utils.messages().hasType(message) && message.data.type === eventType;
             },
+        };
+    }
+
+    public static formatNumber(value: number, minDecimals: number = 2, maxDecimals: number = minDecimals) {
+        return new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: minDecimals,
+            maximumFractionDigits: maxDecimals,
+        }).format(value);
+    }
+
+    public static rawValue() {
+        return {
+            toTokenValue: (rawValue: number) => rawValue / Math.pow(10, 18),
+            toGwei: (rawValue: number) => rawValue / Math.pow(10, 9),
+        };
+    }
+
+    public static gwei() {
+        return {
+            toRawValue: (rawValue: number) => rawValue * Math.pow(10, 9),
         };
     }
 }

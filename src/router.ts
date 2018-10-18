@@ -2,7 +2,8 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import {Component, Route} from 'vue-router/types/router';
 
-import SignTransactionView from './views/SignTransactionView.vue';
+import SignEthereumTransactionView from './views/signer/SignEthereumTransactionView.vue';
+import SignVeChainTransactionView from './views/signer/SignVeChainTransactionView.vue';
 import Security from './Security';
 import Utils from './utils/Utils';
 import store from './store';
@@ -36,9 +37,17 @@ const router = new Router(
                 component: loadView('InitTransaction'),
             },
             {
-                path: '/sign/transaction/:bearer',
-                name: 'sign-transaction',
-                component: SignTransactionView,
+                path: '/sign/transaction/ethereum_transaction/:bearer',
+                name: 'sign-ethereum-transaction',
+                component: SignEthereumTransactionView,
+                meta: {
+                    auth: true,
+                },
+            },
+            {
+                path: '/sign/transaction/vechain_transaction/:bearer',
+                name: 'sign-vechain-transaction',
+                component: SignVeChainTransactionView,
                 meta: {
                     auth: true,
                 },

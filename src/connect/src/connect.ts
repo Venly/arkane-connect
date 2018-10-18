@@ -11,7 +11,7 @@ import {Profile} from '../../models/Profile';
 
 export class ArkaneConnect {
 
-    private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 300, h: number = 530) {
+    private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 350, h: number = 870) {
         const left = (screen.width / 2) - (w / 2);
         const top = (screen.height / 2) - (h / 2);
         let features = 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, ';
@@ -77,7 +77,7 @@ export class ArkaneConnect {
             this.popup.focus();
         }
         return new Promise((resolve, reject) => {
-            const url = `${Utils.urls.connect}/sign/transaction/${this.bearerTokenProvider()}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
+            const url = `${Utils.urls.connect}/sign/transaction/${params.type}/${this.bearerTokenProvider()}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
             this.popup = ArkaneConnect.openWindow(url) as Window;
             window.addEventListener('message', (message: MessageEvent) => {
                 if (Utils.messages().hasValidOrigin(message) && Utils.messages().isOfType(message, EVENT_TYPES.SIGNER_MOUNTED)) {
