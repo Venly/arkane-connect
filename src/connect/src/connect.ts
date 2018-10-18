@@ -35,12 +35,9 @@ export class ArkaneConnect {
 
     private auth!: KeycloakInstance;
 
-    constructor(clientId: string = 'Arkane', chains: string[] = [], environment?: string) {
+    constructor(clientId: string, chains?: string[], environment?: string) {
         this.clientId = clientId;
-        if (chains.length <= 0) {
-            (console as any).error('At least one chain has to be provided');
-        }
-        this.chains = chains.map((chain: string) => chain.toLowerCase());
+        this.chains = (chains || []).map((chain: string) => chain.toLowerCase());
         Utils.environment = environment || 'prod';
         this.addBeforeUnloadListener();
     }
