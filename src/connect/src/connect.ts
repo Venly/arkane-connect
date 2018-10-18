@@ -3,11 +3,12 @@
 /* tslint:enable */
 import {AxiosResponse} from 'axios';
 import {EVENT_TYPES} from '../../types/EventTypes';
-import ResponseBody from '../../api/ResponseBody';
 import RestApi from '../../api/RestApi';
 import {Wallet} from '../../models/Wallet';
 import Utils from '../../utils/Utils';
 import {Profile} from '../../models/Profile';
+import Security, {LoginResult} from '../../Security';
+import {KeycloakInstance, KeycloakPromise} from 'keycloak-js';
 
 export class ArkaneConnect {
 
@@ -29,26 +30,70 @@ export class ArkaneConnect {
 
     private api!: RestApi;
     private clientId: string;
+    private chains: string[];
     private bearerTokenProvider: any;
 
-    constructor(clientId: string = 'Arkane', bearerTokenProvider: any, environment?: string) {
+    private auth!: KeycloakInstance;
+
+    constructor(clientId: string = 'Arkane', chains: string[] = [], environment?: string) {
         this.clientId = clientId;
+        if (chains.length <= 0) {
+            (console as any).error('At least one chain has to be provided');
+        }
+        this.chains = chains;
         Utils.environment = environment || 'prod';
-        this.api = new RestApi(Utils.urls.api, bearerTokenProvider);
-        this.bearerTokenProvider = bearerTokenProvider;
         this.addBeforeUnloadListener();
     }
 
-    public async init(chain: string): Promise<void> {
-        const wallets = await this.getWallets();
-        if (!(wallets && wallets.length > 0)) {
-            const currentLocation = window.location;
-            const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
-            window.location.href =
-                `${Utils.urls.connect}/init/${chain}/${this.bearerTokenProvider()}?redirectUri=${redirectUri}` +
-                `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
+    public checkAuthenticated(): Promise<AuthenticationResult> {
+        return Security.checkAuthenticated(this.clientId)
+                       .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
+    }
+
+    public authenticate(): Promise<AuthenticationResult> {
+        return Security.login(this.clientId)
+                       .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
+    }
+
+    public async afterAuthentication(loginResult: LoginResult): Promise<AuthenticationResult> {
+        this.auth = loginResult.keycloak;
+        return this.init(this.chains[0])
+                   .then(() => {
+                       return {
+                           authenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
+                               callback(loginResult.keycloak);
+                               return this;
+                           },
+                           notAuthenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
+                               callback(loginResult.keycloak);
+                               return this;
+                           },
+                       };
+                   });
+    }
+
+    public logout(): KeycloakPromise<void, void> {
+        return this.auth.logout();
+    }
+
+    public async init(chain: string, bearerTokenProvider?: any): Promise<void> {
+        if (bearerTokenProvider) {
+            this.bearerTokenProvider = bearerTokenProvider;
+        } else {
+            this.bearerTokenProvider = () => this.auth.token;
         }
-        return;
+
+        if (this.bearerTokenProvider) {
+            this.api = new RestApi(Utils.urls.api, this.bearerTokenProvider);
+            const wallets = await this.getWallets();
+            if (!(wallets && wallets.length > 0)) {
+                const currentLocation = window.location;
+                const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
+                window.location.href =
+                    `${Utils.urls.connect}/init/${chain}/${this.bearerTokenProvider()}?redirectUri=${redirectUri}` +
+                    `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
+            }
+        }
     }
 
     public async getWallets(): Promise<Wallet[]> {
@@ -125,10 +170,10 @@ export class ArkaneConnect {
                     case EVENT_TYPES.POPUP_CLOSED:
                         delete this.popup;
                         reject({
-                            success: false,
-                            errors: ['Popup closed'],
-                            result: {},
-                        });
+                                   success: false,
+                                   errors: ['Popup closed'],
+                                   result: {},
+                               });
                         break;
                 }
             }
@@ -140,6 +185,11 @@ export class ArkaneConnect {
             this.closePopup();
         });
     }
+}
+
+export interface AuthenticationResult {
+    authenticated: (onAuthenticated: (auth: KeycloakInstance) => void) => AuthenticationResult;
+    notAuthenticated: (onNotAuthenticated: (auth: KeycloakInstance) => void) => AuthenticationResult;
 }
 
 if (typeof window !== 'undefined') {

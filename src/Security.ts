@@ -10,6 +10,7 @@ export default class Security {
     public static getConfig(clientId: string): any {
         return {
             'clientId': clientId || Utils.env.VUE_APP_CLIENT_ID,
+            'clientSecret': 'secret',
             'realm': Utils.env.VUE_APP_REALM,
             'realm-public-key': Utils.env.VUE_APP_REALM_PUBLIC_KEY,
             'url': Utils.urls.login,
@@ -20,8 +21,12 @@ export default class Security {
         };
     }
 
-    public static login(clientId: string) {
-        return Security.initializeAuth(Security.getConfig(clientId));
+    public static login(clientId: string): Promise<LoginResult> {
+        return Security.initializeAuth(Security.getConfig(clientId), 'login-required');
+    }
+
+    public static checkAuthenticated(clientId: string): Promise<LoginResult> {
+        return Security.initializeAuth(Security.getConfig(clientId), 'check-sso');
     }
 
     public static parseToken(token: string): any {
@@ -40,7 +45,7 @@ export default class Security {
             return Security.initializeAuth(Object.assign(config, {
                 clientId: useTokenToLogin ? token.aud : config.clientId,
                 resource: useTokenToLogin ? token.aud : config.resource,
-            }), redirectUrl);
+            }), 'check-sso', redirectUrl);
         } else {
             Security.notAuthenticated();
             return Promise.resolve({keycloak: {}, authenticated: false});
@@ -90,11 +95,11 @@ export default class Security {
         }, 60000);
     }
 
-    private static initializeAuth(config: any, redirectUrl?: string): Promise<any> {
+    private static initializeAuth(config: any, onLoad: 'check-sso' | 'login-required', redirectUrl?: string): Promise<LoginResult> {
         return new Promise((resolve, reject) => {
             Security.keycloak = Keycloak(config);
             const initOptions: KeycloakInitOptions = {
-                onLoad: 'check-sso',
+                onLoad,
             };
             if (redirectUrl) {
                 Object.assign(initOptions, {
@@ -130,3 +135,9 @@ export default class Security {
         Security.isLoggedIn = false;
     }
 }
+
+export interface LoginResult {
+    keycloak: KeycloakInstance;
+    authenticated: boolean;
+}
+
