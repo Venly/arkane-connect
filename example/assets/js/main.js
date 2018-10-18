@@ -28,11 +28,16 @@ app.attachLinkEvents = function () {
 
 app.handleAuthenticated = (auth) => {
     document.body.classList.add('logged-in');
-    document.getElementById('auth-username').innerText = auth.subject + ' - ' + auth.token + ' - ';
+    document.getElementById('auth-username').innerText = auth.subject;
+    app.updateToken(auth.token);
+    window.arkaneConnect.addOnTokenRefreshCallback(app.updateToken);
     app.addConnectEvents();
     app.getWallets();
 };
 
+app.updateToken = (token) => {
+    document.getElementById('auth-token').innerText = token;
+};
 
 app.addConnectEvents = function () {
     document.getElementById('arkane-sign-eth').addEventListener('click', function () {

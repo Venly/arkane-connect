@@ -6,6 +6,7 @@ import Utils from './utils/Utils';
 
 export default class Security {
     public static isLoggedIn = false;
+    public static onTokenUpdate: (token: string) => void;
 
     public static getConfig(clientId: string): any {
         return {
@@ -72,27 +73,32 @@ export default class Security {
             clearInterval(Security.updateTokenInterval);
             Security.updateTokenInterval = null;
         }
-        Security.updateTokenInterval = setInterval(async () => {
-            new Promise((resolve, reject) => {
-                if (Security.keycloak) {
-                    Security.keycloak.updateToken(70).success((refreshed: any) => {
+        Security.updateTokenInterval = setInterval(
+            async () => {
+                new Promise((resolve, reject) => {
+                    if (Security.keycloak) {
+                        Security.keycloak.updateToken(70).success((refreshed: any) => {
+                            Security.authenticated(Security.keycloak.token);
+                            resolve(refreshed);
+                        });
+                    } else {
+                        reject(false);
+                    }
+                }).then((refreshed: any) => {
+                    if (refreshed) {
                         Security.authenticated(Security.keycloak.token);
-                        resolve(refreshed);
-                    });
-                } else {
-                    reject(false);
-                }
-            }).then((refreshed: any) => {
-                if (refreshed) {
-                    Security.authenticated(Security.keycloak.token);
-                }
-            }).catch(() => {
-                (console as any).error('failed to refresh token');
-                Security.notAuthenticated();
-                clearInterval(Security.updateTokenInterval);
-                Security.updateTokenInterval = null;
-            });
-        }, 60000);
+                        if (Security.onTokenUpdate && Security.keycloak.token) {
+                            Security.onTokenUpdate(Security.keycloak.token);
+                        }
+                    }
+                }).catch(() => {
+                    (console as any).error('failed to refresh token');
+                    Security.notAuthenticated();
+                    clearInterval(Security.updateTokenInterval);
+                    Security.updateTokenInterval = null;
+                });
+            },
+            60000);
     }
 
     private static initializeAuth(config: any, onLoad: 'check-sso' | 'login-required', redirectUrl?: string): Promise<LoginResult> {

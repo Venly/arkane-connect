@@ -57,7 +57,7 @@ export class ArkaneConnect {
 
     public async afterAuthentication(loginResult: LoginResult): Promise<AuthenticationResult> {
         this.auth = loginResult.keycloak;
-        return this.init(this.chains[0])
+        return this.init()
                    .then(() => {
                        return {
                            authenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
@@ -76,7 +76,13 @@ export class ArkaneConnect {
         return this.auth.logout();
     }
 
-    public async init(chain: string, bearerTokenProvider?: any): Promise<void> {
+    public addOnTokenRefreshCallback(tokenRefreshCallback?: (token: string) => void) {
+        if (tokenRefreshCallback) {
+            Security.onTokenUpdate = tokenRefreshCallback;
+        }
+    }
+
+    public async init(bearerTokenProvider?: any): Promise<void> {
         if (bearerTokenProvider) {
             this.bearerTokenProvider = bearerTokenProvider;
         } else {
@@ -90,7 +96,7 @@ export class ArkaneConnect {
                 const currentLocation = window.location;
                 const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
                 window.location.href =
-                    `${Utils.urls.connect}/init/${chain}/${this.bearerTokenProvider()}?redirectUri=${redirectUri}` +
+                    `${Utils.urls.connect}/init/${this.chains[0]}/${this.bearerTokenProvider()}?redirectUri=${redirectUri}` +
                     `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
             }
         }
