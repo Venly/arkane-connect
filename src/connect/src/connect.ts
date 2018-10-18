@@ -40,7 +40,7 @@ export class ArkaneConnect {
         if (chains.length <= 0) {
             (console as any).error('At least one chain has to be provided');
         }
-        this.chains = chains;
+        this.chains = chains.map((chain: string) => chain.toLowerCase());
         Utils.environment = environment || 'prod';
         this.addBeforeUnloadListener();
     }
@@ -76,7 +76,7 @@ export class ArkaneConnect {
         return this.auth.logout();
     }
 
-    public addOnTokenRefreshCallback(tokenRefreshCallback?: (token: string) => void) {
+    public addOnTokenRefreshCallback(tokenRefreshCallback?: (token: string) => void): void {
         if (tokenRefreshCallback) {
             Security.onTokenUpdate = tokenRefreshCallback;
         }
@@ -92,7 +92,8 @@ export class ArkaneConnect {
         if (this.bearerTokenProvider) {
             this.api = new RestApi(Utils.urls.api, this.bearerTokenProvider);
             const wallets = await this.getWallets();
-            if (!(wallets && wallets.length > 0)) {
+            const mandatoryWallets = wallets && wallets.length > 0 && this.filterOnMandatoryWallets(wallets);
+            if (!(mandatoryWallets && mandatoryWallets.length > 0)) {
                 const currentLocation = window.location;
                 const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
                 window.location.href =
@@ -156,6 +157,14 @@ export class ArkaneConnect {
             this.messagePort.close();
             delete this.messagePort;
         }
+    }
+
+    private filterOnMandatoryWallets(wallets: Wallet[]) {
+        return wallets.filter(
+            (wallet: Wallet) => this.chains.find(
+                (chain: string) => (wallet.secretType as string).toLowerCase() === chain,
+            ) !== undefined,
+        );
     }
 
 

@@ -1,7 +1,6 @@
 var app = app || {};
 
 app.initApp = function () {
-    // window.arkaneConnect = new ArkaneConnect('ThorBlock', ['VeChain'], 'local');
     window.arkaneConnect = new ArkaneConnect('ThorBlock', ['VeChain'],'local');
     window.arkaneConnect
           .checkAuthenticated()
