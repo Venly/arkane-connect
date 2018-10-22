@@ -1,20 +1,20 @@
 <template>
-  <div class="home">
-    <div v-if="isInitialised">
-      <div class="logo-wrapper">
-        <img class="logo" alt="Arkane Logo" src="../assets/logo-arkane-animated.svg"/>
-      </div>
-      <numpad :title="'Enter your pincode to sign this transaction'"
-              :params="transactionData"
-              :disabled="hasBlockingError"
-              @signed="sendTransactionSignedMessage"
-              @pincode_incorrect="wrongPincodeMessage"
-              @pincode_no_tries_left="noTriesLeftMessage"></numpad>
+    <div class="home">
+        <div v-if="isInitialised">
+            <div class="logo-wrapper">
+                <img class="logo" alt="Arkane Logo" src="../assets/logo-arkane-animated.svg"/>
+            </div>
+            <numpad :title="'Enter your pincode to sign this transaction'"
+                    :params="transactionData"
+                    :disabled="hasBlockingError"
+                    @signed="sendTransactionSignedMessage"
+                    @pincode_incorrect="wrongPincodeMessage"
+                    @pincode_no_tries_left="noTriesLeftMessage"></numpad>
+        </div>
+        <div v-else>
+            <p>{{loadingText}}</p>
+        </div>
     </div>
-    <div v-else>
-      <p>{{loadingText}}</p>
-    </div>
-  </div>
 </template>
 
 <script lang='ts'>
@@ -30,10 +30,10 @@
     declare const window: Window;
 
     @Component({
-                   components: {
-                       Numpad,
-                   },
-               })
+        components: {
+            Numpad,
+        },
+    })
     export default class SignTransactionView extends Vue {
         public loadingText = 'Initializing signer ...';
 
@@ -130,16 +130,16 @@
 </script>
 
 <style lang='sass' scoped>
-  .logo-wrapper
-    margin-top: 10px
-    margin-bottom: 20px
-    border-bottom: 1px solid #e5e5e5
-    text-align: center
+    .logo-wrapper
+        margin-top: 10px
+        margin-bottom: 20px
+        border-bottom: 1px solid #e5e5e5
+        text-align: center
 
-    .logo
-      padding: 5px
-      width: auto
-      height: 48px
-      @media (min-height: 600px)
-        height: 60px
+        .logo
+            padding: 5px
+            width: auto
+            height: 48px
+            @media (min-height: 600px)
+                height: 60px
 </style>

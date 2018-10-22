@@ -5,16 +5,16 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import {VTooltip} from 'v-tooltip';
+    import {Component, Prop, Vue} from 'vue-property-decorator';
+    import {VTooltip} from 'v-tooltip';
 
-@Component({
-    directives: {tooltip: VTooltip},
-})
-export default class ActionButton extends Vue {
-    @Prop({default: 'default'}) public type!: 'default' | 'success' | 'danger' | 'brand' | 'brand-light';
-    @Prop() public title!: any;
-}
+    @Component({
+        directives: {tooltip: VTooltip},
+    })
+    export default class ActionButton extends Vue {
+        @Prop({default: 'default'}) public type!: 'default' | 'success' | 'danger' | 'brand' | 'brand-light';
+        @Prop() public title!: any;
+    }
 </script>
 
 <style lang="sass" scoped>

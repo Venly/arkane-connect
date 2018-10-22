@@ -12,32 +12,26 @@ declare const window: Window;
 @Component({})
 export default class SignTransactionView extends Vue {
 
-    private get isInitialised() {
-        return Security.isLoggedIn && this.hasTransactionData;
-    }
-
     public loadingText = 'Initializing signer ...';
-
     public transactionData!: any;
-
     @State
     public transactionWallet?: Wallet;
-
     @State
     public auth: any;
     @State
     public hasBlockingError!: boolean;
-
     protected onTransactionDataReceivedCallback?: (transactionData: any) => void;
     protected postTransaction: (pincode: string, transactionData: any) => Promise<any> = (
         (pincode, txData) => new Promise((resolve, reject) => {
             reject();
         })
     );
-
     private hasTransactionData: boolean = false;
     private messagePort!: MessagePort;
 
+    private get isInitialised() {
+        return Security.isLoggedIn && this.hasTransactionData;
+    }
 
     public created() {
         if (!this.auth) {

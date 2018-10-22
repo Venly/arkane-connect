@@ -1,33 +1,33 @@
 <template>
-  <div class="container">
-    <div class="dialog-container">
+    <div class="container">
+        <div class="dialog-container">
 
-      <set-master-pin-dialog @done="masterpinEntered" v-if="showSetupMasterPin"></set-master-pin-dialog>
+            <set-master-pin-dialog @done="masterpinEntered" v-if="showSetupMasterPin"></set-master-pin-dialog>
 
-      <master-pin-dialog :title="'Create a wallet'" @done="masterpinEntered" v-if="showEnterMasterPin">
-        <p>Please confirm by providing your Master Pin Code</p>
-      </master-pin-dialog>
+            <master-pin-dialog :title="'Create a wallet'" @done="masterpinEntered" v-if="showEnterMasterPin">
+                <p>Please confirm by providing your Master Pin Code</p>
+            </master-pin-dialog>
 
-      <dialog-template v-if="showCreatingWallet" :title="'Creating wallet'">
-        <p>A <strong>{{chain}}</strong> wallet is being created...</p>
-      </dialog-template>
+            <dialog-template v-if="showCreatingWallet" :title="'Creating wallet'">
+                <p>A <strong>{{chain}}</strong> wallet is being created...</p>
+            </dialog-template>
 
-      <redirect-dialog :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri" :timeleft="timeleft" v-if="showWalletCreated">
-        <p>A {{chain}} wallet with the following address has been created and linked to your <strong>{{thirdPartyClientId}}</strong> account:</p>
-        <p>
-          <wallet-card :wallet="wallet" :showFunds="false"></wallet-card>
-        </p>
-        <div>
-          <action-button @click="redirectBack">Continue to {{thirdPartyClientId}} ({{timeleft / 1000}})</action-button>
+            <redirect-dialog :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri" :timeleft="timeleft" v-if="showWalletCreated">
+                <p>A {{chain}} wallet with the following address has been created and linked to your <strong>{{thirdPartyClientId}}</strong> account:</p>
+                <p>
+                    <wallet-card :wallet="wallet" :showFunds="false"></wallet-card>
+                </p>
+                <div>
+                    <action-button @click="redirectBack">Continue to {{thirdPartyClientId}} ({{timeleft / 1000}})</action-button>
+                </div>
+            </redirect-dialog>
+
+            <error-dialog v-if="showWalletCreationFailed" :title="'Something went wrong'" :buttonText="'Try Again'" @button-clicked="tryAgain">
+                <p>Something went wrong while trying to create your {{chain}} wallet.</p>
+                <p>Please try again. If the problem persists, contact support via <a href="mailto:support@arkane.network">support@arkane.network</a></p>
+            </error-dialog>
         </div>
-      </redirect-dialog>
-
-      <error-dialog v-if="showWalletCreationFailed" :title="'Something went wrong'" :buttonText="'Try Again'" @button-clicked="tryAgain">
-        <p>Something went wrong while trying to create your {{chain}} wallet.</p>
-        <p>Please try again. If the problem persists, contact support via <a href="mailto:support@arkane.network">support@arkane.network</a></p>
-      </error-dialog>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
@@ -46,17 +46,17 @@
     import ErrorDialog from '../components/organisms/dialogs/ErrorDialog.vue';
 
     @Component({
-                   components: {
-                       ErrorDialog,
-                       SvgCross,
-                       ActionButton,
-                       RedirectDialog,
-                       MasterPinDialog,
-                       SetMasterPinDialog,
-                       DialogTemplate,
-                       WalletCard,
-                   },
-               })
+        components: {
+            ErrorDialog,
+            SvgCross,
+            ActionButton,
+            RedirectDialog,
+            MasterPinDialog,
+            SetMasterPinDialog,
+            DialogTemplate,
+            WalletCard,
+        },
+    })
     export default class CreateWalletView extends Vue {
 
         private get showSetupMasterPin(): boolean {
@@ -143,15 +143,15 @@
 </script>
 
 <style lang="sass" scoped>
-  @import ../assets/sass/mixins-and-vars
+    @import ../assets/sass/mixins-and-vars
 
-  .container
-    min-height: 100vh
+    .container
+        min-height: 100vh
 
-    .dialog-container
-      display: flex
-      height: 100%
-      justify-content: center
-      align-items: center
+        .dialog-container
+            display: flex
+            height: 100%
+            justify-content: center
+            align-items: center
 
 </style>

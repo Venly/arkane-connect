@@ -1,6 +1,6 @@
 export enum SnackType {
     SUCCESS = 'success',
-    DANGER =  'danger',
+    DANGER = 'danger',
     INFO = 'info',
     DEFAULT = 'info',
 }

@@ -10,6 +10,12 @@ import {Balance} from '../models/Balance';
 
 export default class Api {
     public static token: string = '';
+    private static instance: Api;
+    private api: RestApi;
+
+    public constructor() {
+        this.api = new RestApi(Utils.urls.api, () => Api.token);
+    }
 
     public static signTransaction(data: any, pincode: string): Promise<ResponseBody> {
 
@@ -88,8 +94,8 @@ export default class Api {
         return Api.getApi().http
                   .post('wallets', command)
                   .then((res: AxiosResponse<RestApiResponse<Wallet>>) => {
-                            return res.data;
-                        },
+                          return res.data;
+                      },
                   );
     }
 
@@ -110,8 +116,6 @@ export default class Api {
                   });
     }
 
-    private static instance: Api;
-
     private static getInstance(): Api {
         if (!Api.instance) {
             Api.instance = new Api();
@@ -122,11 +126,5 @@ export default class Api {
 
     private static getApi(): RestApi {
         return Api.getInstance().api;
-    }
-
-    private api: RestApi;
-
-    public constructor() {
-        this.api = new RestApi(Utils.urls.api, () => Api.token);
     }
 }

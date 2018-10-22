@@ -7,6 +7,8 @@ import Utils from './utils/Utils';
 export default class Security {
     public static isLoggedIn = false;
     public static onTokenUpdate: (token: string) => void;
+    private static keycloak: KeycloakInstance;
+    private static updateTokenInterval: any;
 
     public static getConfig(clientId: string): any {
         return {
@@ -53,10 +55,6 @@ export default class Security {
         }
     }
 
-    private static keycloak: KeycloakInstance;
-
-    private static updateTokenInterval: any;
-
     private static verifyToken(token: any, publicKey: string): any {
         try {
             if (publicKey.indexOf('-----BEGIN PUBLIC KEY-----') === -1) {
@@ -98,7 +96,8 @@ export default class Security {
                     Security.updateTokenInterval = null;
                 });
             },
-            60000);
+            60000
+        );
     }
 
     private static initializeAuth(config: any, onLoad: 'check-sso' | 'login-required', redirectUrl?: string): Promise<LoginResult> {
@@ -121,9 +120,9 @@ export default class Security {
                             Security.notAuthenticated();
                         }
                         resolve({
-                                    keycloak: Security.keycloak,
-                                    authenticated,
-                                });
+                            keycloak: Security.keycloak,
+                            authenticated,
+                        });
                     })
                     .error(() => {
                         Security.notAuthenticated();

@@ -1,8 +1,8 @@
 <template>
-  <dialog-template :title="title">
-    <slot></slot>
-    <master-pincode-form @done="pinEntered" :create-label="'Create Wallet'"></master-pincode-form>
-  </dialog-template>
+    <dialog-template :title="title">
+        <slot></slot>
+        <master-pincode-form @done="pinEntered" :create-label="'Create Wallet'"></master-pincode-form>
+    </dialog-template>
 </template>
 
 <script lang="ts">

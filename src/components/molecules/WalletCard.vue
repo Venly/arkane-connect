@@ -58,7 +58,6 @@
             flex-shrink: 0
             text-align: center
 
-
         &__details
             display: flex
             align-items: center

@@ -1,10 +1,10 @@
 <template>
-  <div id="app" class="page">
-    <progress-bar></progress-bar>
-    <snackbar class="snackbar snackbar--header"></snackbar>
-    <router-view/>
-    <modal></modal>
-  </div>
+    <div id="app" class="page">
+        <progress-bar></progress-bar>
+        <snackbar class="snackbar snackbar--header"></snackbar>
+        <router-view/>
+        <modal></modal>
+    </div>
 </template>
 <script lang='ts'>
     import Vue from 'vue';
@@ -14,29 +14,29 @@
     import Modal from './components/atoms/Modal.vue';
 
     @Component({
-                   components: {
-                       Modal,
-                       Snackbar,
-                       ProgressBar,
-                   },
-               })
+        components: {
+            Modal,
+            Snackbar,
+            ProgressBar,
+        },
+    })
     export default class App extends Vue {
     }
 </script>
 
 <style lang="sass">
-  @import ./assets/sass/main
-  @import ./assets/sass/mixins-and-vars
+    @import ./assets/sass/main
+    @import ./assets/sass/mixins-and-vars
 
-  html
-    box-sizing: border-box
+    html
+        box-sizing: border-box
 
-    *, *::before, *::after
-      box-sizing: inherit
+        *, *::before, *::after
+            box-sizing: inherit
 
-  html, body
-    padding: 0
-    margin: 0
-    background-color: #fcfcfc
+    html, body
+        padding: 0
+        margin: 0
+        background-color: #fcfcfc
 
 </style>
