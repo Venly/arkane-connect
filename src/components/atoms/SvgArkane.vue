@@ -38,8 +38,10 @@
         <title>Arkane logo</title>
         <g>
             <text class="text" transform="translate(94 43.7) scale(0.97 1)">
-                A<tspan class="text-small" x="18.26" y="0">RKANE</tspan>
-                <tspan x="107.08" y="0">N</tspan><tspan class="text-small" x="127.81" y="0">ETWORK</tspan>
+                A
+                <tspan class="text-small" x="18.26" y="0">RKANE</tspan>
+                <tspan x="107.08" y="0">N</tspan>
+                <tspan class="text-small" x="127.81" y="0">ETWORK</tspan>
             </text>
         </g>
         <g id="logos">

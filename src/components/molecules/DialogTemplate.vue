@@ -30,17 +30,17 @@
     import SvgArkane from '@/components/atoms/SvgArkane.vue';
 
     @Component({
-    components: {
-        ActionLink,
-        SvgArkane,
-    },
-})
-export default class DialogTemplate extends Vue {
-    @Prop({default: true})
-    public showFooter!: boolean;
-    @Prop()
-    public title!: string;
-}
+        components: {
+            ActionLink,
+            SvgArkane,
+        },
+    })
+    export default class DialogTemplate extends Vue {
+        @Prop({default: true})
+        public showFooter!: boolean;
+        @Prop()
+        public title!: string;
+    }
 </script>
 
 <style lang="sass" scoped>
@@ -63,7 +63,7 @@ export default class DialogTemplate extends Vue {
             align-items: center
             flex-wrap: wrap
             width: 100%
-            box-shadow: rem(0 2px 2px 0) rgba(0,0,0,0.14), rem(0 3px 1px -2px) rgba(0,0,0,0.12), rem(0 1px 5px 0) rgba(0,0,0,0.2)
+            box-shadow: rem(0 2px 2px 0) rgba(0, 0, 0, 0.14), rem(0 3px 1px -2px) rgba(0, 0, 0, 0.12), rem(0 1px 5px 0) rgba(0, 0, 0, 0.2)
             border-radius: $border-radius-small
             overflow: hidden
             background-color: $color-white

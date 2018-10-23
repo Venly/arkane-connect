@@ -9,7 +9,7 @@ export const isTrue = validators.helpers.withParams(
 export const differentFrom = (notEqualTo: string) => {
     return validators.helpers.withParams(
         {type: 'differentFrom', notEq: notEqualTo},
-        function(this: Vue, value: string, parentVm: Vue): boolean {
+        function (this: Vue, value: string, parentVm: Vue): boolean {
             return value !== validators.helpers.ref(notEqualTo, this, parentVm);
         },
     );

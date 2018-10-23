@@ -1,7 +1,7 @@
 <template>
-  <div class="about">
-    <h1>Initializing...</h1>
-  </div>
+    <div class="about">
+        <h1>Initializing...</h1>
+    </div>
 </template>
 
 

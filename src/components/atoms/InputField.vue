@@ -3,16 +3,16 @@
 </template>
 
 <script lang="ts">
-import {Component, Model, Vue} from 'vue-property-decorator';
+    import {Component, Model, Vue} from 'vue-property-decorator';
 
-@Component
-export default class InputField extends Vue {
-    @Model('change', {type: String}) public value!: any;
+    @Component
+    export default class InputField extends Vue {
+        @Model('change', {type: String}) public value!: any;
 
-    public onChange(event: any): void {
-        this.$emit('change', event.target.value);
+        public onChange(event: any): void {
+            this.$emit('change', event.target.value);
+        }
     }
-}
 </script>
 
 <style lang="sass" scoped>

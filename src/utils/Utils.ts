@@ -34,19 +34,6 @@ export default class Utils {
         return env;
     }
 
-    public static getOrigin(url: string) {
-        const parts: any = url.match(/^.+\:\/\/[^\‌​/]+/);
-        return (Array.isArray(parts) && parts.length > 0) ? parts[0] : 'unknown';
-    }
-
-    public static shuffleArray(array: any[]) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
-
     public static get urls() {
         let prefix = '';
 
@@ -69,16 +56,29 @@ export default class Utils {
         };
     }
 
+    public static getOrigin(url: string) {
+        const parts: any = url.match(/^.+\:\/\/[^\‌​/]+/);
+        return (Array.isArray(parts) && parts.length > 0) ? parts[0] : 'unknown';
+    }
+
+    public static shuffleArray(array: any[]) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
     public static removeNulls(obj: any): any {
         return Object.keys(obj)
-            .filter((key) => obj[key] !== null && obj[key] !== undefined)  // Remove undef. and null.
-            .reduce((newObj, key) => {
-                if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
-                    return Object.assign(newObj, {[key]: Utils.removeNulls(obj[key])});
-                } else {
-                    return Object.assign(newObj, {[key]: obj[key]});
-                }
-            }, {});
+                     .filter((key) => obj[key] !== null && obj[key] !== undefined)  // Remove undef. and null.
+                     .reduce((newObj, key) => {
+                         if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+                             return Object.assign(newObj, {[key]: Utils.removeNulls(obj[key])});
+                         } else {
+                             return Object.assign(newObj, {[key]: obj[key]});
+                         }
+                     }, {});
     }
 
     public static messages() {

@@ -1,5 +1,5 @@
 <template>
-  <div ref="modal" class="modal" v-bind:style="{ display: displayModal}"></div>
+    <div ref="modal" class="modal" v-bind:style="{ display: displayModal}"></div>
 </template>
 
 <script lang="ts">
@@ -14,7 +14,7 @@
         public showModal!: boolean;
 
         private get displayModal() {
-          return this.showModal ? 'block' : 'none';
+            return this.showModal ? 'block' : 'none';
         }
 
         @Watch('showModal')
@@ -28,15 +28,16 @@
 
 <style lang="sass" scoped>
 
-  .modal
-    position: fixed
-    z-index: 1
-    left: 0
-    top: 0
-    width: 100%
-    height: 100%
-    overflow: auto
-    background: rgb(0, 0, 0)
-    background: transparent \9
-    background: rgba(0, 0, 0, 0.4)
+    .modal
+        position: fixed
+        z-index: 1
+        left: 0
+        top: 0
+        width: 100%
+        height: 100%
+        overflow: auto
+        background: rgb(0, 0, 0)
+        background: transparent
+        \9
+        background: rgba(0, 0, 0, 0.4)
 </style>

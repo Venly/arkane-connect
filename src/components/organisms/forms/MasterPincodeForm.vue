@@ -1,23 +1,23 @@
 <template>
-  <form class="form">
-    <div class="control" :class="{'control--error': $v.pincode.$error}">
-      <label for="pincode" class="control__label">Master Pin Code</label>
-      <input tabindex="1" id="pincode" autofocus class="control__input" type="password" autocomplete="new-password"
-             v-model="$v.pincode.$model"/>
-      <span class="control__message"
-            v-if="$v.pincode.$error">A Pin Code should exist of 4 to 6 numbers</span>
-    </div>
-    <action-button :disabled="$v.$invalid" @click.prevent="pincodeEntered">
-      {{createLabel}}
-    </action-button>
+    <form class="form">
+        <div class="control" :class="{'control--error': $v.pincode.$error}">
+            <label for="pincode" class="control__label">Master Pin Code</label>
+            <input tabindex="1" id="pincode" autofocus class="control__input" type="password" autocomplete="new-password"
+                   v-model="$v.pincode.$model"/>
+            <span class="control__message"
+                  v-if="$v.pincode.$error">A Pin Code should exist of 4 to 6 numbers</span>
+        </div>
+        <action-button :disabled="$v.$invalid" @click.prevent="pincodeEntered">
+            {{createLabel}}
+        </action-button>
 
-  </form>
+    </form>
 </template>
 
 <script lang='ts'>
     import {Component, Prop, Vue} from 'vue-property-decorator';
     import {validationMixin} from 'vuelidate';
-    import {maxLength, minLength, numeric, required} from 'vuelidate/lib/validators';
+    import {maxLength, minLength, numeric} from 'vuelidate/lib/validators';
     import {Validations} from '@/decorators/decorators';
     import ActionButton from '@/components/atoms/ActionButton.vue';
     import {differentFrom} from '@/validators/validators';

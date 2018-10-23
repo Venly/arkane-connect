@@ -6,10 +6,14 @@ import Utils from './utils/Utils';
 
 export default class Security {
     public static isLoggedIn = false;
+    public static onTokenUpdate: (token: string) => void;
+    private static keycloak: KeycloakInstance;
+    private static updateTokenInterval: any;
 
     public static getConfig(clientId: string): any {
         return {
             'clientId': clientId || Utils.env.VUE_APP_CLIENT_ID,
+            'clientSecret': 'secret',
             'realm': Utils.env.VUE_APP_REALM,
             'realm-public-key': Utils.env.VUE_APP_REALM_PUBLIC_KEY,
             'url': Utils.urls.login,
@@ -20,8 +24,12 @@ export default class Security {
         };
     }
 
-    public static login(clientId: string) {
-        return Security.initializeAuth(Security.getConfig(clientId));
+    public static login(clientId: string): Promise<LoginResult> {
+        return Security.initializeAuth(Security.getConfig(clientId), 'login-required');
+    }
+
+    public static checkAuthenticated(clientId: string): Promise<LoginResult> {
+        return Security.initializeAuth(Security.getConfig(clientId), 'check-sso');
     }
 
     public static parseToken(token: string): any {
@@ -40,16 +48,12 @@ export default class Security {
             return Security.initializeAuth(Object.assign(config, {
                 clientId: useTokenToLogin ? token.aud : config.clientId,
                 resource: useTokenToLogin ? token.aud : config.resource,
-            }), redirectUrl);
+            }), 'check-sso', redirectUrl);
         } else {
             Security.notAuthenticated();
             return Promise.resolve({keycloak: {}, authenticated: false});
         }
     }
-
-    private static keycloak: KeycloakInstance;
-
-    private static updateTokenInterval: any;
 
     private static verifyToken(token: any, publicKey: string): any {
         try {
@@ -67,34 +71,40 @@ export default class Security {
             clearInterval(Security.updateTokenInterval);
             Security.updateTokenInterval = null;
         }
-        Security.updateTokenInterval = setInterval(async () => {
-            new Promise((resolve, reject) => {
-                if (Security.keycloak) {
-                    Security.keycloak.updateToken(70).success((refreshed: any) => {
+        Security.updateTokenInterval = setInterval(
+            async () => {
+                new Promise((resolve, reject) => {
+                    if (Security.keycloak) {
+                        Security.keycloak.updateToken(70).success((refreshed: any) => {
+                            Security.authenticated(Security.keycloak.token);
+                            resolve(refreshed);
+                        });
+                    } else {
+                        reject(false);
+                    }
+                }).then((refreshed: any) => {
+                    if (refreshed) {
                         Security.authenticated(Security.keycloak.token);
-                        resolve(refreshed);
-                    });
-                } else {
-                    reject(false);
-                }
-            }).then((refreshed: any) => {
-                if (refreshed) {
-                    Security.authenticated(Security.keycloak.token);
-                }
-            }).catch(() => {
-                (console as any).error('failed to refresh token');
-                Security.notAuthenticated();
-                clearInterval(Security.updateTokenInterval);
-                Security.updateTokenInterval = null;
-            });
-        }, 60000);
+                        if (Security.onTokenUpdate && Security.keycloak.token) {
+                            Security.onTokenUpdate(Security.keycloak.token);
+                        }
+                    }
+                }).catch(() => {
+                    (console as any).error('failed to refresh token');
+                    Security.notAuthenticated();
+                    clearInterval(Security.updateTokenInterval);
+                    Security.updateTokenInterval = null;
+                });
+            },
+            60000
+        );
     }
 
-    private static initializeAuth(config: any, redirectUrl?: string): Promise<any> {
+    private static initializeAuth(config: any, onLoad: 'check-sso' | 'login-required', redirectUrl?: string): Promise<LoginResult> {
         return new Promise((resolve, reject) => {
             Security.keycloak = Keycloak(config);
             const initOptions: KeycloakInitOptions = {
-                onLoad: 'check-sso',
+                onLoad,
             };
             if (redirectUrl) {
                 Object.assign(initOptions, {
@@ -110,9 +120,9 @@ export default class Security {
                             Security.notAuthenticated();
                         }
                         resolve({
-                                    keycloak: Security.keycloak,
-                                    authenticated,
-                                });
+                            keycloak: Security.keycloak,
+                            authenticated,
+                        });
                     })
                     .error(() => {
                         Security.notAuthenticated();
@@ -130,3 +140,9 @@ export default class Security {
         Security.isLoggedIn = false;
     }
 }
+
+export interface LoginResult {
+    keycloak: KeycloakInstance;
+    authenticated: boolean;
+}
+

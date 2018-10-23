@@ -1,75 +1,75 @@
 <template>
-  <div class="signer">
-    <div class="logo-wrapper">
-      <img class="logo" alt="Arkane Logo" src="../../assets/logo-arkane-animated.svg"/>
-    </div>
-    <div v-if="isInitialised" class="content">
-
-
-      <transition name="slide-left">
-        <div v-if="!showAdvanced">
-          <h3>Enter your pincode to sign this transaction</h3>
-
-          <from-to :from="fromAddress" :to="transactionData.to"></from-to>
-
-          <totals-box :amount-value="amountInEther" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
-                      :fee-value="maxTransactionFee()" :fee-currency="'GWEI'" :fee-decimals="{min: 2, max: 6}"
-                      :show-advanced-icon="true" @advanced-clicked="showAdvanced = true"></totals-box>
-
-          <numpad :params="transactionData" :disabled="hasBlockingError" @pincode_entered="pinEntered"></numpad>
+    <div class="signer">
+        <div class="logo-wrapper">
+            <img class="logo" alt="Arkane Logo" src="../../assets/logo-arkane-animated.svg"/>
         </div>
-      </transition>
+        <div v-if="isInitialised" class="content">
 
 
-      <transition name="slide-right" @after-enter="afterAdvancedEnter">
-        <div v-if="showAdvanced" class="advanced">
-          <h3>Transaction details</h3>
+            <transition name="slide-left">
+                <div v-if="!showAdvanced">
+                    <h3>Enter your pincode to sign this transaction</h3>
 
-          <from-to :from="transactionWallet.address" :to="transactionData.to"></from-to>
+                    <from-to :from="fromAddress" :to="transactionData.to"></from-to>
 
-          <totals-box :amount-value="amountInEther" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
-                      :fee-value="maxEditedTransactionFee" :fee-currency="'GWEI'" :fee-decimals="{min: 2, max: 6}"></totals-box>
+                    <totals-box :amount-value="amountInEther" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
+                                :fee-value="maxTransactionFee()" :fee-currency="'GWEI'" :fee-decimals="{min: 2, max: 6}"
+                                :show-advanced-icon="true" @advanced-clicked="showAdvanced = true"></totals-box>
 
-          <div class="speed-slider-box">
-            <vue-slider ref="speedSlider" class="speed-slider"
-                        v-model="gasPrice"
-                        :data="gasOptions"
-                        :piecewise="speedSelectorOptions.piecewise"
-                        :dotSize="speedSelectorOptions.dotSize"
-                        :formatter="speedSelectorOptions.formatter"
-                        :bgStyle="speedSelectorOptions.bgStyle"
-                        :processStyle="speedSelectorOptions.processStyle"
-                        :tooltipStyle="speedSelectorOptions.tooltipStyle"
-                        :piecewiseStyle="speedSelectorOptions.piecewiseStyle"
-                        :piecewiseActiveStyle="speedSelectorOptions.piecewiseActiveStyle"
-                        :lazy="speedSelectorOptions.lazy">
-            </vue-slider>
-            <div class="speed-slider-box--labels">
-              <div>slow</div>
-              <div>fast</div>
-            </div>
-          </div>
-          <form class="form" @submit.prevent="doNothing">
-            <div class="gas-limit control">
-              <label for="gas-limit" class="control__label">Gas limit</label>
-              <input id="gas-limit" class="control__input" type="number" v-model="gasLimit"/>
-            </div>
+                    <numpad :params="transactionData" :disabled="hasBlockingError" @pincode_entered="pinEntered"></numpad>
+                </div>
+            </transition>
 
-            <div class="data control">
-              <label for="data" class="control__label">Data</label>
-              <textarea id="data" class="control__input" v-model="transactionData.data" readonly="readonly"></textarea>
-            </div>
-          </form>
-          <button class="save-button btn" @click.prevent="saveChanges" @keyup.native.enter="saveChanges">Save</button>
+
+            <transition name="slide-right" @after-enter="afterAdvancedEnter">
+                <div v-if="showAdvanced" class="advanced">
+                    <h3>Transaction details</h3>
+
+                    <from-to :from="transactionWallet.address" :to="transactionData.to"></from-to>
+
+                    <totals-box :amount-value="amountInEther" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
+                                :fee-value="maxEditedTransactionFee" :fee-currency="'GWEI'" :fee-decimals="{min: 2, max: 6}"></totals-box>
+
+                    <div class="speed-slider-box">
+                        <vue-slider ref="speedSlider" class="speed-slider"
+                                    v-model="gasPrice"
+                                    :data="gasOptions"
+                                    :piecewise="speedSelectorOptions.piecewise"
+                                    :dotSize="speedSelectorOptions.dotSize"
+                                    :formatter="speedSelectorOptions.formatter"
+                                    :bgStyle="speedSelectorOptions.bgStyle"
+                                    :processStyle="speedSelectorOptions.processStyle"
+                                    :tooltipStyle="speedSelectorOptions.tooltipStyle"
+                                    :piecewiseStyle="speedSelectorOptions.piecewiseStyle"
+                                    :piecewiseActiveStyle="speedSelectorOptions.piecewiseActiveStyle"
+                                    :lazy="speedSelectorOptions.lazy">
+                        </vue-slider>
+                        <div class="speed-slider-box--labels">
+                            <div>slow</div>
+                            <div>fast</div>
+                        </div>
+                    </div>
+                    <form class="form" @submit.prevent="doNothing">
+                        <div class="gas-limit control">
+                            <label for="gas-limit" class="control__label">Gas limit</label>
+                            <input id="gas-limit" class="control__input" type="number" v-model="gasLimit"/>
+                        </div>
+
+                        <div class="data control">
+                            <label for="data" class="control__label">Data</label>
+                            <textarea id="data" class="control__input" v-model="transactionData.data" readonly="readonly"></textarea>
+                        </div>
+                    </form>
+                    <button class="save-button btn" @click.prevent="saveChanges" @keyup.native.enter="saveChanges">Save</button>
+                </div>
+            </transition>
+
+
         </div>
-      </transition>
-
-
+        <div v-else class="loading">
+            <p>{{loadingText}}</p>
+        </div>
     </div>
-    <div v-else class="loading">
-      <p>{{loadingText}}</p>
-    </div>
-  </div>
 </template>
 
 <script lang='ts'>
@@ -86,14 +86,14 @@
     declare const window: Window;
 
     @Component({
-                   components: {
-                       TotalsBox,
-                       FromTo,
-                       AddressCard,
-                       Numpad,
-                       VueSlider,
-                   },
-               })
+        components: {
+            TotalsBox,
+            FromTo,
+            AddressCard,
+            Numpad,
+            VueSlider,
+        },
+    })
     export default class SignEthereumTransactionView extends SignTransactionView {
 
         public showAdvanced: boolean = false;
@@ -185,69 +185,69 @@
 </script>
 
 <style lang='sass' scoped>
-  @import ../../assets/sass/mixins-and-vars
+    @import ../../assets/sass/mixins-and-vars
 
-  .signer
-    width: 100%
-    margin-bottom: auto
-    background-color: $color-white
-    overflow: hidden
-
-    .logo-wrapper
-      height: rem(50px)
-      margin-top: rem(9px)
-      margin-bottom: rem(28px)
-      border-bottom: 1px solid #e5e5e5
-      text-align: center
-
-      .logo
-        padding: rem(5px)
-        padding-bottom: rem(14px)
-        max-width: rem(184px)
-        max-height: rem(50px)
-        @media (min-height: 600px)
-          height: 60px
-
-    .content
-      width: rem(250px)
-      margin: 0 auto
-      display: flex
-
-      > div
+    .signer
         width: 100%
+        margin-bottom: auto
+        background-color: $color-white
+        overflow: hidden
 
-      h3
-        margin: 0 auto 30px auto
-        font-size: rem(22px)
-        line-height: normal
+        .logo-wrapper
+            height: rem(50px)
+            margin-top: rem(9px)
+            margin-bottom: rem(28px)
+            border-bottom: 1px solid #e5e5e5
+            text-align: center
 
-      .totals-box
-        margin-top: rem(24px)
+            .logo
+                padding: rem(5px)
+                padding-bottom: rem(14px)
+                max-width: rem(184px)
+                max-height: rem(50px)
+                @media (min-height: 600px)
+                    height: 60px
 
-      .numpad
-        margin-top: rem(12px)
+        .content
+            width: rem(250px)
+            margin: 0 auto
+            display: flex
 
-      .speed-slider-box
-        margin-top: rem(50px)
+            > div
+                width: 100%
 
-        &--labels
-          display: flex
-          justify-content: space-between
-          font-size: $font-size-small
-          color: $color-warm-grey
+            h3
+                margin: 0 auto 30px auto
+                font-size: rem(22px)
+                line-height: normal
 
-      .control
-        margin-bottom: 0
+            .totals-box
+                margin-top: rem(24px)
 
-      .gas-limit
-        margin-top: rem(25px)
+            .numpad
+                margin-top: rem(12px)
 
-      .data
-        textarea
-          height: rem(250px)
+            .speed-slider-box
+                margin-top: rem(50px)
 
-      .save-button
-        margin-top: rem(30px)
+                &--labels
+                    display: flex
+                    justify-content: space-between
+                    font-size: $font-size-small
+                    color: $color-warm-grey
+
+            .control
+                margin-bottom: 0
+
+            .gas-limit
+                margin-top: rem(25px)
+
+            .data
+                textarea
+                    height: rem(250px)
+
+            .save-button
+                margin-top: rem(30px)
 
 
 </style>

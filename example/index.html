@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html class="no-js" lang="en">
 
@@ -11,17 +10,21 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link rel="stylesheet" href="/assets/css/auth.css" />
-    <script src="/node_modules/keycloak-js/dist/keycloak.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/auth.css"/>
+    <script src="/node_modules/@arkane-network/arkane-connect/connect.js"></script>
 </head>
 
 <body>
 <!--[if lte IE 9]>
-<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and
+    security.</p>
 <![endif]-->
 <!-- Add your site or application content here -->
 <div class="auth-logged-in">
-    <div><span id="auth-username">Anoniem</span></div>
+    <div id="auth-username">Anoniem</div>
+    <br/>
+    <div id="auth-token"></div>
+    <br/>
     <a id="auth-logout" href="#"><span>Logout</span></a>
     <a id="auth-requestaccess" href="#"><span>Get access</span></a>
 
@@ -36,15 +39,10 @@
 </div>
 
 <script src="/node_modules/jquery/dist/jquery.min.js"></script>
-<script src="/assets/js/authorization.js"></script>
 <script src="/assets/js/vendor/modernizr-custom.js"></script>
-<!--<script src="/assets/js/vendor/jquery/jquery.min.js"></script>-->
 <script src="/assets/js/plugins.js"></script>
 <script src="/assets/js/main.js"></script>
 
-<script src="/node_modules/@arkane-network/arkane-connect/connect.js"></script>
 </body>
 
 </html>
-
-

@@ -1,5 +1,5 @@
 <template>
-  <span>{{ellipsisText}}</span>
+    <span>{{ellipsisText}}</span>
 </template>
 
 <script lang="ts">
@@ -27,5 +27,5 @@
 </script>
 
 <style lang="sass" scoped>
-  @import ../../assets/sass/mixins-and-vars
+    @import ../../assets/sass/mixins-and-vars
 </style>
