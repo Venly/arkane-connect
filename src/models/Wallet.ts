@@ -19,21 +19,21 @@ export enum WalletIntegratedApp {
 }
 
 export class Wallet {
-    public id = 0;
-    public address = '';
+    public id: string = '0';
+    public address: string = '';
     public walletType?: WalletType;
     public secretType?: SecretType;
-    public name = '';
-    public type = WalletAppType.PERSONAL;
+    public name: string = '';
+    public type: WalletAppType = WalletAppType.PERSONAL;
     public funds: Fund[] = [];
-    public app ? = WalletIntegratedApp.FUNDREQUEST;
+    public app?: WalletIntegratedApp = WalletIntegratedApp.FUNDREQUEST;
     public lastUpdated ? = 0;
 
     public createdAt?: string;
-    public alias = '';
-    public description = '';
-    public archived = false;
-    public primary = false;
+    public alias: string = '';
+    public description: string = '';
+    public archived: boolean = false;
+    public primary: boolean = false;
     public balance?: Balance;
 }
 
