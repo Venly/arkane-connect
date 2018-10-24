@@ -2,6 +2,13 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import {Component, Route} from 'vue-router/types/router';
 
+import InitTransactionView from './views/InitTransactionView.vue';
+import CreateWalletView from './views/CreateWalletView.vue';
+import LinkWalletView from './views/LinkWalletView.vue';
+import ErrorView from './views/ErrorView.vue';
+import UnauthorizedView from './views/UnauthorizedView.vue';
+import IndexView from './views/IndexView.vue';
+import Error404View from './views/Error404View.vue';
 import SignEthereumTransactionView from './views/signer/SignEthereumTransactionView.vue';
 import SignVeChainTransactionView from './views/signer/SignVeChainTransactionView.vue';
 import ExecuteEthTransactionView from './views/executor/ExecuteEthTransactionView.vue';
@@ -13,10 +20,6 @@ import {Profile} from '@/models/Profile';
 import {Wallet} from '@/models/Wallet';
 
 Vue.use(Router);
-
-const loadView = (view: string) => {
-    return () => import (`./views/${view}View.vue`);
-};
 
 async function fetchProfileAndWallets(to: Route) {
     if (!store.state.auth.authenticated) {
@@ -36,7 +39,7 @@ const router = new Router(
             {
                 path: '/transaction/init',
                 name: 'init-sign-transaction',
-                component: loadView('InitTransaction'),
+                component: InitTransactionView,
             },
             {
                 path: '/transaction/sign/ethereum_transaction',
@@ -73,7 +76,7 @@ const router = new Router(
             {
                 path: '/init/:chain/:bearer/createwallet',
                 name: 'create-wallet',
-                component: loadView('CreateWallet'),
+                component: CreateWalletView,
                 meta: {
                     authArkane: true,
                 },
@@ -85,7 +88,7 @@ const router = new Router(
             {
                 path: '/init/:chain/:bearer/linkwallet',
                 name: 'link-wallet',
-                component: loadView('LinkWallet'),
+                component: LinkWalletView,
                 meta: {
                     authArkane: true,
                 },
@@ -125,10 +128,10 @@ const router = new Router(
                                                     .catch(() => next({name: 'generic-error'}));
                 },
             },
-            {path: '/error', name: 'generic-error', component: loadView('Error')},
-            {path: '/unauthorized', name: 'unauthorized', component: loadView('Unauthorized')},
-            {path: '/', component: loadView('Index')},
-            {path: '*', component: loadView('Error404')},
+            {path: '/error', name: 'generic-error', component: ErrorView},
+            {path: '/unauthorized', name: 'unauthorized', component: UnauthorizedView},
+            {path: '/', component: IndexView},
+            {path: '*', component: Error404View},
         ],
     },
 );

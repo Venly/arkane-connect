@@ -19,7 +19,7 @@
         <eth-transaction-advanced-form v-if="showAdvanced"
                                        ref="advancedForm"
                                        :transaction-data="transactionData"
-                                       :transaction-data-received="transactionDataReceived"
+                                       :has-transaction-data="hasTransactionData"
                                        @saved="onSaved"
                                        @back_clicked="onBackClicked">
         </eth-transaction-advanced-form>
@@ -33,13 +33,13 @@
 </template>
 
 <script lang='ts'>
-    import {Component} from 'vue-property-decorator';
-    import TransactionView from '../TransactionView';
-    import EthTransactionPincodeForm from '../../components/organisms/transactionForms/EthTransactionPincodeForm.vue';
-    import EthTransactionAdvancedForm from '../../components/organisms/transactionForms/EthTransactionAdvancedForm.vue';
-    import Api from '../../api';
+import {Component} from 'vue-property-decorator';
+import TransactionView from '../TransactionView';
+import EthTransactionPincodeForm from '../../components/organisms/transactionForms/EthTransactionPincodeForm.vue';
+import EthTransactionAdvancedForm from '../../components/organisms/transactionForms/EthTransactionAdvancedForm.vue';
+import Api from '../../api';
 
-    @Component({
+@Component({
     components: {
         EthTransactionPincodeForm,
         EthTransactionAdvancedForm,
@@ -49,23 +49,9 @@ export default class ExecuteEthTransactionView extends TransactionView {
 
     public showAdvanced: boolean = false;
 
-    public transactionDataReceived: boolean = false;
-
     public created() {
+        this.onTransactionDataReceivedCallback = ((transactionData) => transactionData.data = '0x');
         this.postTransaction = (pincode: string, transactionData: any) => Api.executeTransaction(transactionData, pincode);
-    }
-
-    public mounted() {
-        this.onTransactionDataReceivedCallback = (transactionData: any): void => {
-
-            ///////////
-            transactionData.gas = 40000;
-            transactionData.gasPrice = 4000000000;
-            transactionData.data = '0x';
-            ///////////
-
-            this.transactionDataReceived = true;
-        };
     }
 
     public onAdvancedButtonClicked() {

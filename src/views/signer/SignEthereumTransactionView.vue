@@ -19,6 +19,7 @@
         <eth-transaction-advanced-form v-if="showAdvanced"
                                        ref="advancedForm"
                                        :transaction-data="transactionData"
+                                       :has-transaction-data="hasTransactionData"
                                        @saved="onSaved"
                                        @back_clicked="onBackClicked">
         </eth-transaction-advanced-form>
@@ -60,23 +61,8 @@
 
         public showAdvanced: boolean = false;
 
-        public transactionDataReceived: boolean = false;
-
         public created() {
             this.postTransaction = (pincode: string, transactionData: any) => Api.signTransaction(transactionData, pincode);
-        }
-
-        public mounted() {
-            this.onTransactionDataReceivedCallback = (transactionData: any): void => {
-
-                ////////////
-                transactionData.gas = 40000;
-                transactionData.gasPrice = 4000000000;
-                this.transactionDataReceived = true;
-                ///////////
-
-                this.transactionDataReceived = true;
-            };
         }
 
         public onAdvancedButtonClicked() {

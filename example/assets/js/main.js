@@ -82,8 +82,8 @@ app.addConnectEvents = function() {
 
         window.arkaneConnect
               .buildTransactionRequest({
-                  walletId: 161,
-                  to: '0x69661037987676C2210E0997bf6CB836e9D972f5',
+                  walletId: 195,
+                  to: '0xf29c73da25795469aba28277f831e85d49806b3f',
                   value: 20.09,
                   secretType: 'VECHAIN'
               })

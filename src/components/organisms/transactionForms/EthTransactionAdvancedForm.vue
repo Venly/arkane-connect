@@ -7,8 +7,6 @@
     <totals-box :amount-value="amountInEther" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
                 :fee-value="maxEditedTransactionFee" :fee-currency="'GWEI'" :fee-decimals="{min: 2, max: 6}"></totals-box>
 
-   <div>{{transactionDataReceived}}</div>
-
     <div class="speed-slider-box">
       <vue-slider ref="speedSlider" class="speed-slider"
                   v-model="gasPrice"
@@ -42,11 +40,7 @@
     <div class="buttons buttons--horizontal">
       <action-link :type="'muted'" @click="backClicked">< Back</action-link>
       <button class="save-button btn" @click.prevent="saveClicked" @keyup.native.enter="saveClicked">Save</button>
-      <!--<input class="link link&#45;&#45;muted" name="cancel" id="kc-decline" type="submit" value="${msg("doDecline")}"/>-->
-      <!--<input class="btn" name="accept" id="kc-accept" type="submit" value="${msg("doAcceptTerms")}"/>-->
     </div>
-    <!--<div class="buttons">-->
-    <!--</div>-->
   </div>
 </template>
 
@@ -73,31 +67,10 @@ import ActionLink from '../../atoms/ActionLink.vue';
 })
 export default class EthTransactionAdvancedForm extends Vue {
 
-    public get fromAddress(): string {
-        return !(!this.transactionWallet) ? this.transactionWallet.address : '0x0000000000000000000000000000000000000000';
-    }
-
-    public get amountInEther(): number {
-        return Utils.rawValue().toTokenValue(this.transactionData.value);
-    }
-
-    public get maxEditedTransactionFee(): number {
-        return (this.gasLimit * this.gasPrice);
-    }
-
-    public get gasOptions(): number[] {
-        const originalValue: number = this.gasPriceInGWei();
-        const options = [3, 3.1300001, 20, 53];
-        if (options.findIndex((value: number) => value === originalValue) < 0) {
-            options.push(originalValue);
-        }
-        return options.sort((a, b) => a - b);
-    }
-
     @Prop()
     public transactionData!: EthereumTransactionData;
     @Prop()
-    public transactionDataReceived!: boolean;
+    public hasTransactionData!: boolean;
 
     public gasLimit: number = 0;
     public gasPrice: number = 0;
@@ -132,16 +105,37 @@ export default class EthTransactionAdvancedForm extends Vue {
     };
 
     public mounted() {
-        if (this.transactionDataReceived) {
+        if (this.hasTransactionData) {
             this.initGas();
         }
+    }
+
+    public get fromAddress(): string {
+        return !(!this.transactionWallet) ? this.transactionWallet.address : '0x0000000000000000000000000000000000000000';
+    }
+
+    public get amountInEther(): number {
+        return Utils.rawValue().toTokenValue(this.transactionData.value);
+    }
+
+    public get maxEditedTransactionFee(): number {
+        return (this.gasLimit * this.gasPrice);
+    }
+
+    public get gasOptions(): number[] {
+        const originalValue: number = this.gasPriceInGWei();
+        const options = [3, 3.1300001, 20, 53];
+        if (options.findIndex((value: number) => value === originalValue) < 0) {
+            options.push(originalValue);
+        }
+        return options.sort((a, b) => a - b);
     }
 
     public gasPriceInGWei(): number {
         return Utils.rawValue().toGwei(this.transactionData.gasPrice);
     }
 
-    @Watch('transactionDataReceived')
+    @Watch('hasTransactionData')
     public onTransactionDataReceivedCallback(oldValue: boolean, newValue: boolean) {
         if (newValue) {
             this.initGas();

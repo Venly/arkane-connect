@@ -8,7 +8,7 @@
                 :fee-value="maxTransactionFee()" :fee-currency="'GWEI'" :fee-decimals="{min: 2, max: 6}"
                 :show-advanced-icon="true" @advanced-clicked="advancedClicked"></totals-box>
 
-    <numpad :params="transactionData" :disabled="disabled" @pincode_entered="pincodeEntered"></numpad>
+    <numpad :params="transactionData" :disabled="disabled" @pincode_entered="pincodeEntered" :action="action"></numpad>
   </div>
 </template>
 
