@@ -4,6 +4,8 @@ import {Component, Route} from 'vue-router/types/router';
 
 import SignEthereumTransactionView from './views/signer/SignEthereumTransactionView.vue';
 import SignVeChainTransactionView from './views/signer/SignVeChainTransactionView.vue';
+import ExecuteEthTransactionView from './views/executor/ExecuteEthTransactionView.vue';
+import ExecuteVetTransactionView from './views/executor/ExecuteVetTransactionView.vue';
 import Security from './Security';
 import Utils from './utils/Utils';
 import store from './store';
@@ -32,12 +34,12 @@ const router = new Router(
         base: process.env.BASE_URL,
         routes: [
             {
-                path: '/sign/transaction/init',
+                path: '/transaction/init',
                 name: 'init-sign-transaction',
                 component: loadView('InitTransaction'),
             },
             {
-                path: '/sign/transaction/ethereum_transaction/:bearer',
+                path: '/transaction/sign/ethereum_transaction',
                 name: 'sign-ethereum-transaction',
                 component: SignEthereumTransactionView,
                 meta: {
@@ -45,9 +47,25 @@ const router = new Router(
                 },
             },
             {
-                path: '/sign/transaction/vechain_transaction/:bearer',
+                path: '/transaction/sign/vechain_transaction',
                 name: 'sign-vechain-transaction',
                 component: SignVeChainTransactionView,
+                meta: {
+                    auth: true,
+                },
+            },
+            {
+                path: '/transaction/execute/eth_transaction',
+                name: 'execute-eth-transaction',
+                component: ExecuteEthTransactionView,
+                meta: {
+                    auth: true,
+                },
+            },
+            {
+                path: '/transaction/execute/vet_transaction',
+                name: 'execute-vet-transaction',
+                component: ExecuteVetTransactionView,
                 meta: {
                     auth: true,
                 },
@@ -123,7 +141,7 @@ function checkAuthorize(to: Route): Promise<any> {
     let doLogin = false;
     let useTokenToLogin = false;
     if (to.params) {
-        bearer = (to.params as any).bearer;
+        bearer = (to.params as any).bearer || (to.query as any).bearerToken;
         token = Security.parseToken(bearer);
         store.commit('setThirdPartyToken', token);
         clientId = token ? token.azp : '';

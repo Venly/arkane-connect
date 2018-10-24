@@ -7,9 +7,6 @@ import Utils from './utils/Utils';
 export default class Security {
     public static isLoggedIn = false;
     public static onTokenUpdate: (token: string) => void;
-    private static keycloak: KeycloakInstance;
-    private static updateTokenInterval: any;
-
     public static getConfig(clientId: string): any {
         return {
             'clientId': clientId || Utils.env.VUE_APP_CLIENT_ID,
@@ -55,6 +52,9 @@ export default class Security {
         }
     }
 
+    private static keycloak: KeycloakInstance;
+    private static updateTokenInterval: any;
+
     private static verifyToken(token: any, publicKey: string): any {
         try {
             if (publicKey.indexOf('-----BEGIN PUBLIC KEY-----') === -1) {
@@ -96,7 +96,7 @@ export default class Security {
                     Security.updateTokenInterval = null;
                 });
             },
-            60000
+            60000,
         );
     }
 

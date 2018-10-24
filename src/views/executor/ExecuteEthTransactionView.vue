@@ -1,5 +1,5 @@
 <template>
-  <div class="signer">
+  <div class="executor">
     <div class="logo-wrapper">
       <img class="logo" alt="Arkane Logo" src="../../assets/logo-arkane-animated.svg"/>
     </div>
@@ -8,7 +8,7 @@
       <transition name="slide-left">
         <eth-transaction-pincode-form v-if="!showAdvanced"
                                       :transaction-data="transactionData"
-                                      :action="'sign'"
+                                      :action="'execute'"
                                       :disabled="hasBlockingError"
                                       @advanced_clicked="showAdvanced = true"
                                       @pincode_entered="pinEntered">
@@ -19,6 +19,7 @@
         <eth-transaction-advanced-form v-if="showAdvanced"
                                        ref="advancedForm"
                                        :transaction-data="transactionData"
+                                       :transaction-data-received="transactionDataReceived"
                                        @saved="onSaved"
                                        @back_clicked="onBackClicked">
         </eth-transaction-advanced-form>
@@ -33,74 +34,62 @@
 
 <script lang='ts'>
     import {Component} from 'vue-property-decorator';
-    import Numpad from '../../components/molecules/Numpad.vue';
     import TransactionView from '../TransactionView';
-    import AddressCard from '../../components/atoms/AddressCard.vue';
-    import FromTo from '../../components/molecules/FromTo.vue';
-    import TotalsBox from '../../components/atoms/TotalsBox.vue';
     import EthTransactionPincodeForm from '../../components/organisms/transactionForms/EthTransactionPincodeForm.vue';
     import EthTransactionAdvancedForm from '../../components/organisms/transactionForms/EthTransactionAdvancedForm.vue';
-    import VueSlider from 'vue-slider-component';
     import Api from '../../api';
 
-    declare const window: Window;
-
     @Component({
-        components: {
-            EthTransactionPincodeForm,
-            EthTransactionAdvancedForm,
-            TotalsBox,
-            FromTo,
-            AddressCard,
-            Numpad,
-            VueSlider,
-        },
-    })
-    export default class SignEthereumTransactionView extends TransactionView {
+    components: {
+        EthTransactionPincodeForm,
+        EthTransactionAdvancedForm,
+    },
+})
+export default class ExecuteEthTransactionView extends TransactionView {
 
-        public showAdvanced: boolean = false;
+    public showAdvanced: boolean = false;
 
-        public transactionDataReceived: boolean = false;
+    public transactionDataReceived: boolean = false;
 
-        public created() {
-            this.postTransaction = (pincode: string, transactionData: any) => Api.signTransaction(transactionData, pincode);
-        }
-
-        public mounted() {
-            this.onTransactionDataReceivedCallback = (transactionData: any): void => {
-
-                ////////////
-                transactionData.gas = 40000;
-                transactionData.gasPrice = 4000000000;
-                this.transactionDataReceived = true;
-                ///////////
-
-                this.transactionDataReceived = true;
-            };
-        }
-
-        public onAdvancedButtonClicked() {
-            this.showAdvanced = true;
-        }
-
-        public onSaved() {
-            this.showAdvanced = false;
-        }
-
-        public onBackClicked() {
-            this.showAdvanced = false;
-        }
-
-        public afterAdvancedEnter() {
-            (this.$refs.advancedForm as EthTransactionAdvancedForm).afterEnter();
-        }
+    public created() {
+        this.postTransaction = (pincode: string, transactionData: any) => Api.executeTransaction(transactionData, pincode);
     }
+
+    public mounted() {
+        this.onTransactionDataReceivedCallback = (transactionData: any): void => {
+
+            ///////////
+            transactionData.gas = 40000;
+            transactionData.gasPrice = 4000000000;
+            transactionData.data = '0x';
+            ///////////
+
+            this.transactionDataReceived = true;
+        };
+    }
+
+    public onAdvancedButtonClicked() {
+        this.showAdvanced = true;
+    }
+
+    public onSaved() {
+        this.showAdvanced = false;
+    }
+
+    public onBackClicked() {
+        this.showAdvanced = false;
+    }
+
+    public afterAdvancedEnter() {
+        (this.$refs.advancedForm as EthTransactionAdvancedForm).afterEnter();
+    }
+}
 </script>
 
 <style lang='sass' scoped>
   @import ../../assets/sass/mixins-and-vars
 
-  .signer
+  .executor
     width: 100%
     margin-bottom: auto
     background-color: $color-white

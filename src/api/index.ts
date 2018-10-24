@@ -10,17 +10,18 @@ import {Balance} from '../models/Balance';
 
 export default class Api {
     public static token: string = '';
-    private static instance: Api;
-    private api: RestApi;
-
-    public constructor() {
-        this.api = new RestApi(Utils.urls.api, () => Api.token);
+    public static signTransaction(data: any, pincode: string): Promise<ResponseBody> {
+        return this.handleTransaction('signatures', data, pincode);
     }
 
-    public static signTransaction(data: any, pincode: string): Promise<ResponseBody> {
+    public static executeTransaction(data: any, pincode: string): Promise<ResponseBody> {
+        return this.handleTransaction('transactions', data, pincode);
+    }
+
+    public static handleTransaction(endpoint: string, data: any, pincode: string): Promise<ResponseBody> {
 
         return Api.getApi().http
-                  .post('signatures', Object.assign(data, {pincode}))
+                  .post('transactions', Utils.removeNulls(Object.assign(data, {pincode})))
                   .then((axiosRes: AxiosResponse) => {
                       return axiosRes.data as ResponseBody;
                   })
@@ -116,6 +117,8 @@ export default class Api {
                   });
     }
 
+    private static instance: Api;
+
     private static getInstance(): Api {
         if (!Api.instance) {
             Api.instance = new Api();
@@ -126,5 +129,10 @@ export default class Api {
 
     private static getApi(): RestApi {
         return Api.getInstance().api;
+    }
+    private api: RestApi;
+
+    public constructor() {
+        this.api = new RestApi(Utils.urls.api, () => Api.token);
     }
 }

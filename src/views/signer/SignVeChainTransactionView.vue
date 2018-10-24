@@ -56,7 +56,7 @@
 <script lang='ts'>
     import {Component} from 'vue-property-decorator';
     import Numpad from '../../components/molecules/Numpad.vue';
-    import SignTransactionView from './SignTransactionView';
+    import TransactionView from '../TransactionView';
     import AddressCard from '../../components/atoms/AddressCard.vue';
     import FromTo from '../../components/molecules/FromTo.vue';
     import TotalsBox from '../../components/atoms/TotalsBox.vue';
@@ -75,7 +75,7 @@
             VueSlider,
         },
     })
-    export default class SignVeChainTransactionView extends SignTransactionView {
+    export default class SignVeChainTransactionView extends TransactionView {
 
         public showAdvanced: boolean = false;
         public gasLimit: number = 0;

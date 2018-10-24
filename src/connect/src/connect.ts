@@ -9,23 +9,10 @@ import Utils from '../../utils/Utils';
 import {Profile} from '../../models/Profile';
 import Security, {LoginResult} from '../../Security';
 import {KeycloakInstance, KeycloakPromise} from 'keycloak-js';
+import {GenericTransactionRequest} from '../../models/GenericTransactionRequest';
+import undefinedError = Mocha.utils.undefinedError;
 
 export class ArkaneConnect {
-
-    private popup?: Window;
-    private messagePort?: MessagePort;
-    private api!: RestApi;
-    private clientId: string;
-    private chains: string[];
-    private bearerTokenProvider: any;
-    private auth!: KeycloakInstance;
-
-    constructor(clientId: string, chains?: string[], environment?: string) {
-        this.clientId = clientId;
-        this.chains = (chains || []).map((chain: string) => chain.toLowerCase());
-        Utils.environment = environment || 'prod';
-        this.addBeforeUnloadListener();
-    }
 
     private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 350, h: number = 870) {
         const left = (screen.width / 2) - (w / 2);
@@ -38,6 +25,21 @@ export class ArkaneConnect {
             newWindow.location.href = url;
         }
         return newWindow;
+    }
+    private popup?: Window;
+    private messagePort?: MessagePort;
+    private api!: RestApi;
+    private clientId: string;
+    private chains: string[];
+    private bearerTokenProvider: any;
+
+    private auth!: KeycloakInstance;
+
+    constructor(clientId: string, chains?: string[], environment?: string) {
+        this.clientId = clientId;
+        this.chains = (chains || []).map((chain: string) => chain.toLowerCase());
+        Utils.environment = environment || 'prod';
+        this.addBeforeUnloadListener();
     }
 
     public checkAuthenticated(): Promise<AuthenticationResult> {
@@ -116,26 +118,25 @@ export class ArkaneConnect {
         }
     }
 
+    public async buildTransactionRequest(genericTransactionRequest: GenericTransactionRequest): Promise<any> {
+        const response: AxiosResponse = await this.api.http.post('transactions/build', genericTransactionRequest);
+        if (response && response.data && response.data.success) {
+            return response.data.result;
+        } else {
+            return undefined;
+        }
+    }
+
+    public async executeTransaction(params: any) {
+        this.handleTransactionInPopup('execute', params);
+    }
+
     public async signTransaction(params: any) {
-        if (!this.popup || this.popup.closed) {
-            await this.initPopup();
-        }
-        if (this.popup) {
-            this.popup.focus();
-        }
-        return new Promise((resolve, reject) => {
-            const url = `${Utils.urls.connect}/sign/transaction/${params.type}/${this.bearerTokenProvider()}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
-            this.popup = ArkaneConnect.openWindow(url) as Window;
-            window.addEventListener('message', (message: MessageEvent) => {
-                if (Utils.messages().hasValidOrigin(message) && Utils.messages().isOfType(message, EVENT_TYPES.SIGNER_MOUNTED)) {
-                    this.initMessageChannel(params, message, resolve, reject);
-                }
-            });
-        });
+        this.handleTransactionInPopup('sign', params);
     }
 
     public async initPopup() {
-        const url = `${Utils.urls.connect}/sign/transaction/init`;
+        const url = `${Utils.urls.connect}/transaction/init`;
         this.popup = ArkaneConnect.openWindow(url) as Window;
         return {
             success: false,
@@ -152,6 +153,25 @@ export class ArkaneConnect {
             this.messagePort.close();
             delete this.messagePort;
         }
+    }
+
+    private async handleTransactionInPopup(method: string, params: any) {
+        if (!this.popup || this.popup.closed) {
+            await this.initPopup();
+        }
+        if (this.popup) {
+            this.popup.focus();
+        }
+        return new Promise((resolve, reject) => {
+            const url = `${Utils.urls.connect}/transaction/${method}/${params.type}`
+                + `?bearerToken=${this.bearerTokenProvider()}${Utils.environment ? '&environment=' + Utils.environment : ''}`;
+            this.popup = ArkaneConnect.openWindow(url) as Window;
+            window.addEventListener('message', (message: MessageEvent) => {
+                if (Utils.messages().hasValidOrigin(message) && Utils.messages().isOfType(message, EVENT_TYPES.EXECUTOR_MOUNTED)) {
+                    this.initMessageChannel(params, message, resolve, reject);
+                }
+            });
+        });
     }
 
     private filterOnMandatoryWallets(wallets: Wallet[]) {
@@ -174,6 +194,7 @@ export class ArkaneConnect {
             if (Utils.messages().hasType(message)) {
                 switch (message.data.type) {
                     case EVENT_TYPES.TRANSACTION_SIGNED:
+                    case EVENT_TYPES.TRANSACTION_EXECUTED:
                         this.closePopup();
                         resolve(message.data && {...message.data.data});
                         break;
