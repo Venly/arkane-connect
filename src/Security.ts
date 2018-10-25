@@ -51,6 +51,7 @@ export default class Security {
             return null;
         }
     }
+
     private static keycloak: KeycloakInstance;
     private static updateTokenInterval: any;
 
