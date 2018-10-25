@@ -24,7 +24,9 @@ export class ArkaneConnect {
         }
         return newWindow;
     }
+
     private popup?: Window;
+    private popupMountedListener?: (message: MessageEvent) => any;
     private messagePort?: MessagePort;
     private api!: RestApi;
     private clientId: string;
@@ -120,17 +122,15 @@ export class ArkaneConnect {
         if (!this.popup || this.popup.closed) {
             await this.initPopup();
         }
+        this.cleanupPopup();
         if (this.popup) {
             this.popup.focus();
         }
         return new Promise((resolve, reject) => {
             const url = `${Utils.urls.connect}/sign/transaction/${params.type}/${this.bearerTokenProvider()}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
             this.popup = ArkaneConnect.openWindow(url) as Window;
-            window.addEventListener('message', (message: MessageEvent) => {
-                if (Utils.messages().hasValidOrigin(message) && Utils.messages().isOfType(message, EVENT_TYPES.SIGNER_MOUNTED)) {
-                    this.initMessageChannel(params, message, resolve, reject);
-                }
-            });
+            this.popupMountedListener = this.createPopupMountedListener(params, resolve, reject);
+            window.addEventListener('message', this.popupMountedListener);
         });
     }
 
@@ -148,10 +148,26 @@ export class ArkaneConnect {
             this.popup.close();
             delete this.popup;
         }
+        this.cleanupPopup();
+    }
+
+    private cleanupPopup() {
         if (this.messagePort) {
             this.messagePort.close();
             delete this.messagePort;
         }
+        if (this.popupMountedListener) {
+            window.removeEventListener('message', this.popupMountedListener);
+            delete this.popupMountedListener;
+        }
+    }
+
+    private createPopupMountedListener(params: any, resolve: any, reject: any) {
+        return (message: MessageEvent) => {
+            if (Utils.messages().hasValidOrigin(message) && Utils.messages().isOfType(message, EVENT_TYPES.SIGNER_MOUNTED)) {
+                this.initMessageChannel(params, message, resolve, reject);
+            }
+        };
     }
 
     private filterOnMandatoryWallets(wallets: Wallet[]) {
@@ -172,13 +188,12 @@ export class ArkaneConnect {
     private createMessageHandler(resolve: any, reject: any) {
         return (message: MessageEvent) => {
             if (Utils.messages().hasType(message)) {
+                this.closePopup();
                 switch (message.data.type) {
                     case EVENT_TYPES.TRANSACTION_SIGNED:
-                        this.closePopup();
                         resolve(message.data && {...message.data.data});
                         break;
                     case EVENT_TYPES.POPUP_CLOSED:
-                        delete this.popup;
                         reject({
                             success: false,
                             errors: ['Popup closed'],
