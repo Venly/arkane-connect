@@ -7,8 +7,6 @@ import Utils from './utils/Utils';
 export default class Security {
     public static isLoggedIn = false;
     public static onTokenUpdate: (token: string) => void;
-    private static keycloak: KeycloakInstance;
-    private static updateTokenInterval: any;
 
     public static getConfig(clientId: string): any {
         return {
@@ -23,7 +21,6 @@ export default class Security {
             'public-client': Utils.env.VUE_APP_PUBLIC_CLIENT,
         };
     }
-
     public static login(clientId: string): Promise<LoginResult> {
         return Security.initializeAuth(Security.getConfig(clientId), 'login-required');
     }
@@ -54,6 +51,9 @@ export default class Security {
             return Promise.resolve({keycloak: {}, authenticated: false});
         }
     }
+
+    private static keycloak: KeycloakInstance;
+    private static updateTokenInterval: any;
 
     private static verifyToken(token: any, publicKey: string): any {
         try {
@@ -96,7 +96,7 @@ export default class Security {
                     Security.updateTokenInterval = null;
                 });
             },
-            60000
+            60000,
         );
     }
 

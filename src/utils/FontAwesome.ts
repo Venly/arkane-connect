@@ -5,7 +5,7 @@ import {faEnvelope} from '@fortawesome/free-regular-svg-icons';
 //     faHeartRate, faPencil,  // pro
 //     faClipboard, faParachuteBox, faPlus, faStar, faSlidersH,  // free
 // } from '@fortawesome/free-solid-svg-icons';
-import {faArrowRight, faClipboard, faParachuteBox, faPlus, faSlidersH, faStar,} from '@fortawesome/free-solid-svg-icons';
+import {faArrowRight, faClipboard, faParachuteBox, faPlus, faSlidersH, faStar} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 
 library.add(

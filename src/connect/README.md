@@ -161,7 +161,7 @@ arkaneConnect.signTransaction(<TransactionData>);
 ```javascript
 arkaneConnect.signTransaction({
     type: 'ETHEREUM_TRANSACTION',
-    walletId: 44,
+    walletId: '44',
     submit: false,
     gasPrice: 10000000000,
     gas: 23000,
@@ -177,7 +177,7 @@ arkaneConnect.signTransaction({
 ```javascript
 arkaneConnect.signTransaction({
     type: 'VECHAIN_TRANSACTION',
-    walletId: 44,
+    walletId: '44',
     submit: false,
     blockRef : "0x1",
     chainTag : "0x2",

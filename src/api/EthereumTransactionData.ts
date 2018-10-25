@@ -1,6 +1,6 @@
 export default class EthereumTransactionData {
     public type: string = 'ETHEREUM_TRANSACTION';
-    public walletId: number = 0;
+    public walletId: string = '0';
     public pincode: string = '';
     public submit: boolean = false;
     public gasPrice: number = 0;

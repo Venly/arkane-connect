@@ -12,21 +12,6 @@ import {KeycloakInstance, KeycloakPromise} from 'keycloak-js';
 
 export class ArkaneConnect {
 
-    private popup?: Window;
-    private messagePort?: MessagePort;
-    private api!: RestApi;
-    private clientId: string;
-    private chains: string[];
-    private bearerTokenProvider: any;
-    private auth!: KeycloakInstance;
-
-    constructor(clientId: string, chains?: string[], environment?: string) {
-        this.clientId = clientId;
-        this.chains = (chains || []).map((chain: string) => chain.toLowerCase());
-        Utils.environment = environment || 'prod';
-        this.addBeforeUnloadListener();
-    }
-
     private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 350, h: number = 870) {
         const left = (screen.width / 2) - (w / 2);
         const top = (screen.height / 2) - (h / 2);
@@ -38,6 +23,21 @@ export class ArkaneConnect {
             newWindow.location.href = url;
         }
         return newWindow;
+    }
+    private popup?: Window;
+    private messagePort?: MessagePort;
+    private api!: RestApi;
+    private clientId: string;
+    private chains: string[];
+    private bearerTokenProvider: any;
+
+    private auth!: KeycloakInstance;
+
+    constructor(clientId: string, chains?: string[], environment?: string) {
+        this.clientId = clientId;
+        this.chains = (chains || []).map((chain: string) => chain.toLowerCase());
+        Utils.environment = environment || 'prod';
+        this.addBeforeUnloadListener();
     }
 
     public checkAuthenticated(): Promise<AuthenticationResult> {

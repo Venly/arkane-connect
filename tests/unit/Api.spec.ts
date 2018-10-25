@@ -13,7 +13,7 @@ describe('Api.ts', () => {
         }));
         const data: EthereumTransactionData = Object.assign(new EthereumTransactionData(), {
             type: `ETHEREUM_TRANSACTION`,
-            walletId: 1,
+            walletId: '1',
             submit: false,
             gasPrice: 10000000000,
             gas: 230000,
@@ -36,7 +36,7 @@ describe('Api.ts', () => {
         }));
         const data: VechainTransactionData = Object.assign(new VechainTransactionData(), {
             type: `VECHAIN_TRANSACTION`,
-            walletId: 1,
+            walletId: '1',
             submit: false,
             blockRef: '',
             chainTag: '',
