@@ -12,7 +12,6 @@ Vue.use(Vuex);
 export default new Vuex.Store(
     {
         state: {
-            environment: 'prod',
             hasMasterPin: false,
             userId: '',
             auth: {},
@@ -28,9 +27,6 @@ export default new Vuex.Store(
             transactionWallet: {},
         },
         mutations: {
-            setEnvironment: (state: any, environment: string) => {
-                state.environment = environment;
-            },
             setProfile: (state: any, {userId, hasMasterPin}) => {
                 state.userId = userId;
                 state.hasMasterPin = hasMasterPin;

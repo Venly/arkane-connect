@@ -46,13 +46,12 @@ app.addConnectEvents = function() {
         //custom logic
         window.arkaneConnect.signTransaction({
             type: 'ETHEREUM_TRANSACTION',
-            walletId: 173,
+            walletId: '192',
             submit: true,
             gasPrice: 4000000000,
             gas: 40000,
-            nonce: 3,
             value: 512345678765432000,
-            to: '0xe51551d3b11ef7559164d051d9714e59a1c4e486',
+            to: '0x9d10dc3c5efa3c0ec3ca06b99b8451ab2ecb4401',
             data: '0x'
         }).then(function(result) {
             console.log(result);
@@ -80,32 +79,32 @@ app.addConnectEvents = function() {
         //custom logic
         window.arkaneConnect.signTransaction({
             type: 'VECHAIN_TRANSACTION',
-            walletId: 161,
+            walletId: '192                                 ',
             submit: true,
             gas: 23000,
             gasPriceCoef: 0,
             clauses: [{
-                to: '0xD36933d7e7Fa3D4c3C7AC2D5662722510E079a48',
+                to: '0xf29c73da25795469aba28277f831e85d49806b3f',
                 amount: '20000000000000000000',
             },
                 {
-                    to: '0x69661037987676C2210E0997bf6CB836e9D972f5',
+                    to: '0xf29c73da25795469aba28277f831e85d49806b3f',
                     amount: '30000000000000000000',
                 },
                 {
-                    to: '0xD36933d7e7Fa3D4c3C7AC2D5662722510E079a48',
+                    to: '0xd5B15fCfEBd094BD57C2eD07442f8f8636c5dfed',
                     amount: '20000000000000000000',
                 },
                 {
-                    to: '0x69661037987676C2210E0997bf6CB836e9D972f5',
+                    to: '0xd5B15fCfEBd094BD57C2eD07442f8f8636c5dfed',
                     amount: '30000000000000000000',
                 },
                 {
-                    to: '0xD36933d7e7Fa3D4c3C7AC2D5662722510E079a48',
+                    to: '0xf29c73da25795469aba28277f831e85d49806b3f',
                     amount: '20000000000000000000',
                 },
                 {
-                    to: '0x69661037987676C2210E0997bf6CB836e9D972f5',
+                    to: '0xf29c73da25795469aba28277f831e85d49806b3f',
                     amount: '30000000000000000000',
                 }]
         }).then(function(result) {
