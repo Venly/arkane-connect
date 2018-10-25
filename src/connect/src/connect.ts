@@ -3,14 +3,13 @@
 /* tslint:enable */
 import {AxiosResponse} from 'axios';
 import {EVENT_TYPES} from '../../types/EventTypes';
-import RestApi from '../../api/RestApi';
+import RestApi, {RestApiResponse} from '../../api/RestApi';
 import {Wallet} from '../../models/Wallet';
 import Utils from '../../utils/Utils';
 import {Profile} from '../../models/Profile';
 import Security, {LoginResult} from '../../Security';
 import {KeycloakInstance, KeycloakPromise} from 'keycloak-js';
 import {GenericTransactionRequest} from '../../models/GenericTransactionRequest';
-import undefinedError = Mocha.utils.undefinedError;
 
 export class ArkaneConnect {
 
@@ -101,7 +100,7 @@ export class ArkaneConnect {
     }
 
     public async getWallets(): Promise<Wallet[]> {
-        const response: AxiosResponse = await this.api.http.get('wallets');
+        const response: AxiosResponse<RestApiResponse<Wallet[]>> = await this.api.http.get('wallets');
         if (response && response.data && response.data.success) {
             return response.data.result;
         } else {
@@ -110,7 +109,7 @@ export class ArkaneConnect {
     }
 
     public async getProfile(): Promise<Profile> {
-        const response: AxiosResponse = await this.api.http.get('profile');
+        const response: AxiosResponse<RestApiResponse<Profile>> = await this.api.http.get('profile');
         if (response && response.data && response.data.success) {
             return response.data.result;
         } else {
@@ -119,11 +118,9 @@ export class ArkaneConnect {
     }
 
     public async buildTransactionRequest(genericTransactionRequest: GenericTransactionRequest): Promise<any> {
-        const response: AxiosResponse = await this.api.http.post('transactions/build', genericTransactionRequest);
+        const response: AxiosResponse<RestApiResponse<any>> = await this.api.http.post('transactions/build', genericTransactionRequest);
         if (response && response.data && response.data.success) {
             return response.data.result;
-        } else {
-            return undefined;
         }
     }
 

@@ -6,7 +6,7 @@
 
     <totals-box :amount-value="totalAmountInVet" :amount-currency="'VET'" :amount-decimals="{min: 2, max: 3}"
                 :fee-value="maxTransactionFee()" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 11}"
-                :show-advanced-icon="true" @advanced-clicked="advancedClicked"></totals-box>
+                :show-advanced-icon="true" @advanced_clicked="advancedClicked"></totals-box>
 
     <numpad :params="transactionData" :disabled="disabled" @pincode_entered="pincodeEntered" :action="action"></numpad>
   </div>

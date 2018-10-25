@@ -6,7 +6,7 @@
 
     <totals-box :amount-value="amountInEther" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
                 :fee-value="maxTransactionFee()" :fee-currency="'GWEI'" :fee-decimals="{min: 2, max: 6}"
-                :show-advanced-icon="true" @advanced-clicked="advancedClicked"></totals-box>
+                :show-advanced-icon="true" @advanced_clicked="advancedClicked"></totals-box>
 
     <numpad :params="transactionData" :disabled="disabled" @pincode_entered="pincodeEntered" :action="action"></numpad>
   </div>
@@ -55,7 +55,7 @@
         }
 
         public get fromAddress(): string {
-            return !(!this.transactionWallet) ? this.transactionWallet.address : '0x0000000000000000000000000000000000000000';
+            return this.transactionWallet ? this.transactionWallet.address : '0x0000000000000000000000000000000000000000';
         }
 
         public get amountInEther(): number {

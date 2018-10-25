@@ -38,7 +38,7 @@
       </div>
     </form>
     <div class="buttons buttons--horizontal">
-      <action-link :type="'muted'" @click="backClicked">< Back</action-link>
+      <action-link :type="'muted'" @click="backClicked">&lt; Back</action-link>
       <button class="save-button btn" @click.prevent="saveClicked" @keyup.native.enter="saveClicked">Save</button>
     </div>
   </div>
@@ -111,7 +111,7 @@ export default class EthTransactionAdvancedForm extends Vue {
     }
 
     public get fromAddress(): string {
-        return !(!this.transactionWallet) ? this.transactionWallet.address : '0x0000000000000000000000000000000000000000';
+        return this.transactionWallet ? this.transactionWallet.address : '0x0000000000000000000000000000000000000000';
     }
 
     public get amountInEther(): number {
