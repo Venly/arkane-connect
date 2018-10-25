@@ -38,7 +38,6 @@ export default class Api {
                       };
                   });
     }
-
     public static getWallets(): Promise<Wallet[]> {
         return Api.getApi().http
                   .get('wallets')
@@ -50,7 +49,7 @@ export default class Api {
                   });
     }
 
-    public static getWallet(walletId: number): Promise<Wallet> {
+    public static getWallet(walletId: string): Promise<Wallet> {
         return Api.getApi().http
                   .get(`wallets/${walletId}`)
                   .then((result: any) => {
@@ -58,7 +57,7 @@ export default class Api {
                   });
     }
 
-    public static getBalance(walletId: number): Promise<Balance> {
+    public static getBalance(walletId: string): Promise<Balance> {
         return Api.getApi().http
                   .get(`wallets/${walletId}/balance`)
                   .then((result: any) => {
@@ -130,6 +129,7 @@ export default class Api {
     private static getApi(): RestApi {
         return Api.getInstance().api;
     }
+
     private api: RestApi;
 
     public constructor() {

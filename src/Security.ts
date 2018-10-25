@@ -7,6 +7,7 @@ import Utils from './utils/Utils';
 export default class Security {
     public static isLoggedIn = false;
     public static onTokenUpdate: (token: string) => void;
+
     public static getConfig(clientId: string): any {
         return {
             'clientId': clientId || Utils.env.VUE_APP_CLIENT_ID,

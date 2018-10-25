@@ -12,5 +12,5 @@ export interface CreateWalletCommand {
 
 export interface LinkWalletCommand {
     client: string;
-    walletIds: number[];
+    walletIds: string[];
 }

@@ -94,16 +94,16 @@ const router = new Router(
                 },
                 beforeEnter: async (to, from, next) => {
                     await fetchProfileAndWallets(to).then((result: any) => {
-                        const profile: Profile = result[0];
-                        const wallets: Wallet[] = result[1];
-                        const chain = (to.params as any).chain;
+                                                        const profile: Profile = result[0];
+                                                        const wallets: Wallet[] = result[1];
+                                                        const chain = (to.params as any).chain;
 
-                        if (profile.hasMasterPin && Utils.wallets.hasWalletsForChainType(wallets, chain)) {
-                            next();
-                        } else {
-                            next({name: 'create-wallet', params: to.params, query: to.query});
-                        }
-                    })
+                                                        if (profile.hasMasterPin && Utils.wallets.hasWalletsForChainType(wallets, chain)) {
+                                                            next();
+                                                        } else {
+                                                            next({name: 'create-wallet', params: to.params, query: to.query});
+                                                        }
+                                                    })
                                                     .catch(() => next({name: 'generic-error'}));
                 },
             },
@@ -115,16 +115,16 @@ const router = new Router(
                 },
                 beforeEnter: async (to, from, next) => {
                     await fetchProfileAndWallets(to).then((result: any) => {
-                        const profile: Profile = result[0];
-                        const wallets: Wallet[] = result[1];
-                        const chain = (to.params as any).chain;
+                                                        const profile: Profile = result[0];
+                                                        const wallets: Wallet[] = result[1];
+                                                        const chain = (to.params as any).chain;
 
-                        if (profile.hasMasterPin && Utils.wallets.hasWalletsForChainType(wallets, chain)) {
-                            next({name: 'link-wallet', params: to.params, query: to.query});
-                        } else {
-                            next({name: 'create-wallet', params: to.params, query: to.query});
-                        }
-                    })
+                                                        if (profile.hasMasterPin && Utils.wallets.hasWalletsForChainType(wallets, chain)) {
+                                                            next({name: 'link-wallet', params: to.params, query: to.query});
+                                                        } else {
+                                                            next({name: 'create-wallet', params: to.params, query: to.query});
+                                                        }
+                                                    })
                                                     .catch(() => next({name: 'generic-error'}));
                 },
             },
