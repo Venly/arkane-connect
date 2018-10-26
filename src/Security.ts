@@ -8,7 +8,7 @@ export default class Security {
     public static isLoggedIn = false;
     public static onTokenUpdate: (token: string) => void;
 
-    public static getConfig(clientId: string): any {
+    public static getConfig(clientId?: string): any {
         return {
             'clientId': clientId || Utils.env.VUE_APP_CLIENT_ID,
             'clientSecret': 'secret',
@@ -30,40 +30,48 @@ export default class Security {
         return Security.initializeAuth(Security.getConfig(clientId), 'check-sso');
     }
 
-    public static parseToken(token: string): any {
-        try {
-            const jws = new KJUR.jws.JWS();
-            jws.parseJWS(token);
-            return JSON.parse(jws.parsedJWS.payloadS);
-        } catch (e) {
-            return null;
-        }
-    }
-
-    public static verifyAndLogin(clientId: string, rawBearerToken: string, token: any, environment: string, useTokenToLogin: boolean = true, redirectUrl?: string): Promise<any> {
-        const config = Security.getConfig(clientId);
-        if (Security.verifyToken(rawBearerToken, config['realm-public-key'])) {
-            return Security.initializeAuth(Object.assign(config, {
-                clientId: useTokenToLogin ? token.aud : config.clientId,
-                resource: useTokenToLogin ? token.aud : config.resource,
-            }), 'check-sso', redirectUrl);
+    public static verifyAndLogin(rawBearerToken: string, useTokenToLogin: boolean, redirectUrl?: string): Promise<any> {
+        const token = Security.parseToken(rawBearerToken);
+        if (Security.verifyToken(rawBearerToken, token)) {
+            const clientId = Security.resolveClientId(token, useTokenToLogin);
+            const config = Security.getConfig(clientId);
+            return Security.initializeAuth(config, 'check-sso', redirectUrl);
         } else {
             Security.notAuthenticated();
             return Promise.resolve({keycloak: {}, authenticated: false});
         }
     }
 
+    public static parseToken(rawBearerToken: string): any {
+        try {
+            const jws = new KJUR.jws.JWS();
+            jws.parseJWS(rawBearerToken);
+            return JSON.parse(jws.parsedJWS.payloadS);
+        } catch (e) {
+            return null;
+        }
+    }
+
     private static keycloak: KeycloakInstance;
     private static updateTokenInterval: any;
 
-    private static verifyToken(token: any, publicKey: string): any {
+    private static verifyToken(rawBearerToken: any, parsedToken: any): any {
         try {
+            let publicKey = Utils.env.VUE_APP_REALM_PUBLIC_KEY;
             if (publicKey.indexOf('-----BEGIN PUBLIC KEY-----') === -1) {
                 publicKey = `-----BEGIN PUBLIC KEY-----${publicKey}-----END PUBLIC KEY-----`;
             }
-            return KJUR.jws.JWS.verifyJWT(token, publicKey, {alg: ['RS256']});
+            return KJUR.jws.JWS.verifyJWT(rawBearerToken, publicKey, {alg: ['RS256'], verifyAt: parsedToken.iat});
         } catch (e) {
             return false;
+        }
+    }
+
+    private static resolveClientId(token: any, useTokenToLogin: boolean): string {
+        if (useTokenToLogin) {
+            return token ? token.azp : '';
+        } else {
+            return process.env.VUE_APP_CLIENT_ID || '';
         }
     }
 

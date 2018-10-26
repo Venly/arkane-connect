@@ -114,7 +114,7 @@
         width: 100%
 
         @media (min-height: 600px)
-            font-size: 50px
+            font-size: 35px
 
     .error
         text-align: center

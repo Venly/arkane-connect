@@ -138,29 +138,29 @@ const router = new Router(
 
 function checkAuthorize(to: Route): Promise<any> {
     let bearer = '';
-    let token: any;
     let environment: any;
-    let clientId: any;
     let doLogin = false;
     let useTokenToLogin = false;
+
     if (to.params) {
-        bearer = (to.params as any).bearer || (to.query as any).bearerToken;
-        token = Security.parseToken(bearer);
-        store.commit('setThirdPartyToken', token);
-        clientId = token ? token.azp : '';
-        environment = (to.query as any).environment;
-        Utils.environment = environment;
-        store.commit('setEnvironment', environment);
+        bearer = (to.params as any).bearer;
         const chain = (to.params as any).chain;
         if (chain) {
             store.commit('setChain', chain);
         }
     }
 
+    if (to.query) {
+        environment = (to.query as any).environment;
+        Utils.environment = environment;
+        if (!bearer || bearer === '') {
+            bearer = (to.query as any).bearerToken;
+        }
+    }
+
     if (to.matched.some((record) => record.meta.authArkane)) {
         doLogin = true;
         useTokenToLogin = false;
-        clientId = process.env.VUE_APP_CLIENT_ID;
     } else if (to.matched.some((record) => record.meta.auth)) {
         doLogin = true;
         useTokenToLogin = true;
@@ -168,9 +168,10 @@ function checkAuthorize(to: Route): Promise<any> {
 
     if (doLogin) {
         return new Promise((resolve) => {
-            Security.verifyAndLogin(clientId, bearer, token, environment, useTokenToLogin, Utils.urls.connect + to.fullPath)
+            Security.verifyAndLogin(bearer, useTokenToLogin, Utils.urls.connect + to.fullPath)
                     .then((result: any) => {
                         store.commit('setAuth', result.keycloak);
+                        store.commit('setThirdPartyToken', Security.parseToken(bearer));
                         resolve(result.authenticated);
                     })
                     .catch(() => {
