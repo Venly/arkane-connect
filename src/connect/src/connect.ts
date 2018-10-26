@@ -127,11 +127,11 @@ export class ArkaneConnect {
     }
 
     public async executeTransaction(params: any) {
-        this.handleTransactionInPopup('execute', params);
+        return this.handleTransactionInPopup('execute', params);
     }
 
     public async signTransaction(params: any) {
-        this.handleTransactionInPopup('sign', params);
+        return this.handleTransactionInPopup('sign', params);
     }
 
     public async initPopup() {
