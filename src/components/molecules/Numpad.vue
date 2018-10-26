@@ -17,7 +17,7 @@
                 </svg>
             </button>
         </div>
-        <button ref="actionButton" class="btn sign-btn" @click.prevent="pinEntered" :disabled="!isSubmitable" tabindex="1" @keyup.prevent.enter="pinEntered">Sign Transaction
+        <button ref="actionButton" class="btn sign-btn" @click.prevent="pinEntered" :disabled="!isSubmitable" tabindex="1" @keyup.prevent.enter="pinEntered">{{action}} Transaction
         </button>
     </div>
 </template>
@@ -35,6 +35,7 @@
     })
     export default class Numpad extends Vue {
         @Prop() private title!: string;
+        @Prop() private action!: string;
         @Prop() private params!: EthereumTransactionData | VechainTransactionData;
         @Prop({required: false, default: false}) private disabled?: boolean;
 
@@ -189,5 +190,6 @@
 
     .sign-btn
         margin-top: rem(30px)
+        text-transform: capitalize
 
 </style>

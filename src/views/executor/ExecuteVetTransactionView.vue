@@ -1,28 +1,28 @@
 <template>
-  <div class="signer">
+  <div class="executor">
     <div class="logo-wrapper">
       <img class="logo" alt="Arkane Logo" src="../../assets/logo-arkane-animated.svg"/>
     </div>
     <div v-if="isInitialised" class="content">
 
       <transition name="slide-left">
-        <eth-transaction-pincode-form v-if="!showAdvanced"
+        <vet-transaction-pincode-form v-if="!showAdvanced"
                                       :transaction-data="transactionData"
-                                      :action="'sign'"
+                                      :action="'execute'"
                                       :disabled="hasBlockingError"
                                       @advanced_clicked="showAdvanced = true"
                                       @pincode_entered="pinEntered">
-        </eth-transaction-pincode-form>
+        </vet-transaction-pincode-form>
       </transition>
 
-      <transition name="slide-right" @after-enter="afterAdvancedEnter">
-        <eth-transaction-advanced-form v-if="showAdvanced"
-                                       ref="advancedForm"
+
+      <transition name="slide-right">
+        <vet-transaction-advanced-form v-if="showAdvanced"
                                        :transaction-data="transactionData"
                                        :has-transaction-data="hasTransactionData"
                                        @saved="onSaved"
                                        @back_clicked="onBackClicked">
-        </eth-transaction-advanced-form>
+        </vet-transaction-advanced-form>
       </transition>
 
     </div>
@@ -34,40 +34,28 @@
 
 <script lang='ts'>
 import {Component} from 'vue-property-decorator';
-import Numpad from '../../components/molecules/Numpad.vue';
-import TransactionView from '../TransactionView';
-import AddressCard from '../../components/atoms/AddressCard.vue';
-import FromTo from '../../components/molecules/FromTo.vue';
-import TotalsBox from '../../components/atoms/TotalsBox.vue';
-import EthTransactionPincodeForm from '../../components/organisms/transactionForms/EthTransactionPincodeForm.vue';
-import EthTransactionAdvancedForm from '../../components/organisms/transactionForms/EthTransactionAdvancedForm.vue';
-import VueSlider from 'vue-slider-component';
 import Api from '../../api';
+import TransactionView from '../TransactionView';
+import VetTransactionPincodeForm from '../../components/organisms/transactionForms/VetTransactionPincodeForm.vue';
+import VetTransactionAdvancedForm from '../../components/organisms/transactionForms/VetTransactionAdvancedForm.vue';
 import ResponseBody from '../../api/ResponseBody';
 import {EVENT_TYPES} from '../../types/EventTypes';
 
-declare const window: Window;
-
 @Component({
     components: {
-        EthTransactionPincodeForm,
-        EthTransactionAdvancedForm,
-        TotalsBox,
-        FromTo,
-        AddressCard,
-        Numpad,
-        VueSlider,
+        VetTransactionPincodeForm,
+        VetTransactionAdvancedForm,
     },
 })
-export default class SignEthereumTransactionView extends TransactionView {
+export default class ExecuteVetTransactionView extends TransactionView {
 
     public showAdvanced: boolean = false;
 
     public created() {
-        this.postTransaction = (pincode: string, transactionData: any) => Api.signTransaction(transactionData, pincode);
+        this.postTransaction = (pincode: string, transactionData: any) => Api.executeTransaction(transactionData, pincode);
         this.onSuccesCallbackHandler = (result: ResponseBody) => {
             if (this.messagePort) {
-                this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_SIGNED, data: result});
+                this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_EXECUTED, data: result});
             }
         };
     }
@@ -83,17 +71,13 @@ export default class SignEthereumTransactionView extends TransactionView {
     public onBackClicked() {
         this.showAdvanced = false;
     }
-
-    public afterAdvancedEnter() {
-        (this.$refs.advancedForm as EthTransactionAdvancedForm).afterEnter();
-    }
 }
 </script>
 
 <style lang='sass' scoped>
   @import ../../assets/sass/mixins-and-vars
 
-  .signer
+  .executor
     width: 100%
     margin-bottom: auto
     background-color: $color-white
@@ -118,5 +102,4 @@ export default class SignEthereumTransactionView extends TransactionView {
       width: rem(250px)
       margin: 0 auto
       display: flex
-
 </style>

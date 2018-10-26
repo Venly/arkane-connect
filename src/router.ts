@@ -11,6 +11,8 @@ import IndexView from './views/IndexView.vue';
 import Error404View from './views/Error404View.vue';
 import SignEthereumTransactionView from './views/signer/SignEthereumTransactionView.vue';
 import SignVeChainTransactionView from './views/signer/SignVeChainTransactionView.vue';
+import ExecuteEthTransactionView from './views/executor/ExecuteEthTransactionView.vue';
+import ExecuteVetTransactionView from './views/executor/ExecuteVetTransactionView.vue';
 import Security from './Security';
 import Utils from './utils/Utils';
 import store from './store';
@@ -35,12 +37,12 @@ const router = new Router(
         base: process.env.BASE_URL,
         routes: [
             {
-                path: '/sign/transaction/init',
+                path: '/transaction/init',
                 name: 'init-sign-transaction',
                 component: InitTransactionView,
             },
             {
-                path: '/sign/transaction/ethereum_transaction/:bearer',
+                path: '/transaction/sign/ethereum_transaction',
                 name: 'sign-ethereum-transaction',
                 component: SignEthereumTransactionView,
                 meta: {
@@ -48,9 +50,25 @@ const router = new Router(
                 },
             },
             {
-                path: '/sign/transaction/vechain_transaction/:bearer',
+                path: '/transaction/sign/vechain_transaction',
                 name: 'sign-vechain-transaction',
                 component: SignVeChainTransactionView,
+                meta: {
+                    auth: true,
+                },
+            },
+            {
+                path: '/transaction/execute/eth_transaction',
+                name: 'execute-eth-transaction',
+                component: ExecuteEthTransactionView,
+                meta: {
+                    auth: true,
+                },
+            },
+            {
+                path: '/transaction/execute/vet_transaction',
+                name: 'execute-vet-transaction',
+                component: ExecuteVetTransactionView,
                 meta: {
                     auth: true,
                 },
@@ -135,6 +153,9 @@ function checkAuthorize(to: Route): Promise<any> {
     if (to.query) {
         environment = (to.query as any).environment;
         Utils.environment = environment;
+        if (bearer === '') {
+            bearer = (to.query as any).bearerToken;
+        }
     }
 
     if (to.matched.some((record) => record.meta.authArkane)) {

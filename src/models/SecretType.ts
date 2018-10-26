@@ -5,7 +5,7 @@ export enum SecretType {
 
 export class SecretTypeUtil {
     public static byChain(chain: string): SecretType | undefined {
-        switch (chain.toUpperCase()) {
+        switch (chain && chain.toUpperCase()) {
             case 'ETHEREUM':
                 return SecretType.ETHEREUM;
             case 'VECHAIN':

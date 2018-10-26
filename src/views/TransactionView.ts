@@ -1,18 +1,18 @@
 import {Vue} from 'vue-property-decorator';
-import {EVENT_TYPES} from '../../types/EventTypes';
-import ResponseBody from '../../api/ResponseBody';
+import {EVENT_TYPES} from '../types/EventTypes';
+import ResponseBody from '../api/ResponseBody';
 import {State} from 'vuex-class';
-import Security from '../../Security';
-import Api from '../../api';
-import {Wallet} from '../../models/Wallet';
+import Security from '../Security';
+import Api from '../api';
+import {Wallet} from '../models/Wallet';
 import Component from 'vue-class-component';
 
 declare const window: Window;
 
 @Component({})
-export default class SignTransactionView extends Vue {
+export default class TransactionView extends Vue {
 
-    public loadingText = 'Initializing signer ...';
+    public loadingText = 'Initializing ...';
     public transactionData!: any;
     @State
     public transactionWallet?: Wallet;
@@ -26,8 +26,9 @@ export default class SignTransactionView extends Vue {
             reject();
         })
     );
-    private hasTransactionData: boolean = false;
-    private messagePort!: MessagePort;
+    protected onSuccesCallbackHandler?: (result: ResponseBody) => void;
+    protected messagePort!: MessagePort;
+    protected hasTransactionData: boolean = false;
 
     private get isInitialised() {
         return Security.isLoggedIn && this.hasTransactionData;
@@ -63,7 +64,9 @@ export default class SignTransactionView extends Vue {
                         this.$store.dispatch('setError', r.result.errors.map((error: any) => error.message)[0]);
                     }
                 } else {
-                    this.sendTransactionSignedMessage(r);
+                    if (this.onSuccesCallbackHandler) {
+                        this.onSuccesCallbackHandler(r);
+                    }
                 }
             })
             .catch((e: Error) => {
@@ -82,17 +85,11 @@ export default class SignTransactionView extends Vue {
         return r.result.errors.map((error: any) => error.code).includes(errorCode);
     }
 
-    private sendTransactionSignedMessage(result: ResponseBody) {
-        if (this.messagePort) {
-            this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_SIGNED, data: result});
-        }
-    }
-
     private initMessageChannel() {
         const messageChannel = new MessageChannel();
         this.messagePort = messageChannel.port1;
         this.messagePort.onmessage = this.onMessage;
-        window.opener.postMessage({type: EVENT_TYPES.SIGNER_MOUNTED}, '*', [messageChannel.port2]);
+        window.opener.postMessage({type: EVENT_TYPES.POPUP_MOUNTED}, '*', [messageChannel.port2]);
     }
 
     private async onMessage(event: MessageEvent) {

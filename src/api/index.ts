@@ -11,9 +11,17 @@ import {Balance} from '../models/Balance';
 export default class Api {
     public static token: string = '';
     public static signTransaction(data: any, pincode: string): Promise<ResponseBody> {
+        return this.handleTransaction('signatures', data, pincode);
+    }
+
+    public static executeTransaction(data: any, pincode: string): Promise<ResponseBody> {
+        return this.handleTransaction('transactions', data, pincode);
+    }
+
+    public static handleTransaction(endpoint: string, data: any, pincode: string): Promise<ResponseBody> {
 
         return Api.getApi().http
-                  .post('signatures', Object.assign(data, {pincode}))
+                  .post(endpoint, Utils.removeNulls(Object.assign(data, {pincode})))
                   .then((axiosRes: AxiosResponse) => {
                       return axiosRes.data as ResponseBody;
                   })
