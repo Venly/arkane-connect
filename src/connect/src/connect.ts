@@ -162,14 +162,6 @@ export class ArkaneConnect {
         }
     }
 
-    private createPopupMountedListener(params: any, resolve: any, reject: any) {
-        return (message: MessageEvent) => {
-            if (Utils.messages().hasValidOrigin(message) && Utils.messages().isOfType(message, EVENT_TYPES.SIGNER_MOUNTED)) {
-                this.initMessageChannel(params, message, resolve, reject);
-            }
-        };
-    }
-
     private async handleTransactionInPopup(method: string, params: any) {
         if (!this.popup || this.popup.closed) {
             await this.initPopup();
@@ -185,6 +177,14 @@ export class ArkaneConnect {
             this.popupMountedListener = this.createPopupMountedListener(params, resolve, reject);
             window.addEventListener('message', this.popupMountedListener);
         });
+    }
+
+    private createPopupMountedListener(params: any, resolve: any, reject: any) {
+        return (message: MessageEvent) => {
+            if (Utils.messages().hasValidOrigin(message) && Utils.messages().isOfType(message, EVENT_TYPES.POPUP_MOUNTED)) {
+                this.initMessageChannel(params, message, resolve, reject);
+            }
+        };
     }
 
     private filterOnMandatoryWallets(wallets: Wallet[]) {

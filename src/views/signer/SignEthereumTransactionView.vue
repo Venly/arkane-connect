@@ -33,54 +33,61 @@
 </template>
 
 <script lang='ts'>
-    import {Component} from 'vue-property-decorator';
-    import Numpad from '../../components/molecules/Numpad.vue';
-    import TransactionView from '../TransactionView';
-    import AddressCard from '../../components/atoms/AddressCard.vue';
-    import FromTo from '../../components/molecules/FromTo.vue';
-    import TotalsBox from '../../components/atoms/TotalsBox.vue';
-    import EthTransactionPincodeForm from '../../components/organisms/transactionForms/EthTransactionPincodeForm.vue';
-    import EthTransactionAdvancedForm from '../../components/organisms/transactionForms/EthTransactionAdvancedForm.vue';
-    import VueSlider from 'vue-slider-component';
-    import Api from '../../api';
+import {Component} from 'vue-property-decorator';
+import Numpad from '../../components/molecules/Numpad.vue';
+import TransactionView from '../TransactionView';
+import AddressCard from '../../components/atoms/AddressCard.vue';
+import FromTo from '../../components/molecules/FromTo.vue';
+import TotalsBox from '../../components/atoms/TotalsBox.vue';
+import EthTransactionPincodeForm from '../../components/organisms/transactionForms/EthTransactionPincodeForm.vue';
+import EthTransactionAdvancedForm from '../../components/organisms/transactionForms/EthTransactionAdvancedForm.vue';
+import VueSlider from 'vue-slider-component';
+import Api from '../../api';
+import ResponseBody from '../../api/ResponseBody';
+import {EVENT_TYPES} from '../../types/EventTypes';
 
-    declare const window: Window;
+declare const window: Window;
 
-    @Component({
-        components: {
-            EthTransactionPincodeForm,
-            EthTransactionAdvancedForm,
-            TotalsBox,
-            FromTo,
-            AddressCard,
-            Numpad,
-            VueSlider,
-        },
-    })
-    export default class SignEthereumTransactionView extends TransactionView {
+@Component({
+    components: {
+        EthTransactionPincodeForm,
+        EthTransactionAdvancedForm,
+        TotalsBox,
+        FromTo,
+        AddressCard,
+        Numpad,
+        VueSlider,
+    },
+})
+export default class SignEthereumTransactionView extends TransactionView {
 
-        public showAdvanced: boolean = false;
+    public showAdvanced: boolean = false;
 
-        public created() {
-            this.postTransaction = (pincode: string, transactionData: any) => Api.signTransaction(transactionData, pincode);
-        }
-
-        public onAdvancedButtonClicked() {
-            this.showAdvanced = true;
-        }
-
-        public onSaved() {
-            this.showAdvanced = false;
-        }
-
-        public onBackClicked() {
-            this.showAdvanced = false;
-        }
-
-        public afterAdvancedEnter() {
-            (this.$refs.advancedForm as EthTransactionAdvancedForm).afterEnter();
-        }
+    public created() {
+        this.postTransaction = (pincode: string, transactionData: any) => Api.signTransaction(transactionData, pincode);
+        this.onSuccesCallbackHandler = (result: ResponseBody) => {
+            if (this.messagePort) {
+                this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_SIGNED, data: result});
+            }
+        };
     }
+
+    public onAdvancedButtonClicked() {
+        this.showAdvanced = true;
+    }
+
+    public onSaved() {
+        this.showAdvanced = false;
+    }
+
+    public onBackClicked() {
+        this.showAdvanced = false;
+    }
+
+    public afterAdvancedEnter() {
+        (this.$refs.advancedForm as EthTransactionAdvancedForm).afterEnter();
+    }
+}
 </script>
 
 <style lang='sass' scoped>

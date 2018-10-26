@@ -38,6 +38,8 @@ import TransactionView from '../TransactionView';
 import EthTransactionPincodeForm from '../../components/organisms/transactionForms/EthTransactionPincodeForm.vue';
 import EthTransactionAdvancedForm from '../../components/organisms/transactionForms/EthTransactionAdvancedForm.vue';
 import Api from '../../api';
+import ResponseBody from '../../api/ResponseBody';
+import {EVENT_TYPES} from '../../types/EventTypes';
 
 @Component({
     components: {
@@ -52,6 +54,11 @@ export default class ExecuteEthTransactionView extends TransactionView {
     public created() {
         this.onTransactionDataReceivedCallback = ((transactionData) => transactionData.data = '0x');
         this.postTransaction = (pincode: string, transactionData: any) => Api.executeTransaction(transactionData, pincode);
+        this.onSuccesCallbackHandler = (result: ResponseBody) => {
+            if (this.messagePort) {
+                this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_EXECUTED, data: result});
+            }
+        };
     }
 
     public onAdvancedButtonClicked() {

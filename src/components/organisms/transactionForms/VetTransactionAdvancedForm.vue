@@ -2,7 +2,7 @@
   <div class="advanced">
     <h3>Transaction details</h3>
 
-    <from-to :from="fromAddress" :to="toAddresses" :max-lines="3"></from-to>
+    <from-to :from="fromAddress" :toAddresses="toAddresses" :max-lines="3"></from-to>
 
     <totals-box :amount-value="totalAmountInVet" :amount-currency="'VET'" :amount-decimals="{min: 2, max: 3}"
                 :fee-value="maxEditedTransactionFee" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 11}"></totals-box>
