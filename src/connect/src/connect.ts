@@ -3,12 +3,13 @@
 /* tslint:enable */
 import {AxiosResponse} from 'axios';
 import {EVENT_TYPES} from '../../types/EventTypes';
-import RestApi from '../../api/RestApi';
+import RestApi, {RestApiResponse} from '../../api/RestApi';
 import {Wallet} from '../../models/Wallet';
 import Utils from '../../utils/Utils';
 import {Profile} from '../../models/Profile';
 import Security, {LoginResult} from '../../Security';
 import {KeycloakInstance, KeycloakPromise} from 'keycloak-js';
+import {GenericTransactionRequest} from '../../models/GenericTransactionRequest';
 
 export class ArkaneConnect {
 
@@ -101,7 +102,7 @@ export class ArkaneConnect {
     }
 
     public async getWallets(): Promise<Wallet[]> {
-        const response: AxiosResponse = await this.api.http.get('wallets');
+        const response: AxiosResponse<RestApiResponse<Wallet[]>> = await this.api.http.get('wallets');
         if (response && response.data && response.data.success) {
             return response.data.result;
         } else {
@@ -110,7 +111,7 @@ export class ArkaneConnect {
     }
 
     public async getProfile(): Promise<Profile> {
-        const response: AxiosResponse = await this.api.http.get('profile');
+        const response: AxiosResponse<RestApiResponse<Profile>> = await this.api.http.get('profile');
         if (response && response.data && response.data.success) {
             return response.data.result;
         } else {
@@ -118,24 +119,23 @@ export class ArkaneConnect {
         }
     }
 
+    public async buildTransactionRequest(genericTransactionRequest: GenericTransactionRequest): Promise<any> {
+        const response: AxiosResponse<RestApiResponse<any>> = await this.api.http.post('transactions/build', genericTransactionRequest);
+        if (response && response.data && response.data.success) {
+            return response.data.result;
+        }
+    }
+
+    public async executeTransaction(params: any) {
+        this.handleTransactionInPopup('execute', params);
+    }
+
     public async signTransaction(params: any) {
-        if (!this.popup || this.popup.closed) {
-            await this.initPopup();
-        }
-        this.cleanupPopup();
-        if (this.popup) {
-            this.popup.focus();
-        }
-        return new Promise((resolve, reject) => {
-            const url = `${Utils.urls.connect}/sign/transaction/${params.type}/${this.bearerTokenProvider()}${Utils.environment ? '?environment=' + Utils.environment : ''}`;
-            this.popup = ArkaneConnect.openWindow(url) as Window;
-            this.popupMountedListener = this.createPopupMountedListener(params, resolve, reject);
-            window.addEventListener('message', this.popupMountedListener);
-        });
+        this.handleTransactionInPopup('sign', params);
     }
 
     public async initPopup() {
-        const url = `${Utils.urls.connect}/sign/transaction/init`;
+        const url = `${Utils.urls.connect}/transaction/init`;
         this.popup = ArkaneConnect.openWindow(url) as Window;
         return {
             success: false,
@@ -170,6 +170,23 @@ export class ArkaneConnect {
         };
     }
 
+    private async handleTransactionInPopup(method: string, params: any) {
+        if (!this.popup || this.popup.closed) {
+            await this.initPopup();
+        }
+        this.cleanupPopup();
+        if (this.popup) {
+            this.popup.focus();
+        }
+        return new Promise((resolve, reject) => {
+            const url = `${Utils.urls.connect}/transaction/${method}/${params.type}`
+                + `?bearerToken=${this.bearerTokenProvider()}${Utils.environment ? '&environment=' + Utils.environment : ''}`;
+            this.popup = ArkaneConnect.openWindow(url) as Window;
+            this.popupMountedListener = this.createPopupMountedListener(params, resolve, reject);
+            window.addEventListener('message', this.popupMountedListener);
+        });
+    }
+
     private filterOnMandatoryWallets(wallets: Wallet[]) {
         return wallets.filter(
             (wallet: Wallet) => this.chains.find(
@@ -191,6 +208,7 @@ export class ArkaneConnect {
                 this.closePopup();
                 switch (message.data.type) {
                     case EVENT_TYPES.TRANSACTION_SIGNED:
+                    case EVENT_TYPES.TRANSACTION_EXECUTED:
                         resolve(message.data && {...message.data.data});
                         break;
                     case EVENT_TYPES.POPUP_CLOSED:

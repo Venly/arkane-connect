@@ -1,7 +1,7 @@
 var app = app || {};
 
 app.initApp = function() {
-    window.arkaneConnect = new ArkaneConnect('ThorBlock', ['VeChain'], 'local');
+    window.arkaneConnect = new ArkaneConnect('ThorBlock', ['Ethereum'], 'local');
     window.arkaneConnect
           .checkAuthenticated()
           .then((result) => result.authenticated(app.handleAuthenticated)
@@ -43,22 +43,24 @@ app.addConnectEvents = function() {
         //if you want to do custom logic between the user pressing a button and signing a transaction, please initialize the popup first as shown below
         // otherwise the browser might block the popup
         window.arkaneConnect.initPopup();
-        //custom logic
-        window.arkaneConnect.signTransaction({
-            type: 'ETHEREUM_TRANSACTION',
-            walletId: '173',
-            submit: true,
-            gasPrice: 4000000000,
-            gas: 40000,
-            nonce: 3,
-            value: 512345678765432000,
-            to: '0xe51551d3b11ef7559164d051d9714e59a1c4e486',
-            data: '0x'
-        }).then(function(result) {
-            console.log(result);
-        }).catch(function(error) {
-            console.log(error);
-        });
+
+        window.arkaneConnect
+              .buildTransactionRequest({
+                  walletId: 192,
+                  to: '0x9d10dc3c5efa3c0ec3ca06b99b8451ab2ecb4401',
+                  value: 0.512345678765432,
+                  secretType: 'ETHEREUM'
+              })
+              .then(transactionRequest => {
+                  window.arkaneConnect
+                        .executeTransaction(transactionRequest)
+                        .then(function(result) {
+                            console.log(result);
+                        })
+                        .catch(function(error) {
+                            console.log(error);
+                        });
+              });
     });
 
     document.getElementById('get-wallets').addEventListener('click', function() {
@@ -77,42 +79,24 @@ app.addConnectEvents = function() {
         //if you want to do custom logic between the user pressing a button and signing a transaction, please initialize the popup first as shown below
         // otherwise the browser might block the popup
         window.arkaneConnect.initPopup();
-        //custom logic
-        window.arkaneConnect.signTransaction({
-            type: 'VECHAIN_TRANSACTION',
-            walletId: '161',
-            submit: true,
-            gas: 23000,
-            gasPriceCoef: 0,
-            clauses: [{
-                to: '0xD36933d7e7Fa3D4c3C7AC2D5662722510E079a48',
-                amount: '20000000000000000000',
-            },
-                {
-                    to: '0x69661037987676C2210E0997bf6CB836e9D972f5',
-                    amount: '30000000000000000000',
-                },
-                {
-                    to: '0xD36933d7e7Fa3D4c3C7AC2D5662722510E079a48',
-                    amount: '20000000000000000000',
-                },
-                {
-                    to: '0x69661037987676C2210E0997bf6CB836e9D972f5',
-                    amount: '30000000000000000000',
-                },
-                {
-                    to: '0xD36933d7e7Fa3D4c3C7AC2D5662722510E079a48',
-                    amount: '20000000000000000000',
-                },
-                {
-                    to: '0x69661037987676C2210E0997bf6CB836e9D972f5',
-                    amount: '30000000000000000000',
-                }]
-        }).then(function(result) {
-            console.log(result);
-        }).catch(function(error) {
-            console.log(error);
-        });
+
+        window.arkaneConnect
+              .buildTransactionRequest({
+                  walletId: 195,
+                  to: '0xf29c73da25795469aba28277f831e85d49806b3f',
+                  value: 20.09,
+                  secretType: 'VECHAIN'
+              })
+              .then(transactionRequest => {
+                  window.arkaneConnect
+                        .executeTransaction(transactionRequest)
+                        .then(function(result) {
+                            console.log(result);
+                        })
+                        .catch(function(error) {
+                            console.log(error);
+                        });
+              });
     });
 
     document.getElementById('close-popup').addEventListener('click', function() {
