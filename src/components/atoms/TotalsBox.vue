@@ -12,7 +12,7 @@
                 <span class="currency"> {{feeCurrency}}</span>
             </div>
         </div>
-        <div class="totals-box__settings_icon" v-if="showAdvancedIcon" @click="$emit('advanced-clicked')">
+        <div class="totals-box__settings_icon" v-if="showAdvancedIcon" @click="$emit('advanced_clicked')">
             <font-awesome-icon icon="sliders-h" class="icon"></font-awesome-icon>
         </div>
     </div>

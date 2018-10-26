@@ -21,6 +21,7 @@ export default class Security {
             'public-client': Utils.env.VUE_APP_PUBLIC_CLIENT,
         };
     }
+
     public static login(clientId: string): Promise<LoginResult> {
         return Security.initializeAuth(Security.getConfig(clientId), 'login-required');
     }
