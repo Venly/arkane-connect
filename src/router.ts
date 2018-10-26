@@ -153,7 +153,7 @@ function checkAuthorize(to: Route): Promise<any> {
     if (to.query) {
         environment = (to.query as any).environment;
         Utils.environment = environment;
-        if (bearer === '') {
+        if (!bearer || bearer === '') {
             bearer = (to.query as any).bearerToken;
         }
     }
