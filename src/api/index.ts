@@ -21,7 +21,7 @@ export default class Api {
     public static handleTransaction(endpoint: string, data: any, pincode: string): Promise<ResponseBody> {
 
         return Api.getApi().http
-                  .post('transactions', Utils.removeNulls(Object.assign(data, {pincode})))
+                  .post(endpoint, Utils.removeNulls(Object.assign(data, {pincode})))
                   .then((axiosRes: AxiosResponse) => {
                       return axiosRes.data as ResponseBody;
                   })

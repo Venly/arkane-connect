@@ -33,38 +33,45 @@
 </template>
 
 <script lang='ts'>
-    import {Component} from 'vue-property-decorator';
-    import Api from '../../api';
-    import TransactionView from '../TransactionView';
-    import VetTransactionPincodeForm from '../../components/organisms/transactionForms/VetTransactionPincodeForm.vue';
-    import VetTransactionAdvancedForm from '../../components/organisms/transactionForms/VetTransactionAdvancedForm.vue';
+import {Component} from 'vue-property-decorator';
+import Api from '../../api';
+import TransactionView from '../TransactionView';
+import VetTransactionPincodeForm from '../../components/organisms/transactionForms/VetTransactionPincodeForm.vue';
+import VetTransactionAdvancedForm from '../../components/organisms/transactionForms/VetTransactionAdvancedForm.vue';
+import ResponseBody from '../../api/ResponseBody';
+import {EVENT_TYPES} from '../../types/EventTypes';
 
-    @Component({
-        components: {
-            VetTransactionPincodeForm,
-            VetTransactionAdvancedForm,
-        },
-    })
-    export default class ExecuteVetTransactionView extends TransactionView {
+@Component({
+    components: {
+        VetTransactionPincodeForm,
+        VetTransactionAdvancedForm,
+    },
+})
+export default class ExecuteVetTransactionView extends TransactionView {
 
-        public showAdvanced: boolean = false;
+    public showAdvanced: boolean = false;
 
-        public created() {
-            this.postTransaction = (pincode: string, transactionData: any) => Api.executeTransaction(transactionData, pincode);
-        }
-
-        public onAdvancedButtonClicked() {
-            this.showAdvanced = true;
-        }
-
-        public onSaved() {
-            this.showAdvanced = false;
-        }
-
-        public onBackClicked() {
-            this.showAdvanced = false;
-        }
+    public created() {
+        this.postTransaction = (pincode: string, transactionData: any) => Api.executeTransaction(transactionData, pincode);
+        this.onSuccesCallbackHandler = (result: ResponseBody) => {
+            if (this.messagePort) {
+                this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_EXECUTED, data: result});
+            }
+        };
     }
+
+    public onAdvancedButtonClicked() {
+        this.showAdvanced = true;
+    }
+
+    public onSaved() {
+        this.showAdvanced = false;
+    }
+
+    public onBackClicked() {
+        this.showAdvanced = false;
+    }
+}
 </script>
 
 <style lang='sass' scoped>

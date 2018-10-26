@@ -19,7 +19,7 @@ export default new Vuex.Store(
             config: {},
             tokens: {},
             wallets: [],
-            chain: {},
+            chain: '',
             thirdPartytoken: {},
             loading: false,
             snack: {},
