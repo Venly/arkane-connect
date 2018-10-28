@@ -101,6 +101,14 @@ export class ArkaneConnect {
         }
     }
 
+    public linkWallets() {
+        const currentLocation = window.location;
+        const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
+        window.location.href =
+            `${Utils.urls.connect}/init/${this.chains[0]}/${this.bearerTokenProvider()}/linkwallet?redirectUri=${redirectUri}` +
+            `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
+    }
+
     public async getWallets(): Promise<Wallet[]> {
         const response: AxiosResponse<RestApiResponse<Wallet[]>> = await this.api.http.get('wallets');
         if (response && response.data && response.data.success) {

@@ -1,6 +1,6 @@
 <template>
     <dialog-template :title="'Access to your wallets'" v-if="wallets.length > 0">
-        <p class="description no-margin-bottom">Select the wallets that application <b>{{thirdPartyClientId}}</b> is allowed to access:</p>
+        <p class="description no-margin-bottom">Select the wallets that application <strong>{{thirdPartyClientId}}</strong> is allowed to access:</p>
         <form class="form">
             <div class="wallets">
                 <div class="wallet-control" v-for="wallet in wallets">
@@ -37,6 +37,8 @@
     import {Wallet} from '../../../models/Wallet';
     import {AsyncData} from '@/decorators/decorators';
     import {SecretType} from '@/models/SecretType';
+    import Api from '../../../api';
+    import {SecretTypeUtil} from '../../../models/SecretType';
 
     @Component({
         components: {
@@ -52,11 +54,15 @@
         @Prop()
         private wallets!: Wallet[];
         @Prop()
-        private chain!: string;
-        @Prop()
         private thirdPartyClientId!: string;
+        @Prop()
+        private chain!: string;
 
         private selectedWallets: Wallet[] = [];
+
+        public async mounted() {
+            this.selectedWallets = await Api.getWallets({secretType: SecretTypeUtil.byChain(this.chain), clientId: this.thirdPartyClientId});
+        }
 
         private walletSelected(selectedWallet: Wallet) {
             if (this.selectedWallets.indexOf(selectedWallet) > -1) {

@@ -2,7 +2,7 @@
     <div class="container">
         <div class="dialog-container">
 
-            <link-wallets-dialog v-if="showLinkWallet" :wallets="walletsForChainType" :chain="chain" :thirdPartylClientId="thirdPartyClientId"
+            <link-wallets-dialog v-if="showLinkWallet" :wallets="walletsForChainType" :chain="chain" :thirdPartyClientId="thirdPartyClientId"
                                  @linkWalletsClicked="linkWallets" @createWalletClicked="toCreateWallet">
             </link-wallets-dialog>
 
@@ -12,7 +12,7 @@
                     <wallet-card :wallet="wallet" :showFunds="false" v-for="wallet in selectedWallets"></wallet-card>
                 </div>
                 <div class="no-margin-bottom">
-                    <action-button @click="redirectBack">Continue to ThorBlock ({{timeleft / 1000}})</action-button>
+                    <action-button @click="redirectBack">Continue to {{thirdPartyClientId}} ({{timeleft / 1000}})</action-button>
                 </div>
             </redirect-dialog>
 
@@ -90,7 +90,7 @@
 
         private async linkWallets(selectedWalletsDto: { wallets: Wallet[] }) {
             this.$store.dispatch('startLoading');
-            Api.linkWallet({client: this.thirdPartyClientId, walletIds: selectedWalletsDto.wallets.map((wallet: Wallet) => wallet.id)})
+            Api.linkWallet({client: this.thirdPartyClientId, walletIds: selectedWalletsDto.wallets.map((wallet: Wallet) => wallet.id)}, true)
                .then((response: ResponseBody) => {
                    if (response.success) {
                        this.showWalletsLinked = true;

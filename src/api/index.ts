@@ -7,9 +7,11 @@ import {Wallet} from '../models/Wallet';
 import {CreateWalletCommand, LinkWalletCommand} from '../models/Commands';
 import {Profile} from '../models/Profile';
 import {Balance} from '../models/Balance';
+import {SecretType} from '../models/SecretType';
 
 export default class Api {
     public static token: string = '';
+
     public static signTransaction(data: any, pincode: string): Promise<ResponseBody> {
         return this.handleTransaction('signatures', data, pincode);
     }
@@ -38,9 +40,11 @@ export default class Api {
                       };
                   });
     }
-    public static getWallets(): Promise<Wallet[]> {
+
+    public static getWallets(filter?: { secretType?: SecretType, clientId?: string }): Promise<Wallet[]> {
+        filter = (filter && Utils.removeNulls(filter)) || {};
         return Api.getApi().http
-                  .get('wallets')
+                  .get('wallets', { params: filter})
                   .then((result: any) => {
                       return result.data && result.data.success ? result.data.result : [];
                   })
@@ -99,9 +103,9 @@ export default class Api {
                   );
     }
 
-    public static async linkWallet(command: LinkWalletCommand): Promise<ResponseBody> {
+    public static async linkWallet(command: LinkWalletCommand, override: boolean = false): Promise<ResponseBody> {
         return Api.getApi().http
-                  .post('wallets/link', Utils.removeNulls(command))
+                  .post(`wallets/link?override=${override}`, Utils.removeNulls(command))
                   .then((axiosRes: AxiosResponse) => {
                       return {
                           success: true,
