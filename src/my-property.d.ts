@@ -1,6 +1,12 @@
 import Vue from 'vue';
 import {ValidationRule} from 'vuelidate';
 
+declare module 'vue/types/vue' {
+    interface Vue {
+        $intercom?: any;
+    }
+}
+
 declare module 'vue/types/options' {
     interface ComponentOptions<V extends Vue> {
         name?: string;
