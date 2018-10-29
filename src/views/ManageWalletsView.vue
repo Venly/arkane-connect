@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="dialog-container">
+    <div class="dialog-container" v-if="!(showCreateWallet || showImportWallet)">
 
       <set-master-pin-dialog @done="masterpinEntered" v-if="showSetupMasterPin"></set-master-pin-dialog>
 
@@ -26,6 +26,9 @@
         <p>Please try again. If the problem persists, contact support via <a href="mailto:support@arkane.network">support@arkane.network</a></p>
       </error-dialog>
     </div>
+    <create-wallet-view v-if="showCreateWallet" :enteredPincode="pincode"/>
+    <import-wallet-view v-if="showImportWallet" :enteredPincode="pincode"/>
+
   </div>
 </template>
 
@@ -45,9 +48,13 @@
     import ManageWalletsDialog from '../components/organisms/dialogs/ManageWalletsDialog.vue';
     import ErrorDialog from '../components/organisms/dialogs/ErrorDialog.vue';
     import {Chain} from '../models/Chain';
+    import CreateWalletView from './CreateWalletView.vue';
+    import ImportWalletView from './ImportWalletView.vue';
 
     @Component({
         components: {
+            ImportWalletView,
+            CreateWalletView,
             ErrorDialog,
             ManageWalletsDialog,
             ActionButton,
@@ -77,6 +84,8 @@
 
         private showWalletsLinked: boolean = false;
         private showWalletsLinkedError: boolean = false;
+        private showCreateWallet: boolean = false;
+        private showImportWallet: boolean = false;
 
         private timeleft = 5000;
 
@@ -144,15 +153,19 @@
         }
 
         private async toCreateWallet() {
-            await this.$store.dispatch('setPincode', this.pincode);
-            this.$router.push({name: 'create-wallet', params: this.$route.params, query: this.$route.query});
+            if (this.pincode !== '') {
+                this.showCreateWallet = true;
+            } else {
+                this.$router.push({name: 'create-wallet', params: this.$route.params, query: this.$route.query});
+            }
         }
 
         private toImportWallet() {
-            this.$store.dispatch('setPincode', this.pincode)
-                .then(() => {
-                    this.$router.push({name: 'import-wallet', params: this.$route.params, query: this.$route.query});
-                });
+            if (this.pincode !== '') {
+                this.showImportWallet = true;
+            } else {
+                this.$router.push({name: 'import-wallet', params: this.$route.params, query: this.$route.query});
+            }
         }
 
         private redirectBack() {

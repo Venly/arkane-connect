@@ -26,7 +26,6 @@ export default new Vuex.Store(
             hasBlockingError: false,
             showModal: false,
             transactionWallet: {},
-            enteredPincode: '',
         },
         mutations: {
             setProfile: (state: any, {userId, hasMasterPin}) => {
@@ -65,9 +64,6 @@ export default new Vuex.Store(
             },
             setTransactionWallet: (state: any, wallet: Wallet) => {
                 state.transactionWallet = wallet;
-            },
-            setPincode: (state: any, pincode: string) => {
-                state.enteredPincode = pincode;
             },
         },
         actions: {
@@ -109,10 +105,14 @@ export default new Vuex.Store(
                           });
             },
             importPrivateKey: async (store: any, command: ImportPrivateKeyCommand): Promise<Wallet> => {
-                return Api.importPrivateKey(command);
+                const wallet = await Api.importPrivateKey(command);
+                store.commit('addWallet', wallet);
+                return wallet;
             },
             importKeystore: async (store: any, command: ImportKeystoreCommand): Promise<Wallet> => {
-                return Api.importKeystore(command);
+                const wallet = Api.importKeystore(command);
+                store.commit('addWallet', wallet);
+                return wallet;
             },
             startLoading: (store: any): void => {
                 store.commit('setLoading', true);
@@ -139,9 +139,6 @@ export default new Vuex.Store(
             },
             setTransactionWallet: async (store: any, wallet: Wallet) => {
                 store.commit('setTransactionWallet', wallet);
-            },
-            setPincode: async (store: any, pincode: string) => {
-                store.commit('setPincode', pincode);
             },
         },
         getters: {

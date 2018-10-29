@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="dialog-container">
-      <master-pin-dialog :title="'Create a wallet'" @done="masterpinEntered" v-if="showEnterMasterPin">
+      <master-pin-dialog :title="'Create a wallet'" :actionLabel="'Create Wallet'" @done="masterpinEntered" v-if="showEnterMasterPin">
         <p>Please confirm by providing your Master Pin Code</p>
       </master-pin-dialog>
 
@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import {Component, Vue} from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 import WalletCard from '@/components/molecules/WalletCard.vue';
 import MasterPinDialog from '@/components/organisms/dialogs/MasterPinDialog.vue';
 import SetMasterPinDialog from '@/components/organisms/dialogs/SetMasterPinDialog.vue';
@@ -71,6 +71,10 @@ export default class CreateWalletView extends Vue {
         return this.isMasterPinEntered && !this.isWalletPresent && this.isWalletCreationFailed;
     }
 
+    public get chainName(): string {
+        return this.chain.name;
+    }
+
     @State
     public hasMasterPin!: boolean;
     @State
@@ -78,28 +82,25 @@ export default class CreateWalletView extends Vue {
     @Getter
     public thirdPartyClientId!: string;
 
+    @Prop({required: false, default: ''})
+    private enteredPincode!: string;
     private wallet!: Wallet;
 
     private isMasterPinEntered = false;
+
     private isWalletPresent = false;
     private isWalletCreationFailed = false;
-
     private timeleft = 5000;
+
     private redirectUri = '/';
     private interval!: any;
 
     public mounted(): void {
         this.redirectUri = (this.$route.query as any).redirectUri;
-        const enteredPincode = `${this.$store.state.enteredPincode}`;
-        if (enteredPincode !== '') {
-            this.$store.commit('setPincode', '');
+        if (this.enteredPincode !== '') {
             this.isMasterPinEntered = true;
-            this.masterpinEntered(enteredPincode);
+            this.masterpinEntered(this.enteredPincode);
         }
-    }
-
-    public get chainName(): string {
-        return this.chain.name;
     }
 
     private async masterpinEntered(pincode: string) {

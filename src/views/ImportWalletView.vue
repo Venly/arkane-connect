@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import {Component, Vue} from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 import WalletCard from '@/components/molecules/WalletCard.vue';
 import MasterPinDialog from '@/components/organisms/dialogs/MasterPinDialog.vue';
 import SetMasterPinDialog from '@/components/organisms/dialogs/SetMasterPinDialog.vue';
@@ -61,39 +61,6 @@ import Api from '../api';
     },
 })
 export default class ImportWalletView extends Vue {
-
-    @State
-    public hasMasterPin!: boolean;
-    @State
-    public chain!: Chain;
-
-    @Getter
-    public thirdPartyClientId!: string;
-
-    private wallet!: Wallet;
-
-    private enteredPincode = '';
-    private isMasterPinEntered = false;
-    private isWalletPresent = false;
-    private isWalletImportFailed = false;
-
-    private timeleft = 5000;
-    private redirectUri = '/';
-    private interval!: any;
-
-    private privateKey: string = '';
-    private keystore: string = '';
-    private keystorePassword: string = '';
-
-
-    public mounted(): void {
-        this.redirectUri = (this.$route.query as any).redirectUri;
-        this.enteredPincode = `${this.$store.state.enteredPincode}`;
-        if (this.enteredPincode !== '') {
-            // this.$store.dispatch('setPincode', '');
-            this.isMasterPinEntered = true;
-        }
-    }
 
     public get chainName(): string {
         return this.chain.name;
@@ -125,6 +92,39 @@ export default class ImportWalletView extends Vue {
 
     private get keystoreIsEmpty() {
         return this.keystore === '' && this.keystorePassword === '';
+    }
+
+    @State
+    public hasMasterPin!: boolean;
+    @State
+    public chain!: Chain;
+
+    @Getter
+    public thirdPartyClientId!: string;
+
+    @Prop({required: false, default: ''})
+    private enteredPincode!: string;
+
+    private wallet!: Wallet;
+
+    private isMasterPinEntered = false;
+    private isWalletPresent = false;
+    private isWalletImportFailed = false;
+
+    private timeleft = 5000;
+    private redirectUri = '/';
+    private interval!: any;
+
+    private privateKey: string = '';
+    private keystore: string = '';
+    private keystorePassword: string = '';
+
+
+    public mounted(): void {
+        this.redirectUri = (this.$route.query as any).redirectUri;
+        if (this.enteredPincode !== '') {
+            this.isMasterPinEntered = true;
+        }
     }
 
     private importPrivateKey(privateKey: string): void {
@@ -167,14 +167,19 @@ export default class ImportWalletView extends Vue {
 
     private async importWallet(pincode: string): Promise<Wallet> {
         if (!this.privateKeyIsEmpty) {
-            const wallet = await this.$store.dispatch('importPrivateKey', {importWalletType: this.chain.importWalletType, pincode, privateKey: this.privateKey});
+            const wallet = await this.$store
+                                     .dispatch(
+                                         'importPrivateKey',
+                                         {importWalletType: this.chain.importWalletType, pincode, privateKey: this.privateKey},
+                                     );
             await Api.linkWallet({client: this.thirdPartyClientId, walletIds: [wallet.id]});
             return wallet;
         } else if (!this.keystoreIsEmpty) {
-            const wallet = await this.$store.dispatch(
-                'importKeystore',
-                {importWalletType: this.chain.importWalletType, pincode, keystore: this.keystore, password: this.keystorePassword},
-            );
+            const wallet = await this.$store
+                                     .dispatch(
+                                         'importKeystore',
+                                         {importWalletType: this.chain.importWalletType, pincode, keystore: this.keystore, password: this.keystorePassword},
+                                     );
             await Api.linkWallet({client: this.thirdPartyClientId, walletIds: [wallet.id]});
             return wallet;
         }
