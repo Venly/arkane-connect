@@ -2,6 +2,8 @@
   <div class="container">
     <div class="dialog-container">
 
+      <set-master-pin-dialog @done="masterpinEntered" v-if="showSetupMasterPin"></set-master-pin-dialog>
+
       <manage-wallets-dialog v-if="showManageWallets" :wallets="walletsForChainType" :chain="chain" :thirdPartyClientId="thirdPartyClientId"
                              @linkWalletsClicked="linkWallets" @createWalletClicked="toCreateWallet" @importWalletClicked="toImportWallet">
       </manage-wallets-dialog>
@@ -69,6 +71,7 @@
 
         private isMasterPinInitiallyPresent = false;
         private isMasterPinEntered = false;
+        private pincode: string = '';
 
         private selectedWallets?: Wallet[];
 
@@ -100,6 +103,7 @@
         private async masterpinEntered(pincode: string) {
             if (pincode) {
                 this.isMasterPinEntered = true;
+                this.pincode = pincode;
             }
         }
 
@@ -139,12 +143,16 @@
             this.showWalletsLinkedError = false;
         }
 
-        private toCreateWallet() {
+        private async toCreateWallet() {
+            await this.$store.dispatch('setPincode', this.pincode);
             this.$router.push({name: 'create-wallet', params: this.$route.params, query: this.$route.query});
         }
 
         private toImportWallet() {
-            this.$router.push({name: 'import-wallet', params: this.$route.params, query: this.$route.query});
+            this.$store.dispatch('setPincode', this.pincode)
+                .then(() => {
+                    this.$router.push({name: 'import-wallet', params: this.$route.params, query: this.$route.query});
+                });
         }
 
         private redirectBack() {

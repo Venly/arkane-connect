@@ -121,19 +121,4 @@ export default class Utils {
             toRawValue: (rawValue: number) => rawValue * Math.pow(10, 9),
         };
     }
-
-    public static secretType() {
-        return {
-            byChain: (chain: string): SecretType | undefined => {
-                switch (chain && chain.toUpperCase()) {
-                    case 'ETHEREUM':
-                        return SecretType.ETHEREUM;
-                    case 'VECHAIN':
-                        return SecretType.VECHAIN;
-                    default:
-                        return undefined;
-                }
-            },
-        };
-    }
 }

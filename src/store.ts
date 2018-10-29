@@ -5,7 +5,6 @@ import {Wallet} from './models/Wallet';
 import {Snack, SnackType} from './models/Snack';
 import {Profile} from './models/Profile';
 import {RestApiResponse} from './api/RestApi';
-import Utils from '@/utils/Utils';
 import {SupportedChains} from '@/models/SupportedChains';
 import {ImportKeystoreCommand, ImportPrivateKeyCommand} from '@/models/Commands';
 
@@ -27,6 +26,7 @@ export default new Vuex.Store(
             hasBlockingError: false,
             showModal: false,
             transactionWallet: {},
+            enteredPincode: '',
         },
         mutations: {
             setProfile: (state: any, {userId, hasMasterPin}) => {
@@ -63,8 +63,11 @@ export default new Vuex.Store(
             setShowModal: (state: any, showModal: boolean) => {
                 state.showModal = showModal;
             },
-            setTransactionWallet: async (state: any, wallet: Wallet) => {
+            setTransactionWallet: (state: any, wallet: Wallet) => {
                 state.transactionWallet = wallet;
+            },
+            setPincode: (state: any, pincode: string) => {
+                state.enteredPincode = pincode;
             },
         },
         actions: {
@@ -137,10 +140,13 @@ export default new Vuex.Store(
             setTransactionWallet: async (store: any, wallet: Wallet) => {
                 store.commit('setTransactionWallet', wallet);
             },
+            setPincode: async (store: any, pincode: string) => {
+                store.commit('setPincode', pincode);
+            },
         },
         getters: {
             secretType: (state) => {
-                return Utils.secretType().byChain(state.chain);
+                return state.chain.secretType;
             },
             thirdPartyClientId: (state) => {
                 return state.thirdPartytoken.azp;

@@ -17,8 +17,6 @@ import ExecuteVetTransactionView from './views/executor/ExecuteVetTransactionVie
 import Security from './Security';
 import Utils from './utils/Utils';
 import store from './store';
-import {Profile} from '@/models/Profile';
-import {Wallet} from '@/models/Wallet';
 
 Vue.use(Router);
 
@@ -83,16 +81,6 @@ const router = new Router(
                 },
                 beforeEnter: async (to, from, next) => {
                     await fetchProfileAndWallets(to).then((result: any) => next())
-                                                        // const profile: Profile = result[0];
-                                                        // const wallets: Wallet[] = result[1];
-                                                        // const chain = (to.params as any).chain;
-
-                                                        // if (profile.hasMasterPin && Utils.wallets.hasWalletsForChainType(wallets, chain)) {
-                                                        //     next();
-                                                        // } else {
-                                                        //     next({name: 'create-wallet', params: to.params, query: to.query});
-                                                        // }
-                                                    // )
                                                     .catch(() => next({name: 'generic-error'}));
                 },
             },
