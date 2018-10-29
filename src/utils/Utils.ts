@@ -114,4 +114,20 @@ export default class Utils {
             toRawValue: (rawValue: number) => rawValue * Math.pow(10, 9),
         };
     }
+
+    public static openExternalUrl(url: string, targetBlank: boolean = true): Window | null {
+        if (targetBlank) {
+            const newWindow = window.open('', '_blank');
+            if (newWindow) {
+                newWindow.opener = null;
+                newWindow.location.assign(url);
+            }
+
+            return newWindow;
+        } else {
+            window.location.href = url;
+            return window;
+        }
+    }
+
 }
