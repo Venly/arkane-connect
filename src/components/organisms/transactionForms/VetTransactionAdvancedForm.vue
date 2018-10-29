@@ -2,25 +2,23 @@
   <div class="advanced">
     <h3>Transaction details</h3>
 
-    <from-to :from="fromAddress" :toAddresses="toAddresses" :max-lines="3"></from-to>
-
     <totals-box :amount-value="totalAmountInVet" :amount-currency="'VET'" :amount-decimals="{min: 2, max: 3}"
                 :fee-value="maxEditedTransactionFee" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 11}"></totals-box>
 
     <form class="form" @submit.prevent="doNothing">
       <div class="gas-coefficient control">
-        <label for="gas-coefficient" class="control__label">Gas coefficient</label>
+        <label for="gas-coefficient" class="control__label">Gas Price Coefficient</label>
         <input id="gas-coefficient" class="control__input" type="number" v-model="gasPriceCoef"/>
       </div>
 
       <div class="gas-limit control">
-        <label for="gas-limit" class="control__label">Gas limit</label>
+        <label for="gas-limit" class="control__label">Gas Limit</label>
         <input id="gas-limit" class="control__input" type="number" v-model="gasLimit"/>
       </div>
 
       <div class="data control">
         <label for="data" class="control__label">Data</label>
-        <textarea id="data" class="control__input" v-model="transactionData.data" readonly="readonly"></textarea>
+        <textarea id="data" class="control__input" v-model="transactionData.data"></textarea>
       </div>
     </form>
     <div class="buttons buttons--horizontal">
@@ -68,10 +66,6 @@
             if (this.hasTransactionData) {
                 this.initGas();
             }
-        }
-
-        public get fromAddress(): string {
-            return !(!this.transactionWallet) ? this.transactionWallet.address : '0x0000000000000000000000000000000000000000';
         }
 
         public get toAddresses(): string[] {
@@ -136,14 +130,16 @@
     margin-bottom: 0
 
   .gas-coefficient
-    margin-top: rem(75px)
+    margin-top: rem(24px)
 
   /*.gas-limit*/
     /*margin-top: rem(25px)*/
 
   .data
     textarea
-      height: rem(215px)
+      height: rem(40px)
+      font-size: rem(12px)
+      line-height: rem(12px)
 
   .buttons
     margin: rem(30px 0)

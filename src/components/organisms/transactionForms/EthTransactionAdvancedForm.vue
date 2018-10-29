@@ -2,10 +2,8 @@
   <div class="advanced">
     <h3>Transaction details</h3>
 
-    <from-to :from="fromAddress" :to="transactionData.to"></from-to>
-
     <totals-box :amount-value="amountInEther" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
-                :fee-value="maxEditedTransactionFee" :fee-currency="'GWEI'" :fee-decimals="{min: 2, max: 6}"></totals-box>
+                :fee-value="maxEditedTransactionFee" :fee-currency="'ETH'" :fee-decimals="{min: 2, max: 6}"></totals-box>
 
     <div class="speed-slider-box">
       <vue-slider ref="speedSlider" class="speed-slider"
@@ -34,7 +32,7 @@
 
       <div class="data control">
         <label for="data" class="control__label">Data</label>
-        <textarea id="data" class="control__input" v-model="transactionData.data" readonly="readonly"></textarea>
+        <textarea id="data" class="control__input" v-model="transactionData.data"></textarea>
       </div>
     </form>
     <div class="buttons buttons--horizontal">
@@ -45,18 +43,18 @@
 </template>
 
 <script lang='ts'>
-import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
-import FromTo from '../../molecules/FromTo.vue';
-import TotalsBox from '../../atoms/TotalsBox.vue';
-import Numpad from '../../molecules/Numpad.vue';
-import EthereumTransactionData from '../../../api/EthereumTransactionData';
-import Utils from '../../../utils/Utils';
-import {State} from 'vuex-class';
-import {Wallet} from '../../../models/Wallet';
-import VueSlider from 'vue-slider-component';
-import ActionLink from '../../atoms/ActionLink.vue';
+    import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
+    import FromTo from '../../molecules/FromTo.vue';
+    import TotalsBox from '../../atoms/TotalsBox.vue';
+    import Numpad from '../../molecules/Numpad.vue';
+    import EthereumTransactionData from '../../../api/EthereumTransactionData';
+    import Utils from '../../../utils/Utils';
+    import {State} from 'vuex-class';
+    import {Wallet} from '../../../models/Wallet';
+    import VueSlider from 'vue-slider-component';
+    import ActionLink from '../../atoms/ActionLink.vue';
 
-@Component({
+    @Component({
     components: {
         ActionLink,
         VueSlider,
@@ -119,7 +117,7 @@ export default class EthTransactionAdvancedForm extends Vue {
     }
 
     public get maxEditedTransactionFee(): number {
-        return (this.gasLimit * this.gasPrice);
+        return ((this.gasLimit * this.gasPrice) / Math.pow(10, 9));
     }
 
     public get gasOptions(): number[] {
@@ -198,7 +196,9 @@ export default class EthTransactionAdvancedForm extends Vue {
 
   .data
     textarea
-      height: rem(215px)
+      height: rem(40px)
+      font-size: rem(12px)
+      line-height: rem(12px)
 
   .buttons
     margin: rem(30px 0)
