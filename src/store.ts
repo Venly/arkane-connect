@@ -2,10 +2,12 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import Api from './api';
 import {Wallet} from './models/Wallet';
-import {SecretTypeUtil} from './models/SecretType';
 import {Snack, SnackType} from './models/Snack';
 import {Profile} from './models/Profile';
 import {RestApiResponse} from './api/RestApi';
+import Utils from '@/utils/Utils';
+import {SupportedChains} from '@/models/SupportedChains';
+import {ImportKeystoreCommand, ImportPrivateKeyCommand} from '@/models/Commands';
 
 Vue.use(Vuex);
 
@@ -18,7 +20,7 @@ export default new Vuex.Store(
             config: {},
             tokens: {},
             wallets: [],
-            chain: '',
+            chain: {},
             thirdPartytoken: {},
             loading: false,
             snack: {},
@@ -44,7 +46,7 @@ export default new Vuex.Store(
                 state.wallets = [...state.wallets, wallet];
             },
             setChain: (state: any, chain: string) => {
-                state.chain = chain;
+                state.chain = SupportedChains.getByName(chain);
             },
             setThirdPartyToken: (state: any, thirdPartytoken: any) => {
                 state.thirdPartytoken = thirdPartytoken;
@@ -103,6 +105,12 @@ export default new Vuex.Store(
                               });
                           });
             },
+            importPrivateKey: async (store: any, command: ImportPrivateKeyCommand): Promise<Wallet> => {
+                return Api.importPrivateKey(command);
+            },
+            importKeystore: async (store: any, command: ImportKeystoreCommand): Promise<Wallet> => {
+                return Api.importKeystore(command);
+            },
             startLoading: (store: any): void => {
                 store.commit('setLoading', true);
             },
@@ -132,7 +140,7 @@ export default new Vuex.Store(
         },
         getters: {
             secretType: (state) => {
-                return SecretTypeUtil.byChain(state.chain);
+                return Utils.secretType().byChain(state.chain);
             },
             thirdPartyClientId: (state) => {
                 return state.thirdPartytoken.azp;

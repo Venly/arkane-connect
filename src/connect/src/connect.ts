@@ -95,17 +95,17 @@ export class ArkaneConnect {
                 const currentLocation = window.location;
                 const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
                 window.location.href =
-                    `${Utils.urls.connect}/init/${this.chains[0]}/${this.bearerTokenProvider()}?redirectUri=${redirectUri}` +
+                    `${Utils.urls.connect}/wallets/manage/${this.chains[0]}?bearerToken=${this.bearerTokenProvider()}&redirectUri=${redirectUri}` +
                     `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
             }
         }
     }
 
-    public linkWallets() {
+    public manageWallets() {
         const currentLocation = window.location;
         const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
         window.location.href =
-            `${Utils.urls.connect}/init/${this.chains[0]}/${this.bearerTokenProvider()}/linkwallet?redirectUri=${redirectUri}` +
+            `${Utils.urls.connect}/wallets/manage/${this.chains[0]}?bearerToken=${this.bearerTokenProvider()}&redirectUri=${redirectUri}` +
             `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
     }
 

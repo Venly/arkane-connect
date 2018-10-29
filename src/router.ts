@@ -3,8 +3,9 @@ import Router from 'vue-router';
 import {Component, Route} from 'vue-router/types/router';
 
 import InitTransactionView from './views/InitTransactionView.vue';
+import ManageWalletsView from './views/ManageWalletsView.vue';
 import CreateWalletView from './views/CreateWalletView.vue';
-import LinkWalletView from './views/LinkWalletView.vue';
+import ImportWalletView from './views/ImportWalletView.vue';
 import ErrorView from './views/ErrorView.vue';
 import UnauthorizedView from './views/UnauthorizedView.vue';
 import IndexView from './views/IndexView.vue';
@@ -74,7 +75,29 @@ const router = new Router(
                 },
             },
             {
-                path: '/init/:chain/:bearer/createwallet',
+                path: '/wallets/manage/:chain',
+                name: 'link-wallet',
+                component: ManageWalletsView,
+                meta: {
+                    authArkane: true,
+                },
+                beforeEnter: async (to, from, next) => {
+                    await fetchProfileAndWallets(to).then((result: any) => next())
+                                                        // const profile: Profile = result[0];
+                                                        // const wallets: Wallet[] = result[1];
+                                                        // const chain = (to.params as any).chain;
+
+                                                        // if (profile.hasMasterPin && Utils.wallets.hasWalletsForChainType(wallets, chain)) {
+                                                        //     next();
+                                                        // } else {
+                                                        //     next({name: 'create-wallet', params: to.params, query: to.query});
+                                                        // }
+                                                    // )
+                                                    .catch(() => next({name: 'generic-error'}));
+                },
+            },
+            {
+                path: '/wallets/manage/:chain/createwallet',
                 name: 'create-wallet',
                 component: CreateWalletView,
                 meta: {
@@ -86,45 +109,14 @@ const router = new Router(
                 },
             },
             {
-                path: '/init/:chain/:bearer/linkwallet',
-                name: 'link-wallet',
-                component: LinkWalletView,
+                path: '/wallets/manage/:chain/importwallet',
+                name: 'import-wallet',
+                component: ImportWalletView,
                 meta: {
                     authArkane: true,
                 },
                 beforeEnter: async (to, from, next) => {
-                    await fetchProfileAndWallets(to).then((result: any) => {
-                                                        const profile: Profile = result[0];
-                                                        const wallets: Wallet[] = result[1];
-                                                        const chain = (to.params as any).chain;
-
-                                                        if (profile.hasMasterPin && Utils.wallets.hasWalletsForChainType(wallets, chain)) {
-                                                            next();
-                                                        } else {
-                                                            next({name: 'create-wallet', params: to.params, query: to.query});
-                                                        }
-                                                    })
-                                                    .catch(() => next({name: 'generic-error'}));
-                },
-            },
-            {
-                path: '/init/:chain/:bearer',
-                name: 'init',
-                meta: {
-                    authArkane: true,
-                },
-                beforeEnter: async (to, from, next) => {
-                    await fetchProfileAndWallets(to).then((result: any) => {
-                                                        const profile: Profile = result[0];
-                                                        const wallets: Wallet[] = result[1];
-                                                        const chain = (to.params as any).chain;
-
-                                                        if (profile.hasMasterPin && Utils.wallets.hasWalletsForChainType(wallets, chain)) {
-                                                            next({name: 'link-wallet', params: to.params, query: to.query});
-                                                        } else {
-                                                            next({name: 'create-wallet', params: to.params, query: to.query});
-                                                        }
-                                                    })
+                    await fetchProfileAndWallets(to).then(() => next())
                                                     .catch(() => next({name: 'generic-error'}));
                 },
             },

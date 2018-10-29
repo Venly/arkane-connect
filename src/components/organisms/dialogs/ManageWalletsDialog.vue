@@ -1,28 +1,35 @@
 <template>
-  <dialog-template :title="'Access to your wallets'" v-if="wallets.length > 0">
-    <p class="description no-margin-bottom">Select the wallets that application <strong>{{thirdPartyClientId}}</strong> is allowed to access:</p>
-    <form class="form">
-      <div class="wallets">
-        <div class="wallet-control" v-for="wallet in wallets">
-          <div class="control control--checkbox">
-            <input :ref="`wallet-${wallet.id}`" :id="`wallet-${wallet.id}`" :value="wallet" v-model="selectedWallets"
-                   class="control__checkbox control__checkbox--check wallet-select" type="checkbox"/>
-            <label class="control__label" :for="`wallet-${wallet.id}`"></label>
+  <dialog-template :title="'Access to your wallets'">
+    <p v-if="wallets.length <= 0" class="description no-margin-bottom">Create or import a wallet that application <strong>{{thirdPartyClientId}}</strong> is allowed to access:</p>
+    <div v-if="wallets.length > 0">
+      <p class="description no-margin-bottom">Select the <strong>{{chain.name}}</strong> wallets that application <strong>{{thirdPartyClientId}}</strong> is allowed to access:</p>
+      <form class="form">
+        <div class="wallets">
+          <div class="wallet-control" v-for="wallet in wallets">
+            <div class="control control--checkbox">
+              <input :ref="`wallet-${wallet.id}`" :id="`wallet-${wallet.id}`" :value="wallet" v-model="selectedWallets"
+                     class="control__checkbox control__checkbox--check wallet-select" type="checkbox"/>
+              <label class="control__label" :for="`wallet-${wallet.id}`"></label>
+            </div>
+            <wallet-card :wallet="wallet" :showFunds="false" @click="walletSelected(wallet)"></wallet-card>
           </div>
-          <wallet-card :wallet="wallet" :showFunds="false" @click="walletSelected(wallet)"></wallet-card>
         </div>
+      </form>
+      <action-button class="button"
+                     :type="'brand-light'"
+                     @click="linkWallets"
+                     :disabled="selectedWallets.length <= 0"
+                     :title="selectedWallets.length <= 0 ? 'At least one wallet needs to be selected' : ''">Update Linked Wallets
+      </action-button>
+      <div class="separator">
+        <div class="separator__label">or</div>
       </div>
-    </form>
-    <action-button class="link-button"
-                   :type="'brand-light'"
-                   @click="linkWallets"
-                   :disabled="selectedWallets.length <= 0"
-                   :title="selectedWallets.length <= 0 ? 'At least one wallet needs to be selected' : ''">Link Wallets
-    </action-button>
+    </div>
+    <action-button class="button" @click="createWallet" :disabled="linkedWalletsChanged">Create a New Wallet</action-button>
     <div class="separator">
       <div class="separator__label">or</div>
     </div>
-    <action-button @click="createWallet" :disabled="linkedWalletsChanged" >Create a New Wallet</action-button>
+    <action-button class="button margin-bottom" @click="importWallet" :disabled="linkedWalletsChanged">Import an Existing Wallet</action-button>
   </dialog-template>
 </template>
 
@@ -38,7 +45,7 @@
     import {AsyncData} from '@/decorators/decorators';
     import {SecretType} from '@/models/SecretType';
     import Api from '../../../api';
-    import {SecretTypeUtil} from '../../../models/SecretType';
+    import {Chain} from '../../../models/Chain';
 
     @Component({
         components: {
@@ -50,19 +57,19 @@
             WalletCard,
         },
     })
-    export default class LinkWalletsDialog extends Vue {
+    export default class ManageWalletsDialog extends Vue {
         @Prop()
         private wallets!: Wallet[];
         @Prop()
         private thirdPartyClientId!: string;
         @Prop()
-        private chain!: string;
+        private chain!: Chain;
 
         private selectedWallets: Wallet[] = [];
         private originalSelectedWalletIds: string[] = [];
 
         public async mounted() {
-            this.selectedWallets = await Api.getWallets({secretType: SecretTypeUtil.byChain(this.chain), clientId: this.thirdPartyClientId});
+            this.selectedWallets = await Api.getWallets({secretType: this.chain.secretType, clientId: this.thirdPartyClientId});
             this.originalSelectedWalletIds = this.selectedWallets.map((wallet: Wallet) => wallet.id);
         }
 
@@ -89,6 +96,10 @@
 
         private createWallet() {
             this.$emit('createWalletClicked');
+        }
+
+        private importWallet() {
+            this.$emit('importWalletClicked');
         }
     }
 </script>
@@ -125,11 +136,18 @@
   .control--checkbox
     margin-bottom: 0
 
-  .link-button
+  .button
     margin-bottom: 0
-    margin-top: rem(20px)
+    &.margin-bottom
+      margin-bottom: rem(20px)
+
+  .alternate-actions
+    display: flex
+    justify-content: space-between
+    .button
+      width: 47%
 
   .separator
-    margin: rem(30px 0)
+    margin: rem(15px 0)
 
 </style>

@@ -1,24 +1,21 @@
 import ENV from '../../vue.env';
 import {Wallet} from '../models/Wallet';
 import {EVENT_TYPES} from '../types/EventTypes';
-import {SecretType, SecretTypeUtil} from '../models/SecretType';
+import {SecretType} from '../models/SecretType';
+import {Chain} from '@/models/Chain';
 
 export default class Utils {
     public static environment: string = 'prod';
 
     public static wallets = {
-        hasWalletsForChainType: (wallets: Wallet[], chain: string): boolean => {
+        hasWalletsForChainType: (wallets: Wallet[], chain: Chain): boolean => {
             return Utils.wallets.filterWalletsForChainType(wallets, chain).length > 0;
         },
-        filterWalletsForChainType: (wallets: Wallet[], chain: string): Wallet[] => {
-            const secretType = SecretTypeUtil.byChain(chain);
-            if (secretType) {
-                return Utils.wallets.filterWalletsForSecretType(wallets, secretType);
-            }
-            return [];
+        filterWalletsForChainType: (wallets: Wallet[], chain: Chain): Wallet[] => {
+            return Utils.wallets.filterWalletsForSecretType(wallets, chain.secretType);
         },
         hasWalletsForSecretType: (wallets: Wallet[], secretType: SecretType): boolean => {
-            return Utils.wallets.filterWalletsForChainType(wallets, secretType).length > 0;
+            return Utils.wallets.filterWalletsForSecretType(wallets, secretType).length > 0;
         },
         filterWalletsForSecretType: (wallets: Wallet[], secretType: SecretType): Wallet[] => {
             return wallets.filter((wallet: Wallet) => {
@@ -122,6 +119,21 @@ export default class Utils {
     public static gwei() {
         return {
             toRawValue: (rawValue: number) => rawValue * Math.pow(10, 9),
+        };
+    }
+
+    public static secretType() {
+        return {
+            byChain: (chain: string): SecretType | undefined => {
+                switch (chain && chain.toUpperCase()) {
+                    case 'ETHEREUM':
+                        return SecretType.ETHEREUM;
+                    case 'VECHAIN':
+                        return SecretType.VECHAIN;
+                    default:
+                        return undefined;
+                }
+            },
         };
     }
 }

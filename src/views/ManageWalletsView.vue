@@ -1,30 +1,30 @@
 <template>
-    <div class="container">
-        <div class="dialog-container">
+  <div class="container">
+    <div class="dialog-container">
 
-            <link-wallets-dialog v-if="showLinkWallet" :wallets="walletsForChainType" :chain="chain" :thirdPartyClientId="thirdPartyClientId"
-                                 @linkWalletsClicked="linkWallets" @createWalletClicked="toCreateWallet">
-            </link-wallets-dialog>
+      <manage-wallets-dialog v-if="showManageWallets" :wallets="walletsForChainType" :chain="chain" :thirdPartyClientId="thirdPartyClientId"
+                             @linkWalletsClicked="linkWallets" @createWalletClicked="toCreateWallet" @importWalletClicked="toImportWallet">
+      </manage-wallets-dialog>
 
-            <redirect-dialog :class="'success'" :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri" :timeleft="timeleft" v-if="showWalletsLinked">
-                <p>The following wallets have been successfully linked to <strong>{{thirdPartyClientId}}</strong>:</p>
-                <div class="wallets">
-                    <wallet-card :wallet="wallet" :showFunds="false" v-for="wallet in selectedWallets"></wallet-card>
-                </div>
-                <div class="no-margin-bottom">
-                    <action-button @click="redirectBack">Continue to {{thirdPartyClientId}} ({{timeleft / 1000}})</action-button>
-                </div>
-            </redirect-dialog>
-
-            <error-dialog v-if="showWalletsLinkedError" :title="'Something went wrong'" :buttonText="'Try Again'" @button-clicked="tryAgain">
-                <p>Something went wrong while trying to link bellow wallets:</p>
-                <div class="wallets">
-                    <wallet-card :wallet="wallet" :showFunds="false" v-for="wallet in selectedWallets"></wallet-card>
-                </div>
-                <p>Please try again. If the problem persists, contact support via <a href="mailto:support@arkane.network">support@arkane.network</a></p>
-            </error-dialog>
+      <redirect-dialog :class="'success'" :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri" :timeleft="timeleft" v-if="showWalletsLinked">
+        <p>The following wallets have been successfully linked to <strong>{{thirdPartyClientId}}</strong>:</p>
+        <div class="wallets">
+          <wallet-card :wallet="wallet" :showFunds="false" v-for="wallet in selectedWallets"></wallet-card>
         </div>
+        <div class="no-margin-bottom">
+          <action-button @click="redirectBack">Continue to {{thirdPartyClientId}} ({{timeleft / 1000}})</action-button>
+        </div>
+      </redirect-dialog>
+
+      <error-dialog v-if="showWalletsLinkedError" :title="'Something went wrong'" :buttonText="'Try Again'" @button-clicked="tryAgain">
+        <p>Something went wrong while trying to link bellow wallets:</p>
+        <div class="wallets">
+          <wallet-card :wallet="wallet" :showFunds="false" v-for="wallet in selectedWallets"></wallet-card>
+        </div>
+        <p>Please try again. If the problem persists, contact support via <a href="mailto:support@arkane.network">support@arkane.network</a></p>
+      </error-dialog>
     </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -37,18 +37,17 @@
     import ActionButton from '@/components/atoms/ActionButton.vue';
     import {Wallet} from '../models/Wallet';
     import {Getter, State} from 'vuex-class';
-    import {AsyncData} from '@/decorators/decorators';
-    import {SecretType} from '@/models/SecretType';
     import Utils from '../utils/Utils';
     import Api from '../api';
     import ResponseBody from '../api/ResponseBody';
-    import LinkWalletsDialog from '../components/organisms/dialogs/LinkWalletsDialog.vue';
+    import ManageWalletsDialog from '../components/organisms/dialogs/ManageWalletsDialog.vue';
     import ErrorDialog from '../components/organisms/dialogs/ErrorDialog.vue';
+    import {Chain} from '../models/Chain';
 
     @Component({
         components: {
             ErrorDialog,
-            LinkWalletsDialog,
+            ManageWalletsDialog,
             ActionButton,
             RedirectDialog,
             MasterPinDialog,
@@ -57,14 +56,19 @@
             WalletCard,
         },
     })
-    export default class LinkWalletView extends Vue {
+    export default class ManageWalletsView extends Vue {
 
+        @State
+        public hasMasterPin!: boolean;
         @State
         private wallets!: Wallet[];
         @State
-        private chain!: string;
+        private chain!: Chain;
         @Getter
         private thirdPartyClientId!: string;
+
+        private isMasterPinInitiallyPresent = false;
+        private isMasterPinEntered = false;
 
         private selectedWallets?: Wallet[];
 
@@ -78,14 +82,25 @@
 
         public mounted(): void {
             this.redirectUri = (this.$route.query as any).redirectUri;
+            this.isMasterPinInitiallyPresent = this.hasMasterPin;
         }
 
         private get walletsForChainType() {
             return Utils.wallets.filterWalletsForChainType(this.wallets, this.chain);
         }
 
-        private get showLinkWallet(): boolean {
-            return !this.showWalletsLinked && !this.showWalletsLinkedError;
+        private get showSetupMasterPin(): boolean {
+            return !this.isMasterPinInitiallyPresent && !this.isMasterPinEntered;
+        }
+
+        private get showManageWallets(): boolean {
+            return (this.isMasterPinInitiallyPresent || this.isMasterPinEntered) && !this.showWalletsLinked && !this.showWalletsLinkedError;
+        }
+
+        private async masterpinEntered(pincode: string) {
+            if (pincode) {
+                this.isMasterPinEntered = true;
+            }
         }
 
         private async linkWallets(selectedWalletsDto: { wallets: Wallet[] }) {
@@ -128,6 +143,10 @@
             this.$router.push({name: 'create-wallet', params: this.$route.params, query: this.$route.query});
         }
 
+        private toImportWallet() {
+            this.$router.push({name: 'import-wallet', params: this.$route.params, query: this.$route.query});
+        }
+
         private redirectBack() {
             window.location.href = this.redirectUri;
         }
@@ -136,48 +155,48 @@
 </script>
 
 <style lang="sass" scoped>
-    @import ../assets/sass/mixins-and-vars
+  @import ../assets/sass/mixins-and-vars
 
-    .container
-        min-height: 100vh
+  .container
+    min-height: 100vh
 
-    .dialog-container
-        display: flex
-        height: 100%
-        justify-content: center
-        align-items: center
+  .dialog-container
+    display: flex
+    height: 100%
+    justify-content: center
+    align-items: center
 
-    .wallets
-        margin: rem(20px 0 20px 0)
-        padding: rem(0 10px)
-        max-height: rem(300px)
-        overflow-y: auto
-        overflow-x: hidden
+  .wallets
+    margin: rem(20px 0 20px 0)
+    padding: rem(0 10px)
+    max-height: rem(300px)
+    overflow-y: auto
+    overflow-x: hidden
 
-    .wallet-control
-        display: flex
-        align-items: center
-        margin: rem(20px 0)
-        &:first-child
-            margin-top: 0
+  .wallet-control
+    display: flex
+    align-items: center
+    margin: rem(20px 0)
+    &:first-child
+      margin-top: 0
 
+  .wallet-card
+    width: calc(100% - #{rem(35px)})
+    cursor: pointer
+
+  .control--checkbox
+    margin-bottom: 0
+
+  .link-button
+    margin-bottom: 0
+    margin-top: rem(20px)
+
+  .separator
+    margin: rem(30px 0)
+
+  .success
     .wallet-card
-        width: calc(100% - #{rem(35px)})
-        cursor: pointer
-
-    .control--checkbox
-        margin-bottom: 0
-
-    .link-button
-        margin-bottom: 0
-        margin-top: rem(20px)
-
-    .separator
-        margin: rem(30px 0)
-
-    .success
-        .wallet-card
-            width: 100%
-            margin-bottom: rem(10px)
+      width: 100%
+      margin-bottom: rem(10px)
 
 </style>

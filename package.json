@@ -21,6 +21,7 @@
     "vue-property-decorator": "^7.0.0",
     "vue-router": "^3.0.1",
     "vuelidate": "^0.7.4",
+    "@types/vuelidate": "github:Simsteve7/vuelidate.ts#master",
     "vuex": "^3.0.1",
     "vuex-class": "^0.3.1",
     "@fortawesome/fontawesome-free": "^5.2.0",
