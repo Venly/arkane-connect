@@ -4,6 +4,7 @@
         <snackbar class="snackbar snackbar--header"></snackbar>
         <router-view/>
         <modal></modal>
+        <intercom></intercom>
     </div>
 </template>
 <script lang='ts'>
@@ -12,16 +13,18 @@
     import ProgressBar from './components/atoms/ProgressBar.vue';
     import Snackbar from './components/atoms/Snackbar.vue';
     import Modal from './components/atoms/Modal.vue';
+    import Intercom from './components/molecules/Intercom.vue';
 
     @Component({
-        components: {
-            Modal,
-            Snackbar,
-            ProgressBar,
-        },
-    })
-    export default class App extends Vue {
-    }
+    components: {
+        Modal,
+        Snackbar,
+        ProgressBar,
+        Intercom,
+    },
+})
+export default class App extends Vue {
+}
 </script>
 
 <style lang="sass">

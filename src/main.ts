@@ -5,6 +5,11 @@ import router from './router';
 
 import '@/utils/FontAwesome';
 
+const VueIntercom = require('vue-intercom');
+
+Vue.use(VueIntercom, {appId: 'geuh54pb'});
+
+
 Vue.config.productionTip = false;
 
 const app = new Vue({

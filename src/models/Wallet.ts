@@ -23,7 +23,6 @@ export class Wallet {
     public address: string = '';
     public walletType?: WalletType;
     public secretType?: SecretType;
-    public name: string = '';
     public type: WalletAppType = WalletAppType.PERSONAL;
     public funds: Fund[] = [];
     public app?: WalletIntegratedApp = WalletIntegratedApp.FUNDREQUEST;
