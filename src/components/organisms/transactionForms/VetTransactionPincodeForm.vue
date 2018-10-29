@@ -2,7 +2,7 @@
   <div class="vet-tx-pincode-form">
     <h3>Enter your pincode to {{action}} this transaction</h3>
 
-    <from-to :from="fromAddress" :toAddresses="toAddresses" :max-lines="3"></from-to>
+    <from-to :from="transactionWallet" :toAddresses="toAddresses" :max-lines="3"></from-to>
 
     <totals-box :amount-value="totalAmountInVet" :amount-currency="'VET'" :amount-decimals="{min: 2, max: 3}"
                 :fee-value="maxTransactionFee()" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 11}"
@@ -52,10 +52,6 @@
         @Emit('pincode_entered')
         public pincodeEntered(pincode: string) {
             // @Emit will handle this
-        }
-
-        public get fromAddress(): string {
-            return !(!this.transactionWallet) ? this.transactionWallet.address : '0x0000000000000000000000000000000000000000';
         }
 
         public get toAddresses(): string[] {
