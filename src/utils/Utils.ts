@@ -1,19 +1,26 @@
 import ENV from '../../vue.env';
-import store from '../store';
 import {Wallet} from '../models/Wallet';
 import {EVENT_TYPES} from '../types/EventTypes';
+import {SecretType} from '../models/SecretType';
+import {Chain} from '../models/Chain';
 
 export default class Utils {
     public static environment: string = 'prod';
 
     public static wallets = {
-        filterWalletsForChainType: (wallets: Wallet[], chain: string): Wallet[] => {
-            return wallets.filter((wallet: Wallet) => {
-                return wallet.secretType === store.getters.secretType;
-            });
-        },
-        hasWalletsForChainType: (wallets: Wallet[], chain: string): boolean => {
+        hasWalletsForChainType: (wallets: Wallet[], chain: Chain): boolean => {
             return Utils.wallets.filterWalletsForChainType(wallets, chain).length > 0;
+        },
+        filterWalletsForChainType: (wallets: Wallet[], chain: Chain): Wallet[] => {
+            return Utils.wallets.filterWalletsForSecretType(wallets, chain.secretType);
+        },
+        hasWalletsForSecretType: (wallets: Wallet[], secretType: SecretType): boolean => {
+            return Utils.wallets.filterWalletsForSecretType(wallets, secretType).length > 0;
+        },
+        filterWalletsForSecretType: (wallets: Wallet[], secretType: SecretType): Wallet[] => {
+            return wallets.filter((wallet: Wallet) => {
+                return wallet.secretType === secretType;
+            });
         },
     };
 

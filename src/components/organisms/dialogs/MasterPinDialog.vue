@@ -1,8 +1,8 @@
 <template>
-    <dialog-template :title="title">
-        <slot></slot>
-        <master-pincode-form @done="pinEntered" :create-label="'Create Wallet'"></master-pincode-form>
-    </dialog-template>
+  <dialog-template :title="title">
+    <slot></slot>
+    <master-pincode-form @done="pinEntered" :create-label="actionLabel"></master-pincode-form>
+  </dialog-template>
 </template>
 
 <script lang="ts">
@@ -19,6 +19,8 @@
     export default class MasterPinDialog extends Vue {
         @Prop()
         public title!: string;
+        @Prop()
+        public actionLabel!: string;
 
         @Emit('done')
         public pinEntered(pincode: string) {
