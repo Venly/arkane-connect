@@ -1,4 +1,4 @@
-import Keycloak, {KeycloakInitOptions, KeycloakInstance} from 'keycloak-js';
+import {KeycloakInitOptions, KeycloakInstance} from 'keycloak-js';
 
 import * as KJUR from 'jsrsasign';
 import Api from './api';
@@ -109,9 +109,10 @@ export default class Security {
         );
     }
 
-    private static initializeAuth(config: any, onLoad: 'check-sso' | 'login-required', redirectUrl?: string): Promise<LoginResult> {
+    private static async initializeAuth(config: any, onLoad: 'check-sso' | 'login-required', redirectUrl?: string): Promise<LoginResult> {
+        const Keycloak: { default: (config?: string | {} | undefined) => KeycloakInstance } = await import ('keycloak-js');
         return new Promise((resolve, reject) => {
-            Security.keycloak = Keycloak(config);
+            Security.keycloak = Keycloak.default(config);
             const initOptions: KeycloakInitOptions = {
                 onLoad,
             };
@@ -137,7 +138,7 @@ export default class Security {
                         Security.notAuthenticated();
                         reject(false);
                     });
-        });
+        }) as Promise<LoginResult>;
     }
 
     private static authenticated(token: string = '') {

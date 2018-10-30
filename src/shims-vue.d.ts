@@ -13,3 +13,4 @@ declare module 'v-tooltip';
 declare module 'vue.env';
 declare module '@fortawesome/*';
 declare module 'vue-slider-component';
+declare module 'vue-intercom';

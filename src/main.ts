@@ -2,10 +2,9 @@ import Vue from 'vue';
 import App from './App.vue';
 import store from './store';
 import router from './router';
+import VueIntercom from 'vue-intercom';
 
 import '@/utils/FontAwesome';
-
-const VueIntercom = require('vue-intercom');
 
 Vue.use(VueIntercom, {appId: 'geuh54pb'});
 
