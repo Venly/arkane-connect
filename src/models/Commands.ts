@@ -1,4 +1,5 @@
 import {SecretType} from './SecretType';
+import {ImportWalletType} from './ImportWalletType';
 
 export interface CreateWalletCommand {
     alias?: string;
@@ -13,4 +14,17 @@ export interface CreateWalletCommand {
 export interface LinkWalletCommand {
     client: string;
     walletIds: string[];
+}
+
+export interface ImportKeystoreCommand {
+    importWalletType: ImportWalletType;
+    pincode: string;
+    keystore: string;
+    password: string;
+}
+
+export interface ImportPrivateKeyCommand {
+    importWalletType: ImportWalletType;
+    pincode: string;
+    privateKey: string;
 }

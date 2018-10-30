@@ -14,3 +14,13 @@ export const differentFrom = (notEqualTo: string) => {
         },
     );
 };
+
+export const requiredIf = (conditionFunction: () => boolean) => {
+    return validators.helpers.withParams(
+        {type: 'requiredIf'},
+        (value: any): boolean => {
+            const required = conditionFunction();
+            return (required && validators.helpers.req(value)) || !required;
+        },
+    );
+};

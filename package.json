@@ -29,6 +29,7 @@
     "vue-router": "^3.0.1",
     "vue-slider-component": "^2.7.7",
     "vuelidate": "^0.7.4",
+    "@types/vuelidate": "github:Simsteve7/vuelidate.ts#master",
     "vuex": "^3.0.1",
     "vuex-class": "^0.3.1"
   },

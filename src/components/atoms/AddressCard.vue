@@ -3,7 +3,7 @@
     <div class="address-card" :class="stripeClass" :title="wallet.address">
       <div class="address-card__details">
         <div class="address-card__label">
-          {{label}} <span v-if="wallet.description">: {{wallet.description}}</span>
+          {{label}}<span v-if="wallet.description">: {{wallet.description}}</span>
         </div>
         <div class="address-card__address">
           <dots-in-between v-if="wallet.address !== ''" :chars="20" :text="wallet.address"></dots-in-between>

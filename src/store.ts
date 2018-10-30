@@ -2,10 +2,11 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import Api from './api';
 import {Wallet} from './models/Wallet';
-import {SecretTypeUtil} from './models/SecretType';
 import {Snack, SnackType} from './models/Snack';
 import {Profile} from './models/Profile';
 import {RestApiResponse} from './api/RestApi';
+import {SupportedChains} from '@/models/SupportedChains';
+import {ImportKeystoreCommand, ImportPrivateKeyCommand} from '@/models/Commands';
 
 Vue.use(Vuex);
 
@@ -18,7 +19,7 @@ export default new Vuex.Store(
             config: {},
             tokens: {},
             wallets: [],
-            chain: '',
+            chain: {},
             thirdPartytoken: {},
             loading: false,
             snack: {},
@@ -44,7 +45,7 @@ export default new Vuex.Store(
                 state.wallets = [...state.wallets, wallet];
             },
             setChain: (state: any, chain: string) => {
-                state.chain = chain;
+                state.chain = SupportedChains.getByName(chain);
             },
             setThirdPartyToken: (state: any, thirdPartytoken: any) => {
                 state.thirdPartytoken = thirdPartytoken;
@@ -61,7 +62,7 @@ export default new Vuex.Store(
             setShowModal: (state: any, showModal: boolean) => {
                 state.showModal = showModal;
             },
-            setTransactionWallet: async (state: any, wallet: Wallet) => {
+            setTransactionWallet: (state: any, wallet: Wallet) => {
                 state.transactionWallet = wallet;
             },
         },
@@ -103,6 +104,16 @@ export default new Vuex.Store(
                               });
                           });
             },
+            importPrivateKey: async (store: any, command: ImportPrivateKeyCommand): Promise<Wallet> => {
+                const wallet: Wallet = await Api.importPrivateKey(command);
+                store.commit('addWallet', wallet);
+                return wallet;
+            },
+            importKeystore: async (store: any, command: ImportKeystoreCommand): Promise<Wallet> => {
+                const wallet: Wallet = await Api.importKeystore(command);
+                store.commit('addWallet', wallet);
+                return wallet;
+            },
             startLoading: (store: any): void => {
                 store.commit('setLoading', true);
             },
@@ -132,7 +143,7 @@ export default new Vuex.Store(
         },
         getters: {
             secretType: (state) => {
-                return SecretTypeUtil.byChain(state.chain);
+                return state.chain.secretType;
             },
             thirdPartyClientId: (state) => {
                 return state.thirdPartytoken.azp;
