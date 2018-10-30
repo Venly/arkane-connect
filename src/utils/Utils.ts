@@ -2,7 +2,7 @@ import ENV from '../../vue.env';
 import {Wallet} from '../models/Wallet';
 import {EVENT_TYPES} from '../types/EventTypes';
 import {SecretType} from '../models/SecretType';
-import {Chain} from '@/models/Chain';
+import {Chain} from '../models/Chain';
 
 export default class Utils {
     public static environment: string = 'prod';

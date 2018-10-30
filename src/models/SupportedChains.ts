@@ -1,6 +1,6 @@
-import {SecretType} from '@/models/SecretType';
-import {Chain, Chains} from '@/models/Chain';
-import {ImportWalletType} from '@/models/ImportWalletType';
+import {SecretType} from './SecretType';
+import {Chain, Chains} from './Chain';
+import {ImportWalletType} from './ImportWalletType';
 
 export class SupportedChains {
 

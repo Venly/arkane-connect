@@ -1,5 +1,5 @@
-import {SecretType} from '@/models/SecretType';
-import {ImportWalletType} from '@/models/ImportWalletType';
+import {SecretType} from './SecretType';
+import {ImportWalletType} from './ImportWalletType';
 
 export class Chain {
     public name: string;
