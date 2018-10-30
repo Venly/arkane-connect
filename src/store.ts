@@ -105,12 +105,12 @@ export default new Vuex.Store(
                           });
             },
             importPrivateKey: async (store: any, command: ImportPrivateKeyCommand): Promise<Wallet> => {
-                const wallet = await Api.importPrivateKey(command);
+                const wallet: Wallet = await Api.importPrivateKey(command);
                 store.commit('addWallet', wallet);
                 return wallet;
             },
             importKeystore: async (store: any, command: ImportKeystoreCommand): Promise<Wallet> => {
-                const wallet = Api.importKeystore(command);
+                const wallet: Wallet = await Api.importKeystore(command);
                 store.commit('addWallet', wallet);
                 return wallet;
             },
