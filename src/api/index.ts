@@ -123,7 +123,7 @@ export default class Api {
 
     public static importPrivateKey(command: ImportPrivateKeyCommand): Promise<Wallet> {
         return Api.getApi().http
-                  .put(`wallets/import`, command)
+                  .post(`wallets/import`, command)
                   .then((res: AxiosResponse<RestApiResponse<Wallet>>) => {
                       return Object.assign(new Wallet(), res.data.result);
                   });
@@ -131,7 +131,7 @@ export default class Api {
 
     public static importKeystore(command: ImportKeystoreCommand): Promise<Wallet> {
         return Api.getApi().http
-                  .put(`wallets/import`, command)
+                  .post(`wallets/import`, command)
                   .then((res: AxiosResponse<RestApiResponse<Wallet>>) => {
                       return Object.assign(new Wallet(), res.data.result);
                   });
