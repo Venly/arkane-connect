@@ -11,7 +11,6 @@ export default class Security {
     public static getConfig(clientId?: string): any {
         return {
             'clientId': clientId || Utils.env.VUE_APP_CLIENT_ID,
-            'clientSecret': 'secret',
             'realm': Utils.env.VUE_APP_REALM,
             'realm-public-key': Utils.env.VUE_APP_REALM_PUBLIC_KEY,
             'url': Utils.urls.login,
