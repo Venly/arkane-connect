@@ -8,6 +8,7 @@ import {CreateWalletCommand, ImportKeystoreCommand, ImportPrivateKeyCommand, Lin
 import {Profile} from '../models/Profile';
 import {Balance} from '../models/Balance';
 import {SecretType} from '../models/SecretType';
+import {IntercomVerification} from '../models/IntercomVerification';
 
 export default class Api {
     public static token: string = '';
@@ -134,6 +135,17 @@ export default class Api {
                   .then((res: AxiosResponse<RestApiResponse<Wallet>>) => {
                       return Object.assign(new Wallet(), res.data.result);
                   });
+    }
+
+    public static async fetchIntercomVerification(): Promise<IntercomVerification> {
+        const response: AxiosResponse<RestApiResponse<IntercomVerification>> = await Api.getApi().http.get('profile/intercom/verification');
+        if (response.data && response.data.success) {
+            return response.data.result;
+        } else {
+            return {
+                hash: '',
+            } as IntercomVerification;
+        }
     }
 
     private static instance: Api;

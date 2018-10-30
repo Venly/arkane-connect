@@ -13,7 +13,7 @@ import {GenericTransactionRequest} from '../../models/GenericTransactionRequest'
 
 export class ArkaneConnect {
 
-    private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 350, h: number = 870) {
+    private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 350, h: number = 600) {
         const left = (screen.width / 2) - (w / 2);
         const top = (screen.height / 2) - (h / 2);
         let features = 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, ';

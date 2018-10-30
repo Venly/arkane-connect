@@ -6,8 +6,8 @@
                 <!-- todo make chain specific-->
             </div>
             <div class="wallet-card__alias-address">
-                <div class="wallet-card__alias" v-if="wallet.alias">
-                    {{wallet.alias}}
+                <div class="wallet-card__alias" v-if="wallet.description">
+                    {{wallet.description}}
                 </div>
                 <div class="wallet-card__address">
                     <span :v-tooltip="wallet.address" :title="wallet.address">{{wallet.address}}</span>

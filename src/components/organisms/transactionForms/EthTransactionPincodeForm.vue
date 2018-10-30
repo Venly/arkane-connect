@@ -2,7 +2,7 @@
   <div class="eth-tx-pincode-form">
     <h3>Enter your pincode to {{action}} this transaction</h3>
 
-    <from-to :from="fromAddress" :to="transactionData.to"></from-to>
+    <from-to :from="transactionWallet" :to="transactionData.to"></from-to>
 
     <totals-box :amount-value="amountInEther" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
                 :fee-value="maxTransactionFee()" :fee-currency="'GWEI'" :fee-decimals="{min: 2, max: 6}"
