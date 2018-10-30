@@ -8,17 +8,14 @@
             <div class="dialog__box__content">
                 <slot name="aboveTitle"></slot>
                 <h3 class="dialog__box__title" v-if="title">{{title}}</h3>
-                <slot>
-                    <p>Description</p>
-                </slot>
+                <slot></slot>
             </div>
         </div>
         <div class="dialog__footer" v-if="showFooter">
             <div class="dialog-poweredby">
             </div>
             <div>
-                <action-link type="brand-light">Terms</action-link>
-                <action-link type="brand-light">Privacy</action-link>
+                <action-link type="brand-light" @click="gotoTerms">Terms, Conditions and Privacy</action-link>
             </div>
         </div>
     </div>
@@ -26,6 +23,9 @@
 
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
+
+    import Utils from '@/utils/Utils';
+
     import ActionLink from '@/components/atoms/ActionLink.vue';
     import SvgArkane from '@/components/atoms/SvgArkane.vue';
 
@@ -40,6 +40,10 @@
         public showFooter!: boolean;
         @Prop()
         public title!: string;
+
+        public gotoTerms() {
+            Utils.openExternalUrl('https://arkane.network/pages/terms.html');
+        }
     }
 </script>
 
