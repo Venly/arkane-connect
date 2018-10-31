@@ -1,7 +1,7 @@
 <template>
-  <modal-template :title="'Master PIN Code Required'" :show="show" @close="close" @click.stop>
+  <modal-template :title="'Master PIN Code Required'" :show="show" @close="cancel" @click.stop>
     <div class="description">To perform this action, please enter your master pin code.</div>
-    <enter-master-pincode-form @done="pinEntered" @cancel="cancelClicked"></enter-master-pincode-form>
+    <enter-master-pincode-form @done="pinEntered" @cancel="cancel"></enter-master-pincode-form>
   </modal-template>
 </template>
 
@@ -26,12 +26,11 @@
         public pincode = '';
 
         public pinEntered(pincode: string) {
-            this.$emit('close');
             this.$emit('done', pincode);
         }
 
         @Emit('cancel')
-        public cancelClicked() {
+        public cancel() {
             // left blank intentionally
         }
 

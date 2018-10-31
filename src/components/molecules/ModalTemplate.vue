@@ -5,11 +5,7 @@
         <div class="modal__content">
           <slot name="aboveTitle"></slot>
           <h3 class="modal__title" v-if="title">{{title}}</h3>
-          <slot>
-            <p>
-              Description
-            </p>
-          </slot>
+          <slot></slot>
         </div>
       </div>
     </div>

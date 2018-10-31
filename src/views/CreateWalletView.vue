@@ -29,14 +29,14 @@
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
     import WalletCard from '@/components/molecules/WalletCard.vue';
-    import EnterMasterPinModal from '../components/organisms/modals/EnterMasterPinModal.vue';
+    import EnterMasterPinModal from '@/components/organisms/modals/EnterMasterPinModal.vue';
     import RedirectDialog from '@/components/organisms/dialogs/RedirectDialog.vue';
     import DialogTemplate from '@/components/molecules/DialogTemplate.vue';
     import ActionButton from '@/components/atoms/ActionButton.vue';
+    import SvgCross from '@/components/atoms/SvgCross.vue';
+    import ErrorDialog from '@/components/organisms/dialogs/ErrorDialog.vue';
     import {Wallet} from '../models/Wallet';
     import {Getter, State} from 'vuex-class';
-    import SvgCross from '../components/atoms/SvgCross.vue';
-    import ErrorDialog from '../components/organisms/dialogs/ErrorDialog.vue';
     import {Chain} from '../models/Chain';
 
     @Component({
