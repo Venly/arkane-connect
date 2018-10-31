@@ -15,8 +15,7 @@
           </div>
         </div>
       </form>
-      <action-button class="button"
-                     :type="'brand-light'"
+      <action-button :type="'brand-light'"
                      @click="linkWallets"
                      :disabled="selectedWallets.length <= 0"
                      :title="selectedWallets.length <= 0 ? 'At least one wallet needs to be selected' : ''">Update Linked Wallets
@@ -25,22 +24,27 @@
         <div class="separator__label">or</div>
       </div>
     </div>
-    <action-button class="button" @click="createWallet" :disabled="linkedWalletsChanged">Create a New Wallet</action-button>
-    <div class="separator">
-      <div class="separator__label">or</div>
+    <div class="actions">
+      <action-button @click="createWallet" :disabled="linkedWalletsChanged">Create a New Wallet</action-button>
+      <div class="separator">
+        <div class="separator__label">or</div>
+      </div>
+      <action-button class="margin-bottom" @click="importWallet" :disabled="linkedWalletsChanged">Import an Existing Wallet</action-button>
+      <!--<div class="separator"></div>-->
+      <action-link @click="backClicked" :disabled="linkedWalletsChanged">Back to {{thirdPartyClientId}}</action-link>
     </div>
-    <action-button class="button margin-bottom" @click="importWallet" :disabled="linkedWalletsChanged">Import an Existing Wallet</action-button>
   </dialog-template>
 </template>
 
 <script lang="ts">
-    import {Component, Prop, Vue} from 'vue-property-decorator';
+    import {Component, Emit, Prop, Vue} from 'vue-property-decorator';
     import WalletCard from '@/components/molecules/WalletCard.vue';
     import MasterPinDialog from '@/components/organisms/dialogs/MasterPinDialog.vue';
     import SetMasterPinDialog from '@/components/organisms/dialogs/SetMasterPinDialog.vue';
     import RedirectDialog from '@/components/organisms/dialogs/RedirectDialog.vue';
     import DialogTemplate from '@/components/molecules/DialogTemplate.vue';
     import ActionButton from '@/components/atoms/ActionButton.vue';
+    import ActionLink from '@/components/atoms/ActionLink.vue';
     import {Wallet} from '../../../models/Wallet';
     import {AsyncData} from '@/decorators/decorators';
     import {SecretType} from '@/models/SecretType';
@@ -49,6 +53,7 @@
 
     @Component({
         components: {
+            ActionLink,
             ActionButton,
             RedirectDialog,
             MasterPinDialog,
@@ -76,6 +81,11 @@
         public get linkedWalletsChanged(): boolean {
             return this.selectedWallets.length !== this.originalSelectedWalletIds.length
                 || (this.selectedWalletsIds.filter((sw) => this.originalSelectedWalletIds.indexOf(sw) === -1).length > 0);
+        }
+
+        @Emit('backClicked')
+        public backClicked() {
+            // left blank intentionally
         }
 
         private get selectedWalletsIds(): string[] {
@@ -136,16 +146,13 @@
   .control--checkbox
     margin-bottom: 0
 
-  .button
+  .actions
+    text-align: center
+
+  .btn
     margin-bottom: 0
     &.margin-bottom
-      margin-bottom: rem(20px)
-
-  .alternate-actions
-    display: flex
-    justify-content: space-between
-    .button
-      width: 47%
+      margin-bottom: rem(30px)
 
   .separator
     margin: rem(15px 0)

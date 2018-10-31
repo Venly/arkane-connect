@@ -5,7 +5,7 @@
       <set-master-pin-dialog @done="masterpinEntered" v-if="showSetupMasterPin"></set-master-pin-dialog>
 
       <manage-wallets-dialog v-if="showManageWallets" :wallets="walletsForChainType" :chain="chain" :thirdPartyClientId="thirdPartyClientId"
-                             @linkWalletsClicked="linkWallets" @createWalletClicked="toCreateWallet" @importWalletClicked="toImportWallet">
+                             @linkWalletsClicked="linkWallets" @createWalletClicked="toCreateWallet" @importWalletClicked="toImportWallet" @backClicked="redirectBack">
       </manage-wallets-dialog>
 
       <redirect-dialog :class="'success'" :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri" :timeleft="timeleft" v-if="showWalletsLinked">
@@ -26,8 +26,8 @@
         <p>Please try again. If the problem persists, contact support via <a href="mailto:support@arkane.network">support@arkane.network</a></p>
       </error-dialog>
     </div>
-    <create-wallet-view v-if="showCreateWallet" :enteredPincode="pincode"/>
-    <import-wallet-view v-if="showImportWallet" :enteredPincode="pincode"/>
+    <create-wallet-view v-if="showCreateWallet" :enteredPincode="pincode" @backClicked="backClicked"/>
+    <import-wallet-view v-if="showImportWallet" :enteredPincode="pincode" @backClicked="backClicked"/>
 
   </div>
 </template>
@@ -153,19 +153,16 @@
         }
 
         private async toCreateWallet() {
-            if (this.pincode !== '') {
-                this.showCreateWallet = true;
-            } else {
-                this.$router.push({name: 'create-wallet', params: this.$route.params, query: this.$route.query});
-            }
+            this.showCreateWallet = true;
         }
 
         private toImportWallet() {
-            if (this.pincode !== '') {
-                this.showImportWallet = true;
-            } else {
-                this.$router.push({name: 'import-wallet', params: this.$route.params, query: this.$route.query});
-            }
+            this.showImportWallet = true;
+        }
+
+        private backClicked() {
+            this.showCreateWallet = false;
+            this.showImportWallet = false;
         }
 
         private redirectBack() {

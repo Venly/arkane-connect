@@ -27,6 +27,7 @@
         <span class="control__message" v-if="$v.keystorePassword.$error">This is not a valid keystore password</span>
       </div>
       <div class="actions">
+        <action-link @click.prevent="backClicked">&lt; Back</action-link>
         <action-button tabindex="2" :type="'brand-light'" :disabled="$v.$invalid" @click.prevent="importKeystore">Import {{chainName}} wallet</action-button>
       </div>
     </form>
@@ -34,7 +35,7 @@
 </template>
 
 <script lang="ts">
-    import {Component, Prop, Vue} from 'vue-property-decorator';
+    import {Component, Emit, Prop, Vue} from 'vue-property-decorator';
     import {validationMixin} from 'vuelidate';
     import WalletCard from '../../molecules/WalletCard.vue';
     import MasterPinDialog from '../../organisms/dialogs/MasterPinDialog.vue';
@@ -42,6 +43,7 @@
     import RedirectDialog from '../../organisms/dialogs/RedirectDialog.vue';
     import DialogTemplate from '../../molecules/DialogTemplate.vue';
     import ActionButton from '../../atoms/ActionButton.vue';
+    import ActionLink from '../../atoms/ActionLink.vue';
     import {Validations} from '../../../decorators/decorators';
     import {requiredIf} from '../../../validators/validators';
     import {Chain} from '../../../models/Chain';
@@ -49,6 +51,7 @@
 
     @Component({
         components: {
+            ActionLink,
             ActionButton,
             RedirectDialog,
             MasterPinDialog,
@@ -86,8 +89,12 @@
         }
 
         public importKeystore() {
-
             this.$emit('importKeystoreClicked', this.keystore, this.keystorePassword);
+        }
+
+        @Emit('backClicked')
+        public backClicked() {
+            // left blank intentionally
         }
 
         @Validations
@@ -149,5 +156,15 @@
 
   .separator
     margin: rem(15px 0)
+
+  .actions
+    display: flex
+    justify-content: space-between
+    align-items: center
+
+    .btn,
+    .link
+      width: 45%
+      margin-bottom: 0
 
 </style>

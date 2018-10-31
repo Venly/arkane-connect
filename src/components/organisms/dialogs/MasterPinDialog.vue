@@ -1,7 +1,7 @@
 <template>
   <dialog-template :title="title">
     <slot></slot>
-    <master-pincode-form @done="pinEntered" :create-label="actionLabel"></master-pincode-form>
+    <master-pincode-form @done="pinEntered" @back="backClicked" :create-label="actionLabel"></master-pincode-form>
   </dialog-template>
 </template>
 
@@ -24,7 +24,12 @@
 
         @Emit('done')
         public pinEntered(pincode: string) {
-            // let blank intentionally
+            // left blank intentionally
+        }
+
+        @Emit('back')
+        public backClicked() {
+            // left blank intentionally
         }
     }
 </script>

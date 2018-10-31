@@ -74,7 +74,7 @@ const router = new Router(
             },
             {
                 path: '/wallets/manage/:chain',
-                name: 'link-wallet',
+                name: 'manage-wallets',
                 component: ManageWalletsView,
                 meta: {
                     authArkane: true,
