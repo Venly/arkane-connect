@@ -1,9 +1,8 @@
 <template>
   <div class="container">
     <div class="dialog-container">
-      <master-pin-dialog :title="'Create a wallet'" :actionLabel="'Create Wallet'" @done="masterpinEntered" @back="masterpinBackClicked" v-if="showEnterMasterPin">
-        <p>Please confirm by providing your Master Pin Code</p>
-      </master-pin-dialog>
+
+      <enter-master-pin-modal :show="showEnterMasterPin" @done="masterpinEntered" @cancel="masterpinCancelClicked"></enter-master-pin-modal>
 
       <dialog-template v-if="showCreatingWallet" :title="'Creating wallet'">
         <p>A <strong>{{chainName}}</strong> wallet is being created...</p>
@@ -30,8 +29,7 @@
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
     import WalletCard from '@/components/molecules/WalletCard.vue';
-    import MasterPinDialog from '@/components/organisms/dialogs/MasterPinDialog.vue';
-    import SetMasterPinDialog from '@/components/organisms/dialogs/SetMasterPinDialog.vue';
+    import EnterMasterPinModal from '../components/organisms/modals/EnterMasterPinModal.vue';
     import RedirectDialog from '@/components/organisms/dialogs/RedirectDialog.vue';
     import DialogTemplate from '@/components/molecules/DialogTemplate.vue';
     import ActionButton from '@/components/atoms/ActionButton.vue';
@@ -43,12 +41,11 @@
 
     @Component({
         components: {
+            EnterMasterPinModal,
             ErrorDialog,
             SvgCross,
             ActionButton,
             RedirectDialog,
-            MasterPinDialog,
-            SetMasterPinDialog,
             DialogTemplate,
             WalletCard,
         },
@@ -126,8 +123,8 @@
             }
         }
 
-        private masterpinBackClicked() {
-            this.$emit('backClicked');
+        private masterpinCancelClicked() {
+            this.$emit('cancelClicked');
         }
 
         private tryAgain() {

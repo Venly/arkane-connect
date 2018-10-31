@@ -18,17 +18,17 @@
       <div class="control" :class="{'control--error': $v.keystore.$error}">
         <label for="keystore" class="control__label">Keystore</label>
         <textarea tabindex="1" id="keystore" class="control__input" v-model="$v.keystore.$model" :placeholder="`Enter the keystore of your ${chainName} wallet here`"></textarea>
-        <span class="control__message" v-if="$v.keystore.$error">This is not a valid keystore</span>
+        <span class="control__message" v-if="$v.keystore.$error">The keystore is required</span>
       </div>
       <div class="control" :class="{'control--error': $v.keystorePassword.$error}">
         <label for="keystorePassword" class="control__label">Keystore Password</label>
         <input tabindex="2" id="keystorePassword" class="control__input" type="password" v-model="$v.keystorePassword.$model"
                :placeholder="`Enter the password of this keystore`"/>
-        <span class="control__message" v-if="$v.keystorePassword.$error">This is not a valid keystore password</span>
+        <span class="control__message" v-if="$v.keystorePassword.$error">The keystore password is required</span>
       </div>
       <div class="actions">
-        <action-link @click.prevent="backClicked">&lt; Back</action-link>
-        <action-button tabindex="2" :type="'brand-light'" :disabled="$v.$invalid" @click.prevent="importKeystore">Import {{chainName}} wallet</action-button>
+        <action-link :type="'muted'" @click.prevent="backClicked">Back</action-link>
+        <action-button tabindex="3" :disabled="$v.$invalid" @click.prevent="importKeystore">Import {{chainName}} wallet</action-button>
       </div>
     </form>
   </dialog-template>
@@ -38,8 +38,6 @@
     import {Component, Emit, Prop, Vue} from 'vue-property-decorator';
     import {validationMixin} from 'vuelidate';
     import WalletCard from '../../molecules/WalletCard.vue';
-    import MasterPinDialog from '../../organisms/dialogs/MasterPinDialog.vue';
-    import SetMasterPinDialog from '../../organisms/dialogs/SetMasterPinDialog.vue';
     import RedirectDialog from '../../organisms/dialogs/RedirectDialog.vue';
     import DialogTemplate from '../../molecules/DialogTemplate.vue';
     import ActionButton from '../../atoms/ActionButton.vue';
@@ -54,8 +52,6 @@
             ActionLink,
             ActionButton,
             RedirectDialog,
-            MasterPinDialog,
-            SetMasterPinDialog,
             DialogTemplate,
             WalletCard,
         },
@@ -160,11 +156,15 @@
   .actions
     display: flex
     justify-content: space-between
-    align-items: center
+    align-items: baseline
 
     .btn,
     .link
-      width: 45%
       margin-bottom: 0
 
+    .link
+      width: rem(100px)
+      text-align: left
+      font-size: $font-size-small
+      padding: 0
 </style>
