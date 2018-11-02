@@ -40,6 +40,8 @@ import VetTransactionPincodeForm from '../../components/organisms/transactionFor
 import VetTransactionAdvancedForm from '../../components/organisms/transactionForms/VetTransactionAdvancedForm.vue';
 import ResponseBody from '../../api/ResponseBody';
 import {EVENT_TYPES} from '../../types/EventTypes';
+import VechainTransactionData from '../../api/VechainTransactionData';
+import VetTransactionPreparationDto from '../../models/transaction/preparation/vechain/VetTransactionPreparationDto';
 
 @Component({
     components: {
@@ -47,12 +49,13 @@ import {EVENT_TYPES} from '../../types/EventTypes';
         VetTransactionAdvancedForm,
     },
 })
-export default class ExecuteVetTransactionView extends TransactionView {
+export default class ExecuteVetTransactionView extends TransactionView<VechainTransactionData, VetTransactionPreparationDto> {
 
     public showAdvanced: boolean = false;
 
     public created() {
-        this.postTransaction = (pincode: string, transactionData: any) => Api.executeTransaction(transactionData, pincode);
+        this.transactionPreparationMethod = Api.prepareExecuteTransaction;
+        this.postTransaction = Api.executeTransaction;
         this.onSuccesCallbackHandler = (result: ResponseBody) => {
             if (this.messagePort) {
                 this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_EXECUTED, data: result});

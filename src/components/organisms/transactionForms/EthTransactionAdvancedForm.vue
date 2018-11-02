@@ -53,116 +53,127 @@
     import {Wallet} from '../../../models/Wallet';
     import VueSlider from 'vue-slider-component';
     import ActionLink from '../../atoms/ActionLink.vue';
+    import EthTransactionPreparationDto from '../../../models/transaction/preparation/ethereum/EthTransactionPreparationDto';
+    import GasPriceDto from '../../../models/transaction/preparation/ethereum/gasprice/GasPriceDto';
 
     @Component({
-    components: {
-        ActionLink,
-        VueSlider,
-        Numpad,
-        TotalsBox,
-        FromTo,
-    },
-})
-export default class EthTransactionAdvancedForm extends Vue {
-
-    @Prop()
-    public transactionData!: EthereumTransactionData;
-    @Prop()
-    public hasTransactionData!: boolean;
-
-    public gasLimit: number = 0;
-    public gasPrice: number = 0;
-
-    @State
-    public transactionWallet?: Wallet;
-
-    public speedSelectorOptions: any = {
-        piecewise: true,
-        dotSize: 16,
-        formatter: ((value: number) => `${Utils.formatNumber(value, 0, 3)} GWEI`),
-        bgStyle: {
-            backgroundColor: '#9b9b9b',
+        components: {
+            ActionLink,
+            VueSlider,
+            Numpad,
+            TotalsBox,
+            FromTo,
         },
-        processStyle: {
-            backgroundColor: '#278dae',
-        },
-        tooltipStyle: {
-            backgroundColor: '#278dae',
-            borderColor: '#278dae',
-        },
-        piecewiseStyle: {
-            backgroundColor: '#9b9b9b',
-            visibility: 'visible',
-            width: '12px',
-            height: '12px',
-        },
-        piecewiseActiveStyle: {
-            backgroundColor: '#278dae',
-        },
-        lazy: true,
-    };
+    })
+    export default class EthTransactionAdvancedForm extends Vue {
 
-    public mounted() {
-        if (this.hasTransactionData) {
-            this.initGas();
+        @Prop()
+        public transactionData!: EthereumTransactionData;
+        @Prop()
+        public hasTransactionData!: boolean;
+        @Prop()
+        public transactionPreparation!: EthTransactionPreparationDto;
+
+        public gasLimit: number = 0;
+        public gasPrice: number = 0;
+
+        @State
+        public transactionWallet?: Wallet;
+
+        public speedSelectorOptions: any = {
+            piecewise: true,
+            dotSize: 16,
+            formatter: ((value: number) => `${Utils.formatNumber(value, 0, 3)} GWEI`),
+            bgStyle: {
+                backgroundColor: '#9b9b9b',
+            },
+            processStyle: {
+                backgroundColor: '#278dae',
+            },
+            tooltipStyle: {
+                backgroundColor: '#278dae',
+                borderColor: '#278dae',
+            },
+            piecewiseStyle: {
+                backgroundColor: '#9b9b9b',
+                visibility: 'visible',
+                width: '12px',
+                height: '12px',
+            },
+            piecewiseActiveStyle: {
+                backgroundColor: '#278dae',
+            },
+            lazy: true,
+        };
+
+        public mounted() {
+            if (this.hasTransactionData) {
+                this.initGas();
+            }
+        }
+
+        public get fromAddress(): string {
+            return this.transactionWallet ? this.transactionWallet.address : '0x0000000000000000000000000000000000000000';
+        }
+
+        public get amountInEther(): number {
+            return Utils.rawValue().toTokenValue(this.transactionData.value);
+        }
+
+        public get maxEditedTransactionFee(): number {
+            return ((this.gasLimit * this.gasPrice) / Math.pow(10, 9));
+        }
+
+        public get gasOptions(): number[] {
+            if (this.transactionPreparation) {
+                const options: number[] = (this.transactionPreparation as EthTransactionPreparationDto).gasPrices
+                                                                                                     .map((gasPrice: GasPriceDto) => {
+                                                                                                         return Utils.rawValue().toGwei(gasPrice.gasPrice);
+                                                                                                     });
+
+                const originalValue: number = this.gasPriceInGWei();
+                if (options.findIndex((value: number) => value === originalValue) < 0) {
+                    options.push(originalValue);
+                }
+                return options.sort((a, b) => a - b);
+            }
+            return [];
+        }
+
+        public gasPriceInGWei(): number {
+            return Utils.rawValue().toGwei(Utils.zeroIfUndefined(this.transactionData && this.transactionData.gasPrice));
+        }
+
+        @Watch('hasTransactionData')
+        public onTransactionDataReceivedCallback(oldValue: boolean, newValue: boolean) {
+            if (newValue) {
+                this.initGas();
+            }
+        }
+
+        public backClicked() {
+            this.$emit('back_clicked');
+        }
+
+        public saveClicked() {
+            this.transactionData.gasPrice = Utils.gwei().toRawValue(this.gasPrice);
+            this.transactionData.gas = this.gasLimit;
+            this.$emit('saved');
+        }
+
+        public afterEnter() {
+            (this.$refs.speedSlider as any).refresh();
+        }
+
+        public doNothing() {
+            // Do nothing
+        }
+
+        private initGas() {
+            this.gasLimit = Utils.zeroIfUndefined(this.transactionData && this.transactionData.gas);
+            this.gasPrice = this.gasPriceInGWei();
         }
     }
-
-    public get fromAddress(): string {
-        return this.transactionWallet ? this.transactionWallet.address : '0x0000000000000000000000000000000000000000';
-    }
-
-    public get amountInEther(): number {
-        return Utils.rawValue().toTokenValue(this.transactionData.value);
-    }
-
-    public get maxEditedTransactionFee(): number {
-        return ((this.gasLimit * this.gasPrice) / Math.pow(10, 9));
-    }
-
-    public get gasOptions(): number[] {
-        const originalValue: number = this.gasPriceInGWei();
-        const options = [3, 3.1300001, 20, 53];
-        if (options.findIndex((value: number) => value === originalValue) < 0) {
-            options.push(originalValue);
-        }
-        return options.sort((a, b) => a - b);
-    }
-
-    public gasPriceInGWei(): number {
-        return Utils.rawValue().toGwei(this.transactionData.gasPrice);
-    }
-
-    @Watch('hasTransactionData')
-    public onTransactionDataReceivedCallback(oldValue: boolean, newValue: boolean) {
-        if (newValue) {
-            this.initGas();
-        }
-    }
-
-    public backClicked() {
-        this.$emit('back_clicked');
-    }
-
-    public saveClicked() {
-        this.transactionData.gasPrice = Utils.gwei().toRawValue(this.gasPrice);
-        this.transactionData.gas = this.gasLimit;
-        this.$emit('saved');
-    }
-
-    public afterEnter() {
-        (this.$refs.speedSlider as any).refresh();
-    }
-
-    public doNothing() {
-        // Do nothing
-    }
-
-    private initGas() {
-        this.gasLimit = this.transactionData.gas;
-        this.gasPrice = this.gasPriceInGWei();
-    }
-}
 </script>
 
 <style lang='sass' scoped>

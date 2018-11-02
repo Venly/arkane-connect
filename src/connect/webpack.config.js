@@ -7,7 +7,7 @@ module.exports = {
         path: path.join(__dirname, '.'),
         // path: path.join(__dirname, '../../example/node_modules/@arkane-network/arkane-connect'),
     },
-    watch: false,
+    watch: true,
     module: {
         rules: [
             {

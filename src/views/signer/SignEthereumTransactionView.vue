@@ -20,6 +20,7 @@
                                        ref="advancedForm"
                                        :transaction-data="transactionData"
                                        :has-transaction-data="hasTransactionData"
+                                       :transaction-preparation="transactionPreparation"
                                        @saved="onSaved"
                                        @back_clicked="onBackClicked">
         </eth-transaction-advanced-form>
@@ -45,6 +46,9 @@ import VueSlider from 'vue-slider-component';
 import Api from '../../api';
 import ResponseBody from '../../api/ResponseBody';
 import {EVENT_TYPES} from '../../types/EventTypes';
+import EthTransactionPreparationDto from '../../models/transaction/preparation/ethereum/EthTransactionPreparationDto';
+import EthereumTransactionData from '../../api/EthereumTransactionData';
+import GasPriceDto from '../../models/transaction/preparation/ethereum/gasprice/GasPriceDto';
 
 declare const window: Window;
 
@@ -59,18 +63,24 @@ declare const window: Window;
         VueSlider,
     },
 })
-export default class SignEthereumTransactionView extends TransactionView {
+export default class SignEthereumTransactionView extends TransactionView<EthereumTransactionData, EthTransactionPreparationDto> {
 
     public showAdvanced: boolean = false;
 
     public created() {
-        this.postTransaction = (pincode: string, transactionData: any) => Api.signTransaction(transactionData, pincode);
+        this.transactionPreparationMethod = Api.prepareSignTransaction;
+        this.postTransaction = Api.signTransaction;
+        this.onTransactionPreparationReceivedCallback = ((transactionPreparation) => {
+            this.initGasLimit(transactionPreparation);
+            this.initGasPrice(transactionPreparation);
+        });
         this.onSuccesCallbackHandler = (result: ResponseBody) => {
             if (this.messagePort) {
                 this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_SIGNED, data: result});
             }
         };
     }
+
 
     public onAdvancedButtonClicked() {
         this.showAdvanced = true;
@@ -86,6 +96,19 @@ export default class SignEthereumTransactionView extends TransactionView {
 
     public afterAdvancedEnter() {
         (this.$refs.advancedForm as EthTransactionAdvancedForm).afterEnter();
+    }
+
+    private initGasLimit(transactionPreparation: EthTransactionPreparationDto) {
+        if (!this.transactionData.gas || this.transactionData.gas === 0) {
+            this.$set(this.transactionData, 'gas', transactionPreparation.gasLimit);
+        }
+    }
+
+    private initGasPrice(transactionPreparation: EthTransactionPreparationDto) {
+        if (!this.transactionData.gasPrice || this.transactionData.gasPrice === 0) {
+            const defaultGasPrice = transactionPreparation.gasPrices.find((gasPrice: GasPriceDto) => gasPrice.defaultPrice);
+            this.$set(this.transactionData, 'gasPrice', defaultGasPrice && defaultGasPrice.gasPrice);
+        }
     }
 }
 </script>

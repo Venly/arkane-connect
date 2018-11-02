@@ -88,6 +88,19 @@ export default class Utils {
                      }, {});
     }
 
+    public static removeNullsAndEmpty(obj: any): any {
+        return Object.keys(obj)
+                     .filter((key) => obj[key] !== null && obj[key] !== undefined && obj[key] !== '')  // Remove undef. and null.
+                     .reduce((newObj, key) => {
+                         if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+                             return Object.assign(newObj, {[key]: Utils.removeNullsAndEmpty(obj[key])});
+                         } else {
+                             return Object.assign(newObj, {[key]: obj[key]});
+                         }
+                     }, {});
+    }
+
+
     public static messages() {
         return {
             hasValidOrigin: (message: MessageEvent) => {
@@ -137,4 +150,7 @@ export default class Utils {
         }
     }
 
+    public static zeroIfUndefined(numberToVerify?: number): number {
+        return numberToVerify ? numberToVerify : 0;
+    }
 }

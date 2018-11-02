@@ -5,7 +5,7 @@
     <from-to :from="transactionWallet" :to="transactionData.to"></from-to>
 
     <totals-box :amount-value="amountInEther" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
-                :fee-value="maxTransactionFee()" :fee-currency="'GWEI'" :fee-decimals="{min: 2, max: 6}"
+                :fee-value="maxTransactionFee" :fee-currency="'ETH'" :fee-decimals="{min: 2, max: 6}"
                 :show-advanced-icon="true" @advanced_clicked="advancedClicked"></totals-box>
 
     <numpad :params="transactionData" :disabled="disabled" @pincode_entered="pincodeEntered" :action="action"></numpad>
@@ -14,7 +14,7 @@
 
 <script lang='ts'>
 
-    import {Component, Emit, Prop, Vue} from 'vue-property-decorator';
+    import {Component, Emit, Prop, Vue, Watch} from 'vue-property-decorator';
     import FromTo from '../../molecules/FromTo.vue';
     import TotalsBox from '../../atoms/TotalsBox.vue';
     import Numpad from '../../molecules/Numpad.vue';
@@ -59,15 +59,15 @@
         }
 
         public get amountInEther(): number {
-            return Utils.rawValue().toTokenValue(this.transactionData.value);
+            return Utils.rawValue().toTokenValue(Utils.zeroIfUndefined(this.transactionData && this.transactionData.value));
         }
 
-        private maxTransactionFee(): number {
-            return (this.transactionData.gas * this.gasPriceInGWei());
+        private get maxTransactionFee(): number {
+            return (Utils.zeroIfUndefined(this.transactionData && this.transactionData.gas) * this.gasPriceInGWei()) / Math.pow(10, 9);
         }
 
         private gasPriceInGWei(): number {
-            return Utils.rawValue().toGwei(this.transactionData.gasPrice);
+            return Utils.rawValue().toGwei(Utils.zeroIfUndefined(this.transactionData && this.transactionData.gasPrice));
         }
     }
 
