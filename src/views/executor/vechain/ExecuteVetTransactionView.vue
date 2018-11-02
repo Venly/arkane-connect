@@ -104,7 +104,7 @@ export default class ExecuteVetTransactionView extends TransactionView<VechainTr
 </script>
 
 <style lang='sass' scoped>
-  @import "../../../assets/sass/mixins-and-vars"
+  @import ../../../assets/sass/mixins-and-vars
 
   .executor
     width: 100%
