@@ -29,7 +29,7 @@
 </script>
 
 <style lang="sass" scoped>
-    @import "../../assets/sass/mixins-and-vars"
+    @import ../../assets/sass/mixins-and-vars
 
     .from-to-card
         &__from

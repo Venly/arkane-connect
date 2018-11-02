@@ -73,7 +73,7 @@
 </script>
 
 <style scoped lang="sass">
-    @import "../../assets/sass/mixins-and-vars"
+    @import ../../assets/sass/mixins-and-vars
 
     h3
         margin: 0
