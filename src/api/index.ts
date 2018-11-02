@@ -9,6 +9,7 @@ import {Profile} from '../models/Profile';
 import {Balance} from '../models/Balance';
 import {SecretType} from '../models/SecretType';
 import {IntercomVerification} from '../models/IntercomVerification';
+import TokenBalance from '../models/TokenBalance';
 
 export default class Api {
     public static token: string = '';
@@ -133,6 +134,14 @@ export default class Api {
                 hash: '',
             } as IntercomVerification;
         }
+    }
+
+    public static getTokenBalance(walletId: number, tokenAddress: string): Promise<RestApiResponse<TokenBalance>> {
+        return Api.getApi().http
+                  .get(`wallets/${walletId}/balance/tokens/${tokenAddress}`)
+                  .then((result: AxiosResponse<RestApiResponse<TokenBalance>>) => {
+                      return Object.assign({...result.data});
+                  });
     }
 
     private static instance: Api;

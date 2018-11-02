@@ -43,7 +43,7 @@
 </script>
 
 <style lang="sass" scoped>
-  @import "../../assets/sass/mixins-and-vars"
+  @import ../../assets/sass/mixins-and-vars
 
   .address-card
     border-radius: $border-radius-small

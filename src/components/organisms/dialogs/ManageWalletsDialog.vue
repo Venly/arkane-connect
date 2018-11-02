@@ -110,7 +110,7 @@
     }
 </script>
 <style lang="sass" scoped>
-  @import "../../../assets/sass/mixins-and-vars"
+  @import ../../../assets/sass/mixins-and-vars
 
   .container
     min-height: 100vh
