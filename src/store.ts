@@ -120,6 +120,9 @@ export default new Vuex.Store(
             stopLoading: (store: any): void => {
                 store.commit('setLoading', false);
             },
+            setWarning: async (store: any, message) => {
+                store.commit('setSnack', {type: SnackType.WARNING, message, blocking: false});
+            },
             setError: async (store: any, message: string) => {
                 store.commit('setSnack', {type: SnackType.DANGER, message, blocking: false});
             },

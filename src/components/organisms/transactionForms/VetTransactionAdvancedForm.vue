@@ -16,9 +16,9 @@
         <input id="gas-limit" class="control__input" type="number" v-model="gasLimit"/>
       </div>
 
-      <div class="data control">
+      <div class="data control" v-if="dataForSingleClauseTransaction && dataForSingleClauseTransaction !== ''">
         <label for="data" class="control__label">Data</label>
-        <textarea id="data" class="control__input" v-model="transactionData.data"></textarea>
+        <textarea id="data" class="control__input" readonly="readonly">{{dataForSingleClauseTransaction}}</textarea>
       </div>
     </form>
     <div class="buttons buttons--horizontal">
@@ -81,6 +81,13 @@
 
         private get maxEditedTransactionFee(): number {
             return this.gasLimit / 1000 * (1 + this.gasPriceCoef / 255);
+        }
+
+        public get dataForSingleClauseTransaction(): string {
+            if (this.transactionData && this.transactionData.clauses && this.transactionData.clauses.length === 1) {
+                return this.transactionData.clauses[0].data;
+            }
+            return '';
         }
 
         @Watch('hasTransactionData')

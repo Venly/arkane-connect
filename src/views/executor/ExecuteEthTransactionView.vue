@@ -4,7 +4,6 @@
       <img class="logo" alt="Arkane Logo" src="../../assets/logo-arkane-animated.svg"/>
     </div>
     <div v-if="isInitialised" class="content">
-
       <transition name="slide-left">
         <eth-transaction-pincode-form v-if="!showAdvanced"
                                       :transaction-data="transactionData"
@@ -20,6 +19,7 @@
                                        ref="advancedForm"
                                        :transaction-data="transactionData"
                                        :has-transaction-data="hasTransactionData"
+                                       :transaction-preparation="transactionPreparation"
                                        @saved="onSaved"
                                        @back_clicked="onBackClicked">
         </eth-transaction-advanced-form>
@@ -33,50 +33,84 @@
 </template>
 
 <script lang='ts'>
-import {Component} from 'vue-property-decorator';
-import TransactionView from '../TransactionView';
-import EthTransactionPincodeForm from '../../components/organisms/transactionForms/EthTransactionPincodeForm.vue';
-import EthTransactionAdvancedForm from '../../components/organisms/transactionForms/EthTransactionAdvancedForm.vue';
-import Api from '../../api';
-import ResponseBody from '../../api/ResponseBody';
-import {EVENT_TYPES} from '../../types/EventTypes';
+    import {Component} from 'vue-property-decorator';
+    import TransactionView from '../TransactionView';
+    import EthTransactionPincodeForm from '../../components/organisms/transactionForms/EthTransactionPincodeForm.vue';
+    import EthTransactionAdvancedForm from '../../components/organisms/transactionForms/EthTransactionAdvancedForm.vue';
+    import Api from '../../api';
+    import ResponseBody from '../../api/ResponseBody';
+    import {EVENT_TYPES} from '../../types/EventTypes';
+    import GasPriceDto from '../../models/transaction/preparation/ethereum/GasPriceDto';
+    import EthereumTransactionPreparationDto from '../../models/transaction/preparation/ethereum/EthereumTransactionPreparationDto';
+    import EthereumTransactionData from '../../api/EthereumTransactionData';
 
-@Component({
-    components: {
-        EthTransactionPincodeForm,
-        EthTransactionAdvancedForm,
-    },
-})
-export default class ExecuteEthTransactionView extends TransactionView {
+    @Component({
+        components: {
+            EthTransactionPincodeForm,
+            EthTransactionAdvancedForm,
+        },
+    })
+    export default class ExecuteEthTransactionView extends TransactionView<EthereumTransactionData, EthereumTransactionPreparationDto> {
 
-    public showAdvanced: boolean = false;
+        public showAdvanced: boolean = false;
 
-    public created() {
-        this.onTransactionDataReceivedCallback = ((transactionData) => transactionData.data = '0x');
-        this.postTransaction = (pincode: string, transactionData: any) => Api.executeTransaction(transactionData, pincode);
-        this.onSuccesCallbackHandler = (result: ResponseBody) => {
-            if (this.messagePort) {
-                this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_EXECUTED, data: result});
+        public created() {
+            this.transactionPreparationMethod = Api.prepareExecuteTransaction;
+            this.postTransaction = Api.executeTransaction;
+
+            this.onTransactionDataReceivedCallback = ((transactionData) => {
+                if (!transactionData.data || transactionData.data === '') {
+                    transactionData.data = '0x';
+                }
+            });
+            this.onTransactionPreparationReceivedCallback = ((transactionPreparation) => {
+                this.initGasLimit(transactionPreparation);
+                this.initGasPrice(transactionPreparation);
+                this.handleReverted(transactionPreparation);
+            });
+            this.onSuccesCallbackHandler = (result: ResponseBody) => {
+                if (this.messagePort) {
+                    this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_EXECUTED, data: result});
+                }
+            };
+        }
+
+
+        public onAdvancedButtonClicked() {
+            this.showAdvanced = true;
+        }
+
+        public onSaved() {
+            this.showAdvanced = false;
+        }
+
+        public onBackClicked() {
+            this.showAdvanced = false;
+        }
+
+        public afterAdvancedEnter() {
+            (this.$refs.advancedForm as EthTransactionAdvancedForm).afterEnter();
+        }
+
+        private initGasLimit(transactionPreparation: EthereumTransactionPreparationDto) {
+            if (!this.transactionData.gas || this.transactionData.gas === 0) {
+                this.$set(this.transactionData, 'gas', transactionPreparation.gasLimit);
             }
-        };
-    }
+        }
 
-    public onAdvancedButtonClicked() {
-        this.showAdvanced = true;
-    }
+        private initGasPrice(transactionPreparation: EthereumTransactionPreparationDto) {
+            if (!this.transactionData.gasPrice || this.transactionData.gasPrice === 0) {
+                const defaultGasPrice = transactionPreparation.gasPrices.find((gasPrice: GasPriceDto) => gasPrice.defaultPrice);
+                this.$set(this.transactionData, 'gasPrice', defaultGasPrice && defaultGasPrice.gasPrice);
+            }
+        }
 
-    public onSaved() {
-        this.showAdvanced = false;
+        private handleReverted(transactionPreparation: EthereumTransactionPreparationDto) {
+            if (transactionPreparation.reverted) {
+                this.$store.dispatch('setWarning', 'WARNING: This transaction will probably be reverted.');
+            }
+        }
     }
-
-    public onBackClicked() {
-        this.showAdvanced = false;
-    }
-
-    public afterAdvancedEnter() {
-        (this.$refs.advancedForm as EthTransactionAdvancedForm).afterEnter();
-    }
-}
 </script>
 
 <style lang='sass' scoped>

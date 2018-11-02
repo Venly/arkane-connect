@@ -5,7 +5,7 @@
     <from-to :from="transactionWallet" :toAddresses="toAddresses" :max-lines="3"></from-to>
 
     <totals-box :amount-value="totalAmountInVet" :amount-currency="'VET'" :amount-decimals="{min: 2, max: 3}"
-                :fee-value="maxTransactionFee()" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 11}"
+                :fee-value="maxTransactionFee()" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 9}"
                 :show-advanced-icon="true" @advanced_clicked="advancedClicked"></totals-box>
 
     <numpad :params="transactionData" :disabled="disabled" @pincode_entered="pincodeEntered" :action="action"></numpad>

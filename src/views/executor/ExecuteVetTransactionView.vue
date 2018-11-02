@@ -40,6 +40,9 @@ import VetTransactionPincodeForm from '../../components/organisms/transactionFor
 import VetTransactionAdvancedForm from '../../components/organisms/transactionForms/VetTransactionAdvancedForm.vue';
 import ResponseBody from '../../api/ResponseBody';
 import {EVENT_TYPES} from '../../types/EventTypes';
+import VechainTransactionData, {VechainTransactionDataClause} from '../../api/VechainTransactionData';
+import VeChainTransactionPreparationDto from '../../models/transaction/preparation/vechain/VeChainTransactionPreparationDto';
+import GasPriceCoefDto from '../../models/transaction/preparation/vechain/GasPriceCoefDto';
 
 @Component({
     components: {
@@ -47,12 +50,19 @@ import {EVENT_TYPES} from '../../types/EventTypes';
         VetTransactionAdvancedForm,
     },
 })
-export default class ExecuteVetTransactionView extends TransactionView {
+export default class ExecuteVetTransactionView extends TransactionView<VechainTransactionData, VeChainTransactionPreparationDto> {
 
     public showAdvanced: boolean = false;
 
     public created() {
-        this.postTransaction = (pincode: string, transactionData: any) => Api.executeTransaction(transactionData, pincode);
+        this.transactionPreparationMethod = Api.prepareExecuteTransaction;
+        this.postTransaction = Api.executeTransaction;
+
+        this.onTransactionPreparationReceivedCallback = ((transactionPreparation) => {
+            this.initGasLimit(transactionPreparation);
+            this.initGasPrice(transactionPreparation);
+            this.handleReverted(transactionPreparation);
+        });
         this.onSuccesCallbackHandler = (result: ResponseBody) => {
             if (this.messagePort) {
                 this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_EXECUTED, data: result});
@@ -70,6 +80,25 @@ export default class ExecuteVetTransactionView extends TransactionView {
 
     public onBackClicked() {
         this.showAdvanced = false;
+    }
+
+    private initGasLimit(transactionPreparation: VeChainTransactionPreparationDto) {
+        if (!this.transactionData.gas || this.transactionData.gas === 0) {
+            this.$set(this.transactionData, 'gas', transactionPreparation.gasLimit);
+        }
+    }
+
+    private initGasPrice(transactionPreparation: VeChainTransactionPreparationDto) {
+        if (!this.transactionData.gasPriceCoef || this.transactionData.gasPriceCoef === '' || this.transactionData.gasPriceCoef === '0') {
+            const defaultGasPriceCoef = transactionPreparation.gasPriceCoefficients.find((gasPriceCoef: GasPriceCoefDto) => gasPriceCoef.defaultPrice);
+            this.$set(this.transactionData, 'gasPriceCoef', defaultGasPriceCoef && defaultGasPriceCoef.gasPriceCoef);
+        }
+    }
+
+    private handleReverted(transactionPreparation: VeChainTransactionPreparationDto) {
+        if (transactionPreparation.reverted) {
+            this.$store.dispatch('setWarning', 'WARNING: This transaction will probably be reverted.');
+        }
     }
 }
 </script>

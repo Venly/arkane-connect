@@ -1,5 +1,5 @@
 <template>
-    <span>{{ellipsisText}}</span>
+  <span>{{ellipsisText}}</span>
 </template>
 
 <script lang="ts">
@@ -13,19 +13,20 @@
         @Prop() public text!: string;
 
         public get ellipsisText() {
-            if (this.text.length <= this.chars) {
-                return this.text;
-            } else if (this.chars > 0) {
-                const startLength = Math.ceil(this.chars / 2);
-                const endLength = this.chars - startLength;
-                return `${this.text.substr(0, startLength)}...${this.text.substr(-endLength, endLength)}`;
-            } else {
-                return '';
+            if (this.text) {
+                if (this.text.length <= this.chars) {
+                    return this.text;
+                } else if (this.chars > 0) {
+                    const startLength = Math.ceil(this.chars / 2);
+                    const endLength = this.chars - startLength;
+                    return `${this.text.substr(0, startLength)}...${this.text.substr(-endLength, endLength)}`;
+                }
             }
+            return '';
         }
     }
 </script>
 
 <style lang="sass" scoped>
-    @import ../../assets/sass/mixins-and-vars
+  @import ../../assets/sass/mixins-and-vars
 </style>

@@ -8,7 +8,7 @@
             </div>
             <div class="totals-box__fee">
                 <span class="label">Max fee:</span>
-                <span class="value"> {{formattedFeeValue}}</span>
+                <span class="value">{{formattedFeeValue}}</span>
                 <span class="currency"> {{feeCurrency}}</span>
             </div>
         </div>
