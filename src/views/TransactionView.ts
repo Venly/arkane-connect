@@ -116,9 +116,8 @@ export default class TransactionView<TRANSACTION_DATA, TRANSACTION_PREPARATION> 
 
     private async doTransactionPreparation() {
         if (this.transactionPreparationMethod) {
-            let transactionPreparation: TRANSACTION_PREPARATION = await this.transactionPreparationMethod(this.transactionData);
+            const transactionPreparation: TRANSACTION_PREPARATION = await this.transactionPreparationMethod(this.transactionData);
             if (transactionPreparation) {
-                transactionPreparation = Object.assign({}, transactionPreparation, {reverted: true});
                 this.transactionPreparation = Object.assign({}, this.transactionPreparation, transactionPreparation);
                 if (this.onTransactionPreparationReceivedCallback) {
                     this.onTransactionPreparationReceivedCallback(transactionPreparation);
