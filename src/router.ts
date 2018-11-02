@@ -15,6 +15,7 @@ import SignVeChainTransactionView from './views/signer/vechain/SignVeChainTransa
 import ExecuteEthTransactionView from './views/executor/ethereum/ExecuteEthTransactionView.vue';
 import ExecuteEthERC20TransactionView from './views/executor/ethereum/ExecuteEthERC20TransactionView.vue';
 import ExecuteVetTransactionView from './views/executor/vechain/ExecuteVetTransactionView.vue';
+import ExecuteVeChainVIP180TransactionView from './views/executor/vechain/ExecuteVeChainVIP180TransactionView.vue';
 import Security from './Security';
 import Utils from './utils/Utils';
 import store from './store';
@@ -77,6 +78,14 @@ const router = new Router(
                 path: '/transaction/execute/vet_transaction',
                 name: 'execute-vet-transaction',
                 component: ExecuteVetTransactionView,
+                meta: {
+                    auth: true,
+                },
+            },
+            {
+                path: '/transaction/execute/vechain_vip180_transaction',
+                name: 'execute-vechain-vip180-transaction',
+                component: ExecuteVeChainVIP180TransactionView,
                 meta: {
                     auth: true,
                 },

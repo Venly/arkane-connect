@@ -1,6 +1,6 @@
 export default class EthereumTransactionData {
     public type!: string;
-    public walletId!: number;
+    public walletId!: string;
     public pincode!: string;
     public submit: boolean = false;
     public gasPrice?: number;

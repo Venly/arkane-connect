@@ -66,7 +66,7 @@ import TokenBalance from '../../../models/TokenBalance';
         FromTo,
     },
 })
-export default class EthTransactionAdvancedForm extends Vue {
+export default class EthereumTransactionAdvancedForm extends Vue {
 
     @Prop()
     public transactionData!: EthereumTransactionData;
