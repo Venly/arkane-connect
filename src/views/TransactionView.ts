@@ -6,6 +6,8 @@ import Security from '../Security';
 import Api from '../api';
 import {Wallet} from '../models/Wallet';
 import Component from 'vue-class-component';
+import EthereumTransactionPreparationDto from '@/models/transaction/preparation/ethereum/EthereumTransactionPreparationDto';
+import VeChainTransactionPreparationDto from '@/models/transaction/preparation/vechain/VeChainTransactionPreparationDto';
 
 declare const window: Window;
 
@@ -114,8 +116,9 @@ export default class TransactionView<TRANSACTION_DATA, TRANSACTION_PREPARATION> 
 
     private async doTransactionPreparation() {
         if (this.transactionPreparationMethod) {
-            const transactionPreparation: TRANSACTION_PREPARATION = await this.transactionPreparationMethod(this.transactionData);
+            let transactionPreparation: TRANSACTION_PREPARATION = await this.transactionPreparationMethod(this.transactionData);
             if (transactionPreparation) {
+                transactionPreparation = Object.assign({}, transactionPreparation, {reverted: true});
                 this.transactionPreparation = Object.assign({}, this.transactionPreparation, transactionPreparation);
                 if (this.onTransactionPreparationReceivedCallback) {
                     this.onTransactionPreparationReceivedCallback(transactionPreparation);

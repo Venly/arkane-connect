@@ -1,6 +1,6 @@
-import GasPriceDto from './gasprice/GasPriceDto';
+import GasPriceDto from './GasPriceDto';
 
-export default class EthTransactionPreparationDto {
+export default class EthereumTransactionPreparationDto {
 
     public gasPrices!: GasPriceDto[];
     public gasLimit!: number;

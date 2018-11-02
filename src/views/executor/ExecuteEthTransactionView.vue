@@ -33,15 +33,15 @@
 </template>
 
 <script lang='ts'>
-    import {Component, Watch} from 'vue-property-decorator';
+    import {Component} from 'vue-property-decorator';
     import TransactionView from '../TransactionView';
     import EthTransactionPincodeForm from '../../components/organisms/transactionForms/EthTransactionPincodeForm.vue';
     import EthTransactionAdvancedForm from '../../components/organisms/transactionForms/EthTransactionAdvancedForm.vue';
     import Api from '../../api';
     import ResponseBody from '../../api/ResponseBody';
     import {EVENT_TYPES} from '../../types/EventTypes';
-    import GasPriceDto from '../../models/transaction/preparation/ethereum/gasprice/GasPriceDto';
-    import EthTransactionPreparationDto from '../../models/transaction/preparation/ethereum/EthTransactionPreparationDto';
+    import GasPriceDto from '../../models/transaction/preparation/ethereum/GasPriceDto';
+    import EthereumTransactionPreparationDto from '../../models/transaction/preparation/ethereum/EthereumTransactionPreparationDto';
     import EthereumTransactionData from '../../api/EthereumTransactionData';
 
     @Component({
@@ -50,7 +50,7 @@
             EthTransactionAdvancedForm,
         },
     })
-    export default class ExecuteEthTransactionView extends TransactionView<EthereumTransactionData, EthTransactionPreparationDto> {
+    export default class ExecuteEthTransactionView extends TransactionView<EthereumTransactionData, EthereumTransactionPreparationDto> {
 
         public showAdvanced: boolean = false;
 
@@ -59,11 +59,14 @@
             this.postTransaction = Api.executeTransaction;
 
             this.onTransactionDataReceivedCallback = ((transactionData) => {
-                transactionData.data = '0x';
+                if (!transactionData.data || transactionData.data === '') {
+                    transactionData.data = '0x';
+                }
             });
             this.onTransactionPreparationReceivedCallback = ((transactionPreparation) => {
                 this.initGasLimit(transactionPreparation);
                 this.initGasPrice(transactionPreparation);
+                this.handleReverted(transactionPreparation);
             });
             this.onSuccesCallbackHandler = (result: ResponseBody) => {
                 if (this.messagePort) {
@@ -89,16 +92,22 @@
             (this.$refs.advancedForm as EthTransactionAdvancedForm).afterEnter();
         }
 
-        private initGasLimit(transactionPreparation: EthTransactionPreparationDto) {
+        private initGasLimit(transactionPreparation: EthereumTransactionPreparationDto) {
             if (!this.transactionData.gas || this.transactionData.gas === 0) {
                 this.$set(this.transactionData, 'gas', transactionPreparation.gasLimit);
             }
         }
 
-        private initGasPrice(transactionPreparation: EthTransactionPreparationDto) {
+        private initGasPrice(transactionPreparation: EthereumTransactionPreparationDto) {
             if (!this.transactionData.gasPrice || this.transactionData.gasPrice === 0) {
                 const defaultGasPrice = transactionPreparation.gasPrices.find((gasPrice: GasPriceDto) => gasPrice.defaultPrice);
                 this.$set(this.transactionData, 'gasPrice', defaultGasPrice && defaultGasPrice.gasPrice);
+            }
+        }
+
+        private handleReverted(transactionPreparation) {
+            if (transactionPreparation.reverted) {
+                this.$store.dispatch('setWarning', 'WARNING: This transaction will probably be reverted.');
             }
         }
     }

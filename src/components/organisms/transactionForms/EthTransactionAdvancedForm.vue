@@ -53,8 +53,8 @@
     import {Wallet} from '../../../models/Wallet';
     import VueSlider from 'vue-slider-component';
     import ActionLink from '../../atoms/ActionLink.vue';
-    import EthTransactionPreparationDto from '../../../models/transaction/preparation/ethereum/EthTransactionPreparationDto';
-    import GasPriceDto from '../../../models/transaction/preparation/ethereum/gasprice/GasPriceDto';
+    import EthereumTransactionPreparationDto from '../../../models/transaction/preparation/ethereum/EthereumTransactionPreparationDto';
+    import GasPriceDto from '../../../models/transaction/preparation/ethereum/GasPriceDto';
 
     @Component({
         components: {
@@ -72,7 +72,7 @@
         @Prop()
         public hasTransactionData!: boolean;
         @Prop()
-        public transactionPreparation!: EthTransactionPreparationDto;
+        public transactionPreparation!: EthereumTransactionPreparationDto;
 
         public gasLimit: number = 0;
         public gasPrice: number = 0;
@@ -126,8 +126,8 @@
 
         public get gasOptions(): number[] {
             if (this.transactionPreparation) {
-                const options: number[] = (this.transactionPreparation as EthTransactionPreparationDto).gasPrices
-                                                                                                     .map((gasPrice: GasPriceDto) => {
+                const options: number[] = (this.transactionPreparation as EthereumTransactionPreparationDto).gasPrices
+                                                                                                            .map((gasPrice: GasPriceDto) => {
                                                                                                          return Utils.rawValue().toGwei(gasPrice.gasPrice);
                                                                                                      });
 
