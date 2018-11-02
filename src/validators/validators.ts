@@ -24,3 +24,8 @@ export const requiredIf = (conditionFunction: () => boolean) => {
         },
     );
 };
+
+export const pincode = validators.helpers.withParams(
+    {type: 'pincode'},
+    (value: string): boolean => !validators.helpers.req(value) || /[0-9]{4,6}/.test(value),
+);

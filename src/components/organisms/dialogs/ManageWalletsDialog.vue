@@ -31,7 +31,7 @@
       </div>
       <action-button class="margin-bottom" @click="importWallet" :disabled="linkedWalletsChanged">Import an Existing Wallet</action-button>
       <!--<div class="separator"></div>-->
-      <action-link @click="backClicked" :disabled="linkedWalletsChanged">Back to {{thirdPartyClientId}}</action-link>
+      <action-link :type="'muted'" @click="backClicked" :disabled="linkedWalletsChanged">Back to {{thirdPartyClientId}}</action-link>
     </div>
   </dialog-template>
 </template>
@@ -39,8 +39,6 @@
 <script lang="ts">
     import {Component, Emit, Prop, Vue} from 'vue-property-decorator';
     import WalletCard from '@/components/molecules/WalletCard.vue';
-    import MasterPinDialog from '@/components/organisms/dialogs/MasterPinDialog.vue';
-    import SetMasterPinDialog from '@/components/organisms/dialogs/SetMasterPinDialog.vue';
     import RedirectDialog from '@/components/organisms/dialogs/RedirectDialog.vue';
     import DialogTemplate from '@/components/molecules/DialogTemplate.vue';
     import ActionButton from '@/components/atoms/ActionButton.vue';
@@ -56,8 +54,6 @@
             ActionLink,
             ActionButton,
             RedirectDialog,
-            MasterPinDialog,
-            SetMasterPinDialog,
             DialogTemplate,
             WalletCard,
         },
@@ -152,9 +148,12 @@
   .btn
     margin-bottom: 0
     &.margin-bottom
-      margin-bottom: rem(30px)
+      margin-bottom: rem(15px)
 
   .separator
     margin: rem(15px 0)
+
+  .link
+    font-size: $font-size-small
 
 </style>

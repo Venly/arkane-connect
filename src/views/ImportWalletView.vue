@@ -5,9 +5,7 @@
                             @importPrivateKeyClicked="importPrivateKey" @importKeystoreClicked="importKeystore" @backClicked="backToManagement">
       </import-wallet-dialog>
 
-      <master-pin-dialog :title="'Import a wallet'" :actionLabel="'Import Wallet'" @done="masterpinEntered" @back="backToImport" v-if="showEnterMasterPin">
-        <p>Please confirm by providing your Master Pin Code</p>
-      </master-pin-dialog>
+      <enter-master-pin-modal :show="showEnterMasterPin" @done="masterpinEntered" @cancel="backToImport"></enter-master-pin-modal>
 
       <dialog-template v-if="showImportingWallet" :title="'Importing wallet'">
         <p>Your <strong>{{chainName}}</strong> wallet is being imported...</p>
@@ -34,8 +32,6 @@
 <script lang="ts">
     import {Component, Emit, Prop, Vue} from 'vue-property-decorator';
     import WalletCard from '@/components/molecules/WalletCard.vue';
-    import MasterPinDialog from '@/components/organisms/dialogs/MasterPinDialog.vue';
-    import SetMasterPinDialog from '@/components/organisms/dialogs/SetMasterPinDialog.vue';
     import RedirectDialog from '@/components/organisms/dialogs/RedirectDialog.vue';
     import DialogTemplate from '@/components/molecules/DialogTemplate.vue';
     import ActionButton from '@/components/atoms/ActionButton.vue';
@@ -43,19 +39,19 @@
     import {Getter, State} from 'vuex-class';
     import SvgCross from '../components/atoms/SvgCross.vue';
     import ErrorDialog from '../components/organisms/dialogs/ErrorDialog.vue';
-    import ImportWalletDialog from '../components/organisms/dialogs/ImportWalletDialog.vue';
+    import ImportWalletDialog from '@/components/organisms/dialogs/ImportWalletDialog.vue';
+    import EnterMasterPinModal from '@/components/organisms/modals/EnterMasterPinModal.vue';
     import {Chain} from '../models/Chain';
     import Api from '../api';
 
     @Component({
         components: {
+            EnterMasterPinModal,
             ImportWalletDialog,
             ErrorDialog,
             SvgCross,
             ActionButton,
             RedirectDialog,
-            MasterPinDialog,
-            SetMasterPinDialog,
             DialogTemplate,
             WalletCard,
         },
@@ -67,7 +63,7 @@
         }
 
         private get showImportWallet(): boolean {
-            return this.privateKeyIsEmpty && this.keystoreIsEmpty;
+            return !this.isMasterPinEntered;
         }
 
         private get showEnterMasterPin(): boolean {
