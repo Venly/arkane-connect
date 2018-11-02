@@ -38,7 +38,7 @@
     import {Wallet} from '../../../models/Wallet';
     import VueSlider from 'vue-slider-component';
     import ActionLink from '../../atoms/ActionLink.vue';
-    import VechainTransactionData from '../../../api/VechainTransactionData';
+    import VechainTransactionData from '../../../api/vechain/VechainTransactionData';
 
     @Component({
         components: {

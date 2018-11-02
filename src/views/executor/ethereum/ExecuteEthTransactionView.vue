@@ -1,14 +1,13 @@
 <template>
-  <div class="signer">
+  <div class="executor">
     <div class="logo-wrapper">
-      <img class="logo" alt="Arkane Logo" src="../../assets/logo-arkane-animated.svg"/>
+      <img class="logo" alt="Arkane Logo" src="../../../assets/logo-arkane-animated.svg"/>
     </div>
     <div v-if="isInitialised" class="content">
-
       <transition name="slide-left">
         <eth-transaction-pincode-form v-if="!showAdvanced"
                                       :transaction-data="transactionData"
-                                      :action="'sign'"
+                                      :action="'execute'"
                                       :disabled="hasBlockingError"
                                       @advanced_clicked="showAdvanced = true"
                                       @pincode_entered="pinEntered">
@@ -35,41 +34,29 @@
 
 <script lang='ts'>
     import {Component} from 'vue-property-decorator';
-    import Numpad from '../../components/molecules/Numpad.vue';
-    import TransactionView from '../TransactionView';
-    import AddressCard from '../../components/atoms/AddressCard.vue';
-    import FromTo from '../../components/molecules/FromTo.vue';
-    import TotalsBox from '../../components/atoms/TotalsBox.vue';
-    import EthTransactionPincodeForm from '../../components/organisms/transactionForms/EthTransactionPincodeForm.vue';
-    import EthTransactionAdvancedForm from '../../components/organisms/transactionForms/EthTransactionAdvancedForm.vue';
-    import VueSlider from 'vue-slider-component';
-    import Api from '../../api';
-    import ResponseBody from '../../api/ResponseBody';
-    import {EVENT_TYPES} from '../../types/EventTypes';
-    import EthereumTransactionPreparationDto from '../../models/transaction/preparation/ethereum/EthereumTransactionPreparationDto';
-    import EthereumTransactionData from '../../api/EthereumTransactionData';
-    import GasPriceDto from '../../models/transaction/preparation/ethereum/GasPriceDto';
-
-    declare const window: Window;
+    import TransactionView from '../../TransactionView';
+    import EthTransactionPincodeForm from '../../../components/organisms/transactionForms/EthTransactionPincodeForm.vue';
+    import EthTransactionAdvancedForm from '../../../components/organisms/transactionForms/EthTransactionAdvancedForm.vue';
+    import Api from '../../../api/index';
+    import ResponseBody from '../../../api/ResponseBody';
+    import {EVENT_TYPES} from '../../../types/EventTypes';
+    import GasPriceDto from '../../../models/transaction/preparation/ethereum/GasPriceDto';
+    import EthereumTransactionPreparationDto from '../../../models/transaction/preparation/ethereum/EthereumTransactionPreparationDto';
+    import EthereumTransactionData from '../../../api/ethereum/EthereumTransactionData';
 
     @Component({
         components: {
             EthTransactionPincodeForm,
             EthTransactionAdvancedForm,
-            TotalsBox,
-            FromTo,
-            AddressCard,
-            Numpad,
-            VueSlider,
         },
     })
-    export default class SignEthereumTransactionView extends TransactionView<EthereumTransactionData, EthereumTransactionPreparationDto> {
+    export default class ExecuteEthTransactionView extends TransactionView<EthereumTransactionData, EthereumTransactionPreparationDto> {
 
         public showAdvanced: boolean = false;
 
         public created() {
-            this.transactionPreparationMethod = Api.prepareSignTransaction;
-            this.postTransaction = Api.signTransaction;
+            this.transactionPreparationMethod = Api.prepareExecuteTransaction;
+            this.postTransaction = Api.executeTransaction;
 
             this.onTransactionDataReceivedCallback = ((transactionData) => {
                 if (!transactionData.data || transactionData.data === '') {
@@ -83,7 +70,7 @@
             });
             this.onSuccesCallbackHandler = (result: ResponseBody) => {
                 if (this.messagePort) {
-                    this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_SIGNED, data: result});
+                    this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_EXECUTED, data: result});
                 }
             };
         }
@@ -127,9 +114,9 @@
 </script>
 
 <style lang='sass' scoped>
-  @import ../../assets/sass/mixins-and-vars
+  @import "../../../assets/sass/mixins-and-vars"
 
-  .signer
+  .executor
     width: 100%
     margin-bottom: auto
     background-color: $color-white

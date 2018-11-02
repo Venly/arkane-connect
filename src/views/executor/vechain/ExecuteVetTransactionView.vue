@@ -1,7 +1,7 @@
 <template>
   <div class="executor">
     <div class="logo-wrapper">
-      <img class="logo" alt="Arkane Logo" src="../../assets/logo-arkane-animated.svg"/>
+      <img class="logo" alt="Arkane Logo" src="../../../assets/logo-arkane-animated.svg"/>
     </div>
     <div v-if="isInitialised" class="content">
 
@@ -34,15 +34,15 @@
 
 <script lang='ts'>
 import {Component} from 'vue-property-decorator';
-import Api from '../../api';
-import TransactionView from '../TransactionView';
-import VetTransactionPincodeForm from '../../components/organisms/transactionForms/VetTransactionPincodeForm.vue';
-import VetTransactionAdvancedForm from '../../components/organisms/transactionForms/VetTransactionAdvancedForm.vue';
-import ResponseBody from '../../api/ResponseBody';
-import {EVENT_TYPES} from '../../types/EventTypes';
-import VechainTransactionData, {VechainTransactionDataClause} from '../../api/VechainTransactionData';
-import VeChainTransactionPreparationDto from '../../models/transaction/preparation/vechain/VeChainTransactionPreparationDto';
-import GasPriceCoefDto from '../../models/transaction/preparation/vechain/GasPriceCoefDto';
+import Api from '../../../api/index';
+import TransactionView from '../../TransactionView';
+import VetTransactionPincodeForm from '../../../components/organisms/transactionForms/VetTransactionPincodeForm.vue';
+import VetTransactionAdvancedForm from '../../../components/organisms/transactionForms/VetTransactionAdvancedForm.vue';
+import ResponseBody from '../../../api/ResponseBody';
+import {EVENT_TYPES} from '../../../types/EventTypes';
+import VechainTransactionData, {VechainTransactionDataClause} from '../../../api/vechain/VechainTransactionData';
+import VeChainTransactionPreparationDto from '../../../models/transaction/preparation/vechain/VeChainTransactionPreparationDto';
+import GasPriceCoefDto from '../../../models/transaction/preparation/vechain/GasPriceCoefDto';
 
 @Component({
     components: {
@@ -104,7 +104,7 @@ export default class ExecuteVetTransactionView extends TransactionView<VechainTr
 </script>
 
 <style lang='sass' scoped>
-  @import ../../assets/sass/mixins-and-vars
+  @import "../../../assets/sass/mixins-and-vars"
 
   .executor
     width: 100%

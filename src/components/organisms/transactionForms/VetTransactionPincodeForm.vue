@@ -21,7 +21,7 @@
     import Utils from '../../../utils/Utils';
     import {State} from 'vuex-class';
     import {Wallet} from '../../../models/Wallet';
-    import VechainTransactionData from '../../../api/VechainTransactionData';
+    import VechainTransactionData from '../../../api/vechain/VechainTransactionData';
 
     @Component({
         components: {
