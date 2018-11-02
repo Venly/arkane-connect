@@ -118,7 +118,7 @@
             }
         }
 
-        private handleReverted(transactionPreparation) {
+        private handleReverted(transactionPreparation: EthereumTransactionPreparationDto) {
             if (transactionPreparation.reverted) {
                 this.$store.dispatch('setWarning', 'WARNING: This transaction will probably be reverted.');
             }
