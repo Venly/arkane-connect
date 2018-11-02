@@ -31,7 +31,8 @@
     "vuelidate": "^0.7.4",
     "@types/vuelidate": "github:Simsteve7/vuelidate.ts#master",
     "vuex": "^3.0.1",
-    "vuex-class": "^0.3.1"
+    "vuex-class": "^0.3.1",
+    "vue-clickaway": "^2.2.2"
   },
   "devDependencies": {
     "@types/chai": "^4.1.0",
