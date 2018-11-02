@@ -6,23 +6,23 @@
     <div v-if="isInitialised" class="content">
 
       <transition name="slide-left">
-        <vet-transaction-pincode-form v-if="!showAdvanced"
+        <vechain-transaction-pincode-form v-if="!showAdvanced"
                                       :transaction-data="transactionData"
                                       :action="'execute'"
                                       :disabled="hasBlockingError"
                                       @advanced_clicked="showAdvanced = true"
                                       @pincode_entered="pinEntered">
-        </vet-transaction-pincode-form>
+        </vechain-transaction-pincode-form>
       </transition>
 
 
       <transition name="slide-right">
-        <vet-transaction-advanced-form v-if="showAdvanced"
+        <vechain-transaction-advanced-form v-if="showAdvanced"
                                        :transaction-data="transactionData"
                                        :has-transaction-data="hasTransactionData"
                                        @saved="onSaved"
                                        @back_clicked="onBackClicked">
-        </vet-transaction-advanced-form>
+        </vechain-transaction-advanced-form>
       </transition>
 
     </div>
@@ -36,8 +36,8 @@
 import {Component} from 'vue-property-decorator';
 import Api from '../../../api/index';
 import TransactionView from '../../TransactionView';
-import VetTransactionPincodeForm from '../../../components/organisms/transactionForms/VetTransactionPincodeForm.vue';
-import VetTransactionAdvancedForm from '../../../components/organisms/transactionForms/VetTransactionAdvancedForm.vue';
+import VechainTransactionPincodeForm from '../../../components/organisms/transactionForms/VechainTransactionPincodeForm.vue';
+import VechainTransactionAdvancedForm from '../../../components/organisms/transactionForms/VechainTransactionAdvancedForm.vue';
 import ResponseBody from '../../../api/ResponseBody';
 import {EVENT_TYPES} from '../../../types/EventTypes';
 import VechainTransactionData, {VechainTransactionDataClause} from '../../../api/vechain/VechainTransactionData';
@@ -46,8 +46,8 @@ import GasPriceCoefDto from '../../../models/transaction/preparation/vechain/Gas
 
 @Component({
     components: {
-        VetTransactionPincodeForm,
-        VetTransactionAdvancedForm,
+        VechainTransactionPincodeForm,
+        VechainTransactionAdvancedForm,
     },
 })
 export default class ExecuteVetTransactionView extends TransactionView<VechainTransactionData, VeChainTransactionPreparationDto> {

@@ -2,7 +2,7 @@
   <div class="advanced">
     <h3>Transaction details</h3>
 
-    <totals-box :amount-value="totalAmountInVet" :amount-currency="'VET'" :amount-decimals="{min: 2, max: 3}"
+    <totals-box :amount-value="totalAmountInToken" :amount-currency="amountCurrencyLabel" :amount-decimals="{min: 2, max: 3}"
                 :fee-value="maxEditedTransactionFee" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 11}"></totals-box>
 
     <form class="form" @submit.prevent="doNothing">
@@ -39,6 +39,7 @@
     import VueSlider from 'vue-slider-component';
     import ActionLink from '../../atoms/ActionLink.vue';
     import VechainTransactionData from '../../../api/vechain/VechainTransactionData';
+    import TokenBalance from '../../../models/TokenBalance';
 
     @Component({
         components: {
@@ -49,12 +50,15 @@
             FromTo,
         },
     })
-    export default class VetTransactionAdvancedForm extends Vue {
+    export default class VechainTransactionAdvancedForm extends Vue {
 
         @Prop()
         public transactionData!: VechainTransactionData;
         @Prop()
         public hasTransactionData!: boolean;
+
+        @Prop({required: false})
+        public tokenBalance?: TokenBalance;
 
         public gasLimit: number = 0;
         public gasPriceCoef: number = 0;
@@ -68,11 +72,15 @@
             }
         }
 
+        public get amountCurrencyLabel() {
+            return this.tokenBalance ? this.tokenBalance.symbol : 'VET';
+        }
+
         public get toAddresses(): string[] {
             return this.transactionData ? (this.transactionData.clauses as any[]).map((clause) => clause.to) : [];
         }
 
-        public get totalAmountInVet(): number {
+        public get totalAmountInToken(): number {
             return this.transactionData
                 ? Utils.rawValue().toTokenValue((this.transactionData.clauses as any[]).map((clause) => parseInt(clause.amount, 10))
                                                                                        .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0))

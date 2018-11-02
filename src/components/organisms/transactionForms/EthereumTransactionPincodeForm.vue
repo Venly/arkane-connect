@@ -29,7 +29,7 @@ import TokenBalance from '../../../models/TokenBalance';
         FromTo,
     },
 })
-export default class EthTransactionPincodeForm extends Vue {
+export default class EthereumTransactionPincodeForm extends Vue {
 
     @Prop()
     public transactionData!: EthereumTransactionData;

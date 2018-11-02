@@ -136,7 +136,7 @@ export default class Api {
         }
     }
 
-    public static getTokenBalance(walletId: number, tokenAddress: string): Promise<RestApiResponse<TokenBalance>> {
+    public static getTokenBalance(walletId: string, tokenAddress: string): Promise<RestApiResponse<TokenBalance>> {
         return Api.getApi().http
                   .get(`wallets/${walletId}/balance/tokens/${tokenAddress}`)
                   .then((result: AxiosResponse<RestApiResponse<TokenBalance>>) => {

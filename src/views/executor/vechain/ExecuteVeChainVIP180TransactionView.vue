@@ -1,29 +1,30 @@
 <template>
-  <div class="signer">
+  <div class="executor">
     <div class="logo-wrapper">
       <img class="logo" alt="Arkane Logo" src="../../../assets/logo-arkane-animated.svg"/>
     </div>
     <div v-if="isInitialised" class="content">
 
       <transition name="slide-left">
-        <eth-transaction-pincode-form v-if="!showAdvanced"
+        <vechain-transaction-pincode-form v-if="!showAdvanced"
                                       :transaction-data="transactionData"
-                                      :action="'sign'"
+                                      :token-balance="tokenBalance"
+                                      :action="'execute'"
                                       :disabled="hasBlockingError"
                                       @advanced_clicked="showAdvanced = true"
                                       @pincode_entered="pinEntered">
-        </eth-transaction-pincode-form>
+        </vechain-transaction-pincode-form>
       </transition>
 
-      <transition name="slide-right" @after-enter="afterAdvancedEnter">
-        <eth-transaction-advanced-form v-if="showAdvanced"
-                                       ref="advancedForm"
+
+      <transition name="slide-right">
+        <vechain-transaction-advanced-form v-if="showAdvanced"
                                        :transaction-data="transactionData"
+                                       :token-balance="tokenBalance"
                                        :has-transaction-data="hasTransactionData"
-                                       :transaction-preparation="transactionPreparation"
                                        @saved="onSaved"
                                        @back_clicked="onBackClicked">
-        </eth-transaction-advanced-form>
+        </vechain-transaction-advanced-form>
       </transition>
 
     </div>
@@ -35,47 +36,40 @@
 
 <script lang='ts'>
     import {Component} from 'vue-property-decorator';
-    import Numpad from '../../../components/molecules/Numpad.vue';
-    import TransactionView from '../../TransactionView';
-    import AddressCard from '../../../components/atoms/AddressCard.vue';
-    import FromTo from '../../../components/molecules/FromTo.vue';
-    import TotalsBox from '../../../components/atoms/TotalsBox.vue';
-    import EthereumTransactionPincodeForm from '../../../components/organisms/transactionForms/EthereumTransactionPincodeForm.vue';
-    import EthereumTransactionAdvancedForm from '../../../components/organisms/transactionForms/EthereumTransactionAdvancedForm.vue';
-    import VueSlider from 'vue-slider-component';
     import Api from '../../../api/index';
+    import TransactionView from '../../TransactionView';
+    import VechainTransactionPincodeForm from '../../../components/organisms/transactionForms/VechainTransactionPincodeForm.vue';
+    import VechainTransactionAdvancedForm from '../../../components/organisms/transactionForms/VechainTransactionAdvancedForm.vue';
     import ResponseBody from '../../../api/ResponseBody';
     import {EVENT_TYPES} from '../../../types/EventTypes';
-    import EthereumTransactionPreparationDto from '../../../models/transaction/preparation/ethereum/EthereumTransactionPreparationDto';
-    import EthereumTransactionData from '../../../api/ethereum/EthereumTransactionData';
-    import GasPriceDto from '../../../models/transaction/preparation/ethereum/GasPriceDto';
-
-    declare const window: Window;
+    import VeChainTransactionPreparationDto from '../../../models/transaction/preparation/vechain/VeChainTransactionPreparationDto';
+    import GasPriceCoefDto from '../../../models/transaction/preparation/vechain/GasPriceCoefDto';
+    import VechainVip180TransactionData from '../../../api/vechain/VechainVip180TransactionData';
+    import TokenBalance from '../../../models/TokenBalance';
 
     @Component({
         components: {
-            EthereumTransactionPincodeForm,
-            EthereumTransactionAdvancedForm,
-            TotalsBox,
-            FromTo,
-            AddressCard,
-            Numpad,
-            VueSlider,
+            VechainTransactionPincodeForm,
+            VechainTransactionAdvancedForm,
         },
     })
-    export default class SignEthereumTransactionView extends TransactionView<EthereumTransactionData, EthereumTransactionPreparationDto> {
+    export default class ExecuteVeChainVIP180TransactionView extends TransactionView<VechainVip180TransactionData, VeChainTransactionPreparationDto> {
 
         public showAdvanced: boolean = false;
+        public tokenBalance?: TokenBalance = {} as TokenBalance;
 
         public created() {
-            this.transactionPreparationMethod = Api.prepareSignTransaction;
-            this.postTransaction = Api.signTransaction;
+            this.transactionPreparationMethod = Api.prepareExecuteTransaction;
+            this.postTransaction = Api.executeTransaction;
 
-            this.onTransactionDataReceivedCallback = ((transactionData) => {
-                if (!transactionData.data || transactionData.data === '') {
-                    transactionData.data = '0x';
+            this.onTransactionDataReceivedCallback = (async (transactionData: VechainVip180TransactionData) => {
+                const tokenAddress = transactionData.clauses[0].tokenAddress;
+                const tokenBalanceResponse = await Api.getTokenBalance(transactionData.walletId, tokenAddress);
+                if (tokenBalanceResponse.success) {
+                    this.tokenBalance = Object.assign({}, this.tokenBalance, tokenBalanceResponse.result);
                 }
             });
+
             this.onTransactionPreparationReceivedCallback = ((transactionPreparation) => {
                 this.initGasLimit(transactionPreparation);
                 this.initGasPrice(transactionPreparation);
@@ -83,11 +77,10 @@
             });
             this.onSuccesCallbackHandler = (result: ResponseBody) => {
                 if (this.messagePort) {
-                    this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_SIGNED, data: result});
+                    this.messagePort.postMessage({type: EVENT_TYPES.TRANSACTION_EXECUTED, data: result});
                 }
             };
         }
-
 
         public onAdvancedButtonClicked() {
             this.showAdvanced = true;
@@ -101,24 +94,20 @@
             this.showAdvanced = false;
         }
 
-        public afterAdvancedEnter() {
-            (this.$refs.advancedForm as EthereumTransactionAdvancedForm).afterEnter();
-        }
-
-        private initGasLimit(transactionPreparation: EthereumTransactionPreparationDto) {
+        private initGasLimit(transactionPreparation: VeChainTransactionPreparationDto) {
             if (!this.transactionData.gas || this.transactionData.gas === 0) {
                 this.$set(this.transactionData, 'gas', transactionPreparation.gasLimit);
             }
         }
 
-        private initGasPrice(transactionPreparation: EthereumTransactionPreparationDto) {
-            if (!this.transactionData.gasPrice || this.transactionData.gasPrice === 0) {
-                const defaultGasPrice = transactionPreparation.gasPrices.find((gasPrice: GasPriceDto) => gasPrice.defaultPrice);
-                this.$set(this.transactionData, 'gasPrice', defaultGasPrice && defaultGasPrice.gasPrice);
+        private initGasPrice(transactionPreparation: VeChainTransactionPreparationDto) {
+            if (!this.transactionData.gasPriceCoef || this.transactionData.gasPriceCoef === '' || this.transactionData.gasPriceCoef === '0') {
+                const defaultGasPriceCoef = transactionPreparation.gasPriceCoefficients.find((gasPriceCoef: GasPriceCoefDto) => gasPriceCoef.defaultPrice);
+                this.$set(this.transactionData, 'gasPriceCoef', defaultGasPriceCoef && defaultGasPriceCoef.gasPriceCoef);
             }
         }
 
-        private handleReverted(transactionPreparation: EthereumTransactionPreparationDto) {
+        private handleReverted(transactionPreparation: VeChainTransactionPreparationDto) {
             if (transactionPreparation.reverted) {
                 this.$store.dispatch('setWarning', 'WARNING: This transaction will probably be reverted.');
             }
@@ -129,7 +118,7 @@
 <style lang='sass' scoped>
   @import "../../../assets/sass/mixins-and-vars"
 
-  .signer
+  .executor
     width: 100%
     margin-bottom: auto
     background-color: $color-white
@@ -154,5 +143,4 @@
       width: rem(250px)
       margin: 0 auto
       display: flex
-
 </style>

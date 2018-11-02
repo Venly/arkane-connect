@@ -36,8 +36,8 @@
     import {Component} from 'vue-property-decorator';
     import Api from '../../../api/index';
     import TransactionView from '../../TransactionView';
-    import VetTransactionPincodeForm from '../../../components/organisms/transactionForms/VetTransactionPincodeForm.vue';
-    import VetTransactionAdvancedForm from '../../../components/organisms/transactionForms/VetTransactionAdvancedForm.vue';
+    import VechainTransactionPincodeForm from '../../../components/organisms/transactionForms/VechainTransactionPincodeForm.vue';
+    import VechainTransactionAdvancedForm from '../../../components/organisms/transactionForms/VechainTransactionAdvancedForm.vue';
     import ResponseBody from '../../../api/ResponseBody';
     import {EVENT_TYPES} from '../../../types/EventTypes';
     import VeChainTransactionPreparationDto from '../../../models/transaction/preparation/vechain/VeChainTransactionPreparationDto';
@@ -46,8 +46,8 @@
 
     @Component({
         components: {
-            VetTransactionPincodeForm,
-            VetTransactionAdvancedForm,
+            VechainTransactionPincodeForm,
+            VechainTransactionAdvancedForm,
         },
     })
     export default class SignVeChainTransactionView extends TransactionView<VechainTransactionData, VeChainTransactionPreparationDto> {

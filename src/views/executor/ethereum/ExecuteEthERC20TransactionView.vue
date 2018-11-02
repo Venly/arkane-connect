@@ -37,8 +37,8 @@
 <script lang='ts'>
 import {Component} from 'vue-property-decorator';
 import TransactionView from '../../TransactionView';
-import EthTransactionPincodeForm from '../../../components/organisms/transactionForms/EthTransactionPincodeForm.vue';
-import EthTransactionAdvancedForm from '../../../components/organisms/transactionForms/EthTransactionAdvancedForm.vue';
+import EthereumTransactionPincodeForm from '../../../components/organisms/transactionForms/EthereumTransactionPincodeForm.vue';
+import EthereumTransactionAdvancedForm from '../../../components/organisms/transactionForms/EthereumTransactionAdvancedForm.vue';
 import Api from '../../../api/index';
 import ResponseBody from '../../../api/ResponseBody';
 import {EVENT_TYPES} from '../../../types/EventTypes';
@@ -49,8 +49,8 @@ import TokenBalance from '../../../models/TokenBalance';
 
 @Component({
     components: {
-        EthTransactionPincodeForm,
-        EthTransactionAdvancedForm,
+        EthereumTransactionPincodeForm,
+        EthereumTransactionAdvancedForm,
     },
 })
 export default class ExecuteEthERC20TransactionView extends TransactionView<EthereumErc20TransactionRequest, EthereumTransactionPreparationDto> {
@@ -62,11 +62,7 @@ export default class ExecuteEthERC20TransactionView extends TransactionView<Ethe
         this.transactionPreparationMethod = Api.prepareExecuteTransaction;
         this.postTransaction = Api.executeTransaction;
 
-        this.onTransactionDataReceivedCallback = (async (transactionData) => {
-            if (!transactionData.data || transactionData.data === '') {
-                transactionData.data = '0x';
-            }
-
+        this.onTransactionDataReceivedCallback = (async (transactionData: EthereumErc20TransactionRequest) => {
             const tokenBalanceResponse = await Api.getTokenBalance(transactionData.walletId, transactionData.tokenAddress);
             if (tokenBalanceResponse.success) {
                 this.tokenBalance = Object.assign({}, this.tokenBalance, tokenBalanceResponse.result);
@@ -97,7 +93,7 @@ export default class ExecuteEthERC20TransactionView extends TransactionView<Ethe
     }
 
     public afterAdvancedEnter() {
-        (this.$refs.advancedForm as EthTransactionAdvancedForm).afterEnter();
+        (this.$refs.advancedForm as EthereumTransactionAdvancedForm).afterEnter();
     }
 
     private initGasLimit(transactionPreparation: EthereumTransactionPreparationDto) {
