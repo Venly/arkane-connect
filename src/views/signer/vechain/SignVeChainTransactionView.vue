@@ -6,23 +6,23 @@
     <div v-if="isInitialised" class="content">
 
       <transition name="slide-left">
-        <vet-transaction-pincode-form v-if="!showAdvanced"
+        <vechain-transaction-pincode-form v-if="!showAdvanced"
                                       :transaction-data="transactionData"
                                       :action="'sign'"
                                       :disabled="hasBlockingError"
                                       @advanced_clicked="showAdvanced = true"
                                       @pincode_entered="pinEntered">
-        </vet-transaction-pincode-form>
+        </vechain-transaction-pincode-form>
       </transition>
 
 
       <transition name="slide-right">
-        <vet-transaction-advanced-form v-if="showAdvanced"
+        <vechain-transaction-advanced-form v-if="showAdvanced"
                                        :transaction-data="transactionData"
                                        :has-transaction-data="hasTransactionData"
                                        @saved="onSaved"
                                        @back_clicked="onBackClicked">
-        </vet-transaction-advanced-form>
+        </vechain-transaction-advanced-form>
       </transition>
 
     </div>

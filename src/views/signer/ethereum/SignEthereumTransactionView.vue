@@ -6,24 +6,24 @@
     <div v-if="isInitialised" class="content">
 
       <transition name="slide-left">
-        <eth-transaction-pincode-form v-if="!showAdvanced"
+        <ethereum-transaction-pincode-form v-if="!showAdvanced"
                                       :transaction-data="transactionData"
                                       :action="'sign'"
                                       :disabled="hasBlockingError"
                                       @advanced_clicked="showAdvanced = true"
                                       @pincode_entered="pinEntered">
-        </eth-transaction-pincode-form>
+        </ethereum-transaction-pincode-form>
       </transition>
 
       <transition name="slide-right" @after-enter="afterAdvancedEnter">
-        <eth-transaction-advanced-form v-if="showAdvanced"
+        <ethereum-transaction-advanced-form v-if="showAdvanced"
                                        ref="advancedForm"
                                        :transaction-data="transactionData"
                                        :has-transaction-data="hasTransactionData"
                                        :transaction-preparation="transactionPreparation"
                                        @saved="onSaved"
                                        @back_clicked="onBackClicked">
-        </eth-transaction-advanced-form>
+        </ethereum-transaction-advanced-form>
       </transition>
 
     </div>
