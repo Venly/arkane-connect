@@ -68,7 +68,7 @@
 
         public get totalAmountInToken(): number {
             return this.transactionData
-                ? Utils.rawValue().toTokenValue((this.transactionData.clauses as any[]).map((clause) => parseInt(clause.amount, 10))
+                ? Utils.rawValue().toTokenValue((this.transactionData.clauses as any[]).map((clause) => clause.amount)
                                                                                        .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0))
                 : 0;
         }
