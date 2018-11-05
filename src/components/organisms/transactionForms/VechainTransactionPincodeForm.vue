@@ -82,7 +82,7 @@
             // the used VTHO = (1 + 0/255) * 21000/1000 = 21 VTHO
             // The priority of a transaction in transaction pool can be raised by adjusting gasPriceCoef. For example, if gasPriceCoef =128, used VTHO = (1 + 128/255) * 21000/1000
             // = 31.5 VTHO"
-            return this.transactionData.gas / 1000 * (1 + parseInt(this.transactionData.gasPriceCoef, 10) / 255);
+            return this.transactionData.gas / 1000 * (1 + this.transactionData.gasPriceCoef / 255);
         }
     }
 

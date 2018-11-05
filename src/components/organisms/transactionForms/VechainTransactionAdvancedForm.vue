@@ -110,7 +110,7 @@
         }
 
         public saveClicked() {
-            this.transactionData.gasPriceCoef = this.gasPriceCoef.toString();
+            this.transactionData.gasPriceCoef = this.gasPriceCoef;
             this.transactionData.gas = this.gasLimit;
             this.$emit('saved');
         }
@@ -122,7 +122,7 @@
 
         private initGas() {
             this.gasLimit = this.transactionData.gas;
-            this.gasPriceCoef = parseInt(this.transactionData.gasPriceCoef, 10);
+            this.gasPriceCoef = this.transactionData.gasPriceCoef;
         }
     }
 </script>

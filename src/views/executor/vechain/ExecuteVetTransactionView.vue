@@ -89,7 +89,7 @@ export default class ExecuteVetTransactionView extends TransactionView<VechainTr
     }
 
     private initGasPrice(transactionPreparation: VeChainTransactionPreparationDto) {
-        if (!this.transactionData.gasPriceCoef || this.transactionData.gasPriceCoef === '' || this.transactionData.gasPriceCoef === '0') {
+        if (!this.transactionData.gasPriceCoef || this.transactionData.gasPriceCoef === 0) {
             const defaultGasPriceCoef = transactionPreparation.gasPriceCoefficients.find((gasPriceCoef: GasPriceCoefDto) => gasPriceCoef.defaultPrice);
             this.$set(this.transactionData, 'gasPriceCoef', defaultGasPriceCoef && defaultGasPriceCoef.gasPriceCoef);
         }
