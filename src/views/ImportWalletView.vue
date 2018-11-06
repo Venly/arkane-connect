@@ -63,7 +63,7 @@
         }
 
         private get showImportWallet(): boolean {
-            return !this.isMasterPinEntered;
+            return (this.privateKeyIsEmpty && this.keystoreIsEmpty) || this.showEnterMasterPin;
         }
 
         private get showEnterMasterPin(): boolean {
@@ -116,7 +116,7 @@
         private keystorePassword: string = '';
 
 
-        public mounted(): void {
+        public created(): void {
             this.redirectUri = (this.$route.query as any).redirectUri;
             if (this.enteredPincode !== '') {
                 this.isMasterPinEntered = true;
