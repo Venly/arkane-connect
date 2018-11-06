@@ -121,10 +121,14 @@ export default new Vuex.Store(
                 store.commit('setLoading', false);
             },
             setWarning: async (store: any, message) => {
-                store.commit('setSnack', {type: SnackType.WARNING, message, blocking: false});
+                if (!(store.state.snack.type && store.state.snack.type === SnackType.DANGER)) {
+                    store.commit('setSnack', {type: SnackType.WARNING, message, blocking: false});
+                }
             },
             setError: async (store: any, message: string) => {
-                store.commit('setSnack', {type: SnackType.DANGER, message, blocking: false});
+                if (!(store.state.snack.type && store.state.snack.type === SnackType.DANGER && store.state.snack.blocking)) {
+                    store.commit('setSnack', {type: SnackType.DANGER, message, blocking: false});
+                }
             },
             setBlockingError: async (store: any, message) => {
                 store.commit('setHasBlockingError', true);
