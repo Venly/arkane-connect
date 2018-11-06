@@ -1,5 +1,5 @@
 <template>
-    <dialog-template :title="'Something went wrong'">
+    <dialog-template :title="title">
         <template slot="aboveTitle">
             <div class="icon-wrapper">
                 <svg-cross class="error"></svg-cross>
