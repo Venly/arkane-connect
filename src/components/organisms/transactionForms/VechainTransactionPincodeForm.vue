@@ -4,8 +4,8 @@
 
     <from-to :from="transactionWallet" :toAddresses="toAddresses" :max-lines="3"></from-to>
 
-    <totals-box :amount-value="totalAmountInVet" :amount-currency="'VET'" :amount-decimals="{min: 2, max: 3}"
-                :fee-value="maxTransactionFee()" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 11}"
+    <totals-box :amount-value="totalAmountInToken" :amount-currency="amountCurrencyLabel" :amount-decimals="{min: 2, max: 3}"
+                :fee-value="maxTransactionFee()" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 9}"
                 :show-advanced-icon="true" @advanced_clicked="advancedClicked"></totals-box>
 
     <numpad :params="transactionData" :disabled="disabled" @pincode_entered="pincodeEntered" :action="action"></numpad>
@@ -21,7 +21,8 @@
     import Utils from '../../../utils/Utils';
     import {State} from 'vuex-class';
     import {Wallet} from '../../../models/Wallet';
-    import VechainTransactionData from '../../../api/VechainTransactionData';
+    import VechainTransactionData from '../../../api/vechain/VechainTransactionData';
+    import TokenBalance from '../../../models/TokenBalance';
 
     @Component({
         components: {
@@ -30,10 +31,13 @@
             FromTo,
         },
     })
-    export default class VetTransactionPincodeForm extends Vue {
+    export default class VechainTransactionPincodeForm extends Vue {
 
         @Prop()
         public transactionData!: VechainTransactionData;
+
+        @Prop({required: false})
+        public tokenBalance?: TokenBalance;
 
         @Prop()
         public action!: 'sign' | 'execute';
@@ -58,9 +62,13 @@
             return this.transactionData ? (this.transactionData.clauses as any[]).map((clause) => clause.to) : [];
         }
 
-        public get totalAmountInVet(): number {
+        public get amountCurrencyLabel() {
+            return this.tokenBalance ? this.tokenBalance.symbol : 'VET';
+        }
+
+        public get totalAmountInToken(): number {
             return this.transactionData
-                ? Utils.rawValue().toTokenValue((this.transactionData.clauses as any[]).map((clause) => parseInt(clause.amount, 10))
+                ? Utils.rawValue().toTokenValue((this.transactionData.clauses as any[]).map((clause) => clause.amount)
                                                                                        .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0))
                 : 0;
         }
@@ -74,7 +82,7 @@
             // the used VTHO = (1 + 0/255) * 21000/1000 = 21 VTHO
             // The priority of a transaction in transaction pool can be raised by adjusting gasPriceCoef. For example, if gasPriceCoef =128, used VTHO = (1 + 128/255) * 21000/1000
             // = 31.5 VTHO"
-            return this.transactionData.gas / 1000 * (1 + parseInt(this.transactionData.gasPriceCoef, 10) / 255);
+            return this.transactionData.gas / 1000 * (1 + this.transactionData.gasPriceCoef / 255);
         }
     }
 

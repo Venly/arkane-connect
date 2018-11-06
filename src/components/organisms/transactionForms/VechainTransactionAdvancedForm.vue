@@ -2,7 +2,7 @@
   <div class="advanced">
     <h3>Transaction details</h3>
 
-    <totals-box :amount-value="totalAmountInVet" :amount-currency="'VET'" :amount-decimals="{min: 2, max: 3}"
+    <totals-box :amount-value="totalAmountInToken" :amount-currency="amountCurrencyLabel" :amount-decimals="{min: 2, max: 3}"
                 :fee-value="maxEditedTransactionFee" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 11}"></totals-box>
 
     <form class="form" @submit.prevent="doNothing">
@@ -16,9 +16,9 @@
         <input id="gas-limit" class="control__input" type="number" v-model="gasLimit"/>
       </div>
 
-      <div class="data control">
+      <div class="data control" v-if="dataForSingleClauseTransaction && dataForSingleClauseTransaction !== ''">
         <label for="data" class="control__label">Data</label>
-        <textarea id="data" class="control__input" v-model="transactionData.data"></textarea>
+        <textarea id="data" class="control__input" readonly="readonly">{{dataForSingleClauseTransaction}}</textarea>
       </div>
     </form>
     <div class="buttons buttons--horizontal">
@@ -38,7 +38,8 @@
     import {Wallet} from '../../../models/Wallet';
     import VueSlider from 'vue-slider-component';
     import ActionLink from '../../atoms/ActionLink.vue';
-    import VechainTransactionData from '../../../api/VechainTransactionData';
+    import VechainTransactionData from '../../../api/vechain/VechainTransactionData';
+    import TokenBalance from '../../../models/TokenBalance';
 
     @Component({
         components: {
@@ -49,12 +50,15 @@
             FromTo,
         },
     })
-    export default class VetTransactionAdvancedForm extends Vue {
+    export default class VechainTransactionAdvancedForm extends Vue {
 
         @Prop()
         public transactionData!: VechainTransactionData;
         @Prop()
         public hasTransactionData!: boolean;
+
+        @Prop({required: false})
+        public tokenBalance?: TokenBalance;
 
         public gasLimit: number = 0;
         public gasPriceCoef: number = 0;
@@ -68,19 +72,30 @@
             }
         }
 
+        public get amountCurrencyLabel() {
+            return this.tokenBalance ? this.tokenBalance.symbol : 'VET';
+        }
+
         public get toAddresses(): string[] {
             return this.transactionData ? (this.transactionData.clauses as any[]).map((clause) => clause.to) : [];
         }
 
-        public get totalAmountInVet(): number {
+        public get totalAmountInToken(): number {
             return this.transactionData
-                ? Utils.rawValue().toTokenValue((this.transactionData.clauses as any[]).map((clause) => parseInt(clause.amount, 10))
+                ? Utils.rawValue().toTokenValue((this.transactionData.clauses as any[]).map((clause) => clause.amount)
                                                                                        .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0))
                 : 0;
         }
 
         private get maxEditedTransactionFee(): number {
             return this.gasLimit / 1000 * (1 + this.gasPriceCoef / 255);
+        }
+
+        public get dataForSingleClauseTransaction(): string {
+            if (this.transactionData && this.transactionData.clauses && this.transactionData.clauses.length === 1) {
+                return this.transactionData.clauses[0].data;
+            }
+            return '';
         }
 
         @Watch('hasTransactionData')
@@ -95,7 +110,7 @@
         }
 
         public saveClicked() {
-            this.transactionData.gasPriceCoef = this.gasPriceCoef.toString();
+            this.transactionData.gasPriceCoef = this.gasPriceCoef;
             this.transactionData.gas = this.gasLimit;
             this.$emit('saved');
         }
@@ -107,7 +122,7 @@
 
         private initGas() {
             this.gasLimit = this.transactionData.gas;
-            this.gasPriceCoef = parseInt(this.transactionData.gasPriceCoef, 10);
+            this.gasPriceCoef = this.transactionData.gasPriceCoef;
         }
     }
 </script>
@@ -131,9 +146,6 @@
 
   .gas-coefficient
     margin-top: rem(24px)
-
-  /*.gas-limit*/
-    /*margin-top: rem(25px)*/
 
   .data
     textarea

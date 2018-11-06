@@ -9,37 +9,25 @@ import {Profile} from '../models/Profile';
 import {Balance} from '../models/Balance';
 import {SecretType} from '../models/SecretType';
 import {IntercomVerification} from '../models/IntercomVerification';
+import TokenBalance from '../models/TokenBalance';
 
 export default class Api {
     public static token: string = '';
 
     public static signTransaction(data: any, pincode: string): Promise<ResponseBody> {
-        return this.handleTransaction('signatures', data, pincode);
+        return Api.handleTransaction('signatures', data, pincode);
     }
 
     public static executeTransaction(data: any, pincode: string): Promise<ResponseBody> {
-        return this.handleTransaction('transactions', data, pincode);
+        return Api.handleTransaction('transactions', data, pincode);
     }
 
-    public static handleTransaction(endpoint: string, data: any, pincode: string): Promise<ResponseBody> {
+    public static prepareSignTransaction(data: any): Promise<any> {
+        return Api.prepareTransaction('signatures', data);
+    }
 
-        return Api.getApi().http
-                  .post(endpoint, Utils.removeNulls(Object.assign(data, {pincode})))
-                  .then((axiosRes: AxiosResponse) => {
-                      return axiosRes.data as ResponseBody;
-                  })
-                  .catch((error: AxiosError) => {
-                      let response;
-                      if (error.response) {
-                          response = error.response.data;
-                      } else {
-                          response = 'unknown js error';
-                      }
-                      return {
-                          success: false,
-                          result: response,
-                      };
-                  });
+    public static prepareExecuteTransaction(data: any): Promise<any> {
+        return Api.prepareTransaction('transactions', data);
     }
 
     public static getWallets(filter?: { secretType?: SecretType, clientId?: string }): Promise<Wallet[]> {
@@ -148,6 +136,14 @@ export default class Api {
         }
     }
 
+    public static getTokenBalance(walletId: string, tokenAddress: string): Promise<RestApiResponse<TokenBalance>> {
+        return Api.getApi().http
+                  .get(`wallets/${walletId}/balance/tokens/${tokenAddress}`)
+                  .then((result: AxiosResponse<RestApiResponse<TokenBalance>>) => {
+                      return Object.assign({...result.data});
+                  });
+    }
+
     private static instance: Api;
 
     private static getInstance(): Api {
@@ -160,6 +156,35 @@ export default class Api {
 
     private static getApi(): RestApi {
         return Api.getInstance().api;
+    }
+
+    private static handleTransaction(endpoint: string, data: any, pincode: string): Promise<ResponseBody> {
+        return Api.getApi().http
+                  .post(endpoint, Utils.removeNulls(Object.assign(data, {pincode})))
+                  .then((axiosRes: AxiosResponse) => {
+                      return axiosRes.data as ResponseBody;
+                  })
+                  .catch((error: AxiosError) => {
+                      let response;
+                      if (error.response) {
+                          response = error.response.data;
+                      } else {
+                          response = 'unknown js error';
+                      }
+                      return {
+                          success: false,
+                          result: response,
+                      };
+                  });
+    }
+
+    private static prepareTransaction(endpoint: string, data: any): Promise<any> {
+        return Api.getApi().http
+                  .post(`${endpoint}/prepare`, Utils.removeNullsAndEmpty(data))
+                  .then((res: AxiosResponse<RestApiResponse<any>>) => {
+                          return res && res.data && res.data.result;
+                      },
+                  );
     }
 
     private api: RestApi;

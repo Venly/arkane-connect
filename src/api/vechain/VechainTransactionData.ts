@@ -1,7 +1,7 @@
 export interface VechainTransactionDataClause {
     to: string;
     data: string;
-    amount: string;
+    amount: number;
 }
 
 export default class VechainTransactionData {
@@ -13,7 +13,7 @@ export default class VechainTransactionData {
     public chainTag?: string;
     public expiration: number = 0;
     public gas!: number;
-    public gasPriceCoef!: string;
+    public gasPriceCoef!: number;
     public nonce?: string;
     public clauses: VechainTransactionDataClause[] = [];
 }

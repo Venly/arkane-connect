@@ -2,10 +2,10 @@
   <div class="container">
     <div class="dialog-container" v-if="!(showCreateWallet || showImportWallet)">
 
-      <set-master-pin-dialog @done="masterpinEntered" v-if="showSetupMasterPin"></set-master-pin-dialog>
+      <set-master-pin-dialog @done="masterpinSet" v-if="showSetupMasterPin"></set-master-pin-dialog>
 
       <manage-wallets-dialog v-if="showManageWallets" :wallets="walletsForChainType" :chain="chain" :thirdPartyClientId="thirdPartyClientId"
-                             @linkWalletsClicked="linkWallets" @createWalletClicked="toCreateWallet" @importWalletClicked="toImportWallet">
+                             @linkWalletsClicked="linkWallets" @createWalletClicked="toEnterMasterPinForCreate" @importWalletClicked="toImportWallet" @backClicked="redirectBack">
       </manage-wallets-dialog>
 
       <redirect-dialog :class="'success'" :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri" :timeleft="timeleft" v-if="showWalletsLinked">
@@ -26,8 +26,9 @@
         <p>Please try again. If the problem persists, contact support via <a href="mailto:support@arkane.network">support@arkane.network</a></p>
       </error-dialog>
     </div>
-    <create-wallet-view v-if="showCreateWallet" :enteredPincode="pincode"/>
-    <import-wallet-view v-if="showImportWallet" :enteredPincode="pincode"/>
+    <enter-master-pin-modal :show="showEnterMasterPin" @done="masterpinEntered" @cancel="masterpinCancelClicked"></enter-master-pin-modal>
+    <create-wallet-view v-if="showCreateWallet" :enteredPincode="pincode" @cancelClicked="backClicked"/>
+    <import-wallet-view v-if="showImportWallet" :enteredPincode="pincode" @backClicked="backClicked"/>
 
   </div>
 </template>
@@ -35,7 +36,6 @@
 <script lang="ts">
     import {Component, Vue, Watch} from 'vue-property-decorator';
     import WalletCard from '@/components/molecules/WalletCard.vue';
-    import MasterPinDialog from '@/components/organisms/dialogs/MasterPinDialog.vue';
     import SetMasterPinDialog from '@/components/organisms/dialogs/SetMasterPinDialog.vue';
     import RedirectDialog from '@/components/organisms/dialogs/RedirectDialog.vue';
     import DialogTemplate from '@/components/molecules/DialogTemplate.vue';
@@ -46,6 +46,7 @@
     import Api from '../api';
     import ResponseBody from '../api/ResponseBody';
     import ManageWalletsDialog from '../components/organisms/dialogs/ManageWalletsDialog.vue';
+    import EnterMasterPinModal from '../components/organisms/modals/EnterMasterPinModal.vue';
     import ErrorDialog from '../components/organisms/dialogs/ErrorDialog.vue';
     import {Chain} from '../models/Chain';
     import CreateWalletView from './CreateWalletView.vue';
@@ -53,13 +54,13 @@
 
     @Component({
         components: {
+            EnterMasterPinModal,
             ImportWalletView,
             CreateWalletView,
             ErrorDialog,
             ManageWalletsDialog,
             ActionButton,
             RedirectDialog,
-            MasterPinDialog,
             SetMasterPinDialog,
             DialogTemplate,
             WalletCard,
@@ -84,6 +85,7 @@
 
         private showWalletsLinked: boolean = false;
         private showWalletsLinkedError: boolean = false;
+        private showEnterMasterPin: boolean = false;
         private showCreateWallet: boolean = false;
         private showImportWallet: boolean = false;
 
@@ -109,7 +111,7 @@
             return (this.isMasterPinInitiallyPresent || this.isMasterPinEntered) && !this.showWalletsLinked && !this.showWalletsLinkedError;
         }
 
-        private async masterpinEntered(pincode: string) {
+        private async masterpinSet(pincode: string) {
             if (pincode) {
                 this.isMasterPinEntered = true;
                 this.pincode = pincode;
@@ -152,20 +154,38 @@
             this.showWalletsLinkedError = false;
         }
 
-        private async toCreateWallet() {
-            if (this.pincode !== '') {
-                this.showCreateWallet = true;
+        private toEnterMasterPinForCreate() {
+            if (!this.isMasterPinEntered) {
+                this.showEnterMasterPin = true;
             } else {
-                this.$router.push({name: 'create-wallet', params: this.$route.params, query: this.$route.query});
+                this.toCreateWallet();
             }
         }
 
-        private toImportWallet() {
-            if (this.pincode !== '') {
-                this.showImportWallet = true;
-            } else {
-                this.$router.push({name: 'import-wallet', params: this.$route.params, query: this.$route.query});
+        private masterpinEntered(pincode: string) {
+            if (pincode) {
+                this.isMasterPinEntered = true;
+                this.pincode = pincode;
+                this.showEnterMasterPin = false;
+                this.toCreateWallet();
             }
+        }
+
+        private masterpinCancelClicked() {
+            this.showEnterMasterPin = false;
+        }
+
+        private toCreateWallet() {
+            this.showCreateWallet = true;
+        }
+
+        private toImportWallet() {
+            this.showImportWallet = true;
+        }
+
+        private backClicked() {
+            this.showCreateWallet = false;
+            this.showImportWallet = false;
         }
 
         private redirectBack() {

@@ -26,9 +26,11 @@ export default class RestApi {
                 return config;
             });
         }
+
+        this.http.interceptors.response.use(undefined, this.errorHandler);
     }
 
     public errorHandler(error: any) {
-        return Promise.resolve(error);
+        return Promise.reject(error.response);
     }
 }

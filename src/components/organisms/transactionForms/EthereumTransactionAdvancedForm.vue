@@ -2,7 +2,7 @@
   <div class="advanced">
     <h3>Transaction details</h3>
 
-    <totals-box :amount-value="amountInEther" :amount-currency="'ETH'" :amount-decimals="{min: 2, max: 3}"
+    <totals-box :amount-value="amountInEther" :amount-currency="amountCurrencyLabel" :amount-decimals="{min: 2, max: 3}"
                 :fee-value="maxEditedTransactionFee" :fee-currency="'ETH'" :fee-decimals="{min: 2, max: 6}"></totals-box>
 
     <div class="speed-slider-box">
@@ -43,18 +43,21 @@
 </template>
 
 <script lang='ts'>
-    import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
-    import FromTo from '../../molecules/FromTo.vue';
-    import TotalsBox from '../../atoms/TotalsBox.vue';
-    import Numpad from '../../molecules/Numpad.vue';
-    import EthereumTransactionData from '../../../api/EthereumTransactionData';
-    import Utils from '../../../utils/Utils';
-    import {State} from 'vuex-class';
-    import {Wallet} from '../../../models/Wallet';
-    import VueSlider from 'vue-slider-component';
-    import ActionLink from '../../atoms/ActionLink.vue';
+import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
+import FromTo from '../../molecules/FromTo.vue';
+import TotalsBox from '../../atoms/TotalsBox.vue';
+import Numpad from '../../molecules/Numpad.vue';
+import EthereumTransactionData from '../../../api/ethereum/EthereumTransactionData';
+import Utils from '../../../utils/Utils';
+import {State} from 'vuex-class';
+import {Wallet} from '../../../models/Wallet';
+import VueSlider from 'vue-slider-component';
+import ActionLink from '../../atoms/ActionLink.vue';
+import EthereumTransactionPreparationDto from '../../../models/transaction/preparation/ethereum/EthereumTransactionPreparationDto';
+import GasPriceDto from '../../../models/transaction/preparation/ethereum/GasPriceDto';
+import TokenBalance from '../../../models/TokenBalance';
 
-    @Component({
+@Component({
     components: {
         ActionLink,
         VueSlider,
@@ -63,12 +66,16 @@
         FromTo,
     },
 })
-export default class EthTransactionAdvancedForm extends Vue {
+export default class EthereumTransactionAdvancedForm extends Vue {
 
     @Prop()
     public transactionData!: EthereumTransactionData;
     @Prop()
     public hasTransactionData!: boolean;
+    @Prop({required: false})
+    public tokenBalance?: TokenBalance;
+    @Prop()
+    public transactionPreparation!: EthereumTransactionPreparationDto;
 
     public gasLimit: number = 0;
     public gasPrice: number = 0;
@@ -108,6 +115,10 @@ export default class EthTransactionAdvancedForm extends Vue {
         }
     }
 
+    public get amountCurrencyLabel() {
+        return this.tokenBalance ? this.tokenBalance.symbol : 'ETH';
+    }
+
     public get fromAddress(): string {
         return this.transactionWallet ? this.transactionWallet.address : '0x0000000000000000000000000000000000000000';
     }
@@ -121,16 +132,23 @@ export default class EthTransactionAdvancedForm extends Vue {
     }
 
     public get gasOptions(): number[] {
-        const originalValue: number = this.gasPriceInGWei();
-        const options = [3, 3.1300001, 20, 53];
-        if (options.findIndex((value: number) => value === originalValue) < 0) {
-            options.push(originalValue);
+        if (this.transactionPreparation) {
+            const options: number[] = (this.transactionPreparation as EthereumTransactionPreparationDto).gasPrices
+                                                                                                        .map((gasPrice: GasPriceDto) => {
+                                                                                                     return Utils.rawValue().toGwei(gasPrice.gasPrice);
+                                                                                                 });
+
+            const originalValue: number = this.gasPriceInGWei();
+            if (options.findIndex((value: number) => value === originalValue) < 0) {
+                options.push(originalValue);
+            }
+            return options.sort((a, b) => a - b);
         }
-        return options.sort((a, b) => a - b);
+        return [];
     }
 
     public gasPriceInGWei(): number {
-        return Utils.rawValue().toGwei(this.transactionData.gasPrice);
+        return Utils.rawValue().toGwei(Utils.zeroIfUndefined(this.transactionData && this.transactionData.gasPrice));
     }
 
     @Watch('hasTransactionData')
@@ -159,7 +177,7 @@ export default class EthTransactionAdvancedForm extends Vue {
     }
 
     private initGas() {
-        this.gasLimit = this.transactionData.gas;
+        this.gasLimit = Utils.zeroIfUndefined(this.transactionData && this.transactionData.gas);
         this.gasPrice = this.gasPriceInGWei();
     }
 }

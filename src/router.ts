@@ -10,10 +10,12 @@ import ErrorView from './views/ErrorView.vue';
 import UnauthorizedView from './views/UnauthorizedView.vue';
 import IndexView from './views/IndexView.vue';
 import Error404View from './views/Error404View.vue';
-import SignEthereumTransactionView from './views/signer/SignEthereumTransactionView.vue';
-import SignVeChainTransactionView from './views/signer/SignVeChainTransactionView.vue';
-import ExecuteEthTransactionView from './views/executor/ExecuteEthTransactionView.vue';
-import ExecuteVetTransactionView from './views/executor/ExecuteVetTransactionView.vue';
+import SignEthereumTransactionView from './views/signer/ethereum/SignEthereumTransactionView.vue';
+import SignVeChainTransactionView from './views/signer/vechain/SignVeChainTransactionView.vue';
+import ExecuteEthTransactionView from './views/executor/ethereum/ExecuteEthTransactionView.vue';
+import ExecuteEthERC20TransactionView from './views/executor/ethereum/ExecuteEthERC20TransactionView.vue';
+import ExecuteVetTransactionView from './views/executor/vechain/ExecuteVetTransactionView.vue';
+import ExecuteVeChainVIP180TransactionView from './views/executor/vechain/ExecuteVeChainVIP180TransactionView.vue';
 import Security from './Security';
 import Utils from './utils/Utils';
 import store from './store';
@@ -65,6 +67,14 @@ const router = new Router(
                 },
             },
             {
+                path: '/transaction/execute/ethereum_erc20_transaction',
+                name: 'execute-eth-erc20-transaction',
+                component: ExecuteEthERC20TransactionView,
+                meta: {
+                    auth: true,
+                },
+            },
+            {
                 path: '/transaction/execute/vet_transaction',
                 name: 'execute-vet-transaction',
                 component: ExecuteVetTransactionView,
@@ -73,8 +83,16 @@ const router = new Router(
                 },
             },
             {
+                path: '/transaction/execute/vechain_vip180_transaction',
+                name: 'execute-vechain-vip180-transaction',
+                component: ExecuteVeChainVIP180TransactionView,
+                meta: {
+                    auth: true,
+                },
+            },
+            {
                 path: '/wallets/manage/:chain',
-                name: 'link-wallet',
+                name: 'manage-wallets',
                 component: ManageWalletsView,
                 meta: {
                     authArkane: true,

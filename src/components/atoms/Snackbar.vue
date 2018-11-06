@@ -50,6 +50,8 @@
 
         &--info
             background-color: $color-info
+        &--warning
+            background-color: $color-warning
         &--danger
             background-color: $color-danger
         &--success

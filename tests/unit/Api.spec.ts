@@ -1,8 +1,8 @@
 import {expect} from 'chai';
 import Api from '@/api';
 import sinon from 'sinon';
-import EthereumTransactionData from '@/api/EthereumTransactionData';
-import VechainTransactionData from '@/api/VechainTransactionData';
+import EthereumTransactionData from '@/api/ethereum/EthereumTransactionData';
+import VechainTransactionData from '@/api/vechain/VechainTransactionData';
 
 
 describe('Api.ts', () => {

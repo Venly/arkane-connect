@@ -11,8 +11,8 @@
 <script lang="ts">
     import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
     import NumpadNumber from '@/components/atoms/NumpadNumber.vue';
-    import EthereumTransactionData from '@/api/EthereumTransactionData';
-    import VechainTransactionData from '@/api/VechainTransactionData';
+    import EthereumTransactionData from '@/api/ethereum/EthereumTransactionData';
+    import VechainTransactionData from '@/api/vechain/VechainTransactionData';
 
     @Component({
         components: {
@@ -73,7 +73,7 @@
 </script>
 
 <style scoped lang="sass">
-    @import "../../assets/sass/mixins-and-vars"
+    @import ../../assets/sass/mixins-and-vars
 
     h3
         margin: 0

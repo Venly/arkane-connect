@@ -8,7 +8,7 @@
             </div>
             <div class="totals-box__fee">
                 <span class="label">Max fee:</span>
-                <span class="value"> {{formattedFeeValue}}</span>
+                <span class="value">{{formattedFeeValue}}</span>
                 <span class="currency"> {{feeCurrency}}</span>
             </div>
         </div>
@@ -53,7 +53,7 @@
 </script>
 
 <style lang="sass" scoped>
-    @import "../../assets/sass/mixins-and-vars"
+    @import ../../assets/sass/mixins-and-vars
 
     .totals-box
         border-radius: $border-radius-small
