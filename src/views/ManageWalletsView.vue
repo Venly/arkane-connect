@@ -5,7 +5,7 @@
       <set-master-pin-dialog @done="masterpinSet" v-if="showSetupMasterPin"></set-master-pin-dialog>
 
       <manage-wallets-dialog v-if="showManageWallets" :wallets="walletsForChainType" :chain="chain" :thirdPartyClientId="thirdPartyClientId"
-                             @linkWalletsClicked="linkWallets" @createWalletClicked="toEnterMasterPin" @importWalletClicked="toImportWallet" @backClicked="redirectBack">
+                             @linkWalletsClicked="linkWallets" @createWalletClicked="toEnterMasterPinForCreate" @importWalletClicked="toImportWallet" @backClicked="redirectBack">
       </manage-wallets-dialog>
 
       <redirect-dialog :class="'success'" :title="'Congratulations!'" :icon="'success'" :redirectUri="redirectUri" :timeleft="timeleft" v-if="showWalletsLinked">
@@ -154,8 +154,12 @@
             this.showWalletsLinkedError = false;
         }
 
-        private toEnterMasterPin() {
-            this.showEnterMasterPin = true;
+        private toEnterMasterPinForCreate() {
+            if (!this.isMasterPinEntered) {
+                this.showEnterMasterPin = true;
+            } else {
+                this.toCreateWallet();
+            }
         }
 
         private masterpinEntered(pincode: string) {

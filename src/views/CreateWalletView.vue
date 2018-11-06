@@ -92,7 +92,7 @@
         private redirectUri = '/';
         private interval!: any;
 
-        public mounted(): void {
+        public created(): void {
             this.redirectUri = (this.$route.query as any).redirectUri;
             if (this.enteredPincode !== '') {
                 this.isMasterPinEntered = true;
