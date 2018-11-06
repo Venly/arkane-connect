@@ -7,6 +7,7 @@ import {Profile} from './models/Profile';
 import {RestApiResponse} from './api/RestApi';
 import {SupportedChains} from '@/models/SupportedChains';
 import {ImportKeystoreCommand, ImportPrivateKeyCommand} from '@/models/Commands';
+import {RestApiResponseError} from '@/api/RestApi';
 
 Vue.use(Vuex);
 
@@ -91,18 +92,18 @@ export default new Vuex.Store(
                 store.commit('setHasMasterPin', success);
                 return success;
             },
-            createWallet: async (store: any, {secretType, pincode, clients}): Promise<Wallet> => {
+            createWallet: async (store: any, {secretType, pincode, clients}): Promise<Wallet | RestApiResponseError[]> => {
                 return Api.createWallet({pincode, secretType, clients})
-                          .then((response: RestApiResponse<Wallet>) => {
-                              return new Promise<Wallet>((resolve, reject) => {
-                                  if (response.success) {
-                                      store.commit('addWallet', response.result);
-                                      resolve(response.result);
-                                  } else {
-                                      reject(response.errors);
-                                  }
-                              });
-                          });
+                    .then((response: RestApiResponse<Wallet>) => {
+                        return new Promise<Wallet>((resolve, reject) => {
+                            if (response.success) {
+                                store.commit('addWallet', response.result);
+                                resolve(response.result);
+                            } else {
+                                reject(response.errors);
+                            }
+                        });
+                    });
             },
             importPrivateKey: async (store: any, command: ImportPrivateKeyCommand): Promise<Wallet> => {
                 const wallet: Wallet = await Api.importPrivateKey(command);

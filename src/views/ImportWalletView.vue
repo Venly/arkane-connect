@@ -21,7 +21,7 @@
         </div>
       </redirect-dialog>
 
-      <error-dialog v-if="showWalletImportFailed" :title="'Something went wrong'" :buttonText="'Try Again'" @button-clicked="tryAgain">
+      <error-dialog v-if="showWalletImportFailed" :title="importFailedErrorMessage" :buttonText="'Try Again'" @button-clicked="tryAgain">
         <p>Something went wrong while trying to import your {{chainName}} wallet.</p>
         <p>Please try again. If the problem persists, contact support via <a href="mailto:support@arkane.network">support@arkane.network</a></p>
       </error-dialog>
@@ -115,6 +115,8 @@
         private keystore: string = '';
         private keystorePassword: string = '';
 
+        private importFailedErrorMessage = 'Something went wrong';
+
 
         public mounted(): void {
             this.redirectUri = (this.$route.query as any).redirectUri;
@@ -155,6 +157,11 @@
                         }, 1000);
                     })
                     .catch((reason: any) => {
+                        console.log(reason);
+                        if (reason && reason.data && reason.data.errors && reason.data.errors.length > 0) {
+                            this.importFailedErrorMessage = reason.data.errors[0].message;
+                        }
+
                         this.$store.dispatch('stopLoading');
                         this.isWalletImportFailed = true;
                     });
