@@ -169,11 +169,12 @@ export default class Api {
                       if (error.response) {
                           response = error.response.data;
                       } else {
-                          response = 'unknown js error';
+                          response = 'unknown connect error';
                       }
-                      return {
+                      throw {
                           success: false,
-                          result: response,
+                          errors: [response],
+                          result: {},
                       };
                   });
     }
