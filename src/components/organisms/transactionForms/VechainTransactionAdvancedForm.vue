@@ -29,102 +29,105 @@
 </template>
 
 <script lang='ts'>
-    import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
-    import FromTo from '../../molecules/FromTo.vue';
-    import TotalsBox from '../../atoms/TotalsBox.vue';
-    import Numpad from '../../molecules/Numpad.vue';
-    import Utils from '../../../utils/Utils';
-    import {State} from 'vuex-class';
-    import {Wallet} from '../../../models/Wallet';
-    import VueSlider from 'vue-slider-component';
-    import ActionLink from '../../atoms/ActionLink.vue';
-    import VechainTransactionData from '../../../api/vechain/VechainTransactionData';
-    import TokenBalance from '../../../models/TokenBalance';
+import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
+import FromTo from '../../molecules/FromTo.vue';
+import TotalsBox from '../../atoms/TotalsBox.vue';
+import Numpad from '../../molecules/Numpad.vue';
+import Utils from '../../../utils/Utils';
+import {State} from 'vuex-class';
+import {Wallet} from '../../../models/Wallet';
+import VueSlider from 'vue-slider-component';
+import ActionLink from '../../atoms/ActionLink.vue';
+import VechainTransactionData from '../../../api/vechain/VechainTransactionData';
+import TokenBalance from '../../../models/TokenBalance';
 
-    @Component({
-        components: {
-            ActionLink,
-            VueSlider,
-            Numpad,
-            TotalsBox,
-            FromTo,
-        },
-    })
-    export default class VechainTransactionAdvancedForm extends Vue {
+@Component({
+    components: {
+        ActionLink,
+        VueSlider,
+        Numpad,
+        TotalsBox,
+        FromTo,
+    },
+})
+export default class VechainTransactionAdvancedForm extends Vue {
 
-        @Prop()
-        public transactionData!: VechainTransactionData;
-        @Prop()
-        public hasTransactionData!: boolean;
+    @Prop()
+    public transactionData!: VechainTransactionData;
+    @Prop()
+    public hasTransactionData!: boolean;
 
-        @Prop({required: false})
-        public tokenBalance?: TokenBalance;
+    @Prop({required: false})
+    public tokenBalance?: TokenBalance;
 
-        public gasLimit: number = 0;
-        public gasPriceCoef: number = 0;
+    public gasLimit: number = 0;
+    public gasPriceCoef: number = 0;
 
-        @State
-        public transactionWallet?: Wallet;
+    @State
+    public transactionWallet?: Wallet;
 
-        public mounted() {
-            if (this.hasTransactionData) {
-                this.initGas();
-            }
-        }
-
-        public get amountCurrencyLabel() {
-            return this.tokenBalance ? this.tokenBalance.symbol : 'VET';
-        }
-
-        public get toAddresses(): string[] {
-            return this.transactionData ? (this.transactionData.clauses as any[]).map((clause) => clause.to) : [];
-        }
-
-        public get totalAmountInToken(): number {
-            return this.transactionData
-                ? Utils.rawValue().toTokenValue((this.transactionData.clauses as any[]).map((clause) => clause.amount)
-                                                                                       .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0))
-                : 0;
-        }
-
-        private get maxEditedTransactionFee(): number {
-            return this.gasLimit / 1000 * (1 + this.gasPriceCoef / 255);
-        }
-
-        public get dataForSingleClauseTransaction(): string {
-            if (this.transactionData && this.transactionData.clauses && this.transactionData.clauses.length === 1) {
-                return this.transactionData.clauses[0].data;
-            }
-            return '';
-        }
-
-        @Watch('hasTransactionData')
-        public onTransactionDataReceivedCallback(oldValue: boolean, newValue: boolean) {
-            if (newValue) {
-                this.initGas();
-            }
-        }
-
-        public backClicked() {
-            this.$emit('back_clicked');
-        }
-
-        public saveClicked() {
-            this.transactionData.gasPriceCoef = this.gasPriceCoef;
-            this.transactionData.gas = this.gasLimit;
-            this.$emit('saved');
-        }
-
-
-        public doNothing() {
-            // Do nothing
-        }
-
-        private initGas() {
-            this.gasLimit = this.transactionData.gas;
-            this.gasPriceCoef = this.transactionData.gasPriceCoef;
+    public mounted() {
+        if (this.hasTransactionData) {
+            this.initGas();
         }
     }
+
+    public get amountCurrencyLabel() {
+        return this.tokenBalance ? this.tokenBalance.symbol : 'VET';
+    }
+
+    public get toAddresses(): string[] {
+        return this.transactionData ? (this.transactionData.clauses as any[]).map((clause) => clause.to) : [];
+    }
+
+    public get totalAmountInToken(): number {
+        return this.transactionData
+            ? Utils.rawValue().toTokenValue(
+                (this.transactionData.clauses as any[]).map((clause) => clause.amount)
+                                                       .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0),
+                this.tokenBalance ? this.tokenBalance.decimals : 18,
+            )
+            : 0;
+    }
+
+    private get maxEditedTransactionFee(): number {
+        return this.gasLimit / 1000 * (1 + this.gasPriceCoef / 255);
+    }
+
+    public get dataForSingleClauseTransaction(): string {
+        if (this.transactionData && this.transactionData.clauses && this.transactionData.clauses.length === 1) {
+            return this.transactionData.clauses[0].data;
+        }
+        return '';
+    }
+
+    @Watch('hasTransactionData')
+    public onTransactionDataReceivedCallback(oldValue: boolean, newValue: boolean) {
+        if (newValue) {
+            this.initGas();
+        }
+    }
+
+    public backClicked() {
+        this.$emit('back_clicked');
+    }
+
+    public saveClicked() {
+        this.transactionData.gasPriceCoef = this.gasPriceCoef;
+        this.transactionData.gas = this.gasLimit;
+        this.$emit('saved');
+    }
+
+
+    public doNothing() {
+        // Do nothing
+    }
+
+    private initGas() {
+        this.gasLimit = this.transactionData.gas;
+        this.gasPriceCoef = this.transactionData.gasPriceCoef;
+    }
+}
 </script>
 
 <style lang='sass' scoped>

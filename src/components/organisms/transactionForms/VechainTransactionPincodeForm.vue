@@ -13,79 +13,80 @@
 </template>
 
 <script lang='ts'>
+import {Component, Emit, Prop, Vue} from 'vue-property-decorator';
+import FromTo from '../../molecules/FromTo.vue';
+import TotalsBox from '../../atoms/TotalsBox.vue';
+import Numpad from '../../molecules/Numpad.vue';
+import Utils from '../../../utils/Utils';
+import {State} from 'vuex-class';
+import {Wallet} from '../../../models/Wallet';
+import VechainTransactionData from '../../../api/vechain/VechainTransactionData';
+import TokenBalance from '../../../models/TokenBalance';
 
-    import {Component, Emit, Prop, Vue} from 'vue-property-decorator';
-    import FromTo from '../../molecules/FromTo.vue';
-    import TotalsBox from '../../atoms/TotalsBox.vue';
-    import Numpad from '../../molecules/Numpad.vue';
-    import Utils from '../../../utils/Utils';
-    import {State} from 'vuex-class';
-    import {Wallet} from '../../../models/Wallet';
-    import VechainTransactionData from '../../../api/vechain/VechainTransactionData';
-    import TokenBalance from '../../../models/TokenBalance';
+@Component({
+    components: {
+        Numpad,
+        TotalsBox,
+        FromTo,
+    },
+})
+export default class VechainTransactionPincodeForm extends Vue {
 
-    @Component({
-        components: {
-            Numpad,
-            TotalsBox,
-            FromTo,
-        },
-    })
-    export default class VechainTransactionPincodeForm extends Vue {
+    @Prop()
+    public transactionData!: VechainTransactionData;
 
-        @Prop()
-        public transactionData!: VechainTransactionData;
+    @Prop({required: false})
+    public tokenBalance?: TokenBalance;
 
-        @Prop({required: false})
-        public tokenBalance?: TokenBalance;
+    @Prop()
+    public action!: 'sign' | 'execute';
 
-        @Prop()
-        public action!: 'sign' | 'execute';
+    @Prop({required: false, default: false})
+    public disabled!: boolean;
 
-        @Prop({required: false, default: false})
-        public disabled!: boolean;
+    @State
+    public transactionWallet?: Wallet;
 
-        @State
-        public transactionWallet?: Wallet;
-
-        @Emit('advanced_clicked')
-        public advancedClicked() {
-            // @Emit will handle this
-        }
-
-        @Emit('pincode_entered')
-        public pincodeEntered(pincode: string) {
-            // @Emit will handle this
-        }
-
-        public get toAddresses(): string[] {
-            return this.transactionData ? (this.transactionData.clauses as any[]).map((clause) => clause.to) : [];
-        }
-
-        public get amountCurrencyLabel() {
-            return this.tokenBalance ? this.tokenBalance.symbol : 'VET';
-        }
-
-        public get totalAmountInToken(): number {
-            return this.transactionData
-                ? Utils.rawValue().toTokenValue((this.transactionData.clauses as any[]).map((clause) => clause.amount)
-                                                                                       .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0))
-                : 0;
-        }
-
-        private maxTransactionFee(): number {
-            // Base Thor rate and tx fee
-            //
-            // "VeChainThor blockchain transaction consumes gas, gas is converted into VTHO based on gasPrice and account VTHO is deducted to calculate the transaction fee. The
-            // calculation equation is: VTHO = (1 + gasPriceCoef/255) * baseGasPrice
-            // Current mainnet set baseGasPrice to be: 1 VTHO = 1000gas (always subject to the actual network parameter). The VET transfer fee is 21000gas. If gasPriceCoef = 0,
-            // the used VTHO = (1 + 0/255) * 21000/1000 = 21 VTHO
-            // The priority of a transaction in transaction pool can be raised by adjusting gasPriceCoef. For example, if gasPriceCoef =128, used VTHO = (1 + 128/255) * 21000/1000
-            // = 31.5 VTHO"
-            return this.transactionData.gas / 1000 * (1 + this.transactionData.gasPriceCoef / 255);
-        }
+    @Emit('advanced_clicked')
+    public advancedClicked() {
+        // @Emit will handle this
     }
 
+    @Emit('pincode_entered')
+    public pincodeEntered(pincode: string) {
+        // @Emit will handle this
+    }
+
+    public get toAddresses(): string[] {
+        return this.transactionData ? (this.transactionData.clauses as any[]).map((clause) => clause.to) : [];
+    }
+
+    public get amountCurrencyLabel() {
+        return this.tokenBalance ? this.tokenBalance.symbol : 'VET';
+    }
+
+    public get totalAmountInToken(): number {
+        return this.transactionData
+            ? Utils.rawValue().toTokenValue(
+                (this.transactionData.clauses as any[]).map((clause) => clause.amount)
+                                                       .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0),
+                this.tokenBalance ? this.tokenBalance.decimals : 18,
+            )
+            : 0;
+    }
+
+    private maxTransactionFee(): number {
+        // Base Thor rate and tx fee
+        //
+        // "VeChainThor blockchain transaction consumes gas, gas is converted into VTHO based on gasPrice and account VTHO is deducted to calculate the transaction fee. The
+        // calculation equation is: VTHO = (1 + gasPriceCoef/255) * baseGasPrice
+        // Current mainnet set baseGasPrice to be: 1 VTHO = 1000gas (always subject to the actual network parameter). The VET transfer fee is 21000gas. If gasPriceCoef = 0,
+        // the used VTHO = (1 + 0/255) * 21000/1000 = 21 VTHO
+        // The priority of a transaction in transaction pool can be raised by adjusting gasPriceCoef. For example, if gasPriceCoef =128, used VTHO = (1 + 128/255) * 21000/1000
+        // = 31.5 VTHO"
+        return this.transactionData.gas / 1000 * (1 + this.transactionData.gasPriceCoef / 255);
+    }
+}
 </script>
 
 <style lang='sass' scoped>
