@@ -65,7 +65,7 @@ export default class EthereumTransactionPincodeForm extends Vue {
     }
 
     public get amountInEther(): number {
-        return Utils.rawValue().toTokenValue(Utils.zeroIfUndefined(this.transactionData && this.transactionData.value));
+        return Utils.rawValue().toTokenValue(Utils.zeroIfUndefined(this.transactionData && this.transactionData.value), this.tokenBalance ? this.tokenBalance.decimals : 18);
     }
 
     private get maxTransactionFee(): number {

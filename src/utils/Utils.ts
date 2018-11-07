@@ -124,7 +124,7 @@ export default class Utils {
 
     public static rawValue() {
         return {
-            toTokenValue: (rawValue: number) => rawValue / Math.pow(10, 18),
+            toTokenValue: (rawValue: number, decimals: number) => rawValue / Math.pow(10, decimals),
             toGwei: (rawValue: number) => rawValue / Math.pow(10, 9),
         };
     }
