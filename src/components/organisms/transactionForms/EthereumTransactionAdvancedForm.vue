@@ -124,7 +124,7 @@ export default class EthereumTransactionAdvancedForm extends Vue {
     }
 
     public get amountInEther(): number {
-        return Utils.rawValue().toTokenValue(this.transactionData.value);
+        return Utils.rawValue().toTokenValue(this.transactionData.value, this.tokenBalance ? this.tokenBalance.decimals : 18);
     }
 
     public get maxEditedTransactionFee(): number {

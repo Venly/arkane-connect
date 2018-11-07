@@ -157,7 +157,6 @@
                         }, 1000);
                     })
                     .catch((reason: any) => {
-                        console.log(reason);
                         if (reason && reason.data && reason.data.errors && reason.data.errors.length > 0) {
                             this.importFailedErrorMessage = reason.data.errors[0].message;
                         }
