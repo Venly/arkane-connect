@@ -66,7 +66,7 @@ export default class TransactionView<TRANSACTION_DATA, TRANSACTION_PREPARATION> 
                 this.$store.dispatch('hideModal');
                 if (this.responseHasErrors(r)) {
                     if (this.errorsContains(r, 'pincode.incorrect')) {
-                        this.$store.dispatch('setError', 'Wrong pincode');
+                        this.$store.dispatch('setError', 'You entered a wrong pincode');
                     } else if (this.errorsContains(r, 'pincode.no-tries-left')) {
                         this.$store.dispatch('setError', 'You entered a wrong pincode too many times');
                     } else {
