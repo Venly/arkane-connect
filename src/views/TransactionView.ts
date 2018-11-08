@@ -6,8 +6,6 @@ import Security from '../Security';
 import Api from '../api';
 import {Wallet} from '../models/Wallet';
 import Component from 'vue-class-component';
-import EthereumTransactionPreparationDto from '@/models/transaction/preparation/ethereum/EthereumTransactionPreparationDto';
-import VeChainTransactionPreparationDto from '@/models/transaction/preparation/vechain/VeChainTransactionPreparationDto';
 
 declare const window: Window;
 
@@ -64,35 +62,37 @@ export default class TransactionView<TRANSACTION_DATA, TRANSACTION_PREPARATION> 
             .then((r: ResponseBody) => {
                 this.$store.dispatch('stopLoading');
                 this.$store.dispatch('hideModal');
-                if (this.responseHasErrors(r)) {
-                    if (this.errorsContains(r, 'pincode.incorrect')) {
-                        this.$store.dispatch('setError', 'You entered a wrong pincode');
-                    } else if (this.errorsContains(r, 'pincode.no-tries-left')) {
-                        this.$store.dispatch('setError', 'You entered a wrong pincode too many times');
-                    } else {
-                        this.$store.dispatch('setError', r.result.errors.map((error: any) => error.message)[0]);
-                    }
-                    this.$store.dispatch('triggerClearPincode');
-                } else {
-                    if (this.onSuccesCallbackHandler) {
-                        this.onSuccesCallbackHandler(r);
-                    }
+
+                if (this.onSuccesCallbackHandler) {
+                    this.onSuccesCallbackHandler(r);
                 }
             })
-            .catch((e: Error) => {
+            .catch((e: ResponseBody) => {
                 this.$store.dispatch('stopLoading');
                 this.$store.dispatch('hideModal');
-                this.$store.dispatch('setError', 'Something went wrong when submitting your transaction. Please try again. If the problem persists, contact support ' +
-                    'via support@arkane.network');
+
+                if (this.responseHasErrors(e)) {
+                    if (this.errorsContains(e, 'pincode.incorrect')) {
+                        this.$store.dispatch('setError', 'You entered a wrong pincode');
+                    } else if (this.errorsContains(e, 'pincode.no-tries-left')) {
+                        this.$store.dispatch('setError', 'You entered a wrong pincode too many times');
+                    } else if (e.errors) {
+                        this.$store.dispatch('setError', e.errors.map((error: any) => error.message)[0]);
+                    }
+                } else {
+                    this.$store.dispatch('setError', 'Something went wrong when submitting your transaction. Please try again. If the problem persists, contact support ' +
+                        'via support@arkane.network');
+                }
+                this.$store.dispatch('triggerClearPincode');
             });
     }
 
     private responseHasErrors(r: ResponseBody) {
-        return (!r.success) && r.result && r.result.errors && r.result.errors.length > 0;
+        return (!r.success) && r.errors && r.errors.length > 0;
     }
 
     private errorsContains(r: ResponseBody, errorCode: string) {
-        return r.result.errors.map((error: any) => error.code).includes(errorCode);
+        return r.errors && r.errors.map((error: any) => error.code).includes(errorCode);
     }
 
     private initMessageChannel() {

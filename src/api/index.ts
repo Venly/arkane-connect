@@ -1,5 +1,5 @@
 // this is aliased in webpack config based on server/client build
-import {AxiosError, AxiosResponse} from 'axios';
+import {AxiosResponse} from 'axios';
 import RestApi, {RestApiResponse} from './RestApi';
 import ResponseBody from './ResponseBody';
 import Utils from '../utils/Utils';
@@ -165,16 +165,11 @@ export default class Api {
                       return axiosRes.data as ResponseBody;
                   })
                   .catch((error: AxiosResponse) => {
-                      let response;
                       if (error.data) {
-                          response = error.data;
+                          return Promise.reject(error.data);
                       } else {
-                          response = 'unknown js error';
+                          return Promise.reject({success: false, errors: [{code: 'unknown.error', message: 'An unknown error occured'}]});
                       }
-                      return {
-                          success: false,
-                          result: response,
-                      };
                   });
     }
 
