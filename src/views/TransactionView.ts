@@ -72,6 +72,7 @@ export default class TransactionView<TRANSACTION_DATA, TRANSACTION_PREPARATION> 
                     } else {
                         this.$store.dispatch('setError', r.result.errors.map((error: any) => error.message)[0]);
                     }
+                    this.$store.dispatch('triggerClearPincode');
                 } else {
                     if (this.onSuccesCallbackHandler) {
                         this.onSuccesCallbackHandler(r);

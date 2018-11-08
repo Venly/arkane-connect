@@ -164,10 +164,10 @@ export default class Api {
                   .then((axiosRes: AxiosResponse) => {
                       return axiosRes.data as ResponseBody;
                   })
-                  .catch((error: AxiosError) => {
+                  .catch((error: AxiosResponse) => {
                       let response;
-                      if (error.response) {
-                          response = error.response.data;
+                      if (error.data) {
+                          response = error.data;
                       } else {
                           response = 'unknown js error';
                       }
