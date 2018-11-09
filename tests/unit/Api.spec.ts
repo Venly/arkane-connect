@@ -1,8 +1,8 @@
 import {expect} from 'chai';
 import Api from '@/api';
 import sinon from 'sinon';
-import EthereumTransactionData from '@/api/ethereum/EthereumTransactionData';
-import VechainTransactionData from '@/api/vechain/VechainTransactionData';
+import EthereumTransactionRequest from '@/api/model/ethereum/EthereumTransactionRequest';
+import VechainTransactionRequest from '@/api/model/vechain/VechainTransactionRequest';
 
 
 describe('Api.ts', () => {
@@ -11,7 +11,7 @@ describe('Api.ts', () => {
             success: true,
             result: {signedTransaction: 'transaction'},
         }));
-        const data: EthereumTransactionData = Object.assign(new EthereumTransactionData(), {
+        const data: EthereumTransactionRequest = Object.assign(new EthereumTransactionRequest(), {
             type: `ETHEREUM_TRANSACTION`,
             walletId: '1',
             submit: false,
@@ -34,7 +34,7 @@ describe('Api.ts', () => {
             success: true,
             result: {signedTransaction: 'transaction'},
         }));
-        const data: VechainTransactionData = Object.assign(new VechainTransactionData(), {
+        const data: VechainTransactionRequest = Object.assign(new VechainTransactionRequest(), {
             type: `VECHAIN_TRANSACTION`,
             walletId: '1',
             submit: false,

@@ -32,7 +32,7 @@
 
       <div class="data control">
         <label for="data" class="control__label">Data</label>
-        <textarea id="data" class="control__input" v-model="transactionData.data"></textarea>
+        <textarea id="data" class="control__input" v-model="transactionRequest.data"></textarea>
       </div>
     </form>
     <div class="buttons buttons--horizontal">
@@ -47,7 +47,7 @@ import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
 import FromTo from '../../molecules/FromTo.vue';
 import TotalsBox from '../../atoms/TotalsBox.vue';
 import Numpad from '../../molecules/Numpad.vue';
-import EthereumTransactionData from '../../../api/ethereum/EthereumTransactionData';
+import EthereumTransactionRequest from '../../../api/model/ethereum/EthereumTransactionRequest';
 import Utils from '../../../utils/Utils';
 import {State} from 'vuex-class';
 import {Wallet} from '../../../models/Wallet';
@@ -69,9 +69,9 @@ import TokenBalance from '../../../models/TokenBalance';
 export default class EthereumTransactionAdvancedForm extends Vue {
 
     @Prop()
-    public transactionData!: EthereumTransactionData;
+    public transactionRequest!: EthereumTransactionRequest;
     @Prop()
-    public hasTransactionData!: boolean;
+    public hasTransactionRequest!: boolean;
     @Prop({required: false})
     public tokenBalance?: TokenBalance;
     @Prop()
@@ -110,7 +110,7 @@ export default class EthereumTransactionAdvancedForm extends Vue {
     };
 
     public mounted() {
-        if (this.hasTransactionData) {
+        if (this.hasTransactionRequest) {
             this.initGas();
         }
     }
@@ -124,7 +124,7 @@ export default class EthereumTransactionAdvancedForm extends Vue {
     }
 
     public get amountInEther(): number {
-        return Utils.rawValue().toTokenValue(this.transactionData.value, this.tokenBalance ? this.tokenBalance.decimals : 18);
+        return Utils.rawValue().toTokenValue(this.transactionRequest.value, this.tokenBalance ? this.tokenBalance.decimals : 18);
     }
 
     public get maxEditedTransactionFee(): number {
@@ -148,11 +148,11 @@ export default class EthereumTransactionAdvancedForm extends Vue {
     }
 
     public gasPriceInGWei(): number {
-        return Utils.rawValue().toGwei(Utils.zeroIfUndefined(this.transactionData && this.transactionData.gasPrice));
+        return Utils.rawValue().toGwei(Utils.zeroIfUndefined(this.transactionRequest && this.transactionRequest.gasPrice));
     }
 
-    @Watch('hasTransactionData')
-    public onTransactionDataReceivedCallback(oldValue: boolean, newValue: boolean) {
+    @Watch('hasTransactionRequest')
+    public onTransactionRequestReceivedCallback(oldValue: boolean, newValue: boolean) {
         if (newValue) {
             this.initGas();
         }
@@ -163,8 +163,8 @@ export default class EthereumTransactionAdvancedForm extends Vue {
     }
 
     public saveClicked() {
-        this.transactionData.gasPrice = Utils.gwei().toRawValue(this.gasPrice);
-        this.transactionData.gas = this.gasLimit;
+        this.transactionRequest.gasPrice = Utils.gwei().toRawValue(this.gasPrice);
+        this.transactionRequest.gas = this.gasLimit;
         this.$emit('saved');
     }
 
@@ -177,7 +177,7 @@ export default class EthereumTransactionAdvancedForm extends Vue {
     }
 
     private initGas() {
-        this.gasLimit = Utils.zeroIfUndefined(this.transactionData && this.transactionData.gas);
+        this.gasLimit = Utils.zeroIfUndefined(this.transactionRequest && this.transactionRequest.gas);
         this.gasPrice = this.gasPriceInGWei();
     }
 }

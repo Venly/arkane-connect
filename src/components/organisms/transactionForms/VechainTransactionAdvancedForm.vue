@@ -38,7 +38,7 @@ import {State} from 'vuex-class';
 import {Wallet} from '../../../models/Wallet';
 import VueSlider from 'vue-slider-component';
 import ActionLink from '../../atoms/ActionLink.vue';
-import VechainTransactionData from '../../../api/vechain/VechainTransactionData';
+import VechainTransactionRequest from '../../../api/model/vechain/VechainTransactionRequest';
 import TokenBalance from '../../../models/TokenBalance';
 
 @Component({
@@ -53,9 +53,9 @@ import TokenBalance from '../../../models/TokenBalance';
 export default class VechainTransactionAdvancedForm extends Vue {
 
     @Prop()
-    public transactionData!: VechainTransactionData;
+    public transactionRequest!: VechainTransactionRequest;
     @Prop()
-    public hasTransactionData!: boolean;
+    public hasTransactionRequest!: boolean;
 
     @Prop({required: false})
     public tokenBalance?: TokenBalance;
@@ -67,7 +67,7 @@ export default class VechainTransactionAdvancedForm extends Vue {
     public transactionWallet?: Wallet;
 
     public mounted() {
-        if (this.hasTransactionData) {
+        if (this.hasTransactionRequest) {
             this.initGas();
         }
     }
@@ -77,13 +77,13 @@ export default class VechainTransactionAdvancedForm extends Vue {
     }
 
     public get toAddresses(): string[] {
-        return this.transactionData ? (this.transactionData.clauses as any[]).map((clause) => clause.to) : [];
+        return this.transactionRequest ? (this.transactionRequest.clauses as any[]).map((clause) => clause.to) : [];
     }
 
     public get totalAmountInToken(): number {
-        return this.transactionData
+        return this.transactionRequest
             ? Utils.rawValue().toTokenValue(
-                (this.transactionData.clauses as any[]).map((clause) => clause.amount)
+                (this.transactionRequest.clauses as any[]).map((clause) => clause.amount)
                                                        .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0),
                 this.tokenBalance ? this.tokenBalance.decimals : 18,
             )
@@ -95,14 +95,14 @@ export default class VechainTransactionAdvancedForm extends Vue {
     }
 
     public get dataForSingleClauseTransaction(): string {
-        if (this.transactionData && this.transactionData.clauses && this.transactionData.clauses.length === 1) {
-            return this.transactionData.clauses[0].data;
+        if (this.transactionRequest && this.transactionRequest.clauses && this.transactionRequest.clauses.length === 1) {
+            return this.transactionRequest.clauses[0].data;
         }
         return '';
     }
 
-    @Watch('hasTransactionData')
-    public onTransactionDataReceivedCallback(oldValue: boolean, newValue: boolean) {
+    @Watch('hasTransactionRequest')
+    public onTransactionRequestReceivedCallback(oldValue: boolean, newValue: boolean) {
         if (newValue) {
             this.initGas();
         }
@@ -113,8 +113,8 @@ export default class VechainTransactionAdvancedForm extends Vue {
     }
 
     public saveClicked() {
-        this.transactionData.gasPriceCoef = this.gasPriceCoef;
-        this.transactionData.gas = this.gasLimit;
+        this.transactionRequest.gasPriceCoef = this.gasPriceCoef;
+        this.transactionRequest.gas = this.gasLimit;
         this.$emit('saved');
     }
 
@@ -124,8 +124,8 @@ export default class VechainTransactionAdvancedForm extends Vue {
     }
 
     private initGas() {
-        this.gasLimit = this.transactionData.gas;
-        this.gasPriceCoef = this.transactionData.gasPriceCoef;
+        this.gasLimit = this.transactionRequest.gas;
+        this.gasPriceCoef = this.transactionRequest.gasPriceCoef;
     }
 }
 </script>

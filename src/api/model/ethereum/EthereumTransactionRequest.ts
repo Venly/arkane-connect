@@ -1,12 +1,12 @@
-export default class EthereumErc20TransactionRequest {
-    public type!: string;
-    public walletId!: string;
+import {TransactionRequest} from '../TransactionRequest';
+
+export default class EthereumTransactionRequest extends TransactionRequest {
     public pincode!: string;
     public submit: boolean = false;
     public gasPrice?: number;
     public gas?: number;
     public nonce?: number;
     public value!: number;
-    public tokenAddress!: string;
+    public data: string = '0x';
     public to!: string;
 }
