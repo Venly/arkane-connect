@@ -8,10 +8,8 @@ import {Wallet} from '../../models/Wallet';
 import Utils from '../../utils/Utils';
 import {Profile} from '../../models/Profile';
 import Security, {LoginResult} from '../../Security';
-import {SimpleTransactionRequest} from '../../api/model/SimpleTransactionRequest';
 import {KeycloakInstance, KeycloakPromise} from 'keycloak-js';
-import {TransactionRequest} from '../../api/model/TransactionRequest';
-
+import {SimpleTransactionRequest} from '../../api/model/SimpleTransactionRequest';
 
 export class ArkaneConnect {
 
@@ -129,38 +127,19 @@ export class ArkaneConnect {
         }
     }
 
-    public async buildTransactionRequest(simpleTransactionRequest: SimpleTransactionRequest): Promise<any> {
-        const response: AxiosResponse<RestApiResponse<any>> = await this.api.http.post('transactions/build', simpleTransactionRequest);
+    public async buildTransactionRequest(genericTransactionRequest: SimpleTransactionRequest): Promise<any> {
+        const response: AxiosResponse<RestApiResponse<any>> = await this.api.http.post('transactions/build', genericTransactionRequest);
         if (response && response.data && response.data.success) {
             return response.data.result;
         }
     }
 
-    public async executeSimpleTransaction(input: any): Promise<any> {
-        if (this.isFunction(input)) {
-            return this.executeTransaction((resolve: any, reject: any) => resolve(this.buildTransactionRequest(input())));
-        } else if (this.isObject(input)) {
-            return this.executeTransaction((resolve: any, reject: any) => resolve(this.buildTransactionRequest(input)));
-        }
-        return Promise.reject('Incorrect input param');
+    public async executeTransaction(params: any) {
+        return this.handleTransactionInPopup('execute', params);
     }
 
-    public async executeTransaction(input: any): Promise<any> {
-        if (this.isFunction(input)) {
-            return this.handleTransactionRequestBuilder('execute', input);
-        } else if (this.isObject(input)) {
-            return this.handleTransactionRequest('execute', input);
-        }
-        return Promise.reject('Incorrect input param');
-    }
-
-    public async signTransaction(input: any): Promise<any> {
-        if (this.isFunction(input)) {
-            return this.handleTransactionRequestBuilder('sign', input);
-        } else if (this.isObject(input)) {
-            return this.handleTransactionRequest('sign', input);
-        }
-        return Promise.reject('Incorrect input param');
+    public async signTransaction(params: any) {
+        return this.handleTransactionInPopup('sign', params);
     }
 
     public async initPopup() {
@@ -191,7 +170,7 @@ export class ArkaneConnect {
         }
     }
 
-    private async handleTransactionRequest(method: string, params: any): Promise<any> {
+    private async handleTransactionInPopup(method: string, params: any) {
         if (!this.popup || this.popup.closed) {
             await this.initPopup();
         }
@@ -206,28 +185,6 @@ export class ArkaneConnect {
             this.popupMountedListener = this.createPopupMountedListener(params, resolve, reject);
             window.addEventListener('message', this.popupMountedListener);
         });
-    }
-
-    private async handleTransactionRequestBuilder(
-        method: string,
-        transactionRequestBuilder: (resolve: (transactionRequest?: TransactionRequest) => void, reject: (reason?: any) => void) => void,
-    ): Promise<any> {
-
-        this.initPopup();
-        const preInitPromise = new Promise((resolve: any, reject: any) => {
-            transactionRequestBuilder(resolve, reject);
-        });
-        preInitPromise.then((transactionRequest: any) => {
-                          if (this.popup) {
-                              return this.handleTransactionRequest(method, transactionRequest);
-                          }
-                          return Promise.reject('transaction.builder.timeout');
-                      })
-                      .catch((reason: any) => {
-                          this.closePopup();
-                          return Promise.reject(reason);
-                      });
-        return preInitPromise;
     }
 
     private createPopupMountedListener(params: any, resolve: any, reject: any) {
@@ -278,14 +235,6 @@ export class ArkaneConnect {
         window.addEventListener('beforeunload', () => {
             this.closePopup();
         });
-    }
-
-    private isObject(input: any) {
-        return typeof input === 'object';
-    }
-
-    private isFunction(input: any) {
-        return typeof input === 'function';
     }
 }
 
