@@ -23,12 +23,9 @@ export class Signer {
         let features = 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, ';
         features += `copyhistory=no, width=${w}, height=${h}, top=${top}, left=${left}`;
 
-        const newWindow = window.open('', title, features);
-        if (newWindow) {
-            newWindow.location.href = url;
-        }
-        return newWindow;
+        return  window.open(url, title, features);
     }
+
     private bearerTokenProvider: () => string;
     private popup: Window;
 
@@ -83,7 +80,7 @@ export class Signer {
         return new Promise((resolve, reject) => {
             const url = `${Utils.urls.connect}/transaction/${method}/${transactionRequest.type}`
                 + `?bearerToken=${this.bearerTokenProvider()}${Utils.environment ? '&environment=' + Utils.environment : ''}`;
-            this.popup = Signer.openWindow(url) as Window;
+            this.goTo(url);
             this.onPopupMountedQueue.push(this.attachMessageHandler(resolve, reject));
             this.onPopupMountedQueue.push(this.sendTransactionRequest(transactionRequest));
             this.processPopupMountedQueue();
@@ -146,5 +143,9 @@ export class Signer {
                 }
             }
         };
+    }
+
+    private goTo(url: string) {
+        this.popup.location.href = url;
     }
 }
