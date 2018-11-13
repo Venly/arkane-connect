@@ -96,6 +96,7 @@ const router = new Router(
                 component: ManageWalletsView,
                 meta: {
                     authArkane: true,
+                    showLoginScreen: true,
                 },
                 beforeEnter: async (to, from, next) => {
                     await fetchProfileAndWallets(to).then((result: any) => next())
@@ -108,6 +109,7 @@ const router = new Router(
                 component: CreateWalletView,
                 meta: {
                     authArkane: true,
+                    showLoginScreen: true,
                 },
                 beforeEnter: async (to, from, next) => {
                     await fetchProfileAndWallets(to).then(() => next())
@@ -120,6 +122,7 @@ const router = new Router(
                 component: ImportWalletView,
                 meta: {
                     authArkane: true,
+                    showLoginScreen: true,
                 },
                 beforeEnter: async (to, from, next) => {
                     await fetchProfileAndWallets(to).then(() => next())
@@ -163,10 +166,11 @@ function checkAuthorize(to: Route): Promise<any> {
         doLogin = true;
         useTokenToLogin = true;
     }
+    const showLoginScreen = to.matched.some((record) => record.meta.showLoginScreen);
 
     if (doLogin) {
         return new Promise((resolve) => {
-            Security.verifyAndLogin(bearer, useTokenToLogin, Utils.urls.connect + to.fullPath)
+            Security.verifyAndLogin(bearer, useTokenToLogin, showLoginScreen, Utils.urls.connect + to.fullPath)
                     .then((result: any) => {
                         store.commit('setAuth', result.keycloak);
                         store.commit('setThirdPartyToken', Security.parseToken(bearer));
