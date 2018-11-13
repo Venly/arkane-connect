@@ -1,13 +1,13 @@
 <template>
   <div class="eth-tx-pincode-form">
     <h3>Enter your pincode to {{action}} this transaction</h3>
-    <from-to :from="transactionWallet" :to="transactionData.to"></from-to>
+    <from-to :from="transactionWallet" :to="transactionRequest.to"></from-to>
 
     <totals-box :amount-value="amountInEther" :amount-currency="amountCurrencyLabel" :amount-decimals="{min: 2, max: 3}"
                 :fee-value="maxTransactionFee" :fee-currency="'ETH'" :fee-decimals="{min: 2, max: 6}"
                 :show-advanced-icon="true" @advanced_clicked="advancedClicked"></totals-box>
 
-    <numpad :params="transactionData" :disabled="disabled" @pincode_entered="pincodeEntered" :action="action"></numpad>
+    <numpad :params="transactionRequest" :disabled="disabled" @pincode_entered="pincodeEntered" :action="action"></numpad>
   </div>
 </template>
 
@@ -16,7 +16,7 @@ import {Component, Emit, Prop, Vue, Watch} from 'vue-property-decorator';
 import FromTo from '../../molecules/FromTo.vue';
 import TotalsBox from '../../atoms/TotalsBox.vue';
 import Numpad from '../../molecules/Numpad.vue';
-import EthereumTransactionData from '../../../api/ethereum/EthereumTransactionData';
+import EthereumTransactionRequest from '../../../api/model/ethereum/EthereumTransactionRequest';
 import Utils from '../../../utils/Utils';
 import {State} from 'vuex-class';
 import {Wallet} from '../../../models/Wallet';
@@ -32,7 +32,7 @@ import TokenBalance from '../../../models/TokenBalance';
 export default class EthereumTransactionPincodeForm extends Vue {
 
     @Prop()
-    public transactionData!: EthereumTransactionData;
+    public transactionRequest!: EthereumTransactionRequest;
 
     @Prop()
     public action!: 'sign' | 'execute';
@@ -65,15 +65,15 @@ export default class EthereumTransactionPincodeForm extends Vue {
     }
 
     public get amountInEther(): number {
-        return Utils.rawValue().toTokenValue(Utils.zeroIfUndefined(this.transactionData && this.transactionData.value), this.tokenBalance ? this.tokenBalance.decimals : 18);
+        return Utils.rawValue().toTokenValue(Utils.zeroIfUndefined(this.transactionRequest && this.transactionRequest.value), this.tokenBalance ? this.tokenBalance.decimals : 18);
     }
 
     private get maxTransactionFee(): number {
-        return (Utils.zeroIfUndefined(this.transactionData && this.transactionData.gas) * this.gasPriceInGWei()) / Math.pow(10, 9);
+        return (Utils.zeroIfUndefined(this.transactionRequest && this.transactionRequest.gas) * this.gasPriceInGWei()) / Math.pow(10, 9);
     }
 
     private gasPriceInGWei(): number {
-        return Utils.rawValue().toGwei(Utils.zeroIfUndefined(this.transactionData && this.transactionData.gasPrice));
+        return Utils.rawValue().toGwei(Utils.zeroIfUndefined(this.transactionRequest && this.transactionRequest.gasPrice));
     }
 }
 </script>

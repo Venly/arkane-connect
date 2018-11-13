@@ -7,7 +7,7 @@
 
       <transition name="slide-left">
         <vechain-transaction-pincode-form v-if="!showAdvanced"
-                                      :transaction-data="transactionData"
+                                      :transaction-request="transactionRequest"
                                       :action="'execute'"
                                       :disabled="hasBlockingError"
                                       @advanced_clicked="showAdvanced = true"
@@ -18,8 +18,8 @@
 
       <transition name="slide-right">
         <vechain-transaction-advanced-form v-if="showAdvanced"
-                                       :transaction-data="transactionData"
-                                       :has-transaction-data="hasTransactionData"
+                                       :transaction-request="transactionRequest"
+                                       :has-transaction-request="hasTransactionRequest"
                                        @saved="onSaved"
                                        @back_clicked="onBackClicked">
         </vechain-transaction-advanced-form>
@@ -40,7 +40,7 @@ import VechainTransactionPincodeForm from '../../../components/organisms/transac
 import VechainTransactionAdvancedForm from '../../../components/organisms/transactionForms/VechainTransactionAdvancedForm.vue';
 import ResponseBody from '../../../api/ResponseBody';
 import {EVENT_TYPES} from '../../../types/EventTypes';
-import VechainTransactionData, {VechainTransactionDataClause} from '../../../api/vechain/VechainTransactionData';
+import VechainTransactionRequest from '../../../api/model/vechain/VechainTransactionRequest';
 import VeChainTransactionPreparationDto from '../../../models/transaction/preparation/vechain/VeChainTransactionPreparationDto';
 import GasPriceCoefDto from '../../../models/transaction/preparation/vechain/GasPriceCoefDto';
 
@@ -50,7 +50,7 @@ import GasPriceCoefDto from '../../../models/transaction/preparation/vechain/Gas
         VechainTransactionAdvancedForm,
     },
 })
-export default class ExecuteVetTransactionView extends TransactionView<VechainTransactionData, VeChainTransactionPreparationDto> {
+export default class ExecuteVetTransactionView extends TransactionView<VechainTransactionRequest, VeChainTransactionPreparationDto> {
 
     public showAdvanced: boolean = false;
 
@@ -83,15 +83,15 @@ export default class ExecuteVetTransactionView extends TransactionView<VechainTr
     }
 
     private initGasLimit(transactionPreparation: VeChainTransactionPreparationDto) {
-        if (!this.transactionData.gas || this.transactionData.gas === 0) {
-            this.$set(this.transactionData, 'gas', transactionPreparation.gasLimit);
+        if (!this.transactionRequest.gas || this.transactionRequest.gas === 0) {
+            this.$set(this.transactionRequest, 'gas', transactionPreparation.gasLimit);
         }
     }
 
     private initGasPrice(transactionPreparation: VeChainTransactionPreparationDto) {
-        if (!this.transactionData.gasPriceCoef || this.transactionData.gasPriceCoef === 0) {
+        if (!this.transactionRequest.gasPriceCoef || this.transactionRequest.gasPriceCoef === 0) {
             const defaultGasPriceCoef = transactionPreparation.gasPriceCoefficients.find((gasPriceCoef: GasPriceCoefDto) => gasPriceCoef.defaultPrice);
-            this.$set(this.transactionData, 'gasPriceCoef', defaultGasPriceCoef && defaultGasPriceCoef.gasPriceCoef);
+            this.$set(this.transactionRequest, 'gasPriceCoef', defaultGasPriceCoef && defaultGasPriceCoef.gasPriceCoef);
         }
     }
 

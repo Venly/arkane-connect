@@ -11,8 +11,8 @@
 <script lang="ts">
     import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
     import NumpadNumber from '@/components/atoms/NumpadNumber.vue';
-    import EthereumTransactionData from '@/api/ethereum/EthereumTransactionData';
-    import VechainTransactionData from '@/api/vechain/VechainTransactionData';
+    import EthereumTransactionRequest from '@/api/model/ethereum/EthereumTransactionRequest';
+    import VechainTransactionRequest from '@/api/model/vechain/VechainTransactionRequest';
     import {State} from 'vuex-class';
 
     @Component({
@@ -23,7 +23,7 @@
     export default class Numpad extends Vue {
         @Prop() private title!: string;
         @Prop() private action!: string;
-        @Prop() private params!: EthereumTransactionData | VechainTransactionData;
+        @Prop() private params!: EthereumTransactionRequest | VechainTransactionRequest;
         @Prop({required: false, default: false}) private disabled?: boolean;
 
         @State

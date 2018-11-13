@@ -7,7 +7,7 @@
 
       <transition name="slide-left">
         <vechain-transaction-pincode-form v-if="!showAdvanced"
-                                      :transaction-data="transactionData"
+                                      :transaction-request="transactionRequest"
                                       :token-balance="tokenBalance"
                                       :action="'execute'"
                                       :disabled="hasBlockingError"
@@ -19,9 +19,9 @@
 
       <transition name="slide-right">
         <vechain-transaction-advanced-form v-if="showAdvanced"
-                                       :transaction-data="transactionData"
+                                       :transaction-request="transactionRequest"
                                        :token-balance="tokenBalance"
-                                       :has-transaction-data="hasTransactionData"
+                                       :has-transaction-request="hasTransactionRequest"
                                        @saved="onSaved"
                                        @back_clicked="onBackClicked">
         </vechain-transaction-advanced-form>
@@ -44,7 +44,7 @@
     import {EVENT_TYPES} from '../../../types/EventTypes';
     import VeChainTransactionPreparationDto from '../../../models/transaction/preparation/vechain/VeChainTransactionPreparationDto';
     import GasPriceCoefDto from '../../../models/transaction/preparation/vechain/GasPriceCoefDto';
-    import VechainVip180TransactionData from '../../../api/vechain/VechainVip180TransactionData';
+    import VechainVip180TransactionRequest from '../../../api/model/vechain/VechainVip180TransactionRequest';
     import TokenBalance from '../../../models/TokenBalance';
 
     @Component({
@@ -53,7 +53,7 @@
             VechainTransactionAdvancedForm,
         },
     })
-    export default class ExecuteVeChainVIP180TransactionView extends TransactionView<VechainVip180TransactionData, VeChainTransactionPreparationDto> {
+    export default class ExecuteVeChainVIP180TransactionView extends TransactionView<VechainVip180TransactionRequest, VeChainTransactionPreparationDto> {
 
         public showAdvanced: boolean = false;
         public tokenBalance?: TokenBalance = {} as TokenBalance;
@@ -62,9 +62,9 @@
             this.transactionPreparationMethod = Api.prepareExecuteTransaction;
             this.postTransaction = Api.executeTransaction;
 
-            this.onTransactionDataReceivedCallback = (async (transactionData: VechainVip180TransactionData) => {
-                const tokenAddress = transactionData.clauses[0].tokenAddress;
-                const tokenBalanceResponse = await Api.getTokenBalance(transactionData.walletId, tokenAddress);
+            this.onTransactionRequestReceivedCallback = (async (transactionRequest: VechainVip180TransactionRequest) => {
+                const tokenAddress = transactionRequest.clauses[0].tokenAddress;
+                const tokenBalanceResponse = await Api.getTokenBalance(transactionRequest.walletId, tokenAddress);
                 if (tokenBalanceResponse.success) {
                     this.tokenBalance = Object.assign({}, this.tokenBalance, tokenBalanceResponse.result);
                 }
@@ -95,15 +95,15 @@
         }
 
         private initGasLimit(transactionPreparation: VeChainTransactionPreparationDto) {
-            if (!this.transactionData.gas || this.transactionData.gas === 0) {
-                this.$set(this.transactionData, 'gas', transactionPreparation.gasLimit);
+            if (!this.transactionRequest.gas || this.transactionRequest.gas === 0) {
+                this.$set(this.transactionRequest, 'gas', transactionPreparation.gasLimit);
             }
         }
 
         private initGasPrice(transactionPreparation: VeChainTransactionPreparationDto) {
-            if (!this.transactionData.gasPriceCoef || this.transactionData.gasPriceCoef === '' || this.transactionData.gasPriceCoef === '0') {
+            if (!this.transactionRequest.gasPriceCoef || this.transactionRequest.gasPriceCoef === '' || this.transactionRequest.gasPriceCoef === '0') {
                 const defaultGasPriceCoef = transactionPreparation.gasPriceCoefficients.find((gasPriceCoef: GasPriceCoefDto) => gasPriceCoef.defaultPrice);
-                this.$set(this.transactionData, 'gasPriceCoef', defaultGasPriceCoef && defaultGasPriceCoef.gasPriceCoef);
+                this.$set(this.transactionRequest, 'gasPriceCoef', defaultGasPriceCoef && defaultGasPriceCoef.gasPriceCoef);
             }
         }
 

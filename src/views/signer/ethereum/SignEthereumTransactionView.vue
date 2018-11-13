@@ -7,7 +7,7 @@
 
       <transition name="slide-left">
         <ethereum-transaction-pincode-form v-if="!showAdvanced"
-                                      :transaction-data="transactionData"
+                                      :transaction-request="transactionRequest"
                                       :action="'sign'"
                                       :disabled="hasBlockingError"
                                       @advanced_clicked="showAdvanced = true"
@@ -18,8 +18,8 @@
       <transition name="slide-right" @after-enter="afterAdvancedEnter">
         <ethereum-transaction-advanced-form v-if="showAdvanced"
                                        ref="advancedForm"
-                                       :transaction-data="transactionData"
-                                       :has-transaction-data="hasTransactionData"
+                                       :transaction-request="transactionRequest"
+                                       :has-transaction-request="hasTransactionRequest"
                                        :transaction-preparation="transactionPreparation"
                                        @saved="onSaved"
                                        @back_clicked="onBackClicked">
@@ -47,7 +47,7 @@
     import ResponseBody from '../../../api/ResponseBody';
     import {EVENT_TYPES} from '../../../types/EventTypes';
     import EthereumTransactionPreparationDto from '../../../models/transaction/preparation/ethereum/EthereumTransactionPreparationDto';
-    import EthereumTransactionData from '../../../api/ethereum/EthereumTransactionData';
+    import EthereumTransactionRequest from '../../../api/model/ethereum/EthereumTransactionRequest';
     import GasPriceDto from '../../../models/transaction/preparation/ethereum/GasPriceDto';
 
     declare const window: Window;
@@ -63,7 +63,7 @@
             VueSlider,
         },
     })
-    export default class SignEthereumTransactionView extends TransactionView<EthereumTransactionData, EthereumTransactionPreparationDto> {
+    export default class SignEthereumTransactionView extends TransactionView<EthereumTransactionRequest, EthereumTransactionPreparationDto> {
 
         public showAdvanced: boolean = false;
 
@@ -71,9 +71,9 @@
             this.transactionPreparationMethod = Api.prepareSignTransaction;
             this.postTransaction = Api.signTransaction;
 
-            this.onTransactionDataReceivedCallback = ((transactionData) => {
-                if (!transactionData.data || transactionData.data === '') {
-                    transactionData.data = '0x';
+            this.onTransactionRequestReceivedCallback = ((transactionRequest) => {
+                if (!transactionRequest.data || transactionRequest.data === '') {
+                    transactionRequest.data = '0x';
                 }
             });
             this.onTransactionPreparationReceivedCallback = ((transactionPreparation) => {
@@ -106,15 +106,15 @@
         }
 
         private initGasLimit(transactionPreparation: EthereumTransactionPreparationDto) {
-            if (!this.transactionData.gas || this.transactionData.gas === 0) {
-                this.$set(this.transactionData, 'gas', transactionPreparation.gasLimit);
+            if (!this.transactionRequest.gas || this.transactionRequest.gas === 0) {
+                this.$set(this.transactionRequest, 'gas', transactionPreparation.gasLimit);
             }
         }
 
         private initGasPrice(transactionPreparation: EthereumTransactionPreparationDto) {
-            if (!this.transactionData.gasPrice || this.transactionData.gasPrice === 0) {
+            if (!this.transactionRequest.gasPrice || this.transactionRequest.gasPrice === 0) {
                 const defaultGasPrice = transactionPreparation.gasPrices.find((gasPrice: GasPriceDto) => gasPrice.defaultPrice);
-                this.$set(this.transactionData, 'gasPrice', defaultGasPrice && defaultGasPrice.gasPrice);
+                this.$set(this.transactionRequest, 'gasPrice', defaultGasPrice && defaultGasPrice.gasPrice);
             }
         }
 

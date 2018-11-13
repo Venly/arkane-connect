@@ -9,7 +9,7 @@ import Utils from '../../utils/Utils';
 import {Profile} from '../../models/Profile';
 import Security, {LoginResult} from '../../Security';
 import {KeycloakInstance, KeycloakPromise} from 'keycloak-js';
-import {GenericTransactionRequest} from '../../models/GenericTransactionRequest';
+import {SimpleTransactionRequest} from '../../api/model/SimpleTransactionRequest';
 
 export class ArkaneConnect {
 
@@ -127,7 +127,7 @@ export class ArkaneConnect {
         }
     }
 
-    public async buildTransactionRequest(genericTransactionRequest: GenericTransactionRequest): Promise<any> {
+    public async buildTransactionRequest(genericTransactionRequest: SimpleTransactionRequest): Promise<any> {
         const response: AxiosResponse<RestApiResponse<any>> = await this.api.http.post('transactions/build', genericTransactionRequest);
         if (response && response.data && response.data.success) {
             return response.data.result;

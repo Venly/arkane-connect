@@ -135,7 +135,7 @@ arkaneConnect.getWallets().then(function(result) {
 
 ## Signing Transactions
 ```javascript
-arkaneConnect.signTransaction(<TransactionData>).then(function(result) {
+arkaneConnect.signTransaction(<TransactionRequest>).then(function(result) {
                                                     console.log(result);
                                                 }).catch(function(error) {
                                                     console.log(error);
@@ -152,7 +152,7 @@ arkaneConnect.initPopup();
 
 //custom logic
 
-arkaneConnect.signTransaction(<TransactionData>);
+arkaneConnect.signTransaction(<TransactionRequest>);
 ```
 
 ### Signing a Ethereum Transaction
