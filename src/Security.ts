@@ -29,12 +29,12 @@ export default class Security {
         return Security.initializeAuth(Security.getConfig(clientId), 'check-sso');
     }
 
-    public static verifyAndLogin(rawBearerToken: string, useTokenToLogin: boolean, redirectUrl?: string): Promise<any> {
+    public static verifyAndLogin(rawBearerToken: string, useTokenToLogin: boolean, showLoginScreen: boolean, redirectUrl?: string): Promise<any> {
         const token = Security.parseToken(rawBearerToken);
         if (Security.verifyToken(rawBearerToken, token)) {
             const clientId = Security.resolveClientId(token, useTokenToLogin);
             const config = Security.getConfig(clientId);
-            return Security.initializeAuth(config, 'check-sso', redirectUrl);
+            return Security.initializeAuth(config, showLoginScreen ? 'login-required' : 'check-sso', redirectUrl);
         } else {
             Security.notAuthenticated();
             return Promise.resolve({keycloak: {}, authenticated: false});

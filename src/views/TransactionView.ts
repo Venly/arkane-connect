@@ -6,8 +6,6 @@ import Security from '../Security';
 import Api from '../api';
 import {Wallet} from '../models/Wallet';
 import Component from 'vue-class-component';
-import EthereumTransactionPreparationDto from '@/models/transaction/preparation/ethereum/EthereumTransactionPreparationDto';
-import VeChainTransactionPreparationDto from '@/models/transaction/preparation/vechain/VeChainTransactionPreparationDto';
 
 declare const window: Window;
 
@@ -15,7 +13,7 @@ declare const window: Window;
 export default class TransactionView<TRANSACTION_DATA, TRANSACTION_PREPARATION> extends Vue {
 
     public loadingText = 'Initializing ...';
-    public transactionData: TRANSACTION_DATA = {} as TRANSACTION_DATA;
+    public transactionRequest: TRANSACTION_DATA = {} as TRANSACTION_DATA;
     public transactionPreparation: TRANSACTION_PREPARATION = {} as TRANSACTION_PREPARATION;
 
     @State
@@ -25,12 +23,12 @@ export default class TransactionView<TRANSACTION_DATA, TRANSACTION_PREPARATION> 
     @State
     public hasBlockingError!: boolean;
 
-    protected hasTransactionData: boolean = false;
-    protected onTransactionDataReceivedCallback?: (transactionData: TRANSACTION_DATA) => void;
+    protected hasTransactionRequest: boolean = false;
+    protected onTransactionRequestReceivedCallback?: (transactionRequest: TRANSACTION_DATA) => void;
     protected onTransactionPreparationReceivedCallback?: (transactionPreparation: TRANSACTION_PREPARATION) => void;
 
     protected transactionPreparationMethod?: (data: TRANSACTION_DATA) => Promise<TRANSACTION_PREPARATION>;
-    protected postTransaction: (transactionData: any, pincode: string) => Promise<any> = (
+    protected postTransaction: (transactionRequest: any, pincode: string) => Promise<any> = (
         (txData, pincode) => new Promise((resolve, reject) => {
             reject();
         })
@@ -40,7 +38,7 @@ export default class TransactionView<TRANSACTION_DATA, TRANSACTION_PREPARATION> 
     protected messagePort!: MessagePort;
 
     private get isInitialised() {
-        return Security.isLoggedIn && this.hasTransactionData;
+        return Security.isLoggedIn && this.hasTransactionRequest;
     }
 
     public created() {
@@ -60,38 +58,41 @@ export default class TransactionView<TRANSACTION_DATA, TRANSACTION_PREPARATION> 
     public pinEntered(pincode: string) {
         this.$store.dispatch('showModal');
         this.$store.dispatch('startLoading');
-        this.postTransaction(this.transactionData, pincode)
+        this.postTransaction(this.transactionRequest, pincode)
             .then((r: ResponseBody) => {
                 this.$store.dispatch('stopLoading');
                 this.$store.dispatch('hideModal');
-                if (this.responseHasErrors(r)) {
-                    if (this.errorsContains(r, 'pincode.incorrect')) {
-                        this.$store.dispatch('setError', 'Wrong pincode');
-                    } else if (this.errorsContains(r, 'pincode.no-tries-left')) {
-                        this.$store.dispatch('setError', 'You entered a wrong pincode too many times');
-                    } else {
-                        this.$store.dispatch('setError', r.result.errors.map((error: any) => error.message)[0]);
-                    }
-                } else {
-                    if (this.onSuccesCallbackHandler) {
-                        this.onSuccesCallbackHandler(r);
-                    }
+
+                if (this.onSuccesCallbackHandler) {
+                    this.onSuccesCallbackHandler(r);
                 }
             })
-            .catch((e: Error) => {
+            .catch((e: ResponseBody) => {
                 this.$store.dispatch('stopLoading');
                 this.$store.dispatch('hideModal');
-                this.$store.dispatch('setError', 'Something went wrong when submitting your transaction. Please try again. If the problem persists, contact support ' +
-                    'via support@arkane.network');
+
+                if (this.responseHasErrors(e)) {
+                    if (this.errorsContains(e, 'pincode.incorrect')) {
+                        this.$store.dispatch('setError', 'You entered a wrong pincode');
+                    } else if (this.errorsContains(e, 'pincode.no-tries-left')) {
+                        this.$store.dispatch('setError', 'You entered a wrong pincode too many times');
+                    } else if (e.errors) {
+                        this.$store.dispatch('setError', e.errors.map((error: any) => error.message)[0]);
+                    }
+                } else {
+                    this.$store.dispatch('setError', 'Something went wrong when submitting your transaction. Please try again. If the problem persists, contact support ' +
+                        'via support@arkane.network');
+                }
+                this.$store.dispatch('triggerClearPincode');
             });
     }
 
     private responseHasErrors(r: ResponseBody) {
-        return (!r.success) && r.result && r.result.errors && r.result.errors.length > 0;
+        return (!r.success) && r.errors && r.errors.length > 0;
     }
 
     private errorsContains(r: ResponseBody, errorCode: string) {
-        return r.result.errors.map((error: any) => error.code).includes(errorCode);
+        return r.errors && r.errors.map((error: any) => error.code).includes(errorCode);
     }
 
     private initMessageChannel() {
@@ -104,19 +105,19 @@ export default class TransactionView<TRANSACTION_DATA, TRANSACTION_PREPARATION> 
     private async onMessage(event: MessageEvent) {
         const data = event.data;
         if (data && data.type === EVENT_TYPES.SEND_TRANSACTION_DATA) {
-            this.transactionData = Object.assign({}, this.transactionData, data.params);
-            await this.fetchWallet(this.transactionData);
+            this.transactionRequest = Object.assign({}, this.transactionRequest, data.params);
+            await this.fetchWallet(this.transactionRequest);
             await this.doTransactionPreparation();
-            if (this.onTransactionDataReceivedCallback) {
-                this.onTransactionDataReceivedCallback(this.transactionData);
+            if (this.onTransactionRequestReceivedCallback) {
+                this.onTransactionRequestReceivedCallback(this.transactionRequest);
             }
-            this.hasTransactionData = true;
+            this.hasTransactionRequest = true;
         }
     }
 
     private async doTransactionPreparation() {
         if (this.transactionPreparationMethod) {
-            const transactionPreparation: TRANSACTION_PREPARATION = await this.transactionPreparationMethod(this.transactionData);
+            const transactionPreparation: TRANSACTION_PREPARATION = await this.transactionPreparationMethod(this.transactionRequest);
             if (transactionPreparation) {
                 this.transactionPreparation = Object.assign({}, this.transactionPreparation, transactionPreparation);
                 if (this.onTransactionPreparationReceivedCallback) {
@@ -135,8 +136,8 @@ export default class TransactionView<TRANSACTION_DATA, TRANSACTION_PREPARATION> 
         });
     }
 
-    private async fetchWallet(transactionData: any): Promise<boolean> {
-        return Api.getWallet(transactionData.walletId)
+    private async fetchWallet(transactionRequest: any): Promise<boolean> {
+        return Api.getWallet(transactionRequest.walletId)
                   .then((wallet: Wallet) => {
                       this.$store.dispatch('setTransactionWallet', wallet);
                       if (wallet && wallet.balance && wallet.balance.gasBalance <= 0) {

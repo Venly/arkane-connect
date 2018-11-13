@@ -1,6 +1,6 @@
-import {SecretType} from './SecretType';
+import {SecretType} from '../../models/SecretType';
 
-export class GenericTransactionRequest {
+export class SimpleTransactionRequest {
     public walletId!: string;
     public to!: string;
     public alias?: string;

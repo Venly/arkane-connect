@@ -1,12 +1,12 @@
-export interface VechainTransactionDataClause {
+import {TransactionRequest} from '../TransactionRequest';
+
+export interface VechainTransactionRequestClause {
     to: string;
     data: string;
     amount: number;
 }
 
-export default class VechainTransactionData {
-    public type!: string;
-    public walletId!: string;
+export default class VechainTransactionRequest extends TransactionRequest {
     public pincode!: string;
     public submit: boolean = false;
     public blockRef?: string;
@@ -15,5 +15,5 @@ export default class VechainTransactionData {
     public gas!: number;
     public gasPriceCoef!: number;
     public nonce?: string;
-    public clauses: VechainTransactionDataClause[] = [];
+    public clauses: VechainTransactionRequestClause[] = [];
 }

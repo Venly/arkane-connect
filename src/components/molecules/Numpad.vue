@@ -11,8 +11,9 @@
 <script lang="ts">
     import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
     import NumpadNumber from '@/components/atoms/NumpadNumber.vue';
-    import EthereumTransactionData from '@/api/ethereum/EthereumTransactionData';
-    import VechainTransactionData from '@/api/vechain/VechainTransactionData';
+    import EthereumTransactionRequest from '@/api/model/ethereum/EthereumTransactionRequest';
+    import VechainTransactionRequest from '@/api/model/vechain/VechainTransactionRequest';
+    import {State} from 'vuex-class';
 
     @Component({
         components: {
@@ -22,8 +23,11 @@
     export default class Numpad extends Vue {
         @Prop() private title!: string;
         @Prop() private action!: string;
-        @Prop() private params!: EthereumTransactionData | VechainTransactionData;
+        @Prop() private params!: EthereumTransactionRequest | VechainTransactionRequest;
         @Prop({required: false, default: false}) private disabled?: boolean;
+
+        @State
+        private clearPincodeTrigger?: number;
 
         private pincode: string = '';
         private array: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
@@ -57,6 +61,11 @@
             this.pincode = '';
             (this.$refs.pinInput as HTMLElement).focus();
             this.$store.dispatch('resetError');
+        }
+
+        @Watch('clearPincodeTrigger')
+        private onClearPincodeTriggered(newTriggerValue: number, oldTriggerValue: number): void {
+            this.pincode = '';
         }
 
         @Watch('pincode')

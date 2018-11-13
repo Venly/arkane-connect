@@ -27,6 +27,7 @@ export default new Vuex.Store(
             hasBlockingError: false,
             showModal: false,
             transactionWallet: {},
+            clearPincodeTrigger: 0,
         },
         mutations: {
             setProfile: (state: any, {userId, hasMasterPin}) => {
@@ -65,6 +66,9 @@ export default new Vuex.Store(
             },
             setTransactionWallet: (state: any, wallet: Wallet) => {
                 state.transactionWallet = wallet;
+            },
+            triggerClearPincode: (state: any) => {
+                state.clearPincodeTrigger++;
             },
         },
         actions: {
@@ -147,6 +151,9 @@ export default new Vuex.Store(
             },
             setTransactionWallet: async (store: any, wallet: Wallet) => {
                 store.commit('setTransactionWallet', wallet);
+            },
+            triggerClearPincode: async (store: any) => {
+                store.commit('triggerClearPincode');
             },
         },
         getters: {
