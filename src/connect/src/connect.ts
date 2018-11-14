@@ -123,21 +123,21 @@ export class ArkaneConnect {
         }
     }
 
-    public createSigner() {
+    public createSigner(): Signer {
         return Signer.createSigner(this.bearerTokenProvider);
     }
 
-    public destroySigner() {
+    public destroySigner(): void {
         Signer.destroySigner();
     }
 
-    private addBeforeUnloadListener() {
+    private addBeforeUnloadListener(): void {
         window.addEventListener('beforeunload', () => {
             this.destroySigner();
         });
     }
 
-    private filterOnMandatoryWallets(wallets: Wallet[]) {
+    private filterOnMandatoryWallets(wallets: Wallet[]): Wallet[] {
         return wallets.filter(
             (wallet: Wallet) => this.chains.find(
                 (chain: string) => (wallet.secretType as string).toLowerCase() === chain,

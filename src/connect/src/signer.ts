@@ -1,5 +1,6 @@
 import Utils from '../../utils/Utils';
 import {EVENT_TYPES} from '../../types/EventTypes';
+import ResponseBody from '../../api/ResponseBody';
 
 export class Signer {
 
@@ -9,7 +10,7 @@ export class Signer {
         return Signer.signer;
     }
 
-    public static destroySigner() {
+    public static destroySigner(): void {
         if (Signer.signer) {
             Signer.signer.close();
         }
@@ -74,7 +75,7 @@ export class Signer {
         this.eventListeners[event] = handleFunction;
     }
 
-    private async handleTransactionInPopup(method: string, transactionRequest: any) {
+    private async handleTransactionInPopup(method: string, transactionRequest: any): Promise<ResponseBody> {
         this.popup.focus();
 
         return new Promise((resolve, reject) => {
@@ -84,7 +85,7 @@ export class Signer {
             this.onPopupMountedQueue.push(this.attachMessageHandler(resolve, reject));
             this.onPopupMountedQueue.push(this.sendTransactionRequest(transactionRequest));
             this.processPopupMountedQueue();
-        });
+        }) as Promise<ResponseBody>;
     }
 
     private attachMessageHandler(resolve: any, reject: any): () => void {
@@ -118,9 +119,15 @@ export class Signer {
         };
     }
 
+    /**
+     * Queue that get's processed when Popup is mounted
+     */
     private processPopupMountedQueue() {
         if (this.isPopupMounted) {
-            this.onPopupMountedQueue.forEach((callback: () => void) => callback());
+            let callback;
+            while(callback = this.onPopupMountedQueue.shift()) {
+                callback();
+            }
         }
     }
 
