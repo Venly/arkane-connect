@@ -55,19 +55,24 @@ export class ArkaneConnect {
 
     public async afterAuthentication(loginResult: LoginResult): Promise<AuthenticationResult> {
         this.auth = loginResult.keycloak;
-        return this.init()
-                   .then(() => {
-                       return {
-                           authenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
-                               callback(loginResult.keycloak);
-                               return this;
-                           },
-                           notAuthenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
-                               callback(loginResult.keycloak);
-                               return this;
-                           },
-                       };
-                   });
+        if (loginResult.authenticated) {
+            await this.init();
+        }
+        return {
+            authenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
+                if (loginResult.authenticated) {
+                    callback(loginResult.keycloak);
+                }
+                return this;
+
+            },
+            notAuthenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
+                if (!loginResult.authenticated) {
+                    callback(loginResult.keycloak);
+                }
+                return this;
+            },
+        };
     }
 
     public logout(): KeycloakPromise<void, void> {
