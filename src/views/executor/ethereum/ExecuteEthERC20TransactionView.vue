@@ -6,7 +6,7 @@
     <div v-if="isInitialised" class="content">
       <transition name="slide-left">
         <ethereum-transaction-pincode-form v-if="!showAdvanced"
-                                      :transaction-data="transactionData"
+                                      :transaction-request="transactionRequest"
                                       :token-balance="tokenBalance"
                                       :action="'execute'"
                                       :disabled="hasBlockingError"
@@ -18,9 +18,9 @@
       <transition name="slide-right" @after-enter="afterAdvancedEnter">
         <ethereum-transaction-advanced-form v-if="showAdvanced"
                                        ref="advancedForm"
-                                       :transaction-data="transactionData"
+                                       :transaction-request="transactionRequest"
                                        :token-balance="tokenBalance"
-                                       :has-transaction-data="hasTransactionData"
+                                       :has-transaction-request="hasTransactionRequest"
                                        :transaction-preparation="transactionPreparation"
                                        @saved="onSaved"
                                        @back_clicked="onBackClicked">
@@ -44,7 +44,7 @@ import ResponseBody from '../../../api/ResponseBody';
 import {EVENT_TYPES} from '../../../types/EventTypes';
 import GasPriceDto from '../../../models/transaction/preparation/ethereum/GasPriceDto';
 import EthereumTransactionPreparationDto from '../../../models/transaction/preparation/ethereum/EthereumTransactionPreparationDto';
-import EthereumErc20TransactionRequest from '../../../api/ethereum/EthereumErc20TransactionRequest';
+import EthereumErc20TransactionRequest from '../../../api/model/ethereum/EthereumErc20TransactionRequest';
 import TokenBalance from '../../../models/TokenBalance';
 
 @Component({
@@ -62,8 +62,8 @@ export default class ExecuteEthERC20TransactionView extends TransactionView<Ethe
         this.transactionPreparationMethod = Api.prepareExecuteTransaction;
         this.postTransaction = Api.executeTransaction;
 
-        this.onTransactionDataReceivedCallback = (async (transactionData: EthereumErc20TransactionRequest) => {
-            const tokenBalanceResponse = await Api.getTokenBalance(transactionData.walletId, transactionData.tokenAddress);
+        this.onTransactionRequestReceivedCallback = (async (transactionRequest: EthereumErc20TransactionRequest) => {
+            const tokenBalanceResponse = await Api.getTokenBalance(transactionRequest.walletId, transactionRequest.tokenAddress);
             if (tokenBalanceResponse.success) {
                 this.tokenBalance = Object.assign({}, this.tokenBalance, tokenBalanceResponse.result);
             }
@@ -97,15 +97,15 @@ export default class ExecuteEthERC20TransactionView extends TransactionView<Ethe
     }
 
     private initGasLimit(transactionPreparation: EthereumTransactionPreparationDto) {
-        if (!this.transactionData.gas || this.transactionData.gas === 0) {
-            this.$set(this.transactionData, 'gas', transactionPreparation.gasLimit);
+        if (!this.transactionRequest.gas || this.transactionRequest.gas === 0) {
+            this.$set(this.transactionRequest, 'gas', transactionPreparation.gasLimit);
         }
     }
 
     private initGasPrice(transactionPreparation: EthereumTransactionPreparationDto) {
-        if (!this.transactionData.gasPrice || this.transactionData.gasPrice === 0) {
+        if (!this.transactionRequest.gasPrice || this.transactionRequest.gasPrice === 0) {
             const defaultGasPrice = transactionPreparation.gasPrices.find((gasPrice: GasPriceDto) => gasPrice.defaultPrice);
-            this.$set(this.transactionData, 'gasPrice', defaultGasPrice && defaultGasPrice.gasPrice);
+            this.$set(this.transactionRequest, 'gasPrice', defaultGasPrice && defaultGasPrice.gasPrice);
         }
     }
 

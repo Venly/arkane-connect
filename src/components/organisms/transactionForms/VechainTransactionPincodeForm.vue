@@ -8,7 +8,7 @@
                 :fee-value="maxTransactionFee()" :fee-currency="'VTHO'" :fee-decimals="{min: 2, max: 9}"
                 :show-advanced-icon="true" @advanced_clicked="advancedClicked"></totals-box>
 
-    <numpad :params="transactionData" :disabled="disabled" @pincode_entered="pincodeEntered" :action="action"></numpad>
+    <numpad :params="transactionRequest" :disabled="disabled" @pincode_entered="pincodeEntered" :action="action"></numpad>
   </div>
 </template>
 
@@ -20,7 +20,7 @@ import Numpad from '../../molecules/Numpad.vue';
 import Utils from '../../../utils/Utils';
 import {State} from 'vuex-class';
 import {Wallet} from '../../../models/Wallet';
-import VechainTransactionData from '../../../api/vechain/VechainTransactionData';
+import VechainTransactionRequest from '../../../api/model/vechain/VechainTransactionRequest';
 import TokenBalance from '../../../models/TokenBalance';
 
 @Component({
@@ -33,7 +33,7 @@ import TokenBalance from '../../../models/TokenBalance';
 export default class VechainTransactionPincodeForm extends Vue {
 
     @Prop()
-    public transactionData!: VechainTransactionData;
+    public transactionRequest!: VechainTransactionRequest;
 
     @Prop({required: false})
     public tokenBalance?: TokenBalance;
@@ -58,7 +58,7 @@ export default class VechainTransactionPincodeForm extends Vue {
     }
 
     public get toAddresses(): string[] {
-        return this.transactionData ? (this.transactionData.clauses as any[]).map((clause) => clause.to) : [];
+        return this.transactionRequest ? (this.transactionRequest.clauses as any[]).map((clause) => clause.to) : [];
     }
 
     public get amountCurrencyLabel() {
@@ -66,9 +66,9 @@ export default class VechainTransactionPincodeForm extends Vue {
     }
 
     public get totalAmountInToken(): number {
-        return this.transactionData
+        return this.transactionRequest
             ? Utils.rawValue().toTokenValue(
-                (this.transactionData.clauses as any[]).map((clause) => clause.amount)
+                (this.transactionRequest.clauses as any[]).map((clause) => clause.amount)
                                                        .reduce(((amount1: number, amount2: number) => amount1 + amount2), 0),
                 this.tokenBalance ? this.tokenBalance.decimals : 18,
             )
@@ -84,7 +84,7 @@ export default class VechainTransactionPincodeForm extends Vue {
         // the used VTHO = (1 + 0/255) * 21000/1000 = 21 VTHO
         // The priority of a transaction in transaction pool can be raised by adjusting gasPriceCoef. For example, if gasPriceCoef =128, used VTHO = (1 + 128/255) * 21000/1000
         // = 31.5 VTHO"
-        return this.transactionData.gas / 1000 * (1 + this.transactionData.gasPriceCoef / 255);
+        return this.transactionRequest.gas / 1000 * (1 + this.transactionRequest.gasPriceCoef / 255);
     }
 }
 </script>

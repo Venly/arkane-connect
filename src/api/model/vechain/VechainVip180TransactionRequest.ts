@@ -1,12 +1,12 @@
+import {TransactionRequest} from '../TransactionRequest';
+
 export interface VechainVip180TransactionClause {
     to: string;
     amount: string;
     tokenAddress: string;
 }
 
-export default class VechainVip180TransactionData {
-    public type!: string;
-    public walletId!: string;
+export default class VechainVip180TransactionRequest extends TransactionRequest {
     public pincode!: string;
     public submit: boolean = false;
     public blockRef?: string;

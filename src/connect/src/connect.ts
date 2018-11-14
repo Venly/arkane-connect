@@ -8,7 +8,7 @@ import Utils from '../../utils/Utils';
 import {Profile} from '../../models/Profile';
 import Security, {LoginResult} from '../../Security';
 import {KeycloakInstance, KeycloakPromise} from 'keycloak-js';
-import {GenericTransactionRequest} from '../../models/GenericTransactionRequest';
+import {SimpleTransactionRequest} from '../../api/model/SimpleTransactionRequest';
 import {Signer} from './signer';
 
 export class ArkaneConnect {
@@ -39,19 +39,24 @@ export class ArkaneConnect {
 
     public async afterAuthentication(loginResult: LoginResult): Promise<AuthenticationResult> {
         this.auth = loginResult.keycloak;
-        return this.init()
-                   .then(() => {
-                       return {
-                           authenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
-                               callback(loginResult.keycloak);
-                               return this;
-                           },
-                           notAuthenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
-                               callback(loginResult.keycloak);
-                               return this;
-                           },
-                       };
-                   });
+        if (loginResult.authenticated) {
+            await this.init();
+        }
+        return {
+            authenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
+                if (loginResult.authenticated) {
+                    callback(loginResult.keycloak);
+                }
+                return this;
+
+            },
+            notAuthenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
+                if (!loginResult.authenticated) {
+                    callback(loginResult.keycloak);
+                }
+                return this;
+            },
+        };
     }
 
     public logout(): KeycloakPromise<void, void> {
@@ -111,7 +116,7 @@ export class ArkaneConnect {
         }
     }
 
-    public async buildTransactionRequest(genericTransactionRequest: GenericTransactionRequest): Promise<any> {
+    public async buildTransactionRequest(genericTransactionRequest: SimpleTransactionRequest): Promise<any> {
         const response: AxiosResponse<RestApiResponse<any>> = await this.api.http.post('transactions/build', genericTransactionRequest);
         if (response && response.data && response.data.success) {
             return response.data.result;
