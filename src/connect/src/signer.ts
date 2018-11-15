@@ -31,8 +31,6 @@ export class Signer {
     private popup: Window;
 
     private isPopupMounted: boolean = false;
-    private eventListeners: { [key: string]: () => void; } = {};
-
 
     private popupMountedListener?: (message: MessageEvent) => any;
 
@@ -49,11 +47,11 @@ export class Signer {
         window.addEventListener('message', this.popupMountedListener);
     }
 
-    public async executeTransaction(transactionRequest: any) {
+    public async executeTransaction(transactionRequest: any): Promise<ResponseBody> {
         return this.handleTransactionInPopup('execute', transactionRequest);
     }
 
-    public async signTransaction(transactionRequest: any) {
+    public async signTransaction(transactionRequest: any): Promise<ResponseBody> {
         return this.handleTransactionInPopup('sign', transactionRequest);
     }
 
@@ -69,10 +67,6 @@ export class Signer {
             delete this.popupMountedListener;
         }
         delete Signer.signer;
-    }
-
-    public addEventListener(event: string, handleFunction: () => void) {
-        this.eventListeners[event] = handleFunction;
     }
 
     private async handleTransactionInPopup(method: string, transactionRequest: any): Promise<ResponseBody> {
@@ -124,9 +118,10 @@ export class Signer {
      */
     private processPopupMountedQueue() {
         if (this.isPopupMounted) {
-            let callback;
-            while(callback = this.onPopupMountedQueue.shift()) {
+            let callback  = this.onPopupMountedQueue.shift();
+            while (callback) {
                 callback();
+                callback  = this.onPopupMountedQueue.shift();
             }
         }
     }

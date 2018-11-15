@@ -20,43 +20,21 @@ export class ArkaneConnect {
 
     private auth!: KeycloakInstance;
 
-    constructor(clientId: string, chains?: string[], environment?: string) {
+    constructor(clientId: string, options?: ConstructorOptions) {
         this.clientId = clientId;
-        this.chains = (chains || []).map((chain: string) => chain.toLowerCase());
-        Utils.environment = environment || 'prod';
+        this.chains = (options && options.chains || []).map((chain: string) => chain.toLowerCase());
+        Utils.environment = options && options.environment || 'prod';
         this.addBeforeUnloadListener();
     }
 
-    public checkAuthenticated(redirectUri?: string): Promise<AuthenticationResult> {
-        return Security.checkAuthenticated(this.clientId, redirectUri)
+    public checkAuthenticated(options?: AuthenticationOptions): Promise<AuthenticationResult> {
+        return Security.checkAuthenticated(this.clientId, options && options.redirectUri)
                        .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
     }
 
-    public authenticate(redirectUri?: string): Promise<AuthenticationResult> {
-        return Security.login(this.clientId, redirectUri)
+    public authenticate(options?: AuthenticationOptions): Promise<AuthenticationResult> {
+        return Security.login(this.clientId, options && options.redirectUri)
                        .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
-    }
-
-    public async afterAuthentication(loginResult: LoginResult): Promise<AuthenticationResult> {
-        this.auth = loginResult.keycloak;
-        if (loginResult.authenticated) {
-            await this.init();
-        }
-        return {
-            authenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
-                if (loginResult.authenticated) {
-                    callback(loginResult.keycloak);
-                }
-                return this;
-
-            },
-            notAuthenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
-                if (!loginResult.authenticated) {
-                    callback(loginResult.keycloak);
-                }
-                return this;
-            },
-        };
     }
 
     public logout(): KeycloakPromise<void, void> {
@@ -116,8 +94,8 @@ export class ArkaneConnect {
         }
     }
 
-    public async buildTransactionRequest(genericTransactionRequest: SimpleTransactionRequest): Promise<any> {
-        const response: AxiosResponse<RestApiResponse<any>> = await this.api.http.post('transactions/build', genericTransactionRequest);
+    public async buildTransactionRequest(simpleTransactionRequest: SimpleTransactionRequest): Promise<any> {
+        const response: AxiosResponse<RestApiResponse<any>> = await this.api.http.post('transactions/build', simpleTransactionRequest);
         if (response && response.data && response.data.success) {
             return response.data.result;
         }
@@ -144,11 +122,42 @@ export class ArkaneConnect {
             ) !== undefined,
         );
     }
+
+    private async afterAuthentication(loginResult: LoginResult): Promise<AuthenticationResult> {
+        this.auth = loginResult.keycloak;
+        if (loginResult.authenticated) {
+            await this.init();
+        }
+        return {
+            authenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
+                if (loginResult.authenticated) {
+                    callback(loginResult.keycloak);
+                }
+                return this;
+
+            },
+            notAuthenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
+                if (!loginResult.authenticated) {
+                    callback(loginResult.keycloak);
+                }
+                return this;
+            },
+        };
+    }
 }
 
 export interface AuthenticationResult {
     authenticated: (onAuthenticated: (auth: KeycloakInstance) => void) => AuthenticationResult;
     notAuthenticated: (onNotAuthenticated: (auth: KeycloakInstance) => void) => AuthenticationResult;
+}
+
+export interface ConstructorOptions {
+    chains?: string[];
+    environment?: string;
+}
+
+export interface AuthenticationOptions {
+    redirectUri?: string;
 }
 
 if (typeof window !== 'undefined') {
