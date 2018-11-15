@@ -38,22 +38,26 @@ Following methods allow you to do and manage authentication with Arkane Connect
 
 ### Check if a user is authenticated
 ```javascript
-arkaneConnect.checkAuthenticated();
+arkaneConnect.checkAuthenticated([<redirectUri>]);
 ```
 (returns a `Promise<AuthenticationResult>`)
 
-This will redirect the current page to our authentication provider. There it will check if the user is already authenticated and then redirect back to the current page with 
-an authentication token. This will contain a bearer + refresh token if authenticated, or will be empty nothing if not authenticated.
+This will redirect the current page to our authentication provider. There it will check if the user is already authenticated and then redirect back to `<redirectUri>` with 
+an authentication token. This token will contain a bearer + refresh token if authenticated, or will be empty if not authenticated.
+
+`<redirectUri>` is an optional parameter. If you ommit it, the uri of the current page will be used.
 
 
 ### Authenticate a user
 ```javascript
-arkaneConnect.authenticate();
+arkaneConnect.authenticate([<redirectUri>]);
 ```
 (returns a `Promise<AuthenticationResult>`)
 
-This will redirect the current page to our authentication provider. There it will check if the user is already authenticated and if not it will show a login page. After the user 
-enters his credentials, he will be redirected back to the current page with an authentication token containing a bearer + refresh token.
+This will redirect the current page to our authentication provider. There it will check if the user is already authenticated and if not, show a login page and allow the 
+user to log in. After this, it will redirect back to the `<redirectUri>` with an authentication token containing a bearer + refresh token.
+
+`<redirectUri>` is an optional parameter. If you ommit it, the uri of the current page will be used.
 
 
 #### AuthenticationResult
