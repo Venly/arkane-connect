@@ -27,13 +27,13 @@ export class ArkaneConnect {
         this.addBeforeUnloadListener();
     }
 
-    public checkAuthenticated(): Promise<AuthenticationResult> {
-        return Security.checkAuthenticated(this.clientId)
+    public checkAuthenticated(redirectUri?: string): Promise<AuthenticationResult> {
+        return Security.checkAuthenticated(this.clientId, redirectUri)
                        .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
     }
 
-    public authenticate(): Promise<AuthenticationResult> {
-        return Security.login(this.clientId)
+    public authenticate(redirectUri?: string): Promise<AuthenticationResult> {
+        return Security.login(this.clientId, redirectUri)
                        .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
     }
 
