@@ -56,14 +56,12 @@ export class ArkaneConnect {
 
         if (this.bearerTokenProvider) {
             this.api = new RestApi(Utils.urls.api, this.bearerTokenProvider);
-            const wallets = await this.getWallets();
-            const mandatoryWallets = wallets && wallets.length > 0 && this.filterOnMandatoryWallets(wallets);
-            if (!(mandatoryWallets && mandatoryWallets.length > 0)) {
-                const currentLocation = window.location;
-                const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
-                window.location.href =
-                    `${Utils.urls.connect}/wallets/manage/${this.chains[0]}?bearerToken=${this.bearerTokenProvider()}&redirectUri=${redirectUri}` +
-                    `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
+            if (this.chains && this.chains.length > 0) {
+                const wallets = await this.getWallets();
+                const mandatoryWallets = wallets && wallets.length > 0 && this.filterOnMandatoryWallets(wallets);
+                if (!(mandatoryWallets && mandatoryWallets.length > 0)) {
+                    this.manageWallets();
+                }
             }
         }
     }

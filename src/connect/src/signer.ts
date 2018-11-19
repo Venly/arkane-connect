@@ -56,8 +56,10 @@ export class Signer {
     }
 
     public close() {
-        this.popup.close();
-        delete this.popup;
+        if(this.popup) {
+            this.popup.close();
+            delete this.popup;
+        }
         if (this.messagePort) {
             this.messagePort.close();
             delete this.messagePort;
