@@ -10,6 +10,7 @@
         <span class="control__message" v-if="$v.privateKey.$error">This is not a valid private key</span>
       </div>
       <div class="actions">
+        <action-link :type="'muted'" @click.prevent="backClicked">Back</action-link>
         <action-button tabindex="2" :type="'brand-light'" :disabled="$v.$invalid" @click.prevent="importPrivateKey">Import {{chainName}} wallet</action-button>
       </div>
     </form>
