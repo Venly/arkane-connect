@@ -2,6 +2,7 @@
   <dialog-template :title="'Import a wallet'">
     <p class="description no-margin-bottom">Import a <strong>{{chainName}}</strong> wallet that application <strong>{{thirdPartyClientId}}</strong> is allowed to access:</p>
 
+
     <form class="form" autocomplete="off" v-if="chain.importWalletType === 'ETHEREUM_PRIVATE_KEY'">
       <div class="control" :class="{'control--error': $v.privateKey.$error}">
         <label for="privateKey" class="control__label">Private Key</label>
@@ -10,9 +11,11 @@
         <span class="control__message" v-if="$v.privateKey.$error">This is not a valid private key</span>
       </div>
       <div class="actions">
+        <action-link :type="'muted'" @click.prevent="backClicked">Back</action-link>
         <action-button tabindex="2" :type="'brand-light'" :disabled="$v.$invalid" @click.prevent="importPrivateKey">Import {{chainName}} wallet</action-button>
       </div>
     </form>
+
 
     <form class="form" autocomplete="off" v-if="chain.importWalletType === 'VECHAIN_KEYSTORE'">
       <div class="control" :class="{'control--error': $v.keystore.$error}">
@@ -31,6 +34,8 @@
         <action-button tabindex="3" :disabled="$v.$invalid" @click.prevent="importKeystore">Import {{chainName}} wallet</action-button>
       </div>
     </form>
+
+
   </dialog-template>
 </template>
 

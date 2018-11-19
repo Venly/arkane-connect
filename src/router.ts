@@ -4,6 +4,7 @@ import {Component, Route} from 'vue-router/types/router';
 
 import InitTransactionView from './views/InitTransactionView.vue';
 import ManageWalletsView from './views/ManageWalletsView.vue';
+import LinkWalletsView from './views/LinkWalletsView.vue';
 import CreateWalletView from './views/CreateWalletView.vue';
 import ImportWalletView from './views/ImportWalletView.vue';
 import ErrorView from './views/ErrorView.vue';
@@ -88,6 +89,19 @@ const router = new Router(
                 component: ExecuteVeChainVIP180TransactionView,
                 meta: {
                     auth: true,
+                },
+            },
+            {
+                path: '/wallets/manage/linkwallets',
+                name: 'link-wallets',
+                component: LinkWalletsView,
+                meta: {
+                    authArkane: true,
+                    showLoginScreen: true,
+                },
+                beforeEnter: async (to, from, next) => {
+                    await fetchProfileAndWallets(to).then((result: any) => next())
+                                                    .catch(() => next({name: 'generic-error'}));
                 },
             },
             {

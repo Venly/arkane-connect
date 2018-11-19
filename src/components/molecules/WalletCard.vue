@@ -1,9 +1,8 @@
 <template>
-    <div class="wallet-card" @click="click">
+    <div class="wallet-card" :class="{'one-line': oneLine}" @click="click">
         <div class="wallet-card__details">
             <div class="wallet-card__icon">
                 <i class="icon-chain" :class="`icon-chain--${wallet.secretType.toLowerCase()}`"></i>
-                <!-- todo make chain specific-->
             </div>
             <div class="wallet-card__alias-address">
                 <div class="wallet-card__alias" v-if="wallet.description">
@@ -30,6 +29,8 @@
         public wallet!: Wallet;
         @Prop({default: false})
         public showFunds!: boolean;
+        @Prop({required: false, default: false})
+        public oneLine!: boolean;
 
         public click(event: any): void {
             this.$emit('click', event);
@@ -39,9 +40,6 @@
 
 <style lang="sass" scoped>
     @import ../../assets/sass/mixins-and-vars
-
-    .icon-chain
-        font-size: rem(25px)
 
     .wallet-card
         border-radius: $border-radius-small
@@ -57,6 +55,10 @@
             flex-grow: 0
             flex-shrink: 0
             text-align: center
+
+            .icon-chain
+                font-size: rem(25px)
+                vertical-align: middle
 
         &__details
             display: flex
@@ -87,4 +89,30 @@
 
         &__amount
             color: $color-grass
+
+
+    .one-line
+        padding: rem(10px)
+
+        .wallet-card__icon
+            width: rem(20px)
+
+            .icon-chain
+              font-size: $font-size-regular
+
+        .wallet-card__alias-address
+            display: flex
+            justify-items: center
+            align-items: center
+
+        .wallet-card__alias
+            width: 100%
+            margin-right: rem(5px)
+            white-space: nowrap
+            overflow: hidden
+            text-overflow: ellipsis
+
+        .wallet-card__address
+            font-size: rem(11px)
+
 </style>
