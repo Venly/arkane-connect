@@ -76,6 +76,10 @@ export default class Utils {
         return array;
     }
 
+    public static caseInsensitiveStringCompare(string1: string, string2: string): number {
+        return (string1.toLocaleLowerCase()).localeCompare(string2.toLocaleLowerCase());
+    }
+
     public static removeNulls(obj: any): any {
         return Object.keys(obj)
                      .filter((key) => obj[key] !== null && obj[key] !== undefined)  // Remove undef. and null.
