@@ -1,5 +1,5 @@
 <template>
-    <div class="wallet-card" :class="{'inline': inline}" @click="click">
+    <div class="wallet-card" :class="{'one-line': oneLine}" @click="click">
         <div class="wallet-card__details">
             <div class="wallet-card__icon">
                 <i class="icon-chain" :class="`icon-chain--${wallet.secretType.toLowerCase()}`"></i>
@@ -30,7 +30,7 @@
         @Prop({default: false})
         public showFunds!: boolean;
         @Prop({required: false, default: false})
-        public inline!: boolean;
+        public oneLine!: boolean;
 
         public click(event: any): void {
             this.$emit('click', event);
@@ -56,7 +56,7 @@
             flex-shrink: 0
             text-align: center
 
-            & .icon-chain
+            .icon-chain
                 font-size: rem(25px)
                 vertical-align: middle
 
@@ -91,13 +91,13 @@
             color: $color-grass
 
 
-    .inline
+    .one-line
         padding: rem(10px)
 
         .wallet-card__icon
             width: rem(20px)
 
-            & .icon-chain
+            .icon-chain
               font-size: $font-size-regular
 
         .wallet-card__alias-address

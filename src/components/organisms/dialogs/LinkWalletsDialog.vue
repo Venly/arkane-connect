@@ -1,6 +1,6 @@
 <template>
   <dialog-template :title="'Access to your wallets'">
-    <link-wallets-form class="link-wallets-form" :wallets="wallets" :chain="chain" :thirdPartyClientId="thirdPartyClientId" walletsInline="true"
+    <link-wallets-form class="link-wallets-form" :wallets="wallets" :chain="chain" :thirdPartyClientId="thirdPartyClientId" walletsOnOneLine="true"
                        @linkWalletsClicked="linkWalletsClicked"></link-wallets-form>
     <div class="actions">
       <action-link :type="'muted'" @click="backClicked">Back to {{thirdPartyClientId}}</action-link>
@@ -13,10 +13,10 @@
     import LinkWalletsForm from '@/components/organisms/forms/LinkWalletsForm.vue';
     import DialogTemplate from '@/components/molecules/DialogTemplate.vue';
     import ActionLink from '@/components/atoms/ActionLink.vue';
-    import {Wallet} from '../../../models/Wallet';
+    import {Wallet} from '@/models/Wallet';
     import {AsyncData} from '@/decorators/decorators';
     import {SecretType} from '@/models/SecretType';
-    import {Chain} from '../../../models/Chain';
+    import {Chain} from '@/models/Chain';
 
     @Component({
         components: {

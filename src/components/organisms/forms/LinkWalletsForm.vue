@@ -9,7 +9,7 @@
                    class="control__checkbox control__checkbox--check wallet-select" type="checkbox"/>
             <label class="control__label" :for="`wallet-${wallet.id}`"></label>
           </div>
-          <wallet-card :wallet="wallet" :showFunds="false" @click="walletSelected(wallet)" :inline="walletsInline"></wallet-card>
+          <wallet-card :wallet="wallet" :showFunds="false" :oneLine="walletsOnOneLine" @click="walletSelected(wallet)"></wallet-card>
         </div>
       </div>
     </form>
@@ -27,9 +27,9 @@
 
 <script lang="ts">
     import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
-    import {Chain} from '../../../models/Chain';
-    import {Wallet} from '../../../models/Wallet';
-    import Api from '../../../api';
+    import {Chain} from '@/models/Chain';
+    import {Wallet} from '@/models/Wallet';
+    import Api from '@/api';
     import WalletCard from '@/components/molecules/WalletCard.vue';
     import ActionButton from '@/components/atoms/ActionButton.vue';
     import ActionLink from '@/components/atoms/ActionLink.vue';
@@ -45,7 +45,7 @@
         @Prop()
         private thirdPartyClientId!: string;
         @Prop({required: false, default: false})
-        private walletsInline!: boolean;
+        private walletsOnOneLine!: boolean;
 
 
         private selectedWallets: Wallet[] = [];
