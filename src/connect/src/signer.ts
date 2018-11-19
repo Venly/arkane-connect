@@ -56,7 +56,7 @@ export class Signer {
     }
 
     public close() {
-        if(this.popup) {
+        if (this.popup) {
             this.popup.close();
             delete this.popup;
         }
