@@ -50,6 +50,14 @@ export default class Api {
                   });
     }
 
+    public static getWalletBySecretTypeAndAddress(secretType: string, walletAddress: string): Promise<Wallet[]> {
+        return Api.getApi().http
+                  .get(`wallets?address=${encodeURIComponent(walletAddress)}&secretType=${encodeURIComponent(secretType)}`)
+                  .then((result: any) => {
+                      return result.data && result.data.success ? result.data.result : {};
+                  });
+    }
+
     public static getBalance(walletId: string): Promise<Balance> {
         return Api.getApi().http
                   .get(`wallets/${walletId}/balance`)
