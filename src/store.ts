@@ -8,6 +8,7 @@ import {RestApiResponse} from './api/RestApi';
 import {SupportedChains} from '@/models/SupportedChains';
 import {ImportKeystoreCommand, ImportPrivateKeyCommand} from '@/models/Commands';
 import {RestApiResponseError} from '@/api/RestApi';
+import Utils from '@/utils/Utils';
 
 Vue.use(Vuex);
 
@@ -80,6 +81,7 @@ export default new Vuex.Store(
             },
             fetchUserWallets: async (store: any): Promise<Wallet[]> => {
                 return Api.getWallets().then((wallets: Wallet[]) => {
+                    wallets.sort((wallet1, wallet2) => Utils.caseInsensitiveStringCompare(wallet1.description || '', wallet2.description || ''));
                     store.commit('setWallets', wallets);
                     return wallets;
                 });

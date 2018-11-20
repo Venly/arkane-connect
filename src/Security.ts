@@ -21,20 +21,20 @@ export default class Security {
         };
     }
 
-    public static login(clientId: string): Promise<LoginResult> {
-        return Security.initializeAuth(Security.getConfig(clientId), 'login-required');
+    public static login(clientId: string, redirectUri?: string): Promise<LoginResult> {
+        return Security.initializeAuth(Security.getConfig(clientId), 'login-required', redirectUri);
     }
 
-    public static checkAuthenticated(clientId: string): Promise<LoginResult> {
-        return Security.initializeAuth(Security.getConfig(clientId), 'check-sso');
+    public static checkAuthenticated(clientId: string, redirectUri?: string): Promise<LoginResult> {
+        return Security.initializeAuth(Security.getConfig(clientId), 'check-sso', redirectUri);
     }
 
-    public static verifyAndLogin(rawBearerToken: string, useTokenToLogin: boolean, showLoginScreen: boolean, redirectUrl?: string): Promise<any> {
+    public static verifyAndLogin(rawBearerToken: string, useTokenToLogin: boolean, showLoginScreen: boolean, redirectUri?: string): Promise<any> {
         const token = Security.parseToken(rawBearerToken);
         if (Security.verifyToken(rawBearerToken, token)) {
             const clientId = Security.resolveClientId(token, useTokenToLogin);
             const config = Security.getConfig(clientId);
-            return Security.initializeAuth(config, showLoginScreen ? 'login-required' : 'check-sso', redirectUrl);
+            return Security.initializeAuth(config, showLoginScreen ? 'login-required' : 'check-sso', redirectUri);
         } else {
             Security.notAuthenticated();
             return Promise.resolve({keycloak: {}, authenticated: false});
@@ -108,16 +108,16 @@ export default class Security {
         );
     }
 
-    private static async initializeAuth(config: any, onLoad: 'check-sso' | 'login-required', redirectUrl?: string): Promise<LoginResult> {
+    private static async initializeAuth(config: any, onLoad: 'check-sso' | 'login-required', redirectUri?: string): Promise<LoginResult> {
         const Keycloak: { default: (config?: string | {} | undefined) => KeycloakInstance } = await import ('keycloak-js');
         return new Promise((resolve, reject) => {
             Security.keycloak = Keycloak.default(config);
             const initOptions: KeycloakInitOptions = {
                 onLoad,
             };
-            if (redirectUrl) {
+            if (redirectUri) {
                 Object.assign(initOptions, {
-                    redirectUri: redirectUrl,
+                    redirectUri,
                 });
             }
             Security.keycloak.init(initOptions)

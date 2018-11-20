@@ -20,5 +20,3 @@ node_modules
 logs
 *.log
 .yarnclean
-
-src/connect/connect.js
