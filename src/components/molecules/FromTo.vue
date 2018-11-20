@@ -27,26 +27,28 @@
         @Prop({required: false, default: 1})
         public maxLines!: number;
 
-        private toWallet: Wallet;
+        private toWallet?: Wallet;
 
         public mounted() {
-            this.updateWallet();
+            this.updateWallet(this.to);
         }
 
         @Watch('to')
-        private async updateWallet() {
-            let result = await Api.getWalletBySecretTypeAndAddress(this.from.secretType, this.to);
-            if(result.length >= 1) {
-                this.toWallet = result[0]
-            } else {
-                this.toWallet = null;
+        private async updateWallet(to: string) {
+            if(this.from && to) {
+                let result = await Api.getWalletBySecretTypeAndAddress(this.from.secretType, to);
+                if (result.length >= 1) {
+                    this.toWallet = result[0];
+                } else {
+                    this.toWallet = undefined;
+                }
             }
         }
 
         public get fromWalletDetails() {
             return {
                 address: this.from.address,
-                description: this.from.description
+                description: this.from.description,
             }
         }
 
@@ -54,12 +56,12 @@
             if(this.toWallet) {
                 return {
                     address: this.toWallet.address,
-                    address: this.toWallet.description,
+                    description: this.toWallet.description,
                 };
             } else {
                 return {
                     address: this.to,
-                    description: ''
+                    description: '',
                 };
             }
         }

@@ -6,7 +6,7 @@ import Utils from '../utils/Utils';
 import {Wallet} from '../models/Wallet';
 import {CreateWalletCommand, ImportKeystoreCommand, ImportPrivateKeyCommand, LinkWalletCommand} from '../models/Commands';
 import {Profile} from '../models/Profile';
-import {Balance} from '../models/Balance';
+import {WalletBalance} from '../models/WalletBalance';
 import {SecretType} from '../models/SecretType';
 import {IntercomVerification} from '../models/IntercomVerification';
 import TokenBalance from '../models/TokenBalance';
@@ -50,7 +50,7 @@ export default class Api {
                   });
     }
 
-    public static getWalletBySecretTypeAndAddress(secretType: string, walletAddress: string): Promise<Wallet[]> {
+    public static getWalletBySecretTypeAndAddress(secretType: SecretType, walletAddress: string): Promise<Wallet[]> {
         return Api.getApi().http
                   .get(`wallets?address=${encodeURIComponent(walletAddress)}&secretType=${encodeURIComponent(secretType)}`)
                   .then((result: any) => {
@@ -58,7 +58,7 @@ export default class Api {
                   });
     }
 
-    public static getBalance(walletId: string): Promise<Balance> {
+    public static getBalance(walletId: string): Promise<WalletBalance> {
         return Api.getApi().http
                   .get(`wallets/${walletId}/balance`)
                   .then((result: any) => {
