@@ -139,6 +139,7 @@ export class Signer {
                         break;
                     case EVENT_TYPES.POPUP_CLOSED:
                         reject({
+                            canceledByUser: true,
                             success: false,
                             errors: ['Popup closed'],
                             result: {},

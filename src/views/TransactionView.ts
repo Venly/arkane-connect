@@ -18,8 +18,10 @@ export default class TransactionView<TRANSACTION_DATA, TRANSACTION_PREPARATION> 
 
     @State
     public transactionWallet?: Wallet;
+
     @State
     public auth: any;
+
     @State
     public hasBlockingError!: boolean;
 
