@@ -35,8 +35,8 @@
 
         @Watch('to')
         private async updateWallet(to: string) {
-            if(this.from && to) {
-                let result = await Api.getWalletBySecretTypeAndAddress(this.from.secretType, to);
+            if (this.from && to) {
+                const result = await Api.getWalletBySecretTypeAndAddress(this.from.secretType, to);
                 if (result.length >= 1) {
                     this.toWallet = result[0];
                 } else {
@@ -49,11 +49,11 @@
             return {
                 address: this.from.address,
                 description: this.from.description,
-            }
+            };
         }
 
         public get toWalletDetails() {
-            if(this.toWallet) {
+            if (this.toWallet) {
                 return {
                     address: this.toWallet.address,
                     description: this.toWallet.description,

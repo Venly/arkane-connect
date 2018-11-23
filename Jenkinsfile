@@ -10,18 +10,18 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-              sh 'npm i'
-              sh 'npm i --prefix src/connect'
-              sh 'npm run build-ts --prefix src/connect'
-              sh 'npm run build-js --prefix src/connect'
-              sh 'npx vue-cli-service build'
-              sh 'cp -r src/connect/dist dist/.'
-              sh 'cp src/connect/connect.js dist/.'
+              sh "npm i"
+              sh "npm i --prefix src/connect"
+              sh "npm run build-ts --prefix src/connect"
+              sh "npm run build-js --prefix src/connect"
+              sh "npx vue-cli-service build --mode ${BRANCH_NAME == 'master' ? 'production' : 'develop' }"
+              sh "cp -r src/connect/dist dist/."
+              sh "cp src/connect/connect.js dist/."
             }
         }
         stage('Docker Build') {
           steps {
-            sh 'docker build -t fundrequestio/arkane-connect:${BRANCH_NAME} .'
+            sh "docker build -t fundrequestio/arkane-connect:${BRANCH_NAME} ."
           }
         }
         stage('Docker Push') {
