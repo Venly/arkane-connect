@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueIntercom from 'vue-intercom';
 
+import '@/utils/FontAwesome';
 import store from './store';
 import router from './router';
 import Utils from './utils/Utils';
