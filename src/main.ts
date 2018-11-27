@@ -1,13 +1,14 @@
 import Vue from 'vue';
-import App from './App.vue';
-import store from './store';
-import router from './router';
 import VueIntercom from 'vue-intercom';
 
 import '@/utils/FontAwesome';
+import store from './store';
+import router from './router';
+import Utils from './utils/Utils';
 
-Vue.use(VueIntercom, {appId: 'geuh54pb'});
+import App from './App.vue';
 
+Vue.use(VueIntercom, {appId: Utils.env.VUE_APP_INTERCOM_APP_ID});
 
 Vue.config.productionTip = false;
 

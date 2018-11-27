@@ -1,11 +1,12 @@
 import Vue from 'vue';
 import {config, library} from '@fortawesome/fontawesome-svg-core';
-import {faEnvelope} from '@fortawesome/free-regular-svg-icons';
-// import {
-//     faHeartRate, faPencil,  // pro
-//     faClipboard, faParachuteBox, faPlus, faStar, faSlidersH,  // free
-// } from '@fortawesome/free-solid-svg-icons';
-import {faArrowRight, faClipboard, faParachuteBox, faPlus, faSlidersH, faStar} from '@fortawesome/free-solid-svg-icons';
+import {faEnvelope} from '@fortawesome/free-regular-svg-icons/faEnvelope';
+import {faArrowRight} from '@fortawesome/free-solid-svg-icons/faArrowRight';
+import {faClipboard} from '@fortawesome/free-solid-svg-icons/faClipboard';
+import {faParachuteBox} from '@fortawesome/free-solid-svg-icons/faParachuteBox';
+import {faPlus} from '@fortawesome/free-solid-svg-icons/faPlus';
+import {faSlidersH} from '@fortawesome/free-solid-svg-icons/faSlidersH';
+import {faStar} from '@fortawesome/free-solid-svg-icons/faStar';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 
 library.add(

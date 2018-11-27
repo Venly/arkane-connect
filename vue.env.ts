@@ -8,5 +8,6 @@ export default {
     VUE_APP_SSL_REQUIRED: process.env.VUE_APP_SSL_REQUIRED || 'external',
     VUE_APP_PUBLIC_CLIENT: process.env.VUE_APP_PUBLIC_CLIENT || 'true',
     VUE_APP_SECRET: process.env.VUE_APP_SECRET || 'my-secret',
+    VUE_APP_INTERCOM_APP_ID: process.env.VUE_APP_INTERCOM_APP_ID || 'geuh54pb',
 };
 /* tslint:enable */

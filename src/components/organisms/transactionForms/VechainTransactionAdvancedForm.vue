@@ -22,7 +22,7 @@
       </div>
     </form>
     <div class="buttons buttons--horizontal">
-      <action-link :type="'muted'" @click="backClicked">&lt; Back</action-link>
+      <action-link :type="'muted'" @click="backClicked">Back</action-link>
       <button class="save-button btn" @click.prevent="saveClicked" @keyup.native.enter="saveClicked">Save</button>
     </div>
   </div>
