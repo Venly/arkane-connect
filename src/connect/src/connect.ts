@@ -101,8 +101,17 @@ export class ArkaneConnect {
         }
     }
 
+    public async executeTransaction(simpleTransactionRequest: SimpleTransactionRequest, redirectUri?: string): Promise<void> {
+        const nativeTransactionRequest = await this.buildTransactionRequest(simpleTransactionRequest);
+        this.postInForm(
+            `${Utils.urls.connectWeb}/transaction/${'execute'}/${nativeTransactionRequest.type}`,
+            nativeTransactionRequest,
+            redirectUri,
+        );
+    }
+
     public executeNativeTransaction(transactionRequest: any, redirectUri?: string): void {
-        return this.postInForm(
+        this.postInForm(
             `${Utils.urls.connectWeb}/transaction/${'execute'}/${transactionRequest.type}`,
             transactionRequest,
             redirectUri,
