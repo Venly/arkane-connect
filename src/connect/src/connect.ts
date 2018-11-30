@@ -1,15 +1,14 @@
 /* tslint:disable */
 /// <reference path="./typings.d.ts" />
 /* tslint:enable */
-import {AxiosResponse} from 'axios';
-import RestApi, {RestApiResponse} from '../../api/RestApi';
-import {Wallet} from '../../models/Wallet';
-import Utils from '../../utils/Utils';
-import {Profile} from '../../models/Profile';
-import Security, {LoginResult} from '../../Security';
-import {KeycloakInstance, KeycloakPromise} from 'keycloak-js';
-import {SimpleTransactionRequest} from '../../api/model/SimpleTransactionRequest';
-import {Signer} from './signer';
+import { AxiosResponse }                     from 'axios';
+import RestApi, { RestApiResponse }          from '../../api/RestApi';
+import { Wallet }                            from '../../models/Wallet';
+import Utils                                 from '../../utils/Utils';
+import { Profile }                           from '../../models/Profile';
+import Security, { LoginResult }             from '../../Security';
+import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
+import { SimpleTransactionRequest }          from '../../api/model/SimpleTransactionRequest';
 
 export class ArkaneConnect {
 
@@ -24,7 +23,6 @@ export class ArkaneConnect {
         this.clientId = clientId;
         this.chains = (options && options.chains || []).map((chain: string) => chain.toLowerCase());
         Utils.environment = options && options.environment || 'prod';
-        this.addBeforeUnloadListener();
     }
 
     public checkAuthenticated(options?: AuthenticationOptions): Promise<AuthenticationResult> {
@@ -69,17 +67,13 @@ export class ArkaneConnect {
     public manageWallets() {
         const currentLocation = window.location;
         const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
-        window.location.href =
-            `${Utils.urls.connect}/wallets/manage/${this.chains[0]}?bearerToken=${this.bearerTokenProvider()}&redirectUri=${redirectUri}` +
-            `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
+        this.postInForm(`${Utils.urls.connectWeb}/wallets/manage${Utils.environment ? '?environment=' + Utils.environment : ''}`, {chain: this.chains[0]}, redirectUri);
     }
 
     public linkWallets() {
         const currentLocation = window.location;
         const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
-        window.location.href =
-            `${Utils.urls.connect}/wallets/manage/linkwallets?bearerToken=${this.bearerTokenProvider()}&redirectUri=${redirectUri}` +
-            `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
+        this.postInForm(`${Utils.urls.connectWeb}/wallets/manage/linkwallets${Utils.environment ? '?environment=' + Utils.environment : ''}`, {}, redirectUri);
     }
 
     public async getWallets(): Promise<Wallet[]> {
@@ -107,18 +101,52 @@ export class ArkaneConnect {
         }
     }
 
-    public createSigner(): Signer {
-        return Signer.createSigner(this.bearerTokenProvider);
+    public executeNativeTransaction(transactionRequest: any, redirectUri?: string): void {
+        return this.postInForm(
+            `${Utils.urls.connectWeb}/transaction/${'execute'}/${transactionRequest.type}`,
+            transactionRequest,
+            redirectUri,
+        );
     }
 
-    public destroySigner(): void {
-        Signer.destroySigner();
+    public signTransaction(transactionRequest: any, redirectUri?: string): void {
+        this.postInForm(
+            `${Utils.urls.connectWeb}/transaction/${'sign'}/${transactionRequest.type}`,
+            transactionRequest,
+            redirectUri,
+        );
     }
 
-    private addBeforeUnloadListener(): void {
-        window.addEventListener('beforeunload', () => {
-            this.destroySigner();
-        });
+    private postInForm(to: string, data: any, redirectUri?: string): void {
+        const form = document.createElement('form');
+        form.action = this.buildUrl(to, redirectUri);
+        form.method = 'POST';
+
+        const inputBearer = document.createElement('input');
+        inputBearer.type = 'hidden';
+        inputBearer.name = 'bearerToken';
+        inputBearer.value = this.bearerTokenProvider();
+        form.appendChild(inputBearer);
+
+        const inputData = document.createElement('input');
+        inputData.type = 'hidden';
+        inputData.name = 'data';
+        inputData.value = JSON.stringify({...data});
+        form.appendChild(inputData);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    private buildUrl(to: string, redirectUri?: string) {
+        if (redirectUri) {
+            if (to.indexOf('?') > 0) {
+                return `${to}&redirectUri=${encodeURIComponent(redirectUri)}`;
+            } else {
+                return `${to}?redirectUri=${encodeURIComponent(redirectUri)}`;
+            }
+        }
+        return to;
     }
 
     private filterOnMandatoryWallets(wallets: Wallet[]): Wallet[] {

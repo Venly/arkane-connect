@@ -59,6 +59,7 @@ export default class Utils {
         return {
             api: `https://api${prefix}.arkane.network/api`,
             connect: Utils.environment === 'local' ? 'http://localhost:8081' : `https://connect${prefix}.arkane.network`,
+            connectWeb: Utils.environment === 'local' ? 'http://localhost:8181' : `https://connect${prefix}.arkane.network`,
             login: `https://login${prefix}.arkane.network/auth`,
         };
     }
