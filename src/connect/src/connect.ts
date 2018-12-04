@@ -8,7 +8,7 @@ import Utils                                 from '../../utils/Utils';
 import { Profile }                           from '../../models/Profile';
 import Security, { LoginResult }             from '../../Security';
 import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
-import { SimpleTransactionRequest }          from '../../api/model/SimpleTransactionRequest';
+import { GenericTransactionRequest }         from '../../api/model/GenericTransactionRequest';
 
 export class ArkaneConnect {
 
@@ -73,7 +73,7 @@ export class ArkaneConnect {
     public linkWallets() {
         const currentLocation = window.location;
         const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
-        this.postInForm(`${Utils.urls.connectWeb}/wallets/manage/linkwallets${Utils.environment ? '?environment=' + Utils.environment : ''}`, {}, redirectUri);
+        this.postInForm(`${Utils.urls.connectWeb}/wallets/link${Utils.environment ? '?environment=' + Utils.environment : ''}`, {}, redirectUri);
     }
 
     public async getWallets(): Promise<Wallet[]> {
@@ -94,25 +94,24 @@ export class ArkaneConnect {
         }
     }
 
-    public async buildTransactionRequest(simpleTransactionRequest: SimpleTransactionRequest): Promise<any> {
-        const response: AxiosResponse<RestApiResponse<any>> = await this.api.http.post('transactions/build', simpleTransactionRequest);
+    public async buildTransactionRequest(genericTransactionRequest: GenericTransactionRequest): Promise<any> {
+        const response: AxiosResponse<RestApiResponse<any>> = await this.api.http.post('transactions/build', genericTransactionRequest);
         if (response && response.data && response.data.success) {
             return response.data.result;
         }
     }
 
-    public async executeTransaction(simpleTransactionRequest: SimpleTransactionRequest, redirectUri?: string): Promise<void> {
-        const nativeTransactionRequest = await this.buildTransactionRequest(simpleTransactionRequest);
+    public async executeTransaction(genericTransactionRequest: GenericTransactionRequest, redirectUri?: string): Promise<void> {
         this.postInForm(
-            `${Utils.urls.connectWeb}/transaction/${'execute'}/${nativeTransactionRequest.type}`,
-            nativeTransactionRequest,
+            `${Utils.urls.connectWeb}/transaction/execute`,
+            genericTransactionRequest,
             redirectUri,
         );
     }
 
     public executeNativeTransaction(transactionRequest: any, redirectUri?: string): void {
         this.postInForm(
-            `${Utils.urls.connectWeb}/transaction/${'execute'}/${transactionRequest.type}`,
+            `${Utils.urls.connectWeb}/transaction/execute/${transactionRequest.type}`,
             transactionRequest,
             redirectUri,
         );
@@ -120,7 +119,7 @@ export class ArkaneConnect {
 
     public signTransaction(transactionRequest: any, redirectUri?: string): void {
         this.postInForm(
-            `${Utils.urls.connectWeb}/transaction/${'sign'}/${transactionRequest.type}`,
+            `${Utils.urls.connectWeb}/transaction/sign/${transactionRequest.type}`,
             transactionRequest,
             redirectUri,
         );
