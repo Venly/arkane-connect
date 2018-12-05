@@ -9,8 +9,21 @@ import { Profile }                           from '../../models/Profile';
 import Security, { LoginResult }             from '../../Security';
 import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
 import { GenericTransactionRequest }         from '../../api/model/GenericTransactionRequest';
+import * as QueryString                      from 'querystring';
 
 export class ArkaneConnect {
+
+    public static addRequestParams(url: string, params: { [key: string]: string }): string {
+        if (url && params) {
+            const paramsAsString = QueryString.stringify(params);
+            if (url && url.indexOf('?') > 0) {
+                return `${url}&${paramsAsString}`;
+            } else {
+                return `${url}?${paramsAsString}`;
+            }
+        }
+        return url;
+    }
 
     private api!: RestApi;
     private clientId: string;
@@ -64,16 +77,12 @@ export class ArkaneConnect {
         }
     }
 
-    public manageWallets() {
-        const currentLocation = window.location;
-        const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
-        this.postInForm(`${Utils.urls.connectWeb}/wallets/manage${Utils.environment ? '?environment=' + Utils.environment : ''}`, {chain: this.chains[0]}, redirectUri);
+    public manageWallets(options?: { redirectUri?: string, correlationID?: string }) {
+        this.postInForm(`${Utils.urls.connectWeb}/wallets/manage${Utils.environment ? '?environment=' + Utils.environment : ''}`, {chain: this.chains[0]}, options);
     }
 
-    public linkWallets() {
-        const currentLocation = window.location;
-        const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
-        this.postInForm(`${Utils.urls.connectWeb}/wallets/link${Utils.environment ? '?environment=' + Utils.environment : ''}`, {}, redirectUri);
+    public linkWallets(options?: { redirectUri?: string, correlationID?: string }) {
+        this.postInForm(`${Utils.urls.connectWeb}/wallets/link${Utils.environment ? '?environment=' + Utils.environment : ''}`, {}, options);
     }
 
     public async getWallets(): Promise<Wallet[]> {
@@ -101,33 +110,33 @@ export class ArkaneConnect {
         }
     }
 
-    public async executeTransaction(genericTransactionRequest: GenericTransactionRequest, redirectUri?: string): Promise<void> {
+    public async executeTransaction(genericTransactionRequest: GenericTransactionRequest, options?: { redirectUri?: string, correlationID?: string }): Promise<void> {
         this.postInForm(
             `${Utils.urls.connectWeb}/transaction/execute`,
             genericTransactionRequest,
-            redirectUri,
+            options,
         );
     }
 
-    public executeNativeTransaction(transactionRequest: any, redirectUri?: string): void {
+    public executeNativeTransaction(transactionRequest: any, options?: { redirectUri?: string, correlationID?: string }): void {
         this.postInForm(
             `${Utils.urls.connectWeb}/transaction/execute/${transactionRequest.type}`,
             transactionRequest,
-            redirectUri,
+            options,
         );
     }
 
-    public signTransaction(transactionRequest: any, redirectUri?: string): void {
+    public signTransaction(transactionRequest: any, options?: { redirectUri?: string, correlationID?: string }): void {
         this.postInForm(
             `${Utils.urls.connectWeb}/transaction/sign/${transactionRequest.type}`,
             transactionRequest,
-            redirectUri,
+            options,
         );
     }
 
-    private postInForm(to: string, data: any, redirectUri?: string): void {
+    private postInForm(to: string, data: any, options?: { redirectUri?: string, correlationID?: string }): void {
         const form = document.createElement('form');
-        form.action = this.buildUrl(to, redirectUri);
+        form.action = this.buildUrl(to, options);
         form.method = 'POST';
 
         const inputBearer = document.createElement('input');
@@ -146,13 +155,16 @@ export class ArkaneConnect {
         form.submit();
     }
 
-    private buildUrl(to: string, redirectUri?: string) {
-        if (redirectUri) {
-            if (to.indexOf('?') > 0) {
-                return `${to}&redirectUri=${encodeURIComponent(redirectUri)}`;
-            } else {
-                return `${to}?redirectUri=${encodeURIComponent(redirectUri)}`;
+    private buildUrl(to: string, options?: { redirectUri?: string; correlationID?: string }) {
+        if (options) {
+            const params: { [key: string]: string } = {};
+            if (options.redirectUri) {
+                params.redirectUri = options.redirectUri;
             }
+            if (options.correlationID) {
+                params.cid = options.correlationID;
+            }
+            return ArkaneConnect.addRequestParams(to, params);
         }
         return to;
     }

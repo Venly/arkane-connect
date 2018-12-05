@@ -28,7 +28,8 @@
   "homepage": "https://arkane.network",
   "dependencies": {
     "axios": "^0.18.0",
-    "jsrsasign": "^8.0.12"
+    "jsrsasign": "^8.0.12",
+    "querystring": "^0.2.0"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.0",
