@@ -6,7 +6,7 @@ module.exports = {
         filename: 'connect.js',
         path: path.join(__dirname, '.'),
     },
-    watch: true,
+    watch: false,
     module: {
         rules: [
             {
