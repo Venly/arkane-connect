@@ -28,15 +28,17 @@
   "homepage": "https://arkane.network",
   "dependencies": {
     "axios": "^0.18.0",
+    "es6-promise": "^4.2.5",
     "jsrsasign": "^8.0.12",
+    "keycloak-js": "^4.7.0",
     "querystring": "^0.2.0"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.0",
     "ts-loader": "^4.5.0",
     "typedoc": "^0.13.0",
-    "typescript": "^3.0.1",
-    "webpack": "^4.16.5",
+    "typescript": "^3.2.2",
+    "webpack": "^4.27.1",
     "webpack-cli": "^3.1.0"
   }
 }

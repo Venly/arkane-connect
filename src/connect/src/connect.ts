@@ -1,40 +1,29 @@
 /* tslint:disable */
 /// <reference path="./typings.d.ts" />
 /* tslint:enable */
-import { AxiosResponse }                     from 'axios';
-import RestApi, { RestApiResponse }          from '../../api/RestApi';
-import { Wallet }                            from '../../models/Wallet';
+import { Wallet }                            from '../../models/wallet/Wallet';
 import Utils                                 from '../../utils/Utils';
-import { Profile }                           from '../../models/Profile';
-import Security, { LoginResult }             from '../../Security';
+import Security, { LoginResult }             from '../../connect/Security';
 import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
-import { GenericTransactionRequest }         from '../../api/model/GenericTransactionRequest';
 import * as QueryString                      from 'querystring';
+import Api                                   from '../../api';
+import Signer, { SignMethod }                from '../../signer';
 
 export class ArkaneConnect {
 
-    public static addRequestParams(url: string, params: { [key: string]: string }): string {
-        if (url && params) {
-            const paramsAsString = QueryString.stringify(params);
-            if (url && url.indexOf('?') > 0) {
-                return `${url}&${paramsAsString}`;
-            } else {
-                return `${url}?${paramsAsString}`;
-            }
-        }
-        return url;
-    }
+    public api!: Api;
+    public signer!: Signer;
 
-    private api!: RestApi;
     private clientId: string;
     private chains: string[];
+    private signUsing: SignMethod;
     private bearerTokenProvider: any;
-
     private auth!: KeycloakInstance;
 
     constructor(clientId: string, options?: ConstructorOptions) {
         this.clientId = clientId;
         this.chains = (options && options.chains || []).map((chain: string) => chain.toLowerCase());
+        this.signUsing = (options && options.signUsing) || SignMethod.POPUP;
         Utils.environment = options && options.environment || 'prod';
     }
 
@@ -66,9 +55,10 @@ export class ArkaneConnect {
         }
 
         if (this.bearerTokenProvider) {
-            this.api = new RestApi(Utils.urls.api, this.bearerTokenProvider);
+            this.api = new Api(Utils.urls.api, this.bearerTokenProvider);
+            this.signer = new Signer(this.bearerTokenProvider, {signUsing: this.signUsing});
             if (this.chains && this.chains.length > 0) {
-                const wallets = await this.getWallets();
+                const wallets = await this.api.getWallets();
                 const mandatoryWallets = wallets && wallets.length > 0 && this.filterOnMandatoryWallets(wallets);
                 if (!(mandatoryWallets && mandatoryWallets.length > 0)) {
                     this.manageWallets();
@@ -78,95 +68,16 @@ export class ArkaneConnect {
     }
 
     public manageWallets(options?: { redirectUri?: string, correlationID?: string }) {
-        this.postInForm(`${Utils.urls.connectWeb}/wallets/manage${Utils.environment ? '?environment=' + Utils.environment : ''}`, {chain: this.chains[0]}, options);
+        Utils.http().postInForm(
+            `${Utils.urls.connectWeb}/wallets/manage${Utils.environment ? '?environment=' + Utils.environment : ''}`,
+            {chain: this.chains[0]},
+            this.bearerTokenProvider,
+            options
+        );
     }
 
     public linkWallets(options?: { redirectUri?: string, correlationID?: string }) {
-        this.postInForm(`${Utils.urls.connectWeb}/wallets/link${Utils.environment ? '?environment=' + Utils.environment : ''}`, {}, options);
-    }
-
-    public async getWallets(): Promise<Wallet[]> {
-        const response: AxiosResponse<RestApiResponse<Wallet[]>> = await this.api.http.get('wallets');
-        if (response && response.data && response.data.success) {
-            return response.data.result;
-        } else {
-            return [];
-        }
-    }
-
-    public async getProfile(): Promise<Profile> {
-        const response: AxiosResponse<RestApiResponse<Profile>> = await this.api.http.get('profile');
-        if (response && response.data && response.data.success) {
-            return response.data.result;
-        } else {
-            return new Profile();
-        }
-    }
-
-    public async buildTransactionRequest(genericTransactionRequest: GenericTransactionRequest): Promise<any> {
-        const response: AxiosResponse<RestApiResponse<any>> = await this.api.http.post('transactions/build', genericTransactionRequest);
-        if (response && response.data && response.data.success) {
-            return response.data.result;
-        }
-    }
-
-    public async executeTransaction(genericTransactionRequest: GenericTransactionRequest, options?: { redirectUri?: string, correlationID?: string }): Promise<void> {
-        this.postInForm(
-            `${Utils.urls.connectWeb}/transaction/execute`,
-            genericTransactionRequest,
-            options,
-        );
-    }
-
-    public executeNativeTransaction(transactionRequest: any, options?: { redirectUri?: string, correlationID?: string }): void {
-        this.postInForm(
-            `${Utils.urls.connectWeb}/transaction/execute/${transactionRequest.type}`,
-            transactionRequest,
-            options,
-        );
-    }
-
-    public signTransaction(transactionRequest: any, options?: { redirectUri?: string, correlationID?: string }): void {
-        this.postInForm(
-            `${Utils.urls.connectWeb}/transaction/sign/${transactionRequest.type}`,
-            transactionRequest,
-            options,
-        );
-    }
-
-    private postInForm(to: string, data: any, options?: { redirectUri?: string, correlationID?: string }): void {
-        const form = document.createElement('form');
-        form.action = this.buildUrl(to, options);
-        form.method = 'POST';
-
-        const inputBearer = document.createElement('input');
-        inputBearer.type = 'hidden';
-        inputBearer.name = 'bearerToken';
-        inputBearer.value = this.bearerTokenProvider();
-        form.appendChild(inputBearer);
-
-        const inputData = document.createElement('input');
-        inputData.type = 'hidden';
-        inputData.name = 'data';
-        inputData.value = JSON.stringify({...data});
-        form.appendChild(inputData);
-
-        document.body.appendChild(form);
-        form.submit();
-    }
-
-    private buildUrl(to: string, options?: { redirectUri?: string; correlationID?: string }) {
-        if (options) {
-            const params: { [key: string]: string } = {};
-            if (options.redirectUri) {
-                params.redirectUri = options.redirectUri;
-            }
-            if (options.correlationID) {
-                params.cid = options.correlationID;
-            }
-            return ArkaneConnect.addRequestParams(to, params);
-        }
-        return to;
+        Utils.http().postInForm(`${Utils.urls.connectWeb}/wallets/link${Utils.environment ? '?environment=' + Utils.environment : ''}`, {}, this.bearerTokenProvider, options);
     }
 
     private filterOnMandatoryWallets(wallets: Wallet[]): Wallet[] {
@@ -179,6 +90,7 @@ export class ArkaneConnect {
 
     private async afterAuthentication(loginResult: LoginResult): Promise<AuthenticationResult> {
         this.auth = loginResult.keycloak;
+        console.log(loginResult);
         if (loginResult.authenticated) {
             await this.init();
         }
@@ -208,6 +120,7 @@ export interface AuthenticationResult {
 export interface ConstructorOptions {
     chains?: string[];
     environment?: string;
+    signUsing?: SignMethod;
 }
 
 export interface AuthenticationOptions {
