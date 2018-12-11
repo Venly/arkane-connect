@@ -21,7 +21,6 @@
     "chai": "^4.1.2",
     "http-serve": "^1.0.1",
     "keycloak-js": "^4.3.0",
-    "lint-staged": "^7.2.2",
     "node-sass": "^4.11.0",
     "sass-loader": "^7.0.1",
     "ts-loader": "^4.5.0",
@@ -30,13 +29,5 @@
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.1.5"
-  },
-  "gitHooks": {
-    "pre-commit": "lint-staged"
-  },
-  "lint-staged": {
-    "*.ts": [
-      "git add"
-    ]
   }
 }
