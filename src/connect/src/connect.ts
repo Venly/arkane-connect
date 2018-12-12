@@ -68,7 +68,7 @@ export class ArkaneConnect {
 
     public manageWallets(options?: { redirectUri?: string, correlationID?: string }) {
         Utils.http().postInForm(
-            `${Utils.urls.connectWeb}/wallets/manage${Utils.environment ? '?environment=' + Utils.environment : ''}`,
+            `${Utils.urls.connect}/wallets/manage${Utils.environment ? '?environment=' + Utils.environment : ''}`,
             {chain: this.chains[0]},
             this.bearerTokenProvider,
             options
@@ -76,7 +76,7 @@ export class ArkaneConnect {
     }
 
     public linkWallets(options?: { redirectUri?: string, correlationID?: string }) {
-        Utils.http().postInForm(`${Utils.urls.connectWeb}/wallets/link${Utils.environment ? '?environment=' + Utils.environment : ''}`, {}, this.bearerTokenProvider, options);
+        Utils.http().postInForm(`${Utils.urls.connect}/wallets/link${Utils.environment ? '?environment=' + Utils.environment : ''}`, {}, this.bearerTokenProvider, options);
     }
 
     private filterOnMandatoryWallets(wallets: Wallet[]): Wallet[] {

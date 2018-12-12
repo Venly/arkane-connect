@@ -13,21 +13,21 @@ export class RedirectSignerHandler implements SignerHandler {
 
     public executeNativeTransaction(transactionRequest: any, options?: { redirectUri?: string, correlationID?: string }): Promise<SignerResult> {
         return new Promise<SignerResult>((resolve, reject) => {
-            Utils.http().postInForm(`${Utils.urls.connectWeb}/transaction/execute/${transactionRequest.type.toLowerCase()}`, transactionRequest, this.bearerTokenProvider, options);
+            Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute/${transactionRequest.type.toLowerCase()}`, transactionRequest, this.bearerTokenProvider, options);
             resolve();
         });
     }
 
     public executeTransaction(genericTransactionRequest: GenericTransactionRequest, options?: { redirectUri?: string, correlationID?: string }): Promise<SignerResult> {
         return new Promise<SignerResult>((resolve, reject) => {
-            Utils.http().postInForm(`${Utils.urls.connectWeb}/transaction/execute`, genericTransactionRequest, this.bearerTokenProvider, options);
+            Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute`, genericTransactionRequest, this.bearerTokenProvider, options);
             resolve();
         });
     }
 
     public signTransaction(transactionRequest: any, options?: { redirectUri?: string, correlationID?: string }): Promise<SignerResult> {
         return new Promise<SignerResult>((resolve, reject) => {
-            Utils.http().postInForm(`${Utils.urls.connectWeb}/transaction/sign/${transactionRequest.type.toLowerCase()}`, transactionRequest, this.bearerTokenProvider, options);
+            Utils.http().postInForm(`${Utils.urls.connect}/transaction/sign/${transactionRequest.type.toLowerCase()}`, transactionRequest, this.bearerTokenProvider, options);
             resolve();
         });
     }

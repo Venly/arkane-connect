@@ -17,7 +17,7 @@ export class PopupSignerHandler implements SignerHandler {
         if (this.popup) {
             this.closePopup();
         }
-        this.popup = new Popup(`${Utils.urls.connectWeb}/popup/transaction/init.html`, this.bearerTokenProvider);
+        this.popup = new Popup(`${Utils.urls.connect}/popup/transaction/init.html`, this.bearerTokenProvider);
     }
 
     public closePopup() {
@@ -83,7 +83,7 @@ class Popup {
         this.bearerTokenProvider = bearerTokenProvider;
         this.popupMountedListener = this.createPopupMountedListener(this.correlationID);
         window.addEventListener('message', this.popupMountedListener);
-        this.popup = Popup.openWindow(url + '?cid=' + encodeURIComponent(this.correlationID) + '&webURI=' + encodeURIComponent(Utils.urls.connectWeb));
+        this.popup = Popup.openWindow(url + '?cid=' + encodeURIComponent(this.correlationID) + '&webURI=' + encodeURIComponent(Utils.urls.connect));
     }
 
     public close() {
@@ -136,7 +136,7 @@ class Popup {
             if (this.popup) {
                 this.popup.postMessage(
                     {type: EVENT_TYPES.SEND_TRANSACTION_DATA, params: {action, transactionRequest, bearerToken: this.bearerTokenProvider()}},
-                    Utils.urls.connectWeb
+                    Utils.urls.connect
                 );
             }
         };

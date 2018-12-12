@@ -38,8 +38,7 @@ export default class Utils {
 
         return {
             api: `https://api${prefix}.arkane.network/api`,
-            connectJS: Utils.environment === 'local' ? 'http://localhost:8081' : `https://connect-js${prefix}.arkane.network`,
-            connectWeb: Utils.environment === 'local' ? 'http://localhost:8081' : `https://connect${prefix}.arkane.network`,
+            connect: Utils.environment === 'local' ? 'http://localhost:8181' : `https://connect${prefix}.arkane.network`,
             login: `https://login${prefix}.arkane.network/auth`,
         };
     }
@@ -72,7 +71,7 @@ export default class Utils {
     public static messages() {
         return {
             hasValidOrigin: (message: MessageEvent) => {
-                return message.origin === Utils.urls.connectWeb;
+                return message.origin === Utils.urls.connect;
             },
             hasType: (message: MessageEvent) => {
                 return message.data && message.data.type && message.data.type !== '';
