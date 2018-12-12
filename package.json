@@ -2,10 +2,6 @@
   "name": "@arkane-network/arkane-connect",
   "version": "0.1.1",
   "private": true,
-  "scripts": {
-    "compile-signer": "tsc ./public/**/*.ts",
-    "start": "http-serve -p 8081 -a localhost -c-1"
-  },
   "dependencies": {
     "es6-promise": "^4.2.5",
     "jquery": "^3.3.1",

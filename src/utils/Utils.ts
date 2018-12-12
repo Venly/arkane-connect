@@ -17,7 +17,6 @@ export default class Utils {
                 break;
             default:
                 env.CONNECT_JS_REALM_PUBLIC_KEY = env.CONNECT_JS_REALM_PUBLIC_KEY_PROD;
-
         }
         return env;
     }
@@ -73,7 +72,7 @@ export default class Utils {
     public static messages() {
         return {
             hasValidOrigin: (message: MessageEvent) => {
-                return message.origin === Utils.urls.connectJS;
+                return message.origin === Utils.urls.connectWeb;
             },
             hasType: (message: MessageEvent) => {
                 return message.data && message.data.type && message.data.type !== '';

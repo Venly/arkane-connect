@@ -5,7 +5,6 @@ import { Wallet }                            from '../../models/wallet/Wallet';
 import Utils                                 from '../../utils/Utils';
 import Security, { LoginResult }             from '../../connect/Security';
 import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
-import * as QueryString                      from 'querystring';
 import Api                                   from '../../api';
 import Signer, { SignMethod }                from '../../signer';
 

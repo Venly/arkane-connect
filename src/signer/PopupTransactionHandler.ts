@@ -6,8 +6,6 @@ import Utils                         from '../utils/Utils';
 
 export class PopupTransactionHandler implements TransactionHandler {
 
-    private static URL = `${Utils.urls.connectJS}/transaction/init`;
-
     private popup?: Popup;
     private bearerTokenProvider: () => string;
 
@@ -19,7 +17,7 @@ export class PopupTransactionHandler implements TransactionHandler {
         if (this.popup) {
             this.closePopup();
         }
-        this.popup = new Popup(PopupTransactionHandler.URL, this.bearerTokenProvider);
+        this.popup = new Popup(`${Utils.urls.connectWeb}/popup/transaction/init.html`, this.bearerTokenProvider);
     }
 
     public closePopup() {
@@ -138,7 +136,7 @@ class Popup {
             if (this.popup) {
                 this.popup.postMessage(
                     {type: EVENT_TYPES.SEND_TRANSACTION_DATA, params: {action, transactionRequest, bearerToken: this.bearerTokenProvider()}},
-                    Utils.urls.connectJS
+                    Utils.urls.connectWeb
                 );
             }
         };
