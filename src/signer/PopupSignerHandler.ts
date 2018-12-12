@@ -8,6 +8,7 @@ export class PopupSignerHandler implements SignerHandler {
 
     private popup?: Popup;
     private bearerTokenProvider: () => string;
+    private beforeUnloadHandler?: () => void;
 
     constructor(bearerTokenProvider: () => string) {
         this.bearerTokenProvider = bearerTokenProvider;
@@ -16,6 +17,10 @@ export class PopupSignerHandler implements SignerHandler {
     public openPopup() {
         if (this.popup) {
             this.closePopup();
+        }
+        if (!this.beforeUnloadHandler) {
+            this.beforeUnloadHandler = () => { this.closePopup(); };
+            window.addEventListener('beforeunload', this.beforeUnloadHandler);
         }
         this.popup = new Popup(`${Utils.urls.connect}/popup/transaction/init.html`, this.bearerTokenProvider);
     }
