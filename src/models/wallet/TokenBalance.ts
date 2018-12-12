@@ -1,4 +1,4 @@
-export default class TokenBalance {
+export class TokenBalance {
     public tokenAddress!: string;
     public rawBalance!: string;
     public balance!: number;

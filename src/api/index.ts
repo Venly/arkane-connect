@@ -6,10 +6,10 @@ import { Profile }                                                              
 import { GenericTransactionRequest }                                                         from '../models/transaction/GenericTransactionRequest';
 import { TransactionRequest }                                                                from '../models/transaction/TransactionRequest';
 import { WalletBalance }                                                                     from '../models/wallet/WalletBalance';
-import TokenBalance                                                                          from '../models/wallet/TokenBalance';
+import { TokenBalance }                                                                      from '../models/wallet/TokenBalance';
 import { TransactionResult }                                                                 from '../models/transaction/TransactionResult';
 
-export default class Api {
+export class Api {
 
     private http: AxiosInstance;
 

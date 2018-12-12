@@ -6,7 +6,7 @@ export interface VechainTransactionRequestClause {
     amount: number;
 }
 
-export default class VechainTransactionRequest extends TransactionRequest {
+export class VechainTransactionRequest extends TransactionRequest {
     public pincode!: string;
     public submit: boolean = false;
     public blockRef?: string;

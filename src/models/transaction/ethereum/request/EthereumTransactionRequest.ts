@@ -1,6 +1,6 @@
 import {TransactionRequest} from '../../TransactionRequest';
 
-export default class EthereumTransactionRequest extends TransactionRequest {
+export class EthereumTransactionRequest extends TransactionRequest {
     public pincode!: string;
     public submit: boolean = false;
     public gasPrice?: number;

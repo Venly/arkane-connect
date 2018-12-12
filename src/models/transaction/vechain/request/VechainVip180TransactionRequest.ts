@@ -6,7 +6,7 @@ export interface VechainVip180TransactionClause {
     tokenAddress: string;
 }
 
-export default class VechainVip180TransactionRequest extends TransactionRequest {
+export class VechainVip180TransactionRequest extends TransactionRequest {
     public pincode!: string;
     public submit: boolean = false;
     public blockRef?: string;

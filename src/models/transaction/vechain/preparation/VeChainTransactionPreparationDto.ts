@@ -1,4 +1,4 @@
-import GasPriceCoefDto from './GasPriceCoefDto';
+import { GasPriceCoefDto } from './GasPriceCoefDto';
 
 export default class VeChainTransactionPreparationDto {
     public gasPriceCoefficients!: GasPriceCoefDto[];

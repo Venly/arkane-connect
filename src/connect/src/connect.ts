@@ -5,8 +5,8 @@ import { Wallet }                            from '../../models/wallet/Wallet';
 import Utils                                 from '../../utils/Utils';
 import Security, { LoginResult }             from '../../connect/Security';
 import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
-import Api                                   from '../../api';
-import Signer, { SignMethod }                from '../../signer';
+import { Api }                               from '../../api';
+import { Signer, SignMethod }                from '../../signer';
 
 export class ArkaneConnect {
 

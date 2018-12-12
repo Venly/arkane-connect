@@ -3,7 +3,7 @@ import { SignerHandler, SignerHandlerResolver } from './SignerHandler';
 import { PopupSignerHandler }                   from '../signer/PopupSignerHandler';
 
 
-export default class Signer {
+export class Signer {
 
     private bearerTokenProvider: () => string;
     private signUsing: SignMethod;
