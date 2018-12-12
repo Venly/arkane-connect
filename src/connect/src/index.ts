@@ -1,2 +1,2 @@
 export {ArkaneConnect} from './connect';
-export {default, SignMethod} from '../../signer';
+export {default, SignMethod, SignerResult} from '../../signer';

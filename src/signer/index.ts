@@ -1,37 +1,35 @@
-import ResponseBody                                       from '../api/ResponseBody';
-import { GenericTransactionRequest }                      from '../models/transaction/GenericTransactionRequest';
-import { TransactionHandler, TransactionHandlerResolver } from './TransactionHandler';
-import { PopupTransactionHandler }                        from '../signer/PopupTransactionHandler';
+import { GenericTransactionRequest }            from '../models/transaction/GenericTransactionRequest';
+import { SignerHandler, SignerHandlerResolver } from './SignerHandler';
+import { PopupSignerHandler }                   from '../signer/PopupSignerHandler';
 
 
 export default class Signer {
 
-
     private bearerTokenProvider: () => string;
     private signUsing: SignMethod;
-    private transactionHandler: TransactionHandler;
+    private signerHandler: SignerHandler;
 
     constructor(bearerTokenProvider: () => string, options?: { signUsing?: SignMethod }) {
         this.bearerTokenProvider = bearerTokenProvider;
-        this.transactionHandler = TransactionHandlerResolver.createTransactionHandlerFor((options && options.signUsing) || SignMethod.POPUP, bearerTokenProvider);
+        this.signerHandler = SignerHandlerResolver.createSignerHandlerFor((options && options.signUsing) || SignMethod.POPUP, bearerTokenProvider);
         this.signUsing = (options && options.signUsing) || SignMethod.POPUP;
     }
 
-    public async executeTransaction(transactionRequest: GenericTransactionRequest, options?: any): Promise<ResponseBody> {
-        return this.transactionHandler.executeTransaction(transactionRequest, options);
+    public async executeTransaction(transactionRequest: GenericTransactionRequest, options?: any): Promise<SignerResult> {
+        return this.signerHandler.executeTransaction(transactionRequest, options);
     }
 
-    public async executeNativeTransaction(transactionRequest: any, options?: any): Promise<ResponseBody> {
-        return this.transactionHandler.executeNativeTransaction(transactionRequest, options);
+    public async executeNativeTransaction(transactionRequest: any, options?: any): Promise<SignerResult> {
+        return this.signerHandler.executeNativeTransaction(transactionRequest, options);
     }
 
-    public async signTransaction(transactionRequest: any, options?: any): Promise<ResponseBody> {
-        return this.transactionHandler.signTransaction(transactionRequest, options);
+    public async signTransaction(transactionRequest: any, options?: any): Promise<SignerResult> {
+        return this.signerHandler.signTransaction(transactionRequest, options);
     }
 
     public openPopup() {
-        if (this.isPopupTransactionHandler(this.transactionHandler)) {
-            this.transactionHandler.openPopup();
+        if (this.isPopupSignerHandler(this.signerHandler)) {
+            this.signerHandler.openPopup();
         } else {
             throw new Error(
                 'The signer is configured to be opened via a redirect. To open the signer in a popup, pass {signUsing: \'POPUP\'} as option when calling the ArkaneConnect constructor');
@@ -39,20 +37,27 @@ export default class Signer {
     }
 
     public closePopup() {
-        if (this.isPopupTransactionHandler(this.transactionHandler)) {
-            this.transactionHandler.closePopup();
+        if (this.isPopupSignerHandler(this.signerHandler)) {
+            this.signerHandler.closePopup();
         } else {
             throw new Error(
                 'The signer is configured to be opened via a redirect. To open the signer in a popup, pass {signUsing: \'POPUP\'} as option when calling the ArkaneConnect constructor');
         }
     }
 
-    private isPopupTransactionHandler(transactionHandler: TransactionHandler): transactionHandler is PopupTransactionHandler {
-        return (<PopupTransactionHandler>this.transactionHandler).openPopup !== undefined && (<PopupTransactionHandler>this.transactionHandler).closePopup !== undefined;
+    private isPopupSignerHandler(signerHandler: SignerHandler): signerHandler is PopupSignerHandler {
+        return (<PopupSignerHandler>this.signerHandler).openPopup !== undefined && (<PopupSignerHandler>this.signerHandler).closePopup !== undefined;
     }
 }
 
 export enum SignMethod {
     POPUP = 'POPUP',
     REDIRECT = 'REDIRECT',
+}
+
+
+export interface SignerResult {
+    status: 'SUCCESS' | 'ABORTED',
+    result?: any,
+    errors?: []
 }

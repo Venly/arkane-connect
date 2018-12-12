@@ -1,10 +1,10 @@
-import { TransactionHandler }        from './TransactionHandler';
-import ResponseBody                  from '../api/ResponseBody';
+import { SignerHandler }             from './SignerHandler';
 import { GenericTransactionRequest } from '../models/transaction/GenericTransactionRequest';
 import { EVENT_TYPES }               from '../types/EventTypes';
 import Utils                         from '../utils/Utils';
+import { SignerResult }              from '../signer/index';
 
-export class PopupTransactionHandler implements TransactionHandler {
+export class PopupSignerHandler implements SignerHandler {
 
     private popup?: Popup;
     private bearerTokenProvider: () => string;
@@ -27,19 +27,19 @@ export class PopupTransactionHandler implements TransactionHandler {
         }
     }
 
-    public async signTransaction(transactionRequest: any): Promise<ResponseBody> {
+    public async signTransaction(transactionRequest: any): Promise<SignerResult> {
         return this.handleTransaction('sign', transactionRequest);
     }
 
-    public async executeNativeTransaction(transactionRequest: any): Promise<ResponseBody> {
+    public async executeNativeTransaction(transactionRequest: any): Promise<SignerResult> {
         return this.handleTransaction('execute', transactionRequest);
     }
 
-    public async executeTransaction(transactionRequest: GenericTransactionRequest): Promise<ResponseBody> {
+    public async executeTransaction(transactionRequest: GenericTransactionRequest): Promise<SignerResult> {
         return this.handleTransaction('execute', transactionRequest);
     }
 
-    private async handleTransaction(action: string, transactionRequest: any): Promise<ResponseBody> {
+    private async handleTransaction(action: string, transactionRequest: any): Promise<SignerResult> {
         if (!this.popup) {
             console.error('\'openPopup()\' should be called first (if triggered by an event, do this on the first line of your event handler)!');
             return Promise.reject('\'openPopup()\' should be called first (if triggered by an event, do this on the first line of your event handler)!');
@@ -97,12 +97,12 @@ class Popup {
         this.popup.focus();
     }
 
-    public sendTransactionData(action: string, transactionRequest: any): Promise<ResponseBody> {
+    public sendTransactionData(action: string, transactionRequest: any): Promise<SignerResult> {
         return new Promise((resolve, reject) => {
             this.onPopupMountedQueue.push(this.attachTransactionFinishedListener(resolve, reject));
             this.onPopupMountedQueue.push(this.sendTransactionRequest(action, transactionRequest));
             this.processPopupMountedQueue();
-        }) as Promise<ResponseBody>;
+        }) as Promise<{ status: 'SUCCESS' | 'ABORTED', result?: any, errors?: [] }>;
     }
 
     private createPopupMountedListener(correlationID: string) {
@@ -145,21 +145,14 @@ class Popup {
     private createTransactionFinishedListener(resolve: any, reject: any) {
         return (message: MessageEvent) => {
             if (Utils.messages().hasValidOrigin(message)
-                && Utils.messages().hasCorrectCorrelationID(message, this.correlationID)
-                && Utils.messages().isOfType(message, EVENT_TYPES.SIGNER_FINISHED)) {
-                // TODO 'close' callback
-                // this.popup.close();
+                && Utils.messages().isOfType(message, EVENT_TYPES.SIGNER_FINISHED)
+                && Utils.messages().hasCorrectCorrelationID(message, this.correlationID)) {
                 switch (message.data.result.status) {
                     case 'SUCCESS':
                         resolve(message.data && {...message.data.result});
                         break;
                     case 'ABORTED':
-                        reject({
-                            canceledByUser: true,
-                            success: false,
-                            errors: ['Popup closed'],
-                            result: {},
-                        });
+                        reject(message.data && {...message.data.result});
                         break;
                 }
             }
