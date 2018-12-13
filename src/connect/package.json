@@ -1,6 +1,6 @@
 {
   "name": "@arkane-network/arkane-connect",
-  "version": "1.0.0-develop.18",
+  "version": "1.0.0-develop.19",
   "description": "Arkane Connect - api library for 3th parties",
   "main": "dist/src/connect/src/index.js",
   "types": "dist/src/connect/src/index.d.ts",
@@ -30,7 +30,8 @@
     "axios": "^0.18.0",
     "es6-promise": "^4.2.5",
     "jsrsasign": "^8.0.12",
-    "keycloak-js": "^4.7.0",
+    "//": "keycloak-js needs to match the exact version of the Keycloak server",
+    "keycloak-js": "4.3.0",
     "querystring": "^0.2.0"
   },
   "devDependencies": {

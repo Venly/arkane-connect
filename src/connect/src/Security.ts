@@ -1,9 +1,8 @@
 import { KeycloakInitOptions, KeycloakInstance } from 'keycloak-js';
+import Utils                                     from '../../utils/Utils';
+import * as KJUR                                 from 'jsrsasign';
 
-import * as KJUR from 'jsrsasign';
-import Utils     from '../utils/Utils';
-
-export default class Security {
+export class Security {
     public static isLoggedIn = false;
     public static onTokenUpdate: (token: string) => void;
 
@@ -11,11 +10,8 @@ export default class Security {
         return {
             'clientId': clientId || Utils.env.CONNECT_JS_CLIENT_ID,
             'realm': Utils.env.CONNECT_JS_REALM,
-            'realm-public-key': Utils.env.CONNECT_JS_REALM_PUBLIC_KEY,
             'url': Utils.urls.login,
-            'auth-server-url': Utils.urls.login,
             'ssl-required': Utils.env.CONNECT_JS_SSL_REQUIRED,
-            'resource': clientId,
             'public-client': Utils.env.CONNECT_JS_PUBLIC_CLIENT,
         };
     }
@@ -83,7 +79,7 @@ export default class Security {
                 new Promise((resolve, reject) => {
                     if (Security.keycloak) {
                         Security.keycloak.updateToken(70).success((refreshed: any) => {
-                            Security.authenticated(Security.keycloak.token);
+                            Security.authenticated();
                             resolve(refreshed);
                         });
                     } else {
@@ -91,7 +87,7 @@ export default class Security {
                     }
                 }).then((refreshed: any) => {
                     if (refreshed) {
-                        Security.authenticated(Security.keycloak.token);
+                        Security.authenticated();
                         if (Security.onTokenUpdate && Security.keycloak.token) {
                             Security.onTokenUpdate(Security.keycloak.token);
                         }
@@ -123,7 +119,7 @@ export default class Security {
             Security.keycloak.init(initOptions)
                     .success((authenticated: any) => {
                         if (authenticated) {
-                            Security.authenticated(Security.keycloak.token);
+                            Security.authenticated();
                             Security.setUpdateTokenInterval();
                         } else {
                             Security.notAuthenticated();
@@ -140,7 +136,7 @@ export default class Security {
         }) as Promise<LoginResult>;
     }
 
-    private static authenticated(token: string = '') {
+    private static authenticated() {
         Security.isLoggedIn = true;
     }
 
