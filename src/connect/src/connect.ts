@@ -1,30 +1,29 @@
 /* tslint:disable */
 /// <reference path="./typings.d.ts" />
 /* tslint:enable */
-import {AxiosResponse} from 'axios';
-import RestApi, {RestApiResponse} from '../../api/RestApi';
-import {Wallet} from '../../models/Wallet';
-import Utils from '../../utils/Utils';
-import {Profile} from '../../models/Profile';
-import Security, {LoginResult} from '../../Security';
-import {KeycloakInstance, KeycloakPromise} from 'keycloak-js';
-import {SimpleTransactionRequest} from '../../api/model/SimpleTransactionRequest';
-import {Signer} from './signer';
+import { Wallet }                            from '../../models/wallet/Wallet';
+import Utils                                 from '../../utils/Utils';
+import Security, { LoginResult }             from '../../connect/Security';
+import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
+import { Api }                               from '../../api';
+import { Signer, SignerFactory, SignMethod } from '../../signer';
+import { PopupSigner }                       from '../../signer/PopupSigner';
 
 export class ArkaneConnect {
 
-    private api!: RestApi;
+    public api!: Api;
+
     private clientId: string;
     private chains: string[];
+    private signUsing: SignMethod;
     private bearerTokenProvider: any;
-
     private auth!: KeycloakInstance;
 
     constructor(clientId: string, options?: ConstructorOptions) {
         this.clientId = clientId;
         this.chains = (options && options.chains || []).map((chain: string) => chain.toLowerCase());
+        this.signUsing = (options && options.signUsing) || SignMethod.POPUP;
         Utils.environment = options && options.environment || 'prod';
-        this.addBeforeUnloadListener();
     }
 
     public checkAuthenticated(options?: AuthenticationOptions): Promise<AuthenticationResult> {
@@ -55,9 +54,9 @@ export class ArkaneConnect {
         }
 
         if (this.bearerTokenProvider) {
-            this.api = new RestApi(Utils.urls.api, this.bearerTokenProvider);
+            this.api = new Api(Utils.urls.api, this.bearerTokenProvider);
             if (this.chains && this.chains.length > 0) {
-                const wallets = await this.getWallets();
+                const wallets = await this.api.getWallets();
                 const mandatoryWallets = wallets && wallets.length > 0 && this.filterOnMandatoryWallets(wallets);
                 if (!(mandatoryWallets && mandatoryWallets.length > 0)) {
                     this.manageWallets();
@@ -66,59 +65,25 @@ export class ArkaneConnect {
         }
     }
 
-    public manageWallets() {
-        const currentLocation = window.location;
-        const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
-        window.location.href =
-            `${Utils.urls.connect}/wallets/manage/${this.chains[0]}?bearerToken=${this.bearerTokenProvider()}&redirectUri=${redirectUri}` +
-            `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
+    public manageWallets(options?: { redirectUri?: string, correlationID?: string }) {
+        Utils.http().postInForm(
+            `${Utils.urls.connect}/wallets/manage${Utils.environment ? '?environment=' + Utils.environment : ''}`,
+            {chain: this.chains[0]},
+            this.bearerTokenProvider,
+            options
+        );
     }
 
-    public linkWallets() {
-        const currentLocation = window.location;
-        const redirectUri = encodeURIComponent(currentLocation.origin + currentLocation.pathname + currentLocation.search);
-        window.location.href =
-            `${Utils.urls.connect}/wallets/manage/linkwallets?bearerToken=${this.bearerTokenProvider()}&redirectUri=${redirectUri}` +
-            `${Utils.environment ? '&environment=' + Utils.environment : ''}`;
+    public linkWallets(options?: { redirectUri?: string, correlationID?: string }) {
+        Utils.http().postInForm(`${Utils.urls.connect}/wallets/link${Utils.environment ? '?environment=' + Utils.environment : ''}`, {}, this.bearerTokenProvider, options);
     }
 
-    public async getWallets(): Promise<Wallet[]> {
-        const response: AxiosResponse<RestApiResponse<Wallet[]>> = await this.api.http.get('wallets');
-        if (response && response.data && response.data.success) {
-            return response.data.result;
-        } else {
-            return [];
-        }
+    public createSigner(signUsing?: SignMethod): Signer {
+        return SignerFactory.createSignerFor(signUsing || this.signUsing, this.bearerTokenProvider);
     }
 
-    public async getProfile(): Promise<Profile> {
-        const response: AxiosResponse<RestApiResponse<Profile>> = await this.api.http.get('profile');
-        if (response && response.data && response.data.success) {
-            return response.data.result;
-        } else {
-            return new Profile();
-        }
-    }
-
-    public async buildTransactionRequest(simpleTransactionRequest: SimpleTransactionRequest): Promise<any> {
-        const response: AxiosResponse<RestApiResponse<any>> = await this.api.http.post('transactions/build', simpleTransactionRequest);
-        if (response && response.data && response.data.success) {
-            return response.data.result;
-        }
-    }
-
-    public createSigner(): Signer {
-        return Signer.createSigner(this.bearerTokenProvider);
-    }
-
-    public destroySigner(): void {
-        Signer.destroySigner();
-    }
-
-    private addBeforeUnloadListener(): void {
-        window.addEventListener('beforeunload', () => {
-            this.destroySigner();
-        });
+    public isPopupSigner(signer: Signer): signer is PopupSigner {
+        return (<PopupSigner>signer).closePopup !== undefined;
     }
 
     private filterOnMandatoryWallets(wallets: Wallet[]): Wallet[] {
@@ -131,6 +96,7 @@ export class ArkaneConnect {
 
     private async afterAuthentication(loginResult: LoginResult): Promise<AuthenticationResult> {
         this.auth = loginResult.keycloak;
+        console.log(loginResult);
         if (loginResult.authenticated) {
             await this.init();
         }
@@ -160,6 +126,7 @@ export interface AuthenticationResult {
 export interface ConstructorOptions {
     chains?: string[];
     environment?: string;
+    signUsing?: SignMethod;
 }
 
 export interface AuthenticationOptions {

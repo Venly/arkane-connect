@@ -1,42 +1,22 @@
-import ENV from '../../vue.env';
-import {Wallet} from '../models/Wallet';
-import {EVENT_TYPES} from '../types/EventTypes';
-import {SecretType} from '../models/SecretType';
-import {Chain} from '../models/Chain';
+import ENV              from '../../env';
+import { EVENT_TYPES }  from '../types/EventTypes';
+import * as QueryString from "querystring";
 
 export default class Utils {
     public static environment: string = 'prod';
-
-    public static wallets = {
-        hasWalletsForChainType: (wallets: Wallet[], chain: Chain): boolean => {
-            return Utils.wallets.filterWalletsForChainType(wallets, chain).length > 0;
-        },
-        filterWalletsForChainType: (wallets: Wallet[], chain: Chain): Wallet[] => {
-            return Utils.wallets.filterWalletsForSecretType(wallets, chain.secretType);
-        },
-        hasWalletsForSecretType: (wallets: Wallet[], secretType: SecretType): boolean => {
-            return Utils.wallets.filterWalletsForSecretType(wallets, secretType).length > 0;
-        },
-        filterWalletsForSecretType: (wallets: Wallet[], secretType: SecretType): Wallet[] => {
-            return wallets.filter((wallet: Wallet) => {
-                return wallet.secretType === secretType;
-            });
-        },
-    };
 
     public static get env() {
         const env: any = ENV;
         switch (Utils.environment) {
             case 'local':
             case 'tst1':
-                env.VUE_APP_REALM_PUBLIC_KEY = env.VUE_APP_REALM_PUBLIC_KEY_TST1;
+                env.CONNECT_JS_REALM_PUBLIC_KEY = env.CONNECT_JS_REALM_PUBLIC_KEY_TST1;
                 break;
             case 'staging':
-                env.VUE_APP_REALM_PUBLIC_KEY = env.VUE_APP_REALM_PUBLIC_KEY_STAGING;
+                env.CONNECT_JS_REALM_PUBLIC_KEY = env.CONNECT_JS_REALM_PUBLIC_KEY_STAGING;
                 break;
             default:
-                env.VUE_APP_REALM_PUBLIC_KEY = env.VUE_APP_REALM_PUBLIC_KEY_PROD;
-
+                env.CONNECT_JS_REALM_PUBLIC_KEY = env.CONNECT_JS_REALM_PUBLIC_KEY_PROD;
         }
         return env;
     }
@@ -58,26 +38,9 @@ export default class Utils {
 
         return {
             api: `https://api${prefix}.arkane.network/api`,
-            connect: Utils.environment === 'local' ? 'http://localhost:8081' : `https://connect-js${prefix}.arkane.network`,
+            connect: Utils.environment === 'local' ? 'http://localhost:8181' : `https://connect${prefix}.arkane.network`,
             login: `https://login${prefix}.arkane.network/auth`,
         };
-    }
-
-    public static getOrigin(url: string) {
-        const parts: any = url.match(/^.+\:\/\/[^\‌​/]+/);
-        return (Array.isArray(parts) && parts.length > 0) ? parts[0] : 'unknown';
-    }
-
-    public static shuffleArray(array: any[]) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
-
-    public static caseInsensitiveStringCompare(string1: string, string2: string): number {
-        return (string1.toLocaleLowerCase()).localeCompare(string2.toLocaleLowerCase());
     }
 
     public static removeNulls(obj: any): any {
@@ -114,8 +77,11 @@ export default class Utils {
                 return message.data && message.data.type && message.data.type !== '';
             },
             isOfType: (message: MessageEvent, eventType: EVENT_TYPES) => {
-                return Utils.messages().hasType(message) && message.data.type === eventType;
+                return Utils.messages().hasType(message) && message.data.type === eventType.toString();
             },
+            hasCorrectCorrelationID(message: MessageEvent, correlationID: string) {
+                return message.data && message.data.correlationID === correlationID;
+            }
         };
     }
 
@@ -156,5 +122,54 @@ export default class Utils {
 
     public static zeroIfUndefined(numberToVerify?: number): number {
         return numberToVerify ? numberToVerify : 0;
+    }
+
+    public static http() {
+        return {
+            postInForm: (to: string, data: any, bearerTokenProvider: () => string, options?: { redirectUri?: string, correlationID?: string }): void => {
+                const form = document.createElement('form');
+                form.action = Utils.http().buildUrl(to, options);
+                form.method = 'POST';
+
+                const inputBearer = document.createElement('input');
+                inputBearer.type = 'hidden';
+                inputBearer.name = 'bearerToken';
+                inputBearer.value = bearerTokenProvider();
+                form.appendChild(inputBearer);
+
+                const inputData = document.createElement('input');
+                inputData.type = 'hidden';
+                inputData.name = 'data';
+                inputData.value = JSON.stringify({...data});
+                form.appendChild(inputData);
+
+                document.body.appendChild(form);
+                form.submit();
+            },
+            buildUrl: (to: string, options ?: { redirectUri?: string; correlationID?: string }): string => {
+                if (options) {
+                    const params: { [key: string]: string } = {};
+                    if (options.redirectUri) {
+                        params.redirectUri = options.redirectUri;
+                    }
+                    if (options.correlationID) {
+                        params.cid = options.correlationID;
+                    }
+                    return Utils.http().addRequestParams(to, params);
+                }
+                return to;
+            },
+            addRequestParams: (url: string, params: { [key: string]: string }): string => {
+                if (url && params) {
+                    const paramsAsString = QueryString.stringify(params);
+                    if (url && url.indexOf('?') > 0) {
+                        return `${url}&${paramsAsString}`;
+                    } else {
+                        return `${url}?${paramsAsString}`;
+                    }
+                }
+                return url;
+            }
+        };
     }
 }

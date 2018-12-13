@@ -1,198 +1,115 @@
-// this is aliased in webpack config based on server/client build
-import {AxiosResponse} from 'axios';
-import RestApi, {RestApiResponse} from './RestApi';
-import ResponseBody from './ResponseBody';
-import Utils from '../utils/Utils';
-import {Wallet} from '../models/Wallet';
-import {CreateWalletCommand, ImportKeystoreCommand, ImportPrivateKeyCommand, LinkWalletCommand} from '../models/Commands';
-import {Profile} from '../models/Profile';
-import {WalletBalance} from '../models/WalletBalance';
-import {SecretType} from '../models/SecretType';
-import {IntercomVerification} from '../models/IntercomVerification';
-import TokenBalance from '../models/TokenBalance';
+import axios, { AxiosError, AxiosInstance, AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios';
+import Utils                                                                                 from '../utils/Utils';
+import { SecretType }                                                                        from '../models/SecretType';
+import { Wallet }                                                                            from '../models/wallet/Wallet';
+import { Profile }                                                                           from '../models/profile/Profile';
+import { GenericTransactionRequest }                                                         from '../models/transaction/GenericTransactionRequest';
+import { TransactionRequest }                                                                from '../models/transaction/TransactionRequest';
+import { WalletBalance }                                                                     from '../models/wallet/WalletBalance';
+import { TokenBalance }                                                                      from '../models/wallet/TokenBalance';
+import { TransactionResult }                                                                 from '../models/transaction/TransactionResult';
 
-export default class Api {
-    public static token: string = '';
+export class Api {
 
-    public static signTransaction(data: any, pincode: string): Promise<ResponseBody> {
-        return Api.handleTransaction('signatures', data, pincode);
+    private http: AxiosInstance;
+
+    constructor(baseURL: string, tokenProvider?: any) {
+        this.http = axios.create({
+            baseURL: baseURL.endsWith('/') ? baseURL.substring(0, baseURL.length - 1) : baseURL,
+        });
+
+        if (tokenProvider) {
+            this.http.interceptors.request.use((config: AxiosRequestConfig): AxiosRequestConfig => {
+                config.headers.common = {Authorization: 'Bearer ' + tokenProvider()};
+                return config;
+            });
+        }
     }
 
-    public static executeTransaction(data: any, pincode: string): Promise<ResponseBody> {
-        return Api.handleTransaction('transactions', data, pincode);
-    }
 
-    public static prepareSignTransaction(data: any): Promise<any> {
-        return Api.prepareTransaction('signatures', data);
-    }
-
-    public static prepareExecuteTransaction(data: any): Promise<any> {
-        return Api.prepareTransaction('transactions', data);
-    }
-
-    public static getWallets(filter?: { secretType?: SecretType, clientId?: string }): Promise<Wallet[]> {
+    ////////////
+    // Wallet //
+    ////////////
+    public getWallets = (filter?: { secretType?: SecretType }): Promise<Wallet[]> => {
         filter = (filter && Utils.removeNulls(filter)) || {};
-        return Api.getApi().http
-                  .get('wallets', {params: filter})
-                  .then((result: any) => {
-                      return result.data && result.data.success ? result.data.result : [];
-                  })
-                  .catch(() => {
-                      return [];
-                  });
+        return this.processResponse<Wallet[]>(this.http.get('wallets', {params: filter}));
+    };
+
+    public getWallet = (walletId: string): Promise<Wallet> => {
+        return this.processResponse<Wallet>(this.http.get(`wallets/${walletId}`));
+    };
+
+    public getBalance = (walletId: string): Promise<WalletBalance> => {
+        return this.processResponse<WalletBalance>(this.http.get(`wallets/${walletId}/balance`));
+    };
+
+    public getTokenBalances = (walletId: string): Promise<TokenBalance[]> => {
+        return this.processResponse<TokenBalance[]>(this.http.get(`wallets/${walletId}/balance/tokens`));
+    };
+
+    public getTokenBalance = (walletId: string, tokenAddress: string): Promise<TokenBalance> => {
+        return this.processResponse<TokenBalance>(this.http.get(`wallets/${walletId}/balance/tokens/${tokenAddress}`));
+    };
+
+
+    /////////////////
+    // Transaction //
+    /////////////////
+    public signTransaction = (transactionRequest: TransactionRequest): Promise<TransactionResult> => {
+        return this.processResponse<TransactionResult>(this.http.post('signatures', transactionRequest));
+    };
+
+    public prepareSignature = (transactionRequest: TransactionRequest): Promise<any> => {
+        return this.processResponse<any>(this.http.post('signatures/prepare', transactionRequest));
+    };
+
+    public executeTransaction = (transactionRequest: TransactionRequest): Promise<TransactionResult> => {
+        return this.processResponse<TransactionResult>(this.http.post('transactions', transactionRequest));
+    };
+
+    public buildTransactionRequest = (genericTransactionRequest: GenericTransactionRequest): Promise<TransactionRequest> => {
+        return this.processResponse<TransactionRequest>(this.http.post('transactions/build', genericTransactionRequest))
+    };
+
+    public prepareTransaction = (transactionRequest: TransactionRequest): Promise<any> => {
+        return this.processResponse<any>(this.http.post('transactions/prepare', transactionRequest));
+    };
+
+
+    /////////////
+    // Profile //
+    /////////////
+    public getProfile = (): Promise<Profile> => {
+        return this.processResponse<Profile>(this.http.get('profile'));
+    };
+
+    private processResponse<T>(axiosPromise: AxiosPromise<T>): Promise<T> {
+        return new Promise<T>((resolve: any, reject: any) => {
+            axiosPromise.then((axiosRes: AxiosResponse) => {
+                            if (axiosRes.data.success) {
+                                resolve(axiosRes.data.result);
+                            } else {
+                                reject(axiosRes.data.errors)
+                            }
+                        })
+                        .catch((error: AxiosError) => {
+                            if (error.response && error.response.data) {
+                                reject(error.response.data.errors);
+                            } else {
+                                reject([{code: 'unknown.error', message: 'An unknown error occured'}]);
+                            }
+                        });
+        });
     }
+}
 
-    public static getWallet(walletId: string): Promise<Wallet> {
-        return Api.getApi().http
-                  .get(`wallets/${walletId}`)
-                  .then((result: any) => {
-                      return result.data && result.data.success ? result.data.result : {};
-                  });
-    }
+export interface RestApiResponseError {
+    code: string;
+    message: string;
+}
 
-    public static getWalletBySecretTypeAndAddress(secretType: SecretType, walletAddress: string): Promise<Wallet[]> {
-        return Api.getApi().http
-                  .get(`wallets?address=${encodeURIComponent(walletAddress)}&secretType=${encodeURIComponent(secretType)}`)
-                  .then((result: any) => {
-                      return result.data && result.data.success ? result.data.result : {};
-                  });
-    }
-
-    public static getBalance(walletId: string): Promise<WalletBalance> {
-        return Api.getApi().http
-                  .get(`wallets/${walletId}/balance`)
-                  .then((result: any) => {
-                      return result.data && result.data.success ? result.data.result : [];
-                  })
-                  .catch(() => {
-                      return {
-                          success: false,
-                          result: {},
-                      };
-                  });
-    }
-
-    public static getProfile(): Promise<Profile> {
-        return Api.getApi().http
-                  .get('profile')
-                  .then((result: any) => {
-                      return result.data && result.data.success ? result.data.result : new Profile();
-                  })
-                  .catch(() => {
-                      return new Profile();
-                  });
-    }
-
-    public static async setMasterPin(newPin: string, oldPin?: string): Promise<boolean> {
-        return Api.getApi().http
-                  .patch('profile', Utils.removeNulls({pincode: oldPin, newPincode: newPin}))
-                  .then((res: AxiosResponse<RestApiResponse<any>>) => {
-                      return res && res.data && res.data.success;
-                  });
-    }
-
-    public static createWallet(command: CreateWalletCommand): Promise<RestApiResponse<Wallet>> {
-        return Api.getApi().http
-                  .post('wallets', command)
-                  .then((res: AxiosResponse<RestApiResponse<Wallet>>) => {
-                          return res.data;
-                      },
-                  );
-    }
-
-    public static async linkWallet(command: LinkWalletCommand, override: boolean = false): Promise<ResponseBody> {
-        return Api.getApi().http
-                  .post(`wallets/link?override=${override}`, Utils.removeNulls(command))
-                  .then((axiosRes: AxiosResponse) => {
-                      return {
-                          success: true,
-                          result: {},
-                      };
-                  })
-                  .catch((e: Error) => {
-                      return {
-                          success: false,
-                          result: {},
-                      };
-                  });
-    }
-
-    public static importPrivateKey(command: ImportPrivateKeyCommand): Promise<Wallet> {
-        return Api.getApi().http
-                  .post(`wallets/import`, command)
-                  .then((res: AxiosResponse<RestApiResponse<Wallet>>) => {
-                      return Object.assign(new Wallet(), res.data.result);
-                  });
-    }
-
-    public static importKeystore(command: ImportKeystoreCommand): Promise<Wallet> {
-        return Api.getApi().http
-                  .post(`wallets/import`, command)
-                  .then((res: AxiosResponse<RestApiResponse<Wallet>>) => {
-                      return Object.assign(new Wallet(), res.data.result);
-                  });
-    }
-
-    public static async fetchIntercomVerification(): Promise<IntercomVerification> {
-        const response: AxiosResponse<RestApiResponse<IntercomVerification>> = await Api.getApi().http.get('profile/intercom/verification');
-        if (response.data && response.data.success) {
-            return response.data.result;
-        } else {
-            return {
-                hash: '',
-            } as IntercomVerification;
-        }
-    }
-
-    public static getTokenBalance(walletId: string, tokenAddress: string): Promise<RestApiResponse<TokenBalance>> {
-        return Api.getApi().http
-                  .get(`wallets/${walletId}/balance/tokens/${tokenAddress}`)
-                  .then((result: AxiosResponse<RestApiResponse<TokenBalance>>) => {
-                      return Object.assign({...result.data});
-                  });
-    }
-
-    private static instance: Api;
-
-    private static getInstance(): Api {
-        if (!Api.instance) {
-            Api.instance = new Api();
-        }
-
-        return Api.instance;
-    }
-
-    private static getApi(): RestApi {
-        return Api.getInstance().api;
-    }
-
-    private static handleTransaction(endpoint: string, data: any, pincode: string): Promise<ResponseBody> {
-        return Api.getApi().http
-                  .post(endpoint, Utils.removeNulls(Object.assign(data, {pincode})))
-                  .then((axiosRes: AxiosResponse) => {
-                      return axiosRes.data as ResponseBody;
-                  })
-                  .catch((error: AxiosResponse) => {
-                      if (error.data) {
-                          return Promise.reject(error.data);
-                      } else {
-                          return Promise.reject({success: false, errors: [{code: 'unknown.error', message: 'An unknown error occured'}]});
-                      }
-                  });
-    }
-
-    private static prepareTransaction(endpoint: string, data: any): Promise<any> {
-        return Api.getApi().http
-                  .post(`${endpoint}/prepare`, Utils.removeNullsAndEmpty(data))
-                  .then((res: AxiosResponse<RestApiResponse<any>>) => {
-                          return res && res.data && res.data.result;
-                      },
-                  );
-    }
-
-    private api: RestApi;
-
-    public constructor() {
-        this.api = new RestApi(Utils.urls.api, () => Api.token);
-    }
+export interface RestApiResponse<T> {
+    success: boolean;
+    errors: RestApiResponseError[];
+    result: T;
 }

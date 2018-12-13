@@ -5,7 +5,6 @@ module.exports = {
     output: {
         filename: 'connect.js',
         path: path.join(__dirname, '.'),
-        // path: path.join(__dirname, '../../example/node_modules/@arkane-network/arkane-connect'),
     },
     watch: false,
     module: {
