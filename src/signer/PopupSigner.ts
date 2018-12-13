@@ -33,17 +33,12 @@ export class PopupSigner implements Signer {
     }
 
     private async handleTransaction(action: string, transactionRequest: any): Promise<SignerResult> {
-        if (!this.popup) {
-            console.error('\'openPopup()\' should be called first (if triggered by an event, do this on the first line of your event handler)!');
-            return Promise.reject('\'openPopup()\' should be called first (if triggered by an event, do this on the first line of your event handler)!');
-        } else {
-            this.popup.focus();
-            return this.popup
-                       .sendTransactionData(action, transactionRequest)
-                       .finally(() => {
-                           this.closePopup()
-                       });
-        }
+        this.popup.focus();
+        return this.popup
+                   .sendTransactionData(action, transactionRequest)
+                   .finally(() => {
+                       this.closePopup()
+                   });
     }
 }
 
