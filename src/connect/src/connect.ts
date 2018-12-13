@@ -6,12 +6,11 @@ import Utils                                 from '../../utils/Utils';
 import Security, { LoginResult }             from '../../connect/Security';
 import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
 import { Api }                               from '../../api';
-import { Signer, SignMethod }                from '../../signer';
+import { Signer, SignerFactory, SignMethod } from '../../signer';
 
 export class ArkaneConnect {
 
     public api!: Api;
-    public signer!: Signer;
 
     private clientId: string;
     private chains: string[];
@@ -55,7 +54,6 @@ export class ArkaneConnect {
 
         if (this.bearerTokenProvider) {
             this.api = new Api(Utils.urls.api, this.bearerTokenProvider);
-            this.signer = new Signer(this.bearerTokenProvider, {signUsing: this.signUsing});
             if (this.chains && this.chains.length > 0) {
                 const wallets = await this.api.getWallets();
                 const mandatoryWallets = wallets && wallets.length > 0 && this.filterOnMandatoryWallets(wallets);
@@ -77,6 +75,10 @@ export class ArkaneConnect {
 
     public linkWallets(options?: { redirectUri?: string, correlationID?: string }) {
         Utils.http().postInForm(`${Utils.urls.connect}/wallets/link${Utils.environment ? '?environment=' + Utils.environment : ''}`, {}, this.bearerTokenProvider, options);
+    }
+
+    public createSigner(signUsing?: SignMethod): Signer {
+        return SignerFactory.createSignerFor(signUsing || this.signUsing, this.bearerTokenProvider);
     }
 
     private filterOnMandatoryWallets(wallets: Wallet[]): Wallet[] {

@@ -1,35 +1,23 @@
-import { SignerHandler }             from './SignerHandler';
 import { GenericTransactionRequest } from '../models/transaction/GenericTransactionRequest';
 import { EVENT_TYPES }               from '../types/EventTypes';
 import Utils                         from '../utils/Utils';
-import { SignerResult }              from '../signer/index';
+import { Signer, SignerResult }      from '../signer/index';
 
-export class PopupSignerHandler implements SignerHandler {
+export class PopupSigner implements Signer {
 
-    private popup?: Popup;
+    private popup: Popup;
     private bearerTokenProvider: () => string;
-    private beforeUnloadHandler?: () => void;
 
     constructor(bearerTokenProvider: () => string) {
         this.bearerTokenProvider = bearerTokenProvider;
-    }
-
-    public openPopup() {
-        if (this.popup) {
-            this.closePopup();
-        }
-        if (!this.beforeUnloadHandler) {
-            this.beforeUnloadHandler = () => { this.closePopup(); };
-            window.addEventListener('beforeunload', this.beforeUnloadHandler);
-        }
         this.popup = new Popup(`${Utils.urls.connect}/popup/transaction/init.html`, this.bearerTokenProvider);
+        window.addEventListener('beforeunload', () => {
+            this.closePopup();
+        });
     }
 
     public closePopup() {
-        if (this.popup) {
-            this.popup.close();
-            delete this.popup;
-        }
+        this.popup.close();
     }
 
     public async signTransaction(transactionRequest: any): Promise<SignerResult> {

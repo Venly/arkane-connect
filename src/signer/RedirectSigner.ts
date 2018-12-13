@@ -1,9 +1,8 @@
-import { SignerHandler }             from './SignerHandler';
 import { GenericTransactionRequest } from '../models/transaction/GenericTransactionRequest';
 import Utils                         from '../utils/Utils';
-import { SignerResult }              from '../signer/index';
+import { Signer, SignerResult }      from '../signer/index';
 
-export class RedirectSignerHandler implements SignerHandler {
+export class RedirectSigner implements Signer {
 
     private bearerTokenProvider: () => string;
 
