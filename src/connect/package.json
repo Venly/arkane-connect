@@ -30,7 +30,6 @@
     "axios": "^0.18.0",
     "es6-promise": "^4.2.5",
     "jsrsasign": "^8.0.12",
-    "//": "keycloak-js needs to match the exact version of the Keycloak server",
     "keycloak-js": "4.3.0",
     "querystring": "^0.2.0"
   },
