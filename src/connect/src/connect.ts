@@ -7,6 +7,7 @@ import Security, { LoginResult }             from '../../connect/Security';
 import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
 import { Api }                               from '../../api';
 import { Signer, SignerFactory, SignMethod } from '../../signer';
+import { PopupSigner }                       from '../../signer/PopupSigner';
 
 export class ArkaneConnect {
 
@@ -79,6 +80,10 @@ export class ArkaneConnect {
 
     public createSigner(signUsing?: SignMethod): Signer {
         return SignerFactory.createSignerFor(signUsing || this.signUsing, this.bearerTokenProvider);
+    }
+
+    public isPopupSigner(signer: Signer): signer is PopupSigner {
+        return (<PopupSigner>signer).closePopup !== undefined;
     }
 
     private filterOnMandatoryWallets(wallets: Wallet[]): Wallet[] {
