@@ -1,7 +1,6 @@
 /* tslint:disable */
 /// <reference path="./typings.d.ts" />
 /* tslint:enable */
-import { Wallet }                            from '../../models/wallet/Wallet';
 import Utils                                 from '../../utils/Utils';
 import { LoginResult, Security }             from './Security';
 import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
@@ -14,14 +13,12 @@ export class ArkaneConnect {
     public api!: Api;
 
     private clientId: string;
-    private chains: string[];
     private signUsing: SignMethod;
     private bearerTokenProvider: () => string;
     private auth!: KeycloakInstance;
 
     constructor(clientId: string, options?: ConstructorOptions) {
         this.clientId = clientId;
-        this.chains = (options && options.chains || []).map((chain: string) => chain.toLowerCase());
         this.signUsing = (options && options.signUsing) || SignMethod.POPUP;
         Utils.environment = options && options.environment || 'prod';
         this.bearerTokenProvider = options && options.bearerTokenProvider || (() => this.auth.token && this.auth.token || '');
@@ -50,17 +47,22 @@ export class ArkaneConnect {
         }
     }
 
-    public manageWallets(options?: { redirectUri?: string, correlationID?: string }) {
+    public manageWallets(chain: string, options: { redirectUri: string, correlationID?: string }) {
         Utils.http().postInForm(
             `${Utils.urls.connect}/wallets/manage${Utils.environment ? '?environment=' + Utils.environment : ''}`,
-            {chain: this.chains[0]},
+            {chain},
             this.bearerTokenProvider,
             options
         );
     }
 
-    public linkWallets(options?: { redirectUri?: string, correlationID?: string }) {
-        Utils.http().postInForm(`${Utils.urls.connect}/wallets/link${Utils.environment ? '?environment=' + Utils.environment : ''}`, {}, this.bearerTokenProvider, options);
+    public linkWallets(options: { redirectUri: string, correlationID?: string }) {
+        Utils.http().postInForm(
+            `${Utils.urls.connect}/wallets/link${Utils.environment ? '?environment=' + Utils.environment : ''}`,
+            {},
+            this.bearerTokenProvider,
+            options
+        );
     }
 
     public createSigner(signUsing?: SignMethod): Signer {
@@ -69,14 +71,6 @@ export class ArkaneConnect {
 
     public isPopupSigner(signer: Signer): signer is PopupSigner {
         return (<PopupSigner>signer).closePopup !== undefined;
-    }
-
-    private filterOnMandatoryWallets(wallets: Wallet[]): Wallet[] {
-        return wallets.filter(
-            (wallet: Wallet) => this.chains.find(
-                (chain: string) => (wallet.secretType as string).toLowerCase() === chain,
-            ) !== undefined,
-        );
     }
 
     private async afterAuthentication(loginResult: LoginResult): Promise<AuthenticationResult> {
