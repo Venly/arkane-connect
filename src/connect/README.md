@@ -1,22 +1,17 @@
 Arkane Connect
 ===
 
-# Changelog
-* the constructor now accepts an optional `options?: { chains?: string, environment?: string }` parameter instead of a separate `chains` and `environment` parameter.
-* `checkAuthenticated(...)` and `authenticate(...)` now accepts an optional `options?: { redirectUri?: string }` parameter instead of a separate `redirectUri` parameter.
-
-
 # Integrating Arkane Connect in your application
 
 To integrate Arkane Connect in your web application, first of all you will need to [create a new ArkaneConnect instance](#Constructor). Secondly you will need to provide the 
 instance with a way to authenticate. For this there are two options:
-1) You use the authentication provider backed into Arkane
+1) You use the authentication provider baked into Arkane
 2) You initialize Arkane Connect providing it with your own bearer token provider
 
 
 ## Constructor
 ```javascript
-new ArkaneConnect(clientID:string, options?: { chains?: string[], environment?: string });
+new Arkane.Connect(clientID:string, options?: { chains?: string[], environment?: string, signMethod?: Arkane.SignMethod});
 ```
 
 | Parameter | Required | Description | Example |
@@ -29,7 +24,8 @@ Allowed `options` are:
 | Option | Required | Description | Example |
 |-----------|----------|-------------|---------|
 | chains | false | An array containing the chains to which you want to restrict this application (for now, only one restricted chain is supported)| `['Ethereum', 'VeChain']`|
-| environment | false (default = `'prod'`) | The environment to which you want to connect, possible values are `'local'`, `'tst1'`, `'staging'`, `'prod'`. When omitted, `'prod'` will be used | `'local'` |
+| environment | false (default = `'prod'`) | The environment to which you want to connect, possible values are `'local'`, `'tst1'`, `'staging'`, `'prod'` | `'local'` |
+| signMethod | false (default = `SignMethod.POPUP`) | The sign method you to use, possible values are `SignMethod.POPUP` or `SignMethod.REDIRECT` | `SignMethod.REDIRECT` |
 
 e.g.
 ```javascript

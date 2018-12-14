@@ -1,3 +1,5 @@
+import { ArkaneConnect }                                                    from './connect';
+
 export { ArkaneConnect }                                                    from './connect';
 export { Signer, SignMethod, SignerResult }                                 from '../../signer';
 export { Api }                                                              from '../../api';
@@ -14,3 +16,6 @@ export { WalletBalance }                                                    from
 export { TokenBalance }                                                     from '../../models/wallet/TokenBalance';
 export { TransactionResult }                                                from '../../models/transaction/TransactionResult';
 
+if (typeof window !== 'undefined') {
+    (window as any).ArkaneConnect = ArkaneConnect;
+}   

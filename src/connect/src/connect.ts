@@ -16,7 +16,7 @@ export class ArkaneConnect {
     private clientId: string;
     private chains: string[];
     private signUsing: SignMethod;
-    private bearerTokenProvider: any;
+    private bearerTokenProvider: () => string;
     private auth!: KeycloakInstance;
 
     constructor(clientId: string, options?: ConstructorOptions) {
@@ -24,6 +24,10 @@ export class ArkaneConnect {
         this.chains = (options && options.chains || []).map((chain: string) => chain.toLowerCase());
         this.signUsing = (options && options.signUsing) || SignMethod.POPUP;
         Utils.environment = options && options.environment || 'prod';
+        this.bearerTokenProvider = options && options.bearerTokenProvider || (() => this.auth.token && this.auth.token || '');
+        if (this.bearerTokenProvider) {
+            this.api = new Api(Utils.urls.api, this.bearerTokenProvider);
+        }
     }
 
     public checkAuthenticated(options?: AuthenticationOptions): Promise<AuthenticationResult> {
@@ -43,25 +47,6 @@ export class ArkaneConnect {
     public addOnTokenRefreshCallback(tokenRefreshCallback?: (token: string) => void): void {
         if (tokenRefreshCallback) {
             Security.onTokenUpdate = tokenRefreshCallback;
-        }
-    }
-
-    public async init(bearerTokenProvider?: any): Promise<void> {
-        if (bearerTokenProvider) {
-            this.bearerTokenProvider = bearerTokenProvider;
-        } else {
-            this.bearerTokenProvider = () => this.auth.token;
-        }
-
-        if (this.bearerTokenProvider) {
-            this.api = new Api(Utils.urls.api, this.bearerTokenProvider);
-            if (this.chains && this.chains.length > 0) {
-                const wallets = await this.api.getWallets();
-                const mandatoryWallets = wallets && wallets.length > 0 && this.filterOnMandatoryWallets(wallets);
-                if (!(mandatoryWallets && mandatoryWallets.length > 0)) {
-                    this.manageWallets();
-                }
-            }
         }
     }
 
@@ -96,10 +81,6 @@ export class ArkaneConnect {
 
     private async afterAuthentication(loginResult: LoginResult): Promise<AuthenticationResult> {
         this.auth = loginResult.keycloak;
-        console.log(loginResult);
-        if (loginResult.authenticated) {
-            await this.init();
-        }
         return {
             authenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
                 if (loginResult.authenticated) {
@@ -127,12 +108,9 @@ export interface ConstructorOptions {
     chains?: string[];
     environment?: string;
     signUsing?: SignMethod;
+    bearerTokenProvider?: () => string;
 }
 
 export interface AuthenticationOptions {
     redirectUri?: string;
-}
-
-if (typeof window !== 'undefined') {
-    (window as any).ArkaneConnect = ArkaneConnect;
 }
