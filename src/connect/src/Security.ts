@@ -106,7 +106,6 @@ export class Security {
     private static async initializeAuth(config: any, onLoad: 'check-sso' | 'login-required', redirectUri?: string): Promise<LoginResult> {
         const Keycloak: { default: (config?: string | {} | undefined) => KeycloakInstance } = await import ('keycloak-js');
         return new Promise((resolve, reject) => {
-            console.log('config', config);
             Security.keycloak = Keycloak.default(config);
             const initOptions: KeycloakInitOptions = {
                 onLoad,

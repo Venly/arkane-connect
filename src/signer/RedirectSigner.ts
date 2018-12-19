@@ -24,9 +24,9 @@ export class RedirectSigner implements Signer {
         });
     }
 
-    public signTransaction(transactionRequest: any, options?: { redirectUri?: string, correlationID?: string }): Promise<SignerResult> {
+    public signTransaction(signatureRequest: any, options?: { redirectUri?: string, correlationID?: string }): Promise<SignerResult> {
         return new Promise<SignerResult>((resolve, reject) => {
-            Utils.http().postInForm(`${Utils.urls.connect}/transaction/sign/${transactionRequest.type.toLowerCase()}`, transactionRequest, this.bearerTokenProvider, options);
+            Utils.http().postInForm(`${Utils.urls.connect}/transaction/sign/${signatureRequest.type.toLowerCase()}`, signatureRequest, this.bearerTokenProvider, options);
             resolve();
         });
     }

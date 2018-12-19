@@ -8,7 +8,6 @@ export interface VechainTransactionRequestClause {
 
 export class VechainTransactionRequest extends TransactionRequest {
     public pincode!: string;
-    public submit: boolean = false;
     public blockRef?: string;
     public chainTag?: string;
     public expiration: number = 0;

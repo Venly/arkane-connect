@@ -47,7 +47,7 @@ export class ArkaneConnect {
         }
     }
 
-    public manageWallets(chain: string, options: { redirectUri: string, correlationID?: string }) {
+    public manageWallets(chain: string, options?: { redirectUri?: string, correlationID?: string }) {
         Utils.http().postInForm(
             `${Utils.urls.connect}/wallets/manage${Utils.environment ? '?environment=' + Utils.environment : ''}`,
             {chain},
@@ -56,7 +56,7 @@ export class ArkaneConnect {
         );
     }
 
-    public linkWallets(options: { redirectUri: string, correlationID?: string }) {
+    public linkWallets(options?: { redirectUri?: string, correlationID?: string }) {
         Utils.http().postInForm(
             `${Utils.urls.connect}/wallets/link${Utils.environment ? '?environment=' + Utils.environment : ''}`,
             {},

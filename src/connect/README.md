@@ -156,7 +156,7 @@ if (!authenticated) {
 ##Get Wallets
 
 ```javascript
-arkaneConnect.getWallets();
+arkaneConnect.api.getWallets();
 ```
 Returns `Promise<Wallet[]>`, where the defenition of `Wallet` is:
 ```javascript
@@ -192,7 +192,7 @@ Calling this function will redirect the user to a page where he can mange the wa
 
 ## Get Profile
 ```javascript
-arkaneConnect.getProfile();
+arkaneConnect.api.getProfile();
 ``` 
 returns `Promise<Profile>`, where the defenition of `Profile` is:
 ```javascript
@@ -235,7 +235,7 @@ user to enter it's PIN code as confirmation (or tweak some advanced setting).
 
 Examples of how such a transaction request looks like can be found further down this document.
 
-### Full example
+#### Full example
 ```javascript
 const signer = arkaneConnect.createSigner();
 
@@ -256,54 +256,29 @@ signer.executeTransaction({
 });
 ```
 
-### Building a transaction request
-Because the transaction requests are very chain specific, we distilled a simplified transaction request which you can use to build the chain specific transaction request.
+### Executing a native transaction
 
-```javascript
-arkaneConnect.buildTransactionRequest({
-    walletId: string,                   // The id of the wallet to be used as 'from'
-    to: string,                         // The Ethereum address to send the amount to
-    value: number,                      // Amount to transfer in decimals
-    secretType: 'ETHEREUM' | 'VECHAIN', // The chain on which you want to execute the transaction 
-    tokenAddress?: string               // If omitted, the standard token (e.g. ETH, VET) of the supplied secretType will be used 
-});
-```
-(returns `Promise<TransactionRequest>`) 
-
-You can use this as follows to build and execute a transaction:
+You can also choose to use a native transaction instead of the generic one. This opens up some chain specific functionalities (e.g. multiple clauses for VeChain). For this you need 
+to submit a native transaction request (see specifics at the end of this README) by calling the following function:  
 ```javascript
 const signer = arkaneConnect.createSigner();
 
-arkaneConnect.buildTransactionRequest({
-    walletId: '7368b9b0-45b4-4087-8886-2e66fe99f923',
-    secretType: 'ETHEREUM',
-    to: "0x680800Dd4913021821A9C08D569eF4338dB8E9f6",
-    value: 0.0314
-})
-.then((transactionRequest) => {
-    
-    signer.executeTransaction(transactionRequest)
-          .then(function(result) {
-              if (result.success) {
-                 console.log(`Transaction ${result.result.transactionHash} has been successfully executed!`);
-              } else {
-                 console.warn(`Something went wrong while executing the transaction`);
-              }
-          })
-          .catch(function(error) {
-              console.error(error);
-          });
-    
-})
-.catch((error) => {
-    // Always catch errors and close the signer, otherwise it looks like the initialising popup is hanging when something goes wrong
-    signer.close();
-    console.error(error);
-});
-``` 
+signer.executeNativeTransaction({...transactionRequest...})
+      .then((result) => {
+          if (result.success) {
+              console.log(`Transaction ${result.result.transactionHash} has been successfully executed!`);
+          } else {
+              console.warn(`Something went wrong while executing the transaction`);
+          }
+      }).catch((reason) => {
+          console.log(error);
+      });
+```  
 
-### Transaction Requests
-#### A Ethereum (ETH) Transaction Request
+#### Native Transaction requests
+Below you can find an overview of the different types of native transaction requests.
+
+##### Ethereum (ETH) Transaction Request
 ```javascript
 {
     type: 'ETH_TRANSACTION',
@@ -317,7 +292,7 @@ arkaneConnect.buildTransactionRequest({
 }
 ```
 
-#### A Ethereum ERC20 Transaction Request
+##### Ethereum ERC20 Transaction Request
 ```javascript
 {
     type: 'ETHEREUM_ERC20_TRANSACTION',
@@ -331,7 +306,7 @@ arkaneConnect.buildTransactionRequest({
 }
 ```
 
-#### A VeChain (VET) Transaction Request
+##### VeChain (VET) Transaction Request
 ```javascript
 {
     type: 'VET_TRANSACTION',
@@ -350,7 +325,7 @@ arkaneConnect.buildTransactionRequest({
 }
 ```
 
-#### A VeChain VTHO Transaction Request
+##### VeChain VTHO Transaction Request
 ```javascript
 {
     type: 'VTHO_TRANSACTION',
@@ -368,7 +343,7 @@ arkaneConnect.buildTransactionRequest({
 }
 ```
 
-#### A VeChain VIP180 Transaction Request
+##### VeChain VIP180 Transaction Request
 ```javascript
 {
     type: 'VECHAIN_VIP180_TRANSACTION',
@@ -383,6 +358,75 @@ arkaneConnect.buildTransactionRequest({
         to: string,             // The VeChain address to send the amount to
         amount: number,         // The amount of VET in wei 
         tokenAddress: string    // The address of the VIP180 token
+    }]
+}
+```
+
+## Signing data / transactions
+
+Lastly you can use the `signer.signTransaction(...)` function to sign data or a transaction. This function accepts `signatureRequest`s of which you can find an overview below and will return a 
+Promise containing a result which on its turn contains the signed transaction.
+
+```javascript
+const signer = arkaneConnect.createSigner();
+
+signer.signTransaction({...signatureRequest...})
+      .then((result) => {
+          if (result.success) {
+              console.log(`The request has been successfuly signed: ${result.result.signedTransaction}`);
+          } else {
+              console.warn(`Something went wrong while signing the request`);
+          }
+      }).catch((reason) => {
+          console.log(error);
+      });
+```  
+
+### Signature requests
+
+#### Ethereum RAW signature request
+
+```javascript
+{
+    type: 'ETHEREUM_RAW',
+    walletId: string,       // The id of the wallet to be used as 'from'
+    data: string            // The data you want to sign
+}
+```
+
+#### Ethereum transaction signature request
+
+```javascript
+{
+    type: 'ETHEREUM_TRANSACTION',
+    walletId: string,       // The id of the wallet to be used as 'from'
+    submit: boolean,        // Indicates whether or not the signed transaction needs to be submitted to the blockchain 
+    gasPrice?: number,      // The gas price in wei. If omitted, a gas estimator will be used. There is also a possibility to adjust this in the signer.    
+    gas?: number,           // The gas limit. If omitted, a gas estimator will be used. There is also a possibility to adjust this in the signer.
+    nonce?: number,         // The nonce. If omitted, it will be automatically filled.
+    value: number,          // The amount of ETH in wei 
+    to: string,             // The Ethereum address to send the amount to
+    data: string            // The data you want to sign
+}
+```
+
+#### VeChain transaction signature request
+
+```javascript
+{
+    type: 'VECHAIN_TRANSACTION',
+    walletId: string,       // The id of the wallet to be used as 'from'
+    submit: boolean,        // Indicates whether or not the signed transaction needs to be submitted to the blockchain 
+    blockRef?: string,      // The blockRef
+    chainTag?: string,      // The chainTag
+    expiration?: number,    // The expiration
+    gas?: number,           // The gas limit. If omitted, a gas estimator will be used. There is also a possibility to adjust this in the signer.
+    gasPriceCoef?: number,  // The gas price coeficient. If omitted, 0 will be used. There is also a possibility to adjust this in the signer.
+    nonce?: number,         // The nonce. If omitted, it will be automatically filled.
+    clauses: [{             // the clauses to execute in this transaction     
+        to: string,         // The VeChain address to send the amount to
+        amount: number,     // The amount of VET in wei 
+        data: string        // The data you want to sign
     }]
 }
 ```

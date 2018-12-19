@@ -1,4 +1,4 @@
-import { ArkaneConnect }                                                    from './connect';
+import { ArkaneConnect } from './connect';
 
 export { ArkaneConnect }                                                    from './connect';
 export { Signer, SignMethod, SignerResult }                                 from '../../signer';

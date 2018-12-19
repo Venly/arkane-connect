@@ -20,8 +20,8 @@ export class PopupSigner implements Signer {
         this.popup.close();
     }
 
-    public async signTransaction(transactionRequest: any): Promise<SignerResult> {
-        return this.handleTransaction('sign', transactionRequest);
+    public async signTransaction(signatureRequest: any): Promise<SignerResult> {
+        return this.handleTransaction('sign', signatureRequest);
     }
 
     public async executeNativeTransaction(transactionRequest: any): Promise<SignerResult> {
