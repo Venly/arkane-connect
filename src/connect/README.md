@@ -11,7 +11,7 @@ instance with a way to authenticate. For this there are two options:
 
 ## Constructor
 ```javascript
-new Arkane.Connect(clientID:string, options?: { chains?: string[], environment?: string, signMethod?: Arkane.SignMethod});
+new ArkaneConnect(clientID:string, options?: { environment?: string, signMethod?: string, bearerTokenProvider?: () => string});
 ```
 
 | Parameter | Required | Description | Example |
@@ -23,20 +23,20 @@ Allowed `options` are:
 
 | Option | Required | Description | Example |
 |-----------|----------|-------------|---------|
-| chains | false | An array containing the chains to which you want to restrict this application (for now, only one restricted chain is supported)| `['Ethereum', 'VeChain']`|
 | environment | false (default = `'prod'`) | The environment to which you want to connect, possible values are `'local'`, `'tst1'`, `'staging'`, `'prod'` | `'local'` |
-| signMethod | false (default = `SignMethod.POPUP`) | The sign method you to use, possible values are `SignMethod.POPUP` or `SignMethod.REDIRECT` | `SignMethod.REDIRECT` |
+| signMethod | false (default = `'POPUP'`) | The sign method you to use, possible values are `'POPUP'` or `'REDIRECT'` | `'REDIRECT'` |
+| bearerTokenProvider | false (default = the baked in authentication of Arkane Connect is used) | You can implement all the authentication handling yourself, you then need to do provide Arkane Connect with your own bearer token provider. This is a function returning the bearer token to login to Arkane. | `() => auth.token`|
 
 e.g.
 ```javascript
-// production + no mandatory wallets
+// production + sign transactions using the POPUP method + authentication using Arkane Connect
 new ArkaneConnect('Arketype');
 
-// production + mandatory Ethereum wallet
-new ArkaneConnect('Arketype', { chains: ['Ethereum'] });
+// production + sign transactions using the REDIRECT method + authentication using Arkane Connect
+new ArkaneConnect('Arketype', { signMethod: 'REDIRECT' });
 
-// staging + mandatory Ethereum wallet
-new ArkaneConnect('Arketype', { chains: ['Ethereum'], environment: 'staging' });
+// staging + sign transactions using the REDIRECT method + authentication using bearerTokenProvider supplied by the client
+new ArkaneConnect('Arketype', { environment: 'staging', signMethod: 'REDIRECT' , bearerTokenProvider: () => auth.token});
 ```
 
 
@@ -123,34 +123,18 @@ arkaneConnect.addOnTokenRefreshCallback(bearerToken => {
     console.log('The bearer token has been refreshed: ' + bearerToken);
 });
 ```
-
-## Init
-You can also implement all the authentication handling yourself. What you then need to do is provide Arkane Connect with your own bearer token provider. 
-This can be done through the `init` method.
- 
-```javascript
-arkaneConnect.init(<bearerTokenProvider>);
-``` 
-(returns a `Promise<void>`) 
-
-| Parameter | Description | Example |
-|-----------|-------------|---------|
-| bearerTokenProvider | A function returning the bearer token to login to Arkane | `() => auth.token`|
-
-This call makes sure that the user has an Arkane master pincode and at least one wallet necessary for the third party app.
  
 ## Full integration example
 Below you can find a full example of how setting up Arkane Connect might look like. We also made an [example project](https://github.com/ArkaneNetwork/Arketype) as a more 
 complete example. 
 ```javascript
-let authenticated = false;
-const arkaneConnect = new ArkaneConnect('Arketype', {chains: ['ethereum']});
+const arkaneConnect = new ArkaneConnect('Arketype');
 arkaneConnect.checkAuthenticated()
-             .then((result) => result.authenticated((auth) => { authenticated = true })
-                                     .notAuthenticated((auth) => { authenticated = false }));
-if (!authenticated) {
-    arkaneConnect.authenticate();
-}
+             .then((result) => result.authenticated((auth) => { /* Authenticated */  })
+                                     .notAuthenticated((auth) => {
+                                         /* Not authenticated */
+                                         arkaneConnect.authenticate() 
+                                     }));
 ```
 # Using Arkane Connect
 ##Get Wallets
@@ -186,9 +170,9 @@ Returns `Promise<Wallet[]>`, where the defenition of `Wallet` is:
 
 ## Manage wallets
 ```javascript
-arkaneConnect.manageWallets();
+arkaneConnect.manageWallets(chain: 'ETHEREUM' | 'VECHAIN');
 ```
-Calling this function will redirect the user to a page where he can mange the wallets linked to your application
+Calling this function will redirect the user to a page where he can mange the wallets (of the specified chain) linked to your application
 
 ## Get Profile
 ```javascript
@@ -210,40 +194,84 @@ returns `Promise<Profile>`, where the defenition of `Profile` is:
 ### Creating a signer
 To execute a transaction, you first need to create a signer: 
 ```javascript
-const signer  = arkaneConnect.createSigner();
+const signer  = arkaneConnect.createSigner(signUsing?: 'POPUP' | 'REDIRECT');
 ```
-This will open the signer popup and starts listening for a transactionRequest.
 
-**WARNING**
+| Parameter | Required | Description | Example |
+|-----------|----------|-------------|---------|
+| signUsing | no (default = the method supplied in the constructor, 'POPUP' if none was passed) | The sign method you want to use. This parameter acts as an override of the one you supplied in the constructor.| `'REDIRECT'`|
 
-If you are executing a transaction as reaction to an event (e.g. a button click), call `arkaneConnect.createSigner()` as very first in your event handling, otherwise the popup might get blocked by the popup blocker of the browser.  
 
-### Closing the signer
+In case signUsing = 'POPUP', creating the signer will open a popup that starts listening for a transactionRequest.  
+
+
+#### WARNING
+
+If signUsing = 'POPUP' and you are executing a transaction as reaction to an event (e.g. a button click), call `arkaneConnect.createSigner()` as very first in your event handling, otherwise the popup might get blocked by the popup blocker of the browser.  
+
+#### Closing the signer (If signUsing = 'POPUP')
+
 ```javascript
-arkaneConnect.destroySigner();
+if (arkaneConnect.isPopupSigner(signer)) {
+    signer.closePopup();
+}
 ```
-This function will cleanup and close the signer.
+If you want to close the signer popup manually (e.g. if something goes wrong between opening it and submitting the transactionRequest), you can use above function to close it. 
+The type guard around it (`if (arkaneConnect.isPopupSigner(signer)) {...}`), isn't mandatory, but it makes your code more robust.
 
 ### Executing a transaction
 ```javascript
-signer.executeTransaction(transactionRequest: any);
+signer.executeTransaction(transactionRequest: GenericTransactionRequest);
 ```
-(returns `Promise<ResponseBody<{transactionHash: string}>>`)
+(returns `Promise<SignerResult>`)
 
-Executing a transaction can be done by calling the `executeTransaction(...)` function on the signer. This will send the transaction request to the popup and then allows the 
-user to enter it's PIN code as confirmation (or tweak some advanced setting).
+Executing a transaction can be done by calling the `executeTransaction(...)` function on the signer. 
 
-Examples of how such a transaction request looks like can be found further down this document.
+* **If signUsing = 'POPUP':** This will send the transaction request to the popup and show the signer
+* **If signUsing = 'REDIRECT':** This will redirect the user to the signer 
+
+#### GenericTransactionRequest
+```javascript
+{
+    walletId: string;
+    to: string;
+    value: number;
+    secretType: 'ETHEREUM' | 'VECHAIN'; 
+    tokenAddress?: string;
+}
+```
+| Parameter | Required | Description | Example |
+|-----------|----------|-------------|---------|
+| walletId | yes | The **Arkane ID** of the wallet you want transfer out of. This ID is returned when calling `getWallets()` and can also be found in the URL of https://arkane.network/chains/ethereum/wallets/**71dec640-4eb8-4321-adb8-b79461573fc4**/ | `'71dec640-4eb8-4321-adb8-b79461573fc4'`|
+| to | yes | The address of the wallet you want to transfer to | `'0xE51551D3B11eF7559164D051D9714E59A1c4E486'`|
+| value | yes | The amount of tokens you want to transfer (decimal value) | `3.14159265359`|
+| secretType | yes | The type of blockchain you want to do the transaction on | `'ETHEREUM'`|
+| tokenAddress | no | The address of the token you want to use.  | `'0x4DF47B4969B2911C966506E3592c41389493953b'`|
+
+#### SignerResult
+```javascript
+{
+    status: 'SUCCESS' | 'ABORTED' | 'ERROR',
+    result?: {transactionHash: string},
+    errors?: []
+}
+```
+| Parameter | Required | Description | Example |
+|-----------|----------|-------------|---------|
+| status | yes | The status of the transaction. `'ABORTED'` means that the user has closed the popup or clicked the back to _\<app\>_ link | `'SUCCESS`|
+| result | no, only when status `'SUCCESS'` | An object containing the transaction hash of the executed transaction | `'0x4b4c1e2d836dc31ad27fc54fed4d7dbabd41aa1b070fb8c437f5beffb1d5d7b7`|
+| errors | no, only when status `'ABORTED'` or `'ERROR'` | An array containing the errors of the transaction that you tried to execute | |
+
 
 #### Full example
 ```javascript
 const signer = arkaneConnect.createSigner();
 
 signer.executeTransaction({
-    type: "ETHEREUM_TRANSACTION",
-    walletId: $("#sign-select-ETHEREUM").val(),
-    to: "0xf147cA0b981C0CD0955D1323DB9980F4B43e9FED",
-    value: 3140000000000000000,
+    walletId: '71dec640-4eb8-4321-adb8-b79461573fc4',
+    to: '0xf147cA0b981C0CD0955D1323DB9980F4B43e9FED',
+    value: 3.14159265359,
+    secretType: 'ETHEREUM',
 }).then((result) => {
    if (result.success) {
        console.log(`Transaction ${result.result.transactionHash} has been successfully executed!`);
@@ -251,7 +279,6 @@ signer.executeTransaction({
        console.warn(`Something went wrong while executing the transaction`);
    }
 }).catch((reason) => {
-    signer.close();
     console.log(error);
 });
 ```
