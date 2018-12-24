@@ -40,8 +40,10 @@ pipeline {
             steps {
                 sh "printf '//registry.npmjs.org/:_authToken=' > .npmrc && printf '${NPM_KEY}' >> .npmrc"
                 sh 'npm publish --tag develop'
-                sh 'git push origin HEAD:origin/${GIT_BRANCH}'
-                sh 'git push --tags'
+                withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    sh 'git push origin HEAD:origin/${GIT_BRANCH}'
+                    sh 'git push --tags'
+                }
             }
         }
     }
