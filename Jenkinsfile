@@ -11,8 +11,7 @@ pipeline {
         stage ('Bump version (develop)') {
             when {
                 expression {
-                    GIT_BRANCH = env.BRANCH_NAME
-                    return GIT_BRANCH == 'refactor-release'
+                    return env.BRANCH_NAME == 'refactor-release'
                 }
             }
             steps {
@@ -34,15 +33,13 @@ pipeline {
             }
             when {
                 expression {
-                    GIT_BRANCH = env.BRANCH_NAME
-                    return GIT_BRANCH == 'refactor-release'
+                    return env.BRANCH_NAME == 'refactor-release'
                 }
             }
             steps {
-                sh "printf '//registry.npmjs.org/:_authToken=' > .npmrc"
-                sh "printf '${NPM_KEY}' >> .npmrc"
+                sh "printf '//registry.npmjs.org/:_authToken=' > .npmrc && printf '${NPM_KEY}' >> .npmrc"
                 sh 'npm publish --tag develop'
-                sh 'git push'
+                sh 'git push origin HEAD:origin/${env.BRANCH_NAME}'
                 sh 'git push --tags'
             }
         }
