@@ -20,3 +20,7 @@ node_modules
 logs
 *.log
 .yarnclean
+
+# Generated resources
+docs/*
+.npmrc

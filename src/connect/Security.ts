@@ -1,6 +1,5 @@
 import { KeycloakInitOptions, KeycloakInstance } from 'keycloak-js';
-import Utils                                     from '../../utils/Utils';
-import * as KJUR                                 from 'jsrsasign';
+import Utils                                     from '../utils/Utils';
 
 export class Security {
     public static isLoggedIn = false;
@@ -24,50 +23,8 @@ export class Security {
         return Security.initializeAuth(Security.getConfig(clientId), 'check-sso', redirectUri);
     }
 
-    public static verifyAndLogin(rawBearerToken: string, useTokenToLogin: boolean, showLoginScreen: boolean, redirectUri?: string): Promise<any> {
-        const token = Security.parseToken(rawBearerToken);
-        if (Security.verifyToken(rawBearerToken, token)) {
-            const clientId = Security.resolveClientId(token, useTokenToLogin);
-            const config = Security.getConfig(clientId);
-            return Security.initializeAuth(config, showLoginScreen ? 'login-required' : 'check-sso', redirectUri);
-        } else {
-            Security.notAuthenticated();
-            return Promise.resolve({keycloak: {}, authenticated: false});
-        }
-    }
-
-    public static parseToken(rawBearerToken: string): any {
-        try {
-            const jws = new KJUR.jws.JWS();
-            jws.parseJWS(rawBearerToken);
-            return JSON.parse(jws.parsedJWS.payloadS);
-        } catch (e) {
-            return null;
-        }
-    }
-
     private static keycloak: KeycloakInstance;
     private static updateTokenInterval: any;
-
-    private static verifyToken(rawBearerToken: any, parsedToken: any): any {
-        try {
-            let publicKey = Utils.env.CONNECT_JS_REALM_PUBLIC_KEY;
-            if (publicKey.indexOf('-----BEGIN PUBLIC KEY-----') === -1) {
-                publicKey = `-----BEGIN PUBLIC KEY-----${publicKey}-----END PUBLIC KEY-----`;
-            }
-            return KJUR.jws.JWS.verifyJWT(rawBearerToken, publicKey, {alg: ['RS256'], verifyAt: parsedToken.iat});
-        } catch (e) {
-            return false;
-        }
-    }
-
-    private static resolveClientId(token: any, useTokenToLogin: boolean): string {
-        if (useTokenToLogin) {
-            return token ? token.azp : '';
-        } else {
-            return process.env.CONNECT_JS_CLIENT_ID || '';
-        }
-    }
 
     private static setUpdateTokenInterval() {
         if (Security.updateTokenInterval) {

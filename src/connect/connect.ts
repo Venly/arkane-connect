@@ -1,12 +1,12 @@
 /* tslint:disable */
 /// <reference path="./typings.d.ts" />
 /* tslint:enable */
-import Utils                                 from '../../utils/Utils';
+import Utils                                 from '../utils/Utils';
 import { LoginResult, Security }             from './Security';
 import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
-import { Api }                               from '../../api';
-import { Signer, SignerFactory, SignMethod } from '../../signer';
-import { PopupSigner }                       from '../../signer/PopupSigner';
+import { Api }                               from '../api/Api';
+import { Signer, SignerFactory, SignMethod } from '../signer/Signer';
+import { PopupSigner }                       from '../signer/PopupSigner';
 
 export class ArkaneConnect {
 

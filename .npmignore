@@ -23,3 +23,10 @@ logs
 
 # Generated resources
 docs/*
+/webpack.config.js
+/tslint.json
+/tsconfig.json
+/Jenkinsfile
+/.gitignore
+/src
+/logo.png

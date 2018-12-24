@@ -1,7 +1,7 @@
 import { GenericTransactionRequest } from '../models/transaction/GenericTransactionRequest';
 import { EVENT_TYPES }               from '../types/EventTypes';
 import Utils                         from '../utils/Utils';
-import { Signer, SignerResult }      from '../signer/index';
+import { Signer, SignerResult }      from '../signer/Signer';
 
 export class PopupSigner implements Signer {
 

@@ -1,6 +1,6 @@
 import { GenericTransactionRequest } from '../models/transaction/GenericTransactionRequest';
 import Utils                         from '../utils/Utils';
-import { Signer, SignerResult }      from '../signer/index';
+import { Signer, SignerResult }      from '../signer/Signer';
 
 export class RedirectSigner implements Signer {
 
