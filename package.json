@@ -1,11 +1,11 @@
 {
   "name": "@arkane-network/arkane-connect",
-  "version": "1.0.8",
+  "version": "1.0.9-develop.0",
   "description": "Arkane Connect - api library for 3th parties",
   "main": "dist/src/connect/src/index.js",
   "types": "dist/src/connect/src/index.d.ts",
   "scripts": {
-    "clean":  "rm -rf dist",
+    "clean": "rm -rf dist",
     "build-ts": "tsc -p .",
     "build-js": "npx webpack --mode production",
     "build": "npm run clean && npm run build-js && npm run build-ts",
