@@ -42,7 +42,7 @@ pipeline {
                 sh 'npm publish --tag develop'
                 withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                     sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/FundRequest/arkane-connect.git HEAD:refs/heads/${GIT_BRANCH}'
-                    sh 'git push --tags'
+                    sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/FundRequest/arkane-connect.git --tags'
                 }
             }
         }
