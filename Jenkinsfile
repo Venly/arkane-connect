@@ -30,6 +30,7 @@ pipeline {
         stage ('Publish') {
             environment {
                 NPM_KEY = credentials('NPM_KEY')
+                GIT_BRANCH = env.BRANCH_NAME
             }
             when {
                 expression {
@@ -39,7 +40,6 @@ pipeline {
             steps {
                 sh "printf '//registry.npmjs.org/:_authToken=' > .npmrc && printf '${NPM_KEY}' >> .npmrc"
                 sh 'npm publish --tag develop'
-                GIT_BRANCH = env.BRANCH_NAME
                 sh 'git push origin HEAD:origin/${GIT_BRANCH}'
                 sh 'git push --tags'
             }
