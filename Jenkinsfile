@@ -16,7 +16,7 @@ pipeline {
                 }
             }
             steps {
-                sh "npm version prerelease --preid=develop
+                sh "npm version prerelease --preid=develop"
             }
         }
         stage('Build') {
