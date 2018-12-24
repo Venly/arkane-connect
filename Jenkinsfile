@@ -30,11 +30,11 @@ pipeline {
         stage ('Publish') {
             environment {
                 NPM_KEY = credentials('NPM_KEY')
-                GIT_BRANCH = env.BRANCH_NAME
             }
             when {
                 expression {
-                    return env.BRANCH_NAME == 'refactor-release'
+                    GIT_BRANCH = env.BRANCH_NAME
+                    return GIT_BRANCH == 'refactor-release'
                 }
             }
             steps {
