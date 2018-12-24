@@ -38,9 +38,9 @@ pipeline {
                 }
             }
             steps {
-                sh 'printf "//registry.npmjs.org/:_authToken=" > .npmrc"
-                sh 'printf "' + NPM_KEY + '" >> .npmrc"
-                sh 'npm publish --tag develop"
+                sh 'printf "//registry.npmjs.org/:_authToken=" > .npmrc'
+                sh 'printf "' + NPM_KEY + '" >> .npmrc'
+                sh 'npm publish --tag develop'
                 sh 'git push'
                 sh 'git push --tags'
             }
