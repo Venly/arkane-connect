@@ -12,9 +12,7 @@ pipeline {
             when {
                 expression {
                     GIT_BRANCH = env.BRANCH_NAME
-                    echo "test"
-                    echo GIT_BRANCH
-                    return GIT_BRANCH == 'origin/refactor-release'
+                    return GIT_BRANCH == 'refactor-release'
                 }
             }
             steps {
@@ -35,7 +33,7 @@ pipeline {
             when {
                 expression {
                     GIT_BRANCH = env.BRANCH_NAME
-                    return GIT_BRANCH == 'origin/refactor-release'
+                    return GIT_BRANCH == 'refactor-release'
                 }
             }
             steps {
