@@ -1,29 +1,45 @@
 {
   "name": "@arkane-network/arkane-connect",
-  "version": "0.1.1",
-  "private": true,
+  "version": "1.0.8",
+  "description": "Arkane Connect - api library for 3th parties",
+  "main": "dist/src/connect/src/index.js",
+  "types": "dist/src/connect/src/index.d.ts",
+  "scripts": {
+    "clean":  "rm -rf dist",
+    "build-ts": "tsc -p .",
+    "build-js": "npx webpack --mode production",
+    "build": "npm run clean && npm run build-js && npm run build-ts",
+    "typedoc": "typedoc --out './docs' './src' --excludeExternals --target 'ES5' --theme 'minimal' --hideGenerator"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FundRequest/arkane-connect"
+  },
+  "keywords": [
+    "arkane"
+  ],
+  "author": "Steve Maris <steve.maris@fundrequest.io>",
+  "contributors": [
+    "Quinten De Swaef <quinten.de.swaef@fundrequest.io>",
+    "Nico Peeters <nico.peeters@fundrequest.io>"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fundrequest/arkane-connect/issues"
+  },
+  "homepage": "https://arkane.network",
   "dependencies": {
+    "axios": "^0.18.0",
     "es6-promise": "^4.2.5",
-    "jquery": "^3.3.1",
-    "qs": "^6.6.0"
+    "keycloak-js": "4.3.0",
+    "querystring": "^0.2.0"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.0",
-    "@types/jquery": "^3.3.24",
-    "@types/mocha": "^5.2.4",
-    "@types/node": "^10.7.1",
     "awesome-typescript-loader": "^5.2.0",
-    "axios": "^0.18.0",
-    "chai": "^4.1.2",
-    "http-serve": "^1.0.1",
-    "keycloak-js": "^4.3.0",
-    "node-sass": "^4.11.0",
-    "sass-loader": "^7.0.1",
     "ts-loader": "^4.5.0",
-    "typescript": "^3.0.1",
-    "vue-template-compiler": "^2.5.20",
-    "webpack": "^4.16.5",
-    "webpack-cli": "^3.1.0",
-    "webpack-dev-server": "^3.1.5"
+    "typedoc": "^0.13.0",
+    "typescript": "^3.2.2",
+    "webpack": "^4.27.1",
+    "webpack-cli": "^3.1.0"
   }
 }

@@ -1,6 +1,6 @@
 import { GenericTransactionRequest } from '../models/transaction/GenericTransactionRequest';
-import { PopupSigner }               from '../signer/PopupSigner';
-import { RedirectSigner }            from '../signer/RedirectSigner';
+import { PopupSigner }               from './PopupSigner';
+import { RedirectSigner }            from './RedirectSigner';
 
 
 export interface Signer {

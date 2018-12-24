@@ -1,4 +1,4 @@
-import ENV              from '../../env';
+import ENV              from '../env';
 import { EVENT_TYPES }  from '../types/EventTypes';
 import * as QueryString from "querystring";
 
