@@ -1,6 +1,5 @@
-/* tslint:disable */
-/// <reference path="./typings.d.ts" />
-/* tslint:enable */
+declare module 'jsrsasign';
+
 import Utils                                 from '../utils/Utils';
 import { LoginResult, Security }             from './Security';
 import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
