@@ -1,6 +1,3 @@
-/* tslint:disable */
-/// <reference path="./typings.d.ts" />
-/* tslint:enable */
 import Utils                                 from '../utils/Utils';
 import { LoginResult, Security }             from './Security';
 import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
