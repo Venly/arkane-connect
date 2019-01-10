@@ -147,7 +147,7 @@ export default class Utils {
                 form.submit();
             },
             buildUrl: (to: string, options ?: { redirectUri?: string; correlationID?: string }): string => {
-                if (options) {
+                if (options && (options.redirectUri || options.correlationID)) {
                     const params: { [key: string]: string } = {};
                     if (options.redirectUri) {
                         params.redirectUri = options.redirectUri;
