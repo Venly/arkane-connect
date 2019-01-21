@@ -23,8 +23,8 @@ export default class Utils {
 
     public static get urls() {
         let prefix = '';
-
-        switch (Utils.environment) {
+        let environment = Utils.environment.split('-');
+        switch (environment[0]) {
             case 'local':
                 prefix = '-tst1';
                 break;
@@ -38,7 +38,7 @@ export default class Utils {
 
         return {
             api: `https://api${prefix}.arkane.network/api`,
-            connect: Utils.environment === 'local' ? 'http://localhost:8181' : `https://connect${prefix}.arkane.network`,
+            connect: Utils.environment === 'local' || (environment.length >= 2 && environment[1]) == 'local' ? 'http://localhost:8181' : `https://connect${prefix}.arkane.network`,
             login: `https://login${prefix}.arkane.network/auth`,
         };
     }

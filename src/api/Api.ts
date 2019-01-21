@@ -3,11 +3,8 @@ import Utils                                                                    
 import { SecretType }                                                                        from '../models/SecretType';
 import { Wallet }                                                                            from '../models/wallet/Wallet';
 import { Profile }                                                                           from '../models/profile/Profile';
-import { GenericTransactionRequest }                                                         from '../models/transaction/GenericTransactionRequest';
-import { TransactionRequest }                                                                from '../models/transaction/TransactionRequest';
 import { WalletBalance }                                                                     from '../models/wallet/WalletBalance';
 import { TokenBalance }                                                                      from '../models/wallet/TokenBalance';
-import { TransactionResult }                                                                 from '../models/transaction/TransactionResult';
 
 export class Api {
 
@@ -50,31 +47,6 @@ export class Api {
     public getTokenBalance = (walletId: string, tokenAddress: string): Promise<TokenBalance> => {
         return this.processResponse<TokenBalance>(this.http.get(`wallets/${walletId}/balance/tokens/${tokenAddress}`));
     };
-
-
-    /////////////////
-    // Transaction //
-    /////////////////
-    public signTransaction = (transactionRequest: TransactionRequest): Promise<TransactionResult> => {
-        return this.processResponse<TransactionResult>(this.http.post('signatures', transactionRequest));
-    };
-
-    public prepareSignature = (transactionRequest: TransactionRequest): Promise<any> => {
-        return this.processResponse<any>(this.http.post('signatures/prepare', transactionRequest));
-    };
-
-    public executeTransaction = (transactionRequest: TransactionRequest): Promise<TransactionResult> => {
-        return this.processResponse<TransactionResult>(this.http.post('transactions', transactionRequest));
-    };
-
-    public buildTransactionRequest = (genericTransactionRequest: GenericTransactionRequest): Promise<TransactionRequest> => {
-        return this.processResponse<TransactionRequest>(this.http.post('transactions/build', genericTransactionRequest))
-    };
-
-    public prepareTransaction = (transactionRequest: TransactionRequest): Promise<any> => {
-        return this.processResponse<any>(this.http.post('transactions/prepare', transactionRequest));
-    };
-
 
     /////////////
     // Profile //
