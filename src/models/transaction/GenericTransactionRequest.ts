@@ -7,7 +7,7 @@ export class GenericTransactionRequest {
     public value!: number;
     public secretType!: SecretType;
     public tokenAddress?: string;
-    public comments?: string;
+    public data?: string;
 
     constructor(walletId: string, to: string, value: number, secretType: SecretType) {
         this.walletId = walletId;

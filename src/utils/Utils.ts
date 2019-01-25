@@ -7,7 +7,8 @@ export default class Utils {
 
     public static get env() {
         const env: any = ENV;
-        switch (Utils.environment) {
+        let environment = Utils.environment.split('-');
+        switch (environment[0]) {
             case 'local':
             case 'tst1':
                 env.CONNECT_JS_REALM_PUBLIC_KEY = env.CONNECT_JS_REALM_PUBLIC_KEY_TST1;
