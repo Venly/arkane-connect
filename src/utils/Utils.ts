@@ -6,20 +6,7 @@ export default class Utils {
     public static environment: string = 'prod';
 
     public static get env() {
-        const env: any = ENV;
-        let environment = Utils.environment.split('-');
-        switch (environment[0]) {
-            case 'local':
-            case 'tst1':
-                env.CONNECT_JS_REALM_PUBLIC_KEY = env.CONNECT_JS_REALM_PUBLIC_KEY_TST1;
-                break;
-            case 'staging':
-                env.CONNECT_JS_REALM_PUBLIC_KEY = env.CONNECT_JS_REALM_PUBLIC_KEY_STAGING;
-                break;
-            default:
-                env.CONNECT_JS_REALM_PUBLIC_KEY = env.CONNECT_JS_REALM_PUBLIC_KEY_PROD;
-        }
-        return env;
+        return ENV;
     }
 
     public static get urls() {
@@ -29,12 +16,13 @@ export default class Utils {
             case 'local':
                 prefix = '-tst1';
                 break;
-            case 'tst1':
-                prefix = '-tst1';
+            case '':
+            case 'prod':
+            case 'production':
+                prefix = '';
                 break;
-            case 'staging':
-                prefix = '-staging';
-                break;
+            default:
+                prefix = '-' + environment[0];
         }
 
         return {
