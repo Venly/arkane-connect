@@ -12,6 +12,7 @@ export { GenericTransactionRequest }                                        from
 export { TransactionRequest }                                               from './models/transaction/TransactionRequest';
 export { EthereumErc20TransactionRequest }                                  from './models/transaction/ethereum/request/EthereumErc20TransactionRequest';
 export { EthereumTransactionRequest }                                       from './models/transaction/ethereum/request/EthereumTransactionRequest';
+export { TronTransactionRequest }                                           from './models/transaction/tron/request/TronTransactionRequest';
 export { VechainTransactionRequest, VechainTransactionRequestClause }       from './models/transaction/vechain/request/VechainTransactionRequest';
 export { VechainVip180TransactionRequest, VechainVip180TransactionClause }  from './models/transaction/vechain/request/VechainVip180TransactionRequest';
 export { WalletBalance }                                                    from './models/wallet/WalletBalance';
