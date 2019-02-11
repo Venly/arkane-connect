@@ -1,5 +1,6 @@
 import { KeycloakInitOptions, KeycloakInstance } from 'keycloak-js';
 import Utils                                     from '../utils/Utils';
+import { AuthenticationOptions }                 from './connect';
 
 export class Security {
     public static isLoggedIn = false;
@@ -15,12 +16,12 @@ export class Security {
         };
     }
 
-    public static login(clientId: string, redirectUri?: string): Promise<LoginResult> {
-        return Security.initializeAuth(Security.getConfig(clientId), 'login-required', redirectUri);
+    public static login(clientId: string, options?: AuthenticationOptions): Promise<LoginResult> {
+        return Security.initializeAuth(Security.getConfig(clientId), 'login-required', options);
     }
 
-    public static checkAuthenticated(clientId: string, redirectUri?: string): Promise<LoginResult> {
-        return Security.initializeAuth(Security.getConfig(clientId), 'check-sso', redirectUri);
+    public static checkAuthenticated(clientId: string, options?: AuthenticationOptions): Promise<LoginResult> {
+        return Security.initializeAuth(Security.getConfig(clientId), 'check-sso', options);
     }
 
     private static keycloak: KeycloakInstance;
@@ -60,17 +61,16 @@ export class Security {
         );
     }
 
-    private static async initializeAuth(config: any, onLoad: 'check-sso' | 'login-required', redirectUri?: string): Promise<LoginResult> {
+    private static async initializeAuth(config: any, onLoad: 'check-sso' | 'login-required', options?: AuthenticationOptions): Promise<LoginResult> {
         const Keycloak: { default: (config?: string | {} | undefined) => KeycloakInstance } = await import ('keycloak-js');
+
         return new Promise((resolve, reject) => {
             Security.keycloak = Keycloak.default(config);
-            const initOptions: KeycloakInitOptions = {
-                onLoad,
-            };
-            if (redirectUri) {
-                Object.assign(initOptions, {
-                    redirectUri,
-                });
+            const initOptions: KeycloakInitOptions = { onLoad, };
+            if (options) {
+                this.addInitOption(initOptions, options.redirectUri);
+                this.addInitOption(initOptions, options.checkLoginIframe);
+                this.addInitOption(initOptions, options.checkLoginIframeInterval);
             }
             Security.keycloak.init(initOptions)
                     .success((authenticated: any) => {
@@ -98,6 +98,12 @@ export class Security {
 
     private static notAuthenticated() {
         Security.isLoggedIn = false;
+    }
+
+    private static addInitOption(initOptions: Keycloak.KeycloakInitOptions, option?: any) {
+        if (option) {
+            Object.assign(initOptions, {option});
+        }
     }
 }
 

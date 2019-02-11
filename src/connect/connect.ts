@@ -25,12 +25,12 @@ export class ArkaneConnect {
     }
 
     public checkAuthenticated(options?: AuthenticationOptions): Promise<AuthenticationResult> {
-        return Security.checkAuthenticated(this.clientId, options && options.redirectUri)
+        return Security.checkAuthenticated(this.clientId, options)
                        .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
     }
 
     public authenticate(options?: AuthenticationOptions): Promise<AuthenticationResult> {
-        return Security.login(this.clientId, options && options.redirectUri)
+        return Security.login(this.clientId, options)
                        .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
     }
 
@@ -104,4 +104,6 @@ export interface ConstructorOptions {
 
 export interface AuthenticationOptions {
     redirectUri?: string;
+    checkLoginIframe?: boolean;
+    checkLoginIframeInterval?: number;
 }
