@@ -16,7 +16,6 @@ export default class Utils {
             case 'local':
                 prefix = '-tst1';
                 break;
-            case '':
             case 'prod':
             case 'production':
                 prefix = '';
