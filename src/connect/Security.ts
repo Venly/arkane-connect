@@ -53,6 +53,7 @@ export class Security {
                         idToken: keycloakResult.idToken,
                         timeSkew: keycloakResult.timeSkew,
                     };
+                    Security.removeLoginState();
                     Security.initKeycloak(Security.getConfig(clientId), initOptions, resolve, reject);
                 } catch (e) {
                     Security.notAuthenticated();
@@ -138,6 +139,16 @@ export class Security {
                     Security.notAuthenticated();
                     reject(false);
                 });
+    }
+
+    private static removeLoginState() {
+        // Remove the login state from the URL when tokens are already present (the checkAuthenticated iframe already handled it)
+        const url = window.location.href;
+        const fragmentIndex = url.indexOf('#');
+        if (fragmentIndex !== -1) {
+            const newURL = url.substring(0, fragmentIndex);
+            window.history.replaceState({}, '', newURL);
+        }
     }
 
     private static authenticated() {
