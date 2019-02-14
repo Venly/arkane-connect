@@ -9,7 +9,7 @@
     ]
   },
   "rules": {
-    "max-line-length": {"options" : {"limit": 180}},
+    "max-line-length": [true, 180],
     "quotemark": [true, "single"],
     "import-spacing": false,
     "indent": [true, "spaces", 4],

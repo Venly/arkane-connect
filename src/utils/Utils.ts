@@ -7,8 +7,8 @@ export default class Utils {
     private static environmentHolder: string = 'prod';
     public static connectEnvironment: string = '';
 
-    public static set environment(environment: string) {
-        const split = environment.split('-');
+    public static set environment(env: string) {
+        const split = env.split('-');
         Utils.environmentHolder = split[0];
         Utils.connectEnvironment = split.length > 1 && split[1] || '';
     };
@@ -37,7 +37,7 @@ export default class Utils {
 
         return {
             api: `https://api${prefix}.arkane.network/api`,
-            connect: Utils.environment === 'local' || Utils.connectEnvironment == 'local' ? 'http://localhost:8181' : `https://connect${prefix}.arkane.network`,
+            connect: Utils.environment === 'local' || Utils.connectEnvironment === 'local' ? 'http://localhost:8181' : `https://connect${prefix}.arkane.network`,
             login: `https://login${prefix}.arkane.network/auth`,
         };
     }
