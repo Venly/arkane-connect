@@ -1,9 +1,21 @@
 import ENV              from '../env';
 import { EVENT_TYPES }  from '../types/EventTypes';
-import * as QueryString from "querystring";
+import * as QueryString from 'querystring';
 
 export default class Utils {
-    public static environment: string = 'prod';
+
+    private static environmentHolder: string = 'prod';
+    public static connectEnvironment: string = '';
+
+    public static set environment(env: string) {
+        const split = env.split('-');
+        Utils.environmentHolder = split[0];
+        Utils.connectEnvironment = split.length > 1 && split[1] || '';
+    };
+
+    public static get environment() {
+        return Utils.environmentHolder;
+    };
 
     public static get env() {
         return ENV;
@@ -11,8 +23,7 @@ export default class Utils {
 
     public static get urls() {
         let prefix = '';
-        let environment = Utils.environment.split('-');
-        switch (environment[0]) {
+        switch (Utils.environment) {
             case 'local':
                 prefix = '-tst1';
                 break;
@@ -21,12 +32,12 @@ export default class Utils {
                 prefix = '';
                 break;
             default:
-                prefix = '-' + environment[0];
+                prefix = '-' + Utils.environment;
         }
 
         return {
             api: `https://api${prefix}.arkane.network/api`,
-            connect: Utils.environment === 'local' || (environment.length >= 2 && environment[1]) == 'local' ? 'http://localhost:8181' : `https://connect${prefix}.arkane.network`,
+            connect: Utils.environment === 'local' || Utils.connectEnvironment === 'local' ? 'http://localhost:8181' : `https://connect${prefix}.arkane.network`,
             login: `https://login${prefix}.arkane.network/auth`,
         };
     }

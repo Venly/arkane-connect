@@ -24,13 +24,13 @@ export class ArkaneConnect {
         }
     }
 
-    public checkAuthenticated(options?: AuthenticationOptions): Promise<AuthenticationResult> {
-        return Security.checkAuthenticated(this.clientId, options && options.redirectUri)
+    public checkAuthenticated(): Promise<AuthenticationResult> {
+        return Security.checkAuthenticated(this.clientId)
                        .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
     }
 
     public authenticate(options?: AuthenticationOptions): Promise<AuthenticationResult> {
-        return Security.login(this.clientId, options && options.redirectUri)
+        return Security.login(this.clientId, options)
                        .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
     }
 
@@ -46,7 +46,7 @@ export class ArkaneConnect {
 
     public manageWallets(chain: string, options?: { redirectUri?: string, correlationID?: string }) {
         Utils.http().postInForm(
-            `${Utils.urls.connect}/wallets/manage${Utils.environment ? '?environment=' + Utils.environment : ''}`,
+            `${Utils.urls.connect}/wallets/manage`,
             {chain: chain.toLowerCase()},
             this.bearerTokenProvider,
             options
@@ -55,7 +55,7 @@ export class ArkaneConnect {
 
     public linkWallets(options?: { redirectUri?: string, correlationID?: string }) {
         Utils.http().postInForm(
-            `${Utils.urls.connect}/wallets/link${Utils.environment ? '?environment=' + Utils.environment : ''}`,
+            `${Utils.urls.connect}/wallets/link`,
             {},
             this.bearerTokenProvider,
             options
