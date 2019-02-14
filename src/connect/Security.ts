@@ -41,7 +41,6 @@ export class Security {
     private static createCheckAuthenticatedListener = async function(clientId: string, resolve: any, reject: any) {
         return (message: MessageEvent) => {
             if (message && message.origin === Utils.urls.connect && message.data && message.data.type === 'CHECK_AUTHENTICATED') {
-                console.log('message.source', message.source);
                 try {
                     window.removeEventListener('message', Security.checkAuthenticatedListener);
                     delete Security.checkAuthenticatedListener;
