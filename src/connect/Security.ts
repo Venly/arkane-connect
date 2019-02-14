@@ -53,6 +53,7 @@ export class Security {
                         idToken: keycloakResult.idToken,
                         timeSkew: keycloakResult.timeSkew,
                     };
+                    // Remove the login state from the URL when tokens are already present (the checkAuthenticated iframe already handled it)
                     Security.removeLoginState();
                     Security.initKeycloak(Security.getConfig(clientId), initOptions, resolve, reject);
                 } catch (e) {
@@ -142,7 +143,6 @@ export class Security {
     }
 
     private static removeLoginState() {
-        // Remove the login state from the URL when tokens are already present (the checkAuthenticated iframe already handled it)
         const url = window.location.href;
         const fragmentIndex = url.indexOf('#');
         if (fragmentIndex !== -1) {
