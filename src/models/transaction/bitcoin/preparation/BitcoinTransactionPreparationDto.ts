@@ -1,6 +1,6 @@
-import BitcoinFeeDto from './BitcoinFeeDto';
+import { BitcoinFeeDto } from './BitcoinFeeDto';
 
-export default class BitcoinTransactionPreparationDto {
+export class BitcoinTransactionPreparationDto {
 
     public fees!: BitcoinFeeDto[] ;
 }
