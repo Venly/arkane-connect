@@ -10,33 +10,24 @@ export class RedirectSigner implements Signer {
         this.bearerTokenProvider = bearerTokenProvider;
     }
 
-    public executeNativeTransaction(transactionRequest: any, options: { redirectUri?: string, correlationID?: string } = {}): Promise<SignerResult> {
-        this.checkRedirectUri(options);
+    public executeNativeTransaction(transactionRequest: any, options?: { redirectUri?: string, correlationID?: string }): Promise<SignerResult> {
         return new Promise<SignerResult>((resolve, reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute/${transactionRequest.type.toLowerCase()}`, transactionRequest, this.bearerTokenProvider, options);
             resolve();
         });
     }
 
-    public executeTransaction(genericTransactionRequest: GenericTransactionRequest, options: { redirectUri?: string, correlationID?: string } = {}): Promise<SignerResult> {
-        this.checkRedirectUri(options);
+    public executeTransaction(genericTransactionRequest: GenericTransactionRequest, options?: { redirectUri?: string, correlationID?: string }): Promise<SignerResult> {
         return new Promise<SignerResult>((resolve, reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute`, genericTransactionRequest, this.bearerTokenProvider, options);
             resolve();
         });
     }
 
-    public signTransaction(signatureRequest: any, options: { redirectUri?: string, correlationID?: string } = {}): Promise<SignerResult> {
-        this.checkRedirectUri(options);
+    public signTransaction(signatureRequest: any, options?: { redirectUri?: string, correlationID?: string }): Promise<SignerResult> {
         return new Promise<SignerResult>((resolve, reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/transaction/sign/${signatureRequest.type.toLowerCase()}`, signatureRequest, this.bearerTokenProvider, options);
             resolve();
         });
-    }
-
-    private checkRedirectUri(options: { redirectUri?: string; correlationID?: string }) {
-        if (!options.redirectUri) {
-            options.redirectUri = window.location.href;
-        }
     }
 }

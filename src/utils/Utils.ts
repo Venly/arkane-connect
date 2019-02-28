@@ -123,9 +123,18 @@ export default class Utils {
         return numberToVerify ? numberToVerify : 0;
     }
 
+    public static defaultRedirectUriIfNotPresent(options: { redirectUri?: string; correlationID?: string } = {}): { redirectUri?: string; correlationID?: string } {
+        if (!options.redirectUri) {
+            options.redirectUri = window.location.href;
+        }
+        return options;
+    }
+
     public static http() {
         return {
             postInForm: (to: string, data: any, bearerTokenProvider: () => string, options?: { redirectUri?: string, correlationID?: string }): void => {
+                options = Utils.defaultRedirectUriIfNotPresent(options);
+
                 const form = document.createElement('form');
                 form.action = Utils.http().buildUrl(to, options);
                 form.method = 'POST';
