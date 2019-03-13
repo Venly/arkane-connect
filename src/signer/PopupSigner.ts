@@ -96,7 +96,7 @@ class Popup {
     private createPopupMountedListener(correlationID: string) {
         return (message: MessageEvent) => {
             if (Utils.messages().hasValidOrigin(message)
-                && Utils.messages().hasCorrectCorrelationID(message, this.correlationID)
+                && Utils.messages().hasCorrectCorrelationID(message, correlationID)
                 && Utils.messages().isOfType(message, EVENT_TYPES.POPUP_MOUNTED)) {
                 this.isPopupMounted = true;
                 if (this.popupMountedListener) {
