@@ -1,4 +1,4 @@
-import { ArkaneConnect }             from './connect/connect';
+import { ArkaneConnect } from './connect/connect';
 
 export { ArkaneConnect }                                                    from './connect/connect';
 export { Signer, SignMethod, SignerResult }                                 from './signer/Signer';
@@ -14,6 +14,7 @@ export { EthereumErc20TransactionRequest }                                  from
 export { EthereumTransactionRequest }                                       from './models/transaction/ethereum/request/EthereumTransactionRequest';
 export { GochainErc20TransactionRequest }                                   from './models/transaction/gochain/request/GochainErc20TransactionRequest';
 export { GochainTransactionRequest }                                        from './models/transaction/gochain/request/GochainTransactionRequest';
+export { TronTransactionRequest }                                           from './models/transaction/tron/request/TronTransactionRequest';
 export { VechainTransactionRequest, VechainTransactionRequestClause }       from './models/transaction/vechain/request/VechainTransactionRequest';
 export { VechainVip180TransactionRequest, VechainVip180TransactionClause }  from './models/transaction/vechain/request/VechainVip180TransactionRequest';
 export { BitcoinTransactionRequest }                                        from './models/transaction/bitcoin/request/BitcoinTransactionRequest';

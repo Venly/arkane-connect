@@ -1,5 +1,5 @@
 export class LitecoinFeeDto {
-    public feePerByte!: number;
+    public feePerKiloByte!: number;
     public fee!: number;
     public defaultFee!: boolean;
 }

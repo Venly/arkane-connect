@@ -3,5 +3,6 @@ export enum SecretType {
     LITECOIN = 'LITECOIN',
     ETHEREUM = 'ETHEREUM',
     GOCHAIN = 'GOCHAIN',
+    TRON = 'TRON',
     VECHAIN = 'VECHAIN',
 }
