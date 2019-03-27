@@ -8,9 +8,9 @@ import { PopupSigner }                       from '../signer/PopupSigner';
 export class ArkaneConnect {
 
     public api!: Api;
+    public signUsing: SignMethod;
 
     private clientId: string;
-    private signUsing: SignMethod;
     private bearerTokenProvider: () => string;
     private auth!: KeycloakInstance;
 

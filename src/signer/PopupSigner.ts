@@ -142,6 +142,9 @@ class Popup {
                     case 'ABORTED':
                         reject(message.data && {...message.data.result});
                         break;
+                    case 'FAILED':
+                        reject(message.data && {...message.data.result});
+                        break;
                 }
             }
         };
