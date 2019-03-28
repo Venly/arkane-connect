@@ -1,7 +1,7 @@
 import { TransactionRequest } from '../../TransactionRequest';
 
-export class LitecoinTransactionRequest extends TransactionRequest {
+export class Trc10TransactionRequest extends TransactionRequest {
     public value!: number;
+    public token!: string;
     public to!: string;
-    public feePerByte?: number;
 }
