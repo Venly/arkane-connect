@@ -2,6 +2,12 @@ import { GenericTransactionRequest } from '../models/transaction/GenericTransact
 import { EVENT_TYPES }               from '../types/EventTypes';
 import Utils                         from '../utils/Utils';
 import { Signer, SignerResult }      from '../signer/Signer';
+import { GenericSignatureRequest }   from '../models/transaction/GenericSignatureRequest';
+
+export interface SignatureOptions {
+    hash: boolean,
+    prefix: boolean
+}
 
 export class PopupSigner implements Signer {
 
@@ -20,8 +26,15 @@ export class PopupSigner implements Signer {
         this.popup.close();
     }
 
-    public async signTransaction(signatureRequest: any): Promise<SignerResult> {
+    public async sign(signatureRequest: GenericSignatureRequest): Promise<SignerResult> {
+        signatureRequest.hash = typeof signatureRequest.hash === 'undefined' ? true : signatureRequest.hash;
+        signatureRequest.prefix = typeof signatureRequest.hash === 'undefined' ? true : signatureRequest.prefix;
         return this.handleTransaction('sign', signatureRequest);
+    }
+
+    /** Deprecated since 1.1.9. Use sign instead */
+    public async signTransaction(signatureRequest: GenericSignatureRequest): Promise<SignerResult> {
+        return this.sign(signatureRequest);
     }
 
     public async executeNativeTransaction(transactionRequest: any): Promise<SignerResult> {
