@@ -1,7 +1,7 @@
-import {TransactionRequest} from '../../TransactionRequest';
+import { TransactionRequest } from '../../TransactionRequest';
 
 export class TronTransactionRequest extends TransactionRequest {
-    public pincode!: string;
     public value!: number;
+    public data!: string;
     public to!: string;
 }
