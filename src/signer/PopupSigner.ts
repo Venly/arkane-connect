@@ -4,11 +4,6 @@ import Utils                         from '../utils/Utils';
 import { Signer, SignerResult }      from '../signer/Signer';
 import { GenericSignatureRequest }   from '../models/transaction/GenericSignatureRequest';
 
-export interface SignatureOptions {
-    hash: boolean,
-    prefix: boolean
-}
-
 export class PopupSigner implements Signer {
 
     private popup: Popup;
@@ -87,6 +82,10 @@ class Popup {
         this.popup = Popup.openWindow(url + '?cid=' + encodeURIComponent(this.correlationID) + '&webURI=' + encodeURIComponent(Utils.urls.connect));
     }
 
+    public isOpen(): boolean {
+        return this.popup && !this.popup.closed;
+    }
+
     public close() {
         if (this.popupMountedListener) {
             window.removeEventListener('message', this.popupMountedListener);
@@ -132,11 +131,11 @@ class Popup {
         };
     }
 
-    private sendTransactionRequest(action: string, transactionRequest: any): () => void {
+    private sendTransactionRequest(action: string, request: any): () => void {
         return () => {
-            if (this.popup) {
+            if (this.isOpen()) {
                 this.popup.postMessage(
-                    {type: EVENT_TYPES.SEND_TRANSACTION_DATA, params: {action, transactionRequest, bearerToken: this.bearerTokenProvider()}},
+                    {type: EVENT_TYPES.SEND_TRANSACTION_DATA, params: {action, transactionRequest: request, bearerToken: this.bearerTokenProvider()}},
                     Utils.urls.connect
                 );
             }
