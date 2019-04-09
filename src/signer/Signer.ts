@@ -6,7 +6,7 @@ import { GenericSignatureRequest }         from '../models/transaction/GenericSi
 
 
 export interface Signer {
-    executeTransaction: (transactionRequest: GenericTransactionRequest, RedirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    executeTransaction: (genericTransactionRequestOrTransactionId: GenericTransactionRequest | string, RedirectOptions?: RedirectOptions) => Promise<SignerResult>;
     executeNativeTransaction: (transactionRequest: any, RedirectOptions?: RedirectOptions) => Promise<SignerResult>;
     sign: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
     /** Deprecated since 1.1.9. Use sign instead */

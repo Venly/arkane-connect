@@ -3,6 +3,7 @@ import { EVENT_TYPES }               from '../types/EventTypes';
 import Utils                         from '../utils/Utils';
 import { Signer, SignerResult }      from '../signer/Signer';
 import { GenericSignatureRequest }   from '../models/transaction/GenericSignatureRequest';
+import { TransactionRequest }        from '..';
 
 export class PopupSigner implements Signer {
 
@@ -32,18 +33,25 @@ export class PopupSigner implements Signer {
         return this.sign(signatureRequest);
     }
 
-    public async executeNativeTransaction(transactionRequest: any): Promise<SignerResult> {
+    public async executeNativeTransaction(transactionRequest: TransactionRequest): Promise<SignerResult> {
         return this.handleTransaction('execute', transactionRequest);
     }
 
-    public async executeTransaction(transactionRequest: GenericTransactionRequest): Promise<SignerResult> {
-        return this.handleTransaction('execute', transactionRequest);
+    public async executeTransaction(genericTransactionRequestOrTransactionId: GenericTransactionRequest | string): Promise<SignerResult> {
+        if (typeof genericTransactionRequestOrTransactionId === 'string') {
+            const transactionId: string = genericTransactionRequestOrTransactionId;
+            return this.handleTransaction('execute', {transactionId});
+        } else {
+            const transactionRequest: GenericTransactionRequest = genericTransactionRequestOrTransactionId;
+            return this.handleTransaction('execute', transactionRequest);
+        }
     }
 
-    private async handleTransaction(action: string, transactionRequest: any): Promise<SignerResult> {
+    private async handleTransaction(action: string,
+                                    transactionData: TransactionRequest | GenericTransactionRequest | GenericSignatureRequest | { transactionId: string }): Promise<SignerResult> {
         this.popup.focus();
         return this.popup
-                   .sendTransactionData(action, transactionRequest)
+                   .sendTransactionData(action, transactionData)
                    .finally(() => {
                        this.closePopup()
                    });
@@ -97,10 +105,11 @@ class Popup {
         this.popup.focus();
     }
 
-    public sendTransactionData(action: string, transactionRequest: any): Promise<SignerResult> {
+    public sendTransactionData(action: string,
+                               transactionData: TransactionRequest | GenericTransactionRequest | GenericSignatureRequest | { transactionId: string }): Promise<SignerResult> {
         return new Promise((resolve, reject) => {
             this.onPopupMountedQueue.push(this.attachTransactionFinishedListener(resolve, reject));
-            this.onPopupMountedQueue.push(this.sendTransactionRequest(action, transactionRequest));
+            this.onPopupMountedQueue.push(this.sendTransactionDataToPopup(action, transactionData));
             this.processPopupMountedQueue();
         }) as Promise<{ status: 'SUCCESS' | 'ABORTED', result?: any, errors?: [] }>;
     }
@@ -131,11 +140,12 @@ class Popup {
         };
     }
 
-    private sendTransactionRequest(action: string, request: any): () => void {
+    private sendTransactionDataToPopup(action: string,
+                                       transactionData: TransactionRequest | GenericTransactionRequest | GenericSignatureRequest | { transactionId: string }): () => void {
         return () => {
             if (this.isOpen()) {
                 this.popup.postMessage(
-                    {type: EVENT_TYPES.SEND_TRANSACTION_DATA, params: {action, transactionRequest: request, bearerToken: this.bearerTokenProvider()}},
+                    {type: EVENT_TYPES.SEND_TRANSACTION_DATA, params: {action, transactionRequest: transactionData, bearerToken: this.bearerTokenProvider()}},
                     Utils.urls.connect
                 );
             }

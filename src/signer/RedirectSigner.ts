@@ -28,9 +28,24 @@ export class RedirectSigner implements Signer {
         });
     }
 
-    public executeTransaction(genericTransactionRequest: GenericTransactionRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+    public executeTransaction(genericTransactionRequestOrTransactionId: GenericTransactionRequest | string, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        if (typeof genericTransactionRequestOrTransactionId === 'string') {
+            return this.executeSavedTransaction(genericTransactionRequestOrTransactionId, redirectOptions);
+        } else {
+            return this.executeProvidedTransaction(genericTransactionRequestOrTransactionId, redirectOptions);
+        }
+    }
+
+    private executeSavedTransaction(transactionId: string, redirectOptions?: RedirectOptions) {
         return new Promise<SignerResult>((resolve, reject) => {
-            Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute`, genericTransactionRequest, this.bearerTokenProvider, redirectOptions);
+            Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute/${transactionId}`, {}, this.bearerTokenProvider, redirectOptions);
+            resolve();
+        });
+    }
+
+    private executeProvidedTransaction(transactionRequest: GenericTransactionRequest, redirectOptions?: RedirectOptions) {
+        return new Promise<SignerResult>((resolve, reject) => {
+            Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute`, transactionRequest, this.bearerTokenProvider, redirectOptions);
             resolve();
         });
     }
