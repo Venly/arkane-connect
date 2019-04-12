@@ -1,12 +1,16 @@
-import { GenericTransactionRequest } from '../models/transaction/GenericTransactionRequest';
-import { PopupSigner }               from './PopupSigner';
-import { RedirectSigner }            from './RedirectSigner';
+import { GenericTransactionRequest }       from '../models/transaction/GenericTransactionRequest';
+import { PopupSigner }                     from './PopupSigner';
+import { RedirectOptions, RedirectSigner } from './RedirectSigner';
+import { GenericSignatureRequest }         from '../models/transaction/GenericSignatureRequest';
+
 
 
 export interface Signer {
-    executeTransaction: (transactionRequest: GenericTransactionRequest, options?: any) => Promise<SignerResult>;
-    executeNativeTransaction: (transactionRequest: any, options?: any) => Promise<SignerResult>;
-    signTransaction: (transactionRequest: any, options?: any) => Promise<SignerResult>;
+    executeTransaction: (genericTransactionRequestOrTransactionId: GenericTransactionRequest | string, RedirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    executeNativeTransaction: (transactionRequest: any, RedirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    sign: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    /** Deprecated since 1.1.9. Use sign instead */
+    signTransaction: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
 }
 
 export class SignerFactory {
@@ -28,9 +32,8 @@ export enum SignMethod {
     REDIRECT = 'REDIRECT',
 }
 
-
 export interface SignerResult {
-    status: 'SUCCESS' | 'ABORTED',
+    status: 'SUCCESS' | 'ABORTED' | 'FAILED',
     result?: any,
     errors?: any[]
 }

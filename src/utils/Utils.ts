@@ -132,7 +132,7 @@ export default class Utils {
 
     public static http() {
         return {
-            postInForm: (to: string, data: any, bearerTokenProvider: () => string, options?: { redirectUri?: string, correlationID?: string }): void => {
+            postInForm: (to: string, request: any, bearerTokenProvider: () => string, options?: { redirectUri?: string, correlationID?: string }): void => {
                 options = Utils.defaultRedirectUriIfNotPresent(options);
 
                 const form = document.createElement('form');
@@ -148,7 +148,7 @@ export default class Utils {
                 const inputData = document.createElement('input');
                 inputData.type = 'hidden';
                 inputData.name = 'data';
-                inputData.value = JSON.stringify({...data});
+                inputData.value = JSON.stringify({...request});
                 form.appendChild(inputData);
 
                 document.body.appendChild(form);
