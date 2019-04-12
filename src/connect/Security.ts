@@ -66,7 +66,8 @@ export class Security {
 
     private static initialiseCheckAuthenticatedIFrame(clientId: string): HTMLIFrameElement {
         const iframe: HTMLIFrameElement = document.createElement('iframe');
-        iframe.src = `${Security.checkAuthenticatedURI}?${QueryString.stringify({clientId: clientId, origin: window.location.href, env: Utils.environment})}`;
+        const origin = window.location.href.replace(window.location.search, '');
+        iframe.src = `${Security.checkAuthenticatedURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.environment})}`;
         iframe.hidden = true;
         iframe.id = Security.AUTH_IFRAME_ID;
         document.body.appendChild(iframe);

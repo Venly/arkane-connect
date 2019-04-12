@@ -33,7 +33,7 @@ export enum SignMethod {
 }
 
 export interface SignerResult {
-    status: 'SUCCESS' | 'ABORTED',
+    status: 'SUCCESS' | 'ABORTED' | 'FAILED',
     result?: any,
     errors?: any[]
 }
