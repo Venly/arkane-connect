@@ -31,6 +31,7 @@
   "homepage": "https://arkane.network",
   "dependencies": {
     "axios": "^0.18.0",
+    "core-js": "^2.6.5",
     "es6-promise": "^4.2.5",
     "keycloak-js": "4.3.0",
     "querystring": "^0.2.0"
