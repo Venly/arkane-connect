@@ -2,7 +2,7 @@ import { GenericTransactionRequest }       from '../models/transaction/GenericTr
 import { PopupSigner }                     from './PopupSigner';
 import { RedirectOptions, RedirectSigner } from './RedirectSigner';
 import { GenericSignatureRequest }         from '../models/transaction/GenericSignatureRequest';
-
+import { ConfirmationRequest }             from '../models/ConfirmationRequest';
 
 
 export interface Signer {
@@ -11,6 +11,7 @@ export interface Signer {
     sign: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
     /** Deprecated since 1.1.9. Use sign instead */
     signTransaction: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    confirm: (request: ConfirmationRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
 }
 
 export class SignerFactory {

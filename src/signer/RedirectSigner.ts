@@ -1,3 +1,4 @@
+import { ConfirmationRequest }       from '../models/ConfirmationRequest';
 import { GenericSignatureRequest }   from '../models/transaction/GenericSignatureRequest';
 import { GenericTransactionRequest } from '../models/transaction/GenericTransactionRequest';
 import { Signer, SignerResult }      from '../signer/Signer';
@@ -60,5 +61,12 @@ export class RedirectSigner implements Signer {
     /** Deprecated since v1.1.9: Use 'sign' instead. */
     public signTransaction(signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.sign(signatureRequest, redirectOptions);
+    }
+
+    public async confirm(request: ConfirmationRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return new Promise<SignerResult>((resolve, reject) => {
+            Utils.http().postInForm(`${Utils.urls.connect}/confirm/${request.confirmationRequestType.toLowerCase()}`, request, this.bearerTokenProvider, redirectOptions);
+            resolve();
+        });
     }
 }

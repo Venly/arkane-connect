@@ -5,6 +5,7 @@ import DateTimeFormat = Intl.DateTimeFormat;
 export enum WalletType {
     THREEWAY_SHARED = 'THREEWAY_SHARED',
     USER_OWNED = 'USER_OWNED',
+    APPLICATION = 'APPLICATION',
 }
 
 export enum WalletAppType {
