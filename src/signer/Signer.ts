@@ -3,6 +3,7 @@ import { PopupSigner }                     from './PopupSigner';
 import { RedirectOptions, RedirectSigner } from './RedirectSigner';
 import { GenericSignatureRequest }         from '../models/transaction/GenericSignatureRequest';
 import { ConfirmationRequest }             from '../models/ConfirmationRequest';
+import { PopupResult }                     from '../popup/PopupResult';
 
 
 export interface Signer {
@@ -33,8 +34,4 @@ export enum SignMethod {
     REDIRECT = 'REDIRECT',
 }
 
-export interface SignerResult {
-    status: 'SUCCESS' | 'ABORTED' | 'FAILED',
-    result?: any,
-    errors?: any[]
-}
+export interface SignerResult extends PopupResult {}

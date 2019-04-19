@@ -4,6 +4,8 @@ import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
 import { Api }                               from '../api/Api';
 import { Signer, SignerFactory, SignMethod } from '../signer/Signer';
 import { PopupSigner }                       from '../signer/PopupSigner';
+import { GeneralPopup }                      from '../popup/GeneralPopup';
+import { PopupActions }                      from '../popup/PopupActions';
 
 export class ArkaneConnect {
 
@@ -53,6 +55,10 @@ export class ArkaneConnect {
         );
     }
 
+    public manageWalletsPopup(chain: string) {
+        return GeneralPopup.openNewPopup(PopupActions.MANAGE_WALLETS, this.bearerTokenProvider, {chain: chain.toLowerCase()});
+    }
+
     public linkWallets(options?: { redirectUri?: string, correlationID?: string }) {
         Utils.http().postInForm(
             `${Utils.urls.connect}/wallets/link`,
@@ -60,6 +66,10 @@ export class ArkaneConnect {
             this.bearerTokenProvider,
             options
         );
+    }
+
+    public linkWalletsPopup() {
+        return GeneralPopup.openNewPopup(PopupActions.LINK_WALLET, this.bearerTokenProvider);
     }
 
     public createSigner(signUsing?: SignMethod): Signer {
