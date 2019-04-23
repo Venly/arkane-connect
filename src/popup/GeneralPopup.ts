@@ -46,7 +46,7 @@ export class GeneralPopup extends Popup {
         };
     }
 
-    protected finishedEventType: EVENT_TYPES = EVENT_TYPES.GENERAL_FINISHED;
-    protected sendDataEventType: EVENT_TYPES = EVENT_TYPES.SEND_GENERAL_DATA;
+    protected finishedEventType: EVENT_TYPES = EVENT_TYPES.POPUP_FINISHED;
+    protected sendDataEventType: EVENT_TYPES = EVENT_TYPES.SEND_DATA;
 
 }
