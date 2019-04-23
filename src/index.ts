@@ -5,7 +5,9 @@ export { Signer, SignMethod, SignerResult }                                from 
 export { PopupSigner }                                                     from './signer/PopupSigner';
 export { RedirectSigner, RedirectOptions }                                 from './signer/RedirectSigner';
 export { Api }                                                             from './api/Api';
+export { PopupResult }                                                     from './popup/PopupResult';
 export { SecretType }                                                      from './models/SecretType';
+export { WindowMode }                                                      from './models/WindowMode';
 export { SignatureRequestType }                                            from './models/SignatureRequestType';
 export { TransactionRequestType }                                          from './models/TransactionRequestType';
 export { Wallet }                                                          from './models/wallet/Wallet';
