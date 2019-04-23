@@ -51,7 +51,8 @@ export class ArkaneConnect {
     }
 
     public manageWallets(chain: string, options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode }): Promise<PopupResult | void> {
-        if (options && options.windowMode && options.windowMode === WindowMode.REDIRECT || this.windowMode === WindowMode.REDIRECT) {
+        const windowMode = options && options.windowMode || this.windowMode;
+        if (windowMode === WindowMode.REDIRECT) {
             return this.manageWalletsRedirect(chain, options);
         } else {
             return this.manageWalletsPopup(chain);
@@ -73,7 +74,8 @@ export class ArkaneConnect {
     }
 
     public linkWallets(options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode }): Promise<PopupResult | void> {
-        if (options && options.windowMode && options.windowMode === WindowMode.REDIRECT || this.windowMode === WindowMode.REDIRECT) {
+        const windowMode = options && options.windowMode || this.windowMode;
+        if (windowMode === WindowMode.REDIRECT) {
             return this.linkWalletsRedirect(options);
         } else {
             return this.linkWalletsPopup();
