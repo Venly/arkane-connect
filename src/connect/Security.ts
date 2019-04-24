@@ -25,7 +25,7 @@ export class Security {
 
     public static loginPopup(clientId: string): Promise<LoginResult> {
         return new Promise(async (resolve: (value?: LoginResult | PromiseLike<LoginResult>) => void, reject: (reason?: any) => void) => {
-            Security.loginPopupListener = await Security.createLoginPopupListener(clientId, resolve, reject);
+            Security.loginPopupListener = await Security.createLoginListener(clientId, EventTypes.POPUP_AUTHENTICATED, resolve, reject);
             window.addEventListener('message', Security.loginPopupListener);
             Security.initialiseLoginPopup(clientId);
         }) as Promise<LoginResult>;
@@ -33,7 +33,7 @@ export class Security {
 
     public static checkAuthenticated(clientId: string): Promise<LoginResult> {
         return new Promise(async (resolve: (value?: LoginResult | PromiseLike<LoginResult>) => void, reject: (reason?: any) => void) => {
-            Security.checkAuthenticatedListener = await Security.createCheckAuthenticatedListener(clientId, resolve, reject);
+            Security.checkAuthenticatedListener = await Security.createLoginListener(clientId, EventTypes.CHECK_AUTHENTICATED, resolve, reject);
             window.addEventListener('message', Security.checkAuthenticatedListener);
             Security.initialiseCheckAuthenticatedIFrame(clientId);
         }) as Promise<LoginResult>;
@@ -81,14 +81,6 @@ export class Security {
                 }
             }
         }
-    };
-
-    private static createCheckAuthenticatedListener = async function(clientId: string, resolve: any, reject: any) {
-        return Security.createLoginListener(clientId, EventTypes.CHECK_AUTHENTICATED, resolve, reject);
-    };
-
-    private static createLoginPopupListener = async function(clientId: string, resolve: any, reject: any) {
-        return Security.createLoginListener(clientId, EventTypes.POPUP_AUTHENTICATED, resolve, reject);
     };
 
     private static initialiseLoginPopup(clientId: string): void {
