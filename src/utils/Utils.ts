@@ -1,5 +1,5 @@
 import ENV              from '../env';
-import { EVENT_TYPES }  from '../types/EventTypes';
+import { EventTypes }  from '../types/EventTypes';
 import * as QueryString from 'querystring';
 
 export default class Utils {
@@ -75,7 +75,7 @@ export default class Utils {
             hasType: (message: MessageEvent) => {
                 return message.data && message.data.type && message.data.type !== '';
             },
-            isOfType: (message: MessageEvent, eventType: EVENT_TYPES) => {
+            isOfType: (message: MessageEvent, eventType: EventTypes) => {
                 return Utils.messages().hasType(message) && message.data.type === eventType.toString();
             },
             hasCorrectCorrelationID(message: MessageEvent, correlationID: string) {

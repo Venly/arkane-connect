@@ -1,5 +1,5 @@
 import { ConfirmationRequest }       from '../models/ConfirmationRequest';
-import { EVENT_TYPES }               from '../types/EventTypes';
+import { EventTypes }               from '../types/EventTypes';
 import { GenericTransactionRequest } from '../models/transaction/GenericTransactionRequest';
 import { GenericSignatureRequest }   from '../models/transaction/GenericSignatureRequest';
 import Utils                         from '../utils/Utils';
@@ -69,8 +69,8 @@ export class PopupSigner implements Signer {
 
 class PopupSignerPopup extends Popup {
 
-    protected finishedEventType = EVENT_TYPES.SIGNER_FINISHED;
-    protected sendDataEventType = EVENT_TYPES.SEND_TRANSACTION_DATA;
+    protected finishedEventType = EventTypes.SIGNER_FINISHED;
+    protected sendDataEventType = EventTypes.SEND_TRANSACTION_DATA;
 
     constructor(url: string, bearerTokenProvider: () => string) {
         super(url, bearerTokenProvider);

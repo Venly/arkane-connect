@@ -36,8 +36,14 @@ export class ArkaneConnect {
     }
 
     public authenticate(options?: AuthenticationOptions): Promise<AuthenticationResult> {
-        return Security.login(this.clientId, options)
-                       .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
+        const windowMode = options && options.windowMode || this.windowMode;
+        if (windowMode === WindowMode.REDIRECT) {
+            return Security.login(this.clientId, options)
+                           .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
+        } else {
+            return Security.loginPopup(this.clientId)
+                           .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
+        }
     }
 
     public logout(): KeycloakPromise<void, void> {
@@ -140,4 +146,5 @@ export interface ConstructorOptions {
 
 export interface AuthenticationOptions {
     redirectUri?: string;
+    windowMode?: WindowMode;
 }

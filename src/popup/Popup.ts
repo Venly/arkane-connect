@@ -1,6 +1,7 @@
 import Utils           from '../utils/Utils';
-import { EVENT_TYPES } from '../types/EventTypes';
+import { EventTypes } from '../types/EventTypes';
 import { PopupResult } from './PopupResult';
+import { PopupUtils }  from './PopupUtils';
 
 export default abstract class Popup {
 
@@ -13,8 +14,8 @@ export default abstract class Popup {
     protected correlationID: string;
     protected readonly bearerTokenProvider: () => string;
 
-    protected abstract finishedEventType: EVENT_TYPES;
-    protected abstract sendDataEventType: EVENT_TYPES;
+    protected abstract finishedEventType: EventTypes;
+    protected abstract sendDataEventType: EventTypes;
 
     constructor(url: string, bearerTokenProvider: () => string) {
         this.correlationID = '' + Date.now() + Math.random();
@@ -22,7 +23,7 @@ export default abstract class Popup {
         this.popupMountedListener = this.createPopupMountedListener(this.correlationID);
         window.addEventListener('message', this.popupMountedListener);
         url = Utils.http().addRequestParams(url, {cid: this.correlationID, webURI: Utils.urls.connect});
-        this.popupWindow = Popup.openWindow(url);
+        this.popupWindow = PopupUtils.openWindow(url);
     }
 
     public abstract sendData(action: string, data: any): Promise<PopupResult>;
@@ -59,7 +60,7 @@ export default abstract class Popup {
         return (message: MessageEvent) => {
             if (Utils.messages().hasValidOrigin(message)
                 && Utils.messages().hasCorrectCorrelationID(message, correlationID)
-                && Utils.messages().isOfType(message, EVENT_TYPES.POPUP_MOUNTED)) {
+                && Utils.messages().isOfType(message, EventTypes.POPUP_MOUNTED)) {
                 this.isPopupMounted = true;
                 if (this.popupMountedListener) {
                     window.removeEventListener('message', this.popupMountedListener);
@@ -100,19 +101,6 @@ export default abstract class Popup {
                 callback();
                 callback = this.onPopupMountedQueue.shift();
             }
-        }
-    }
-
-    private static openWindow(url: string, title: string = 'Arkane Connect', w: number = 350, h: number = 685) {
-        const left = (screen.width / 2) - (w / 2);
-        const top = (screen.height / 2) - (h / 2);
-        let features = 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, ';
-        features += `copyhistory=no, width=${w}, height=${h}, top=${top}, left=${left}`;
-        const popup = window.open(url, title, features);
-        if (popup) {
-            return popup;
-        } else {
-            throw new Error('Something went wrong while trying to open the signer popup');
         }
     }
 }

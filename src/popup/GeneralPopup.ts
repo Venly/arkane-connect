@@ -1,4 +1,4 @@
-import { EVENT_TYPES }  from '../types/EventTypes';
+import { EventTypes }  from '../types/EventTypes';
 import Popup            from './Popup';
 import Utils            from '../utils/Utils';
 import { PopupActions } from './PopupActions';
@@ -46,7 +46,7 @@ export class GeneralPopup extends Popup {
         };
     }
 
-    protected finishedEventType: EVENT_TYPES = EVENT_TYPES.POPUP_FINISHED;
-    protected sendDataEventType: EVENT_TYPES = EVENT_TYPES.SEND_DATA;
+    protected finishedEventType: EventTypes = EventTypes.POPUP_FINISHED;
+    protected sendDataEventType: EventTypes = EventTypes.SEND_DATA;
 
 }
