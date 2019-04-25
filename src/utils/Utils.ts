@@ -4,20 +4,20 @@ import * as QueryString from 'querystring';
 
 export default class Utils {
 
-    private static environmentHolder: string = 'prod';
-    public static environmentAndPrefix: string = '';
+    private static rawEnvironmentHolder: string = '';
+    public static environment: string = '';
     public static connectEnvironment: string = '';
 
-    public static set environment(env: string) {
-        Utils.environmentAndPrefix = env;
+    public static set rawEnvironment(env: string) {
+        Utils.rawEnvironmentHolder = env;
         const split = env.split('-');
-        Utils.environmentHolder = split[0];
+        Utils.environment = split[0];
         Utils.connectEnvironment = split.length > 1 && split[1] || '';
     };
 
-    public static get environment() {
-        return Utils.environmentHolder;
-    };
+    public static get rawEnvironment() {
+        return Utils.rawEnvironmentHolder;
+    }
 
     public static get env() {
         return ENV;

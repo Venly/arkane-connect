@@ -85,14 +85,14 @@ export class Security {
 
     private static initialiseLoginPopup(clientId: string): void {
         const origin = window.location.href.replace(window.location.search, '');
-        const url = `${Security.popupAuthenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.environmentAndPrefix})}`;
+        const url = `${Security.popupAuthenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
         Security.popupWindow = PopupUtils.openWindow(url);
     }
 
     private static initialiseCheckAuthenticatedIFrame(clientId: string): HTMLIFrameElement {
         const iframe: HTMLIFrameElement = document.createElement('iframe');
         const origin = window.location.href.replace(window.location.search, '');
-        iframe.src = `${Security.checkAuthenticatedURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.environmentAndPrefix})}`;
+        iframe.src = `${Security.checkAuthenticatedURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
         iframe.hidden = true;
         iframe.id = Security.AUTH_IFRAME_ID;
         document.body.appendChild(iframe);
