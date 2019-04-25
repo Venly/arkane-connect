@@ -23,7 +23,7 @@ export class ArkaneConnect {
         this.clientId = clientId;
         this.signUsing = (options && options.signUsing) || SignMethod.POPUP;
         this.windowMode = (options && options.windowMode) || WindowMode.POPUP;
-        Utils.environment = options && options.environment || 'prod';
+        Utils.rawEnvironment = options && options.environment || 'prod';
         this.bearerTokenProvider = options && options.bearerTokenProvider || (() => this.auth.token && this.auth.token || '');
         if (this.bearerTokenProvider) {
             this.api = new Api(Utils.urls.api, this.bearerTokenProvider);
@@ -140,4 +140,5 @@ export interface ConstructorOptions {
 
 export interface AuthenticationOptions {
     redirectUri?: string;
+    windowMode?: WindowMode;
 }

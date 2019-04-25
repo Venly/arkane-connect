@@ -1,21 +1,23 @@
 import ENV              from '../env';
-import { EVENT_TYPES }  from '../types/EventTypes';
+import { EventTypes }  from '../types/EventTypes';
 import * as QueryString from 'querystring';
 
 export default class Utils {
 
-    private static environmentHolder: string = 'prod';
+    private static rawEnvironmentHolder: string = '';
+    public static environment: string = '';
     public static connectEnvironment: string = '';
 
-    public static set environment(env: string) {
+    public static set rawEnvironment(env: string) {
+        Utils.rawEnvironmentHolder = env;
         const split = env.split('-');
-        Utils.environmentHolder = split[0];
+        Utils.environment = split[0];
         Utils.connectEnvironment = split.length > 1 && split[1] || '';
     };
 
-    public static get environment() {
-        return Utils.environmentHolder;
-    };
+    public static get rawEnvironment() {
+        return Utils.rawEnvironmentHolder;
+    }
 
     public static get env() {
         return ENV;
@@ -75,7 +77,7 @@ export default class Utils {
             hasType: (message: MessageEvent) => {
                 return message.data && message.data.type && message.data.type !== '';
             },
-            isOfType: (message: MessageEvent, eventType: EVENT_TYPES) => {
+            isOfType: (message: MessageEvent, eventType: EventTypes) => {
                 return Utils.messages().hasType(message) && message.data.type === eventType.toString();
             },
             hasCorrectCorrelationID(message: MessageEvent, correlationID: string) {

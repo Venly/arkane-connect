@@ -1,11 +1,12 @@
 import { ConfirmationRequest }       from '../models/ConfirmationRequest';
-import { EVENT_TYPES }               from '../types/EventTypes';
+import { EventTypes }                from '../types/EventTypes';
 import { GenericTransactionRequest } from '../models/transaction/GenericTransactionRequest';
 import { GenericSignatureRequest }   from '../models/transaction/GenericSignatureRequest';
 import Utils                         from '../utils/Utils';
 import { Signer, SignerResult }      from '../signer/Signer';
 import { TransactionRequest }        from '..';
 import Popup                         from '../popup/Popup';
+import { RequestDataType }           from '../models/RequestDataType';
 
 export class PopupSigner implements Signer {
 
@@ -56,7 +57,7 @@ export class PopupSigner implements Signer {
 
     private async handleRequest(
         action: string,
-        requestData: TransactionRequest | GenericTransactionRequest | GenericSignatureRequest | { transactionId: string } | ConfirmationRequest
+        requestData: RequestDataType
     ): Promise<SignerResult> {
         this.popup.focus();
         return this.popup
@@ -69,8 +70,8 @@ export class PopupSigner implements Signer {
 
 class PopupSignerPopup extends Popup {
 
-    protected finishedEventType = EVENT_TYPES.SIGNER_FINISHED;
-    protected sendDataEventType = EVENT_TYPES.SEND_TRANSACTION_DATA;
+    protected finishedEventType = EventTypes.SIGNER_FINISHED;
+    protected sendDataEventType = EventTypes.SEND_TRANSACTION_DATA;
 
     constructor(url: string, bearerTokenProvider: () => string) {
         super(url, bearerTokenProvider);
@@ -78,7 +79,7 @@ class PopupSignerPopup extends Popup {
 
     public sendData(
         action: string,
-        requestData: TransactionRequest | GenericTransactionRequest | GenericSignatureRequest | { transactionId: string } | ConfirmationRequest
+        requestData: RequestDataType
     ): Promise<SignerResult> {
         return new Promise((resolve, reject) => {
             this.onPopupMountedQueue.push(this.attachFinishedListener(resolve, reject));
@@ -89,7 +90,7 @@ class PopupSignerPopup extends Popup {
 
     protected sendDataToPopup(
         action: string,
-        requestData: TransactionRequest | GenericTransactionRequest | GenericSignatureRequest | { transactionId: string } | ConfirmationRequest
+        requestData: RequestDataType
     ): () => void {
         return () => {
             if (this.isOpen()) {
