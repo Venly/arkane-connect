@@ -1,9 +1,10 @@
 import { KeycloakInitOptions, KeycloakInstance } from 'keycloak-js';
-import Utils                                     from '../utils/Utils';
-import { AuthenticationOptions }                 from './connect';
 import QueryString                               from 'querystring';
+import { AuthenticationOptions }                 from './connect';
 import { PopupUtils }                            from '../popup/PopupUtils';
+import { WindowMode }                            from '../models/WindowMode';
 import { EventTypes }                            from '../types/EventTypes';
+import Utils                                     from '../utils/Utils';
 
 export class Security {
     public static isLoggedIn = false;
@@ -20,13 +21,32 @@ export class Security {
     }
 
     public static login(clientId: string, options?: AuthenticationOptions): Promise<LoginResult> {
+        switch (options && options.windowMode) {
+            case WindowMode.POPUP:
+                return Security.loginPopup(clientId);
+            // case WindowMode.IFRAME:
+            //     return Security.initLoginIFrame(clientId, options && options.iFrameSelector || '#login-iframe');
+            default:
+                return Security.loginRedirect(clientId, options);
+        }
+    }
+
+    // public static initLoginIFrame(clientId: string, iFrameSelector: string) {
+    //     return new Promise(async (resolve: (value?: LoginResult | PromiseLike<LoginResult>) => void, reject: (reason?: any) => void) => {
+    //         Security.loginListener = await Security.createLoginListener(clientId, EventTypes.AUTHENTICATE, resolve, reject);
+    //         window.addEventListener('message', Security.loginListener);
+    //         Security.initialiseLoginIFrame(clientId, iFrameSelector);
+    //     }) as Promise<LoginResult>;
+    // }
+
+    private static loginRedirect(clientId: string, options?: AuthenticationOptions): Promise<LoginResult> {
         return Security.initializeAuth(Security.getConfig(clientId), 'login-required', options);
     }
 
-    public static loginPopup(clientId: string): Promise<LoginResult> {
+    private static loginPopup(clientId: string): Promise<LoginResult> {
         return new Promise(async (resolve: (value?: LoginResult | PromiseLike<LoginResult>) => void, reject: (reason?: any) => void) => {
-            Security.loginPopupListener = await Security.createLoginListener(clientId, EventTypes.POPUP_AUTHENTICATED, resolve, reject);
-            window.addEventListener('message', Security.loginPopupListener);
+            Security.loginListener = await Security.createLoginListener(clientId, EventTypes.AUTHENTICATE, resolve, reject);
+            window.addEventListener('message', Security.loginListener);
             Security.initialiseLoginPopup(clientId);
         }) as Promise<LoginResult>;
     }
@@ -41,7 +61,7 @@ export class Security {
 
     private static keycloak: KeycloakInstance;
     private static updateTokenInterval: any;
-    private static loginPopupListener: any;
+    private static loginListener: any;
     private static popupWindow: Window;
     private static checkAuthenticatedListener: any;
     private static readonly AUTH_IFRAME_ID = 'arkane-auth-iframe';
@@ -50,8 +70,8 @@ export class Security {
         return `${Utils.urls.connect}/checkAuthenticated`;
     }
 
-    private static get popupAuthenticateURI() {
-        return `${Utils.urls.connect}/popupAuthenticate`;
+    private static get authenticateURI() {
+        return `${Utils.urls.connect}/authenticate`;
     }
 
     private static createLoginListener = async function(clientId: string, eventType: EventTypes, resolve: any, reject: any) {
@@ -85,9 +105,16 @@ export class Security {
 
     private static initialiseLoginPopup(clientId: string): void {
         const origin = window.location.href.replace(window.location.search, '');
-        const url = `${Security.popupAuthenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
+        const url = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
         Security.popupWindow = PopupUtils.openWindow(url);
     }
+
+    // private static initialiseLoginIFrame(clientId: string, iframeSelector: string): HTMLIFrameElement {
+    //     const iframe = document.querySelector(iframeSelector) as HTMLIFrameElement;
+    //     const origin = window.location.href.replace(window.location.search, '');
+    //     iframe.src = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
+    //     return iframe;
+    // }
 
     private static initialiseCheckAuthenticatedIFrame(clientId: string): HTMLIFrameElement {
         const iframe: HTMLIFrameElement = document.createElement('iframe');
@@ -187,7 +214,7 @@ export class Security {
 
     private static cleanUp(eventType: EventTypes) {
         if (eventType === EventTypes.CHECK_AUTHENTICATED) {
-            if(Security.checkAuthenticatedListener) {
+            if (Security.checkAuthenticatedListener) {
                 window.removeEventListener('message', Security.checkAuthenticatedListener);
                 delete Security.checkAuthenticatedListener;
             }
@@ -195,10 +222,10 @@ export class Security {
             if (iframe) {
                 iframe.remove();
             }
-        } else if(eventType === EventTypes.POPUP_AUTHENTICATED) {
-            if(Security.loginPopupListener) {
-                window.removeEventListener('message', Security.loginPopupListener);
-                delete Security.loginPopupListener;
+        } else if (eventType === EventTypes.AUTHENTICATE) {
+            if (Security.loginListener) {
+                window.removeEventListener('message', Security.loginListener);
+                delete Security.loginListener;
             }
             if (Security.popupWindow && !Security.popupWindow.closed) {
                 Security.popupWindow.close();
