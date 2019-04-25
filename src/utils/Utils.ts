@@ -5,9 +5,11 @@ import * as QueryString from 'querystring';
 export default class Utils {
 
     private static environmentHolder: string = 'prod';
+    public static environmentAndPrefix: string = '';
     public static connectEnvironment: string = '';
 
     public static set environment(env: string) {
+        Utils.environmentAndPrefix = env;
         const split = env.split('-');
         Utils.environmentHolder = split[0];
         Utils.connectEnvironment = split.length > 1 && split[1] || '';
