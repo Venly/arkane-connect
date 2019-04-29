@@ -11,7 +11,7 @@ export class CreateApplicationWalletRequest implements ConfirmationRequest {
 
     public alias?: string;
 
-    public desciption?: string;
+    public description?: string;
 
     constructor(secretType: SecretType) {
         this.secretType = secretType;
