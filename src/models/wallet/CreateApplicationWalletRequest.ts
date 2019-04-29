@@ -9,6 +9,10 @@ export class CreateApplicationWalletRequest implements ConfirmationRequest {
 
     public readonly secretType: SecretType;
 
+    public alias?: string;
+
+    public desciption?: string;
+
     constructor(secretType: SecretType) {
         this.secretType = secretType;
     }
