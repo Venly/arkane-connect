@@ -1,8 +1,9 @@
-import { GenericTransactionRequest }       from '../models/transaction/GenericTransactionRequest';
 import { PopupSigner }                     from './PopupSigner';
 import { RedirectOptions, RedirectSigner } from './RedirectSigner';
-import { GenericSignatureRequest }         from '../models/transaction/GenericSignatureRequest';
 import { ConfirmationRequest }             from '../models/ConfirmationRequest';
+import { GenericSignatureRequest }         from '../models/transaction/GenericSignatureRequest';
+import { GenericTransactionRequest }       from '../models/transaction/GenericTransactionRequest';
+import { WindowMode }                      from '../models/WindowMode';
 import { PopupResult }                     from '../popup/PopupResult';
 
 
@@ -17,11 +18,11 @@ export interface Signer {
 
 export class SignerFactory {
 
-    public static createSignerFor(signMethod: SignMethod, bearerTokenProvider: () => string): Signer {
+    public static createSignerFor(signMethod: WindowMode, bearerTokenProvider: () => string): Signer {
         switch (signMethod) {
-            case SignMethod.POPUP:
+            case WindowMode.POPUP:
                 return new PopupSigner(bearerTokenProvider);
-            case SignMethod.REDIRECT:
+            case WindowMode.REDIRECT:
                 return new RedirectSigner(bearerTokenProvider);
             default:
                 throw new Error('The provided signMethod is not supported');
@@ -29,9 +30,11 @@ export class SignerFactory {
     }
 }
 
+/* Deprecated, use WindowMode */
 export enum SignMethod {
     POPUP = 'POPUP',
     REDIRECT = 'REDIRECT',
 }
 
-export interface SignerResult extends PopupResult {}
+export interface SignerResult extends PopupResult {
+}
