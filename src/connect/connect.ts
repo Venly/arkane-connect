@@ -1,10 +1,10 @@
 import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
+import { LoginResult, Security }             from './Security';
 import { Api }                               from '../api/Api';
 import { WindowMode }                        from '../models/WindowMode';
 import { GeneralPopup }                      from '../popup/GeneralPopup';
 import { PopupActions }                      from '../popup/PopupActions';
 import { PopupResult }                       from '../popup/PopupResult';
-import { LoginResult, Security }             from './Security';
 import { PopupSigner }                       from '../signer/PopupSigner';
 import { Signer, SignerFactory, SignMethod } from '../signer/Signer';
 import Utils                                 from '../utils/Utils';
@@ -12,7 +12,7 @@ import Utils                                 from '../utils/Utils';
 export class ArkaneConnect {
 
     public api!: Api;
-    public signUsing: SignMethod;
+    public signUsing: WindowMode;
     public windowMode: WindowMode;
 
     private clientId: string;
@@ -21,7 +21,7 @@ export class ArkaneConnect {
 
     constructor(clientId: string, options?: ConstructorOptions) {
         this.clientId = clientId;
-        this.signUsing = (options && options.signUsing) || SignMethod.POPUP;
+        this.signUsing = (options && options.signUsing as unknown as WindowMode) || WindowMode.POPUP;
         this.windowMode = (options && options.windowMode) || WindowMode.POPUP;
         Utils.rawEnvironment = options && options.environment || 'prod';
         this.bearerTokenProvider = options && options.bearerTokenProvider || (() => this.auth.token && this.auth.token || '');
@@ -36,7 +36,9 @@ export class ArkaneConnect {
     }
 
     public authenticate(options?: AuthenticationOptions): Promise<AuthenticationResult> {
-        return Security.login(this.clientId, options)
+        let authOptions: AuthenticationOptions = {...options};
+        authOptions.windowMode = authOptions.windowMode || this.windowMode;
+        return Security.login(this.clientId, authOptions)
                        .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
     }
 
@@ -96,8 +98,8 @@ export class ArkaneConnect {
         return GeneralPopup.openNewPopup(PopupActions.LINK_WALLET, this.bearerTokenProvider);
     }
 
-    public createSigner(signUsing?: SignMethod): Signer {
-        return SignerFactory.createSignerFor(signUsing || this.signUsing, this.bearerTokenProvider);
+    public createSigner(windowMode?: WindowMode): Signer {
+        return SignerFactory.createSignerFor(windowMode || this.signUsing || this.windowMode, this.bearerTokenProvider);
     }
 
     public isPopupSigner(signer: Signer): signer is PopupSigner {
