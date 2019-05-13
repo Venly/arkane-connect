@@ -1,6 +1,6 @@
 {
   "name": "@arkane-network/arkane-connect",
-  "version": "1.1.11-aeternity.0",
+  "version": "1.1.13-develop.1",
   "description": "Arkane Connect - api library for 3th parties",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -39,7 +39,7 @@
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.0",
     "ts-loader": "^4.5.0",
-    "typedoc": "^0.13.0",
+    "typedoc": "^0.14.2",
     "typescript": "^3.2.2",
     "webpack": "^4.27.1",
     "webpack-cli": "^3.1.0"
