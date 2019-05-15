@@ -25,8 +25,8 @@ export class PopupSigner implements Signer {
         this.popup.close();
     }
 
-    public isOpen() {
-        this.popup.isOpen();
+    public isOpen(): boolean {
+        return this.popup.isOpen();
     }
 
     public async sign(signatureRequest: GenericSignatureRequest): Promise<SignerResult> {
