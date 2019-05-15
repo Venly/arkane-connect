@@ -1,14 +1,19 @@
-import Utils                                 from '../utils/Utils';
-import { LoginResult, Security }             from './Security';
 import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
+import { LoginResult, Security }             from './Security';
 import { Api }                               from '../api/Api';
-import { Signer, SignerFactory, SignMethod } from '../signer/Signer';
+import { WindowMode }                        from '../models/WindowMode';
+import { GeneralPopup }                      from '../popup/GeneralPopup';
+import { PopupActions }                      from '../popup/PopupActions';
+import { PopupResult }                       from '../popup/PopupResult';
 import { PopupSigner }                       from '../signer/PopupSigner';
+import { Signer, SignerFactory, SignMethod } from '../signer/Signer';
+import Utils                                 from '../utils/Utils';
 
 export class ArkaneConnect {
 
     public api!: Api;
-    public signUsing: SignMethod;
+    public signUsing: WindowMode;
+    public windowMode: WindowMode;
 
     private clientId: string;
     private bearerTokenProvider: () => string;
@@ -16,8 +21,9 @@ export class ArkaneConnect {
 
     constructor(clientId: string, options?: ConstructorOptions) {
         this.clientId = clientId;
-        this.signUsing = (options && options.signUsing) || SignMethod.POPUP;
-        Utils.environment = options && options.environment || 'prod';
+        this.signUsing = (options && options.signUsing as unknown as WindowMode) || WindowMode.POPUP;
+        this.windowMode = (options && options.windowMode) || WindowMode.POPUP;
+        Utils.rawEnvironment = options && options.environment || 'prod';
         this.bearerTokenProvider = options && options.bearerTokenProvider || (() => this.auth.token && this.auth.token || '');
         if (this.bearerTokenProvider) {
             this.api = new Api(Utils.urls.api, this.bearerTokenProvider);
@@ -30,7 +36,9 @@ export class ArkaneConnect {
     }
 
     public authenticate(options?: AuthenticationOptions): Promise<AuthenticationResult> {
-        return Security.login(this.clientId, options)
+        let authOptions: AuthenticationOptions = {...options};
+        authOptions.windowMode = authOptions.windowMode || this.windowMode;
+        return Security.login(this.clientId, authOptions)
                        .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
     }
 
@@ -44,26 +52,54 @@ export class ArkaneConnect {
         }
     }
 
-    public manageWallets(chain: string, options?: { redirectUri?: string, correlationID?: string }) {
+    public manageWallets(chain: string, options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode }): Promise<PopupResult | void> {
+        const windowMode = options && options.windowMode || this.windowMode;
+        if (windowMode === WindowMode.REDIRECT) {
+            return this.manageWalletsRedirect(chain, options);
+        } else {
+            return this.manageWalletsPopup(chain);
+        }
+    }
+
+    private manageWalletsRedirect(chain: string, options?: { redirectUri?: string, correlationID?: string }): Promise<void> {
         Utils.http().postInForm(
             `${Utils.urls.connect}/wallets/manage`,
             {chain: chain.toLowerCase()},
             this.bearerTokenProvider,
             options
         );
+        return Promise.resolve();
     }
 
-    public linkWallets(options?: { redirectUri?: string, correlationID?: string }) {
+    private manageWalletsPopup(chain: string): Promise<PopupResult> {
+        return GeneralPopup.openNewPopup(PopupActions.MANAGE_WALLETS, this.bearerTokenProvider, {chain: chain.toLowerCase()});
+    }
+
+    public linkWallets(options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode }): Promise<PopupResult | void> {
+        const windowMode = options && options.windowMode || this.windowMode;
+        if (windowMode === WindowMode.REDIRECT) {
+            return this.linkWalletsRedirect(options);
+        } else {
+            return this.linkWalletsPopup();
+        }
+    }
+
+    private linkWalletsRedirect(options?: { redirectUri?: string, correlationID?: string }): Promise<void> {
         Utils.http().postInForm(
             `${Utils.urls.connect}/wallets/link`,
             {},
             this.bearerTokenProvider,
             options
         );
+        return Promise.resolve();
     }
 
-    public createSigner(signUsing?: SignMethod): Signer {
-        return SignerFactory.createSignerFor(signUsing || this.signUsing, this.bearerTokenProvider);
+    private linkWalletsPopup(): Promise<PopupResult> {
+        return GeneralPopup.openNewPopup(PopupActions.LINK_WALLET, this.bearerTokenProvider);
+    }
+
+    public createSigner(windowMode?: WindowMode): Signer {
+        return SignerFactory.createSignerFor(windowMode || this.signUsing || this.windowMode, this.bearerTokenProvider);
     }
 
     public isPopupSigner(signer: Signer): signer is PopupSigner {
@@ -98,10 +134,13 @@ export interface AuthenticationResult {
 export interface ConstructorOptions {
     chains?: string[];
     environment?: string;
+    windowMode?: WindowMode;
+    /* Deprecated, use WindowMode */
     signUsing?: SignMethod;
     bearerTokenProvider?: () => string;
 }
 
 export interface AuthenticationOptions {
     redirectUri?: string;
+    windowMode?: WindowMode;
 }

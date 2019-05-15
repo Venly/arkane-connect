@@ -1,7 +1,10 @@
 import { KeycloakInitOptions, KeycloakInstance } from 'keycloak-js';
-import Utils                                     from '../utils/Utils';
-import { AuthenticationOptions }                 from './connect';
 import QueryString                               from 'querystring';
+import { AuthenticationOptions }                 from './connect';
+import { PopupUtils }                            from '../popup/PopupUtils';
+import { WindowMode }                            from '../models/WindowMode';
+import { EventTypes }                            from '../types/EventTypes';
+import Utils                                     from '../utils/Utils';
 
 export class Security {
     public static isLoggedIn = false;
@@ -18,12 +21,39 @@ export class Security {
     }
 
     public static login(clientId: string, options?: AuthenticationOptions): Promise<LoginResult> {
+        switch (options && options.windowMode) {
+            case WindowMode.POPUP:
+                return Security.loginPopup(clientId);
+            // case WindowMode.IFRAME:
+            //     return Security.initLoginIFrame(clientId, options && options.iFrameSelector || '#login-iframe');
+            default:
+                return Security.loginRedirect(clientId, options);
+        }
+    }
+
+    // public static initLoginIFrame(clientId: string, iFrameSelector: string) {
+    //     return new Promise(async (resolve: (value?: LoginResult | PromiseLike<LoginResult>) => void, reject: (reason?: any) => void) => {
+    //         Security.loginListener = await Security.createLoginListener(clientId, EventTypes.AUTHENTICATE, resolve, reject);
+    //         window.addEventListener('message', Security.loginListener);
+    //         Security.initialiseLoginIFrame(clientId, iFrameSelector);
+    //     }) as Promise<LoginResult>;
+    // }
+
+    private static loginRedirect(clientId: string, options?: AuthenticationOptions): Promise<LoginResult> {
         return Security.initializeAuth(Security.getConfig(clientId), 'login-required', options);
+    }
+
+    private static loginPopup(clientId: string): Promise<LoginResult> {
+        return new Promise(async (resolve: (value?: LoginResult | PromiseLike<LoginResult>) => void, reject: (reason?: any) => void) => {
+            Security.loginListener = await Security.createLoginListener(clientId, EventTypes.AUTHENTICATE, resolve, reject);
+            window.addEventListener('message', Security.loginListener);
+            Security.initialiseLoginPopup(clientId);
+        }) as Promise<LoginResult>;
     }
 
     public static checkAuthenticated(clientId: string): Promise<LoginResult> {
         return new Promise(async (resolve: (value?: LoginResult | PromiseLike<LoginResult>) => void, reject: (reason?: any) => void) => {
-            Security.checkAuthenticatedListener = await Security.createCheckAuthenticatedListener(clientId, resolve, reject);
+            Security.checkAuthenticatedListener = await Security.createLoginListener(clientId, EventTypes.CHECK_AUTHENTICATED, resolve, reject);
             window.addEventListener('message', Security.checkAuthenticatedListener);
             Security.initialiseCheckAuthenticatedIFrame(clientId);
         }) as Promise<LoginResult>;
@@ -31,6 +61,8 @@ export class Security {
 
     private static keycloak: KeycloakInstance;
     private static updateTokenInterval: any;
+    private static loginListener: any;
+    private static popupWindow: Window;
     private static checkAuthenticatedListener: any;
     private static readonly AUTH_IFRAME_ID = 'arkane-auth-iframe';
 
@@ -38,36 +70,56 @@ export class Security {
         return `${Utils.urls.connect}/checkAuthenticated`;
     }
 
-    private static createCheckAuthenticatedListener = async function(clientId: string, resolve: any, reject: any) {
+    private static get authenticateURI() {
+        return `${Utils.urls.connect}/authenticate`;
+    }
+
+    private static createLoginListener = async function(clientId: string, eventType: EventTypes, resolve: any, reject: any) {
         return (message: MessageEvent) => {
-            if (message && message.origin === Utils.urls.connect && message.data && message.data.type === 'CHECK_AUTHENTICATED') {
-                try {
-                    window.removeEventListener('message', Security.checkAuthenticatedListener);
-                    delete Security.checkAuthenticatedListener;
-                    Security.removeIFrame();
-                    const keycloakResult = message.data.keycloak;
-                    const initOptions: KeycloakInitOptions = {
-                        onLoad: 'check-sso',
-                        token: keycloakResult.token,
-                        refreshToken: keycloakResult.refreshToken,
-                        idToken: keycloakResult.idToken,
-                        timeSkew: keycloakResult.timeSkew,
-                    };
-                    // Remove the login state from the URL when tokens are already present (the checkAuthenticated iframe already handled it)
-                    Security.removeLoginState();
-                    Security.initKeycloak(Security.getConfig(clientId), initOptions, resolve, reject);
-                } catch (e) {
+            if (message && message.origin === Utils.urls.connect && message.data && message.data.type === eventType) {
+                if (message.data.authenticated) {
+                    try {
+                        Security.cleanUp(eventType);
+                        const keycloakResult = message.data.keycloak;
+                        const initOptions: KeycloakInitOptions = {
+                            onLoad: 'check-sso',
+                            token: keycloakResult.token,
+                            refreshToken: keycloakResult.refreshToken,
+                            idToken: keycloakResult.idToken,
+                            timeSkew: keycloakResult.timeSkew,
+                        };
+                        // Remove the login state from the URL when tokens are already present (the checkAuthenticated iframe already handled it)
+                        Security.removeLoginState();
+                        Security.initKeycloak(Security.getConfig(clientId), initOptions, resolve, reject);
+                    } catch (e) {
+                        Security.notAuthenticated();
+                        reject({authenticated: true, error: e});
+                    }
+                } else {
                     Security.notAuthenticated();
-                    reject(false);
+                    resolve({authenticated: false});
                 }
             }
-        };
+        }
     };
+
+    private static initialiseLoginPopup(clientId: string): void {
+        const origin = window.location.href.replace(window.location.search, '');
+        const url = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
+        Security.popupWindow = PopupUtils.openWindow(url);
+    }
+
+    // private static initialiseLoginIFrame(clientId: string, iframeSelector: string): HTMLIFrameElement {
+    //     const iframe = document.querySelector(iframeSelector) as HTMLIFrameElement;
+    //     const origin = window.location.href.replace(window.location.search, '');
+    //     iframe.src = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
+    //     return iframe;
+    // }
 
     private static initialiseCheckAuthenticatedIFrame(clientId: string): HTMLIFrameElement {
         const iframe: HTMLIFrameElement = document.createElement('iframe');
         const origin = window.location.href.replace(window.location.search, '');
-        iframe.src = `${Security.checkAuthenticatedURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.environment})}`;
+        iframe.src = `${Security.checkAuthenticatedURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
         iframe.hidden = true;
         iframe.id = Security.AUTH_IFRAME_ID;
         document.body.appendChild(iframe);
@@ -133,17 +185,17 @@ export class Security {
                         Security.notAuthenticated();
                     }
                     resolve({
-                                keycloak: Security.keycloak,
-                                authenticated,
-                            });
+                        keycloak: Security.keycloak,
+                        authenticated,
+                    });
                 })
-                .error(() => {
+                .error((e) => {
                     Security.notAuthenticated();
-                    reject(false);
+                    reject(e);
                 });
     }
 
-    private static removeLoginState() {
+    private static removeLoginState(): void {
         const url = window.location.href;
         const fragmentIndex = url.indexOf('#');
         if (fragmentIndex !== -1) {
@@ -152,19 +204,34 @@ export class Security {
         }
     }
 
-    private static authenticated() {
+    private static authenticated(): void {
         Security.isLoggedIn = true;
     }
 
-    private static notAuthenticated() {
+    private static notAuthenticated(): void {
         Security.isLoggedIn = false;
     }
 
-    private static removeIFrame() {
-        const iframe = document.getElementById(Security.AUTH_IFRAME_ID);
-        if (iframe) {
-            iframe.remove();
+    private static cleanUp(eventType: EventTypes) {
+        if (eventType === EventTypes.CHECK_AUTHENTICATED) {
+            if (Security.checkAuthenticatedListener) {
+                window.removeEventListener('message', Security.checkAuthenticatedListener);
+                delete Security.checkAuthenticatedListener;
+            }
+            const iframe = document.getElementById(Security.AUTH_IFRAME_ID);
+            if (iframe) {
+                iframe.remove();
+            }
+        } else if (eventType === EventTypes.AUTHENTICATE) {
+            if (Security.loginListener) {
+                window.removeEventListener('message', Security.loginListener);
+                delete Security.loginListener;
+            }
+            if (Security.popupWindow && !Security.popupWindow.closed) {
+                Security.popupWindow.close();
+            }
         }
+
     }
 }
 

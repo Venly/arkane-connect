@@ -1,10 +1,11 @@
 import axios, { AxiosError, AxiosInstance, AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios';
 import Utils                                                                                 from '../utils/Utils';
 import { SecretType }                                                                        from '../models/SecretType';
-import { Wallet }                                                                            from '../models/wallet/Wallet';
-import { Profile }                                                                           from '../models/profile/Profile';
-import { WalletBalance }                                                                     from '../models/wallet/WalletBalance';
-import { TokenBalance }                                                                      from '../models/wallet/TokenBalance';
+import { Wallet }             from '../models/wallet/Wallet';
+import { Profile }            from '../models/profile/Profile';
+import { WalletBalance }      from '../models/wallet/WalletBalance';
+import { TokenBalance }       from '../models/wallet/TokenBalance';
+import { TransactionRequest } from '..';
 
 export class Api {
 
@@ -23,6 +24,12 @@ export class Api {
         }
     }
 
+    ////////////
+    // Chains //
+    ////////////
+    public getAvailableSecretTypes = (): Promise<SecretType[]> => {
+        return this.processResponse<SecretType[]>(this.http.get(`chains`));
+    };
 
     ////////////
     // Wallet //
@@ -72,6 +79,13 @@ export class Api {
                             }
                         });
         });
+    }
+
+    //////////////////
+    // Transactions //
+    //////////////////
+    public getPendingTransactions = (): Promise<TransactionRequest[]> => {
+        return this.processResponse<TransactionRequest[]>(this.http.get('transactions'));
     }
 }
 
