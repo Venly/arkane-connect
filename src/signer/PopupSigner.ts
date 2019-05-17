@@ -25,6 +25,10 @@ export class PopupSigner implements Signer {
         this.popup.close();
     }
 
+    public isOpen(): boolean {
+        return this.popup.isOpen();
+    }
+
     public async sign(signatureRequest: GenericSignatureRequest): Promise<SignerResult> {
         signatureRequest.hash = typeof signatureRequest.hash === 'undefined' ? true : signatureRequest.hash;
         signatureRequest.prefix = typeof signatureRequest.hash === 'undefined' ? true : signatureRequest.prefix;
@@ -55,10 +59,7 @@ export class PopupSigner implements Signer {
         return this.handleRequest('confirm', request);
     }
 
-    private async handleRequest(
-        action: string,
-        requestData: RequestDataType
-    ): Promise<SignerResult> {
+    private async handleRequest(action: string, requestData: RequestDataType): Promise<SignerResult> {
         this.popup.focus();
         return this.popup
                    .sendData(action, Object.assign({}, requestData))
