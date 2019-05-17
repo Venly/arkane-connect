@@ -1,6 +1,9 @@
 import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
+
 import { LoginResult, Security }             from './Security';
 import { Api }                               from '../api/Api';
+import { SecretType }                        from '../models/SecretType';
+import { Wallet }                            from '../models/wallet/Wallet';
 import { WindowMode }                        from '../models/WindowMode';
 import { GeneralPopup }                      from '../popup/GeneralPopup';
 import { PopupActions }                      from '../popup/PopupActions';
@@ -30,16 +33,57 @@ export class ArkaneConnect {
         }
     }
 
-    public checkAuthenticated(): Promise<AuthenticationResult> {
-        return Security.checkAuthenticated(this.clientId)
-                       .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
+    public async getUserAndWalletsFlow(chain: SecretType): Promise<UserAndWalletsResult> {
+        let loginResult = await Security.checkAuthenticated(this.clientId);
+        let wallets: Wallet[] = [];
+
+        try {
+            // Check if authenticated
+            if (!loginResult.authenticated) {
+                loginResult = await Security.login(this.clientId, {windowMode: WindowMode.POPUP, closePopup: false});
+            }
+
+            if (loginResult.authenticated) {
+                this.auth = loginResult.keycloak;
+                wallets = await this.api.getWallets({secretType: chain.toUpperCase() as SecretType});
+                if (!(wallets && wallets.length > 0)) {
+                    const popupResult = await this.manageWallets(chain,{windowMode: WindowMode.POPUP});
+                    if (popupResult && popupResult.status === 'SUCCESS') {
+                        wallets = await this.api.getWallets({secretType: chain.toUpperCase() as SecretType});
+                    }
+                }
+            } else {
+                throw Error('Something went wrong.');
+            }
+
+            if (wallets.length === 0) {
+                throw Error('Something went wrong.');
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            if (loginResult && loginResult.popupWindow) {
+                loginResult.popupWindow.close();
+            }
+        }
+
+        return {
+            wallets: wallets,
+            auth: loginResult.keycloak,
+            isAuthenticated: loginResult.authenticated
+        }
     }
 
-    public authenticate(options?: AuthenticationOptions): Promise<AuthenticationResult> {
+    public async checkAuthenticated(): Promise<AuthenticationResult> {
+        const loginResult = await Security.checkAuthenticated(this.clientId);
+        return this.afterAuthentication(loginResult);
+    }
+
+    public async authenticate(options?: AuthenticationOptions): Promise<AuthenticationResult> {
         let authOptions: AuthenticationOptions = {...options};
         authOptions.windowMode = authOptions.windowMode || this.windowMode;
-        return Security.login(this.clientId, authOptions)
-                       .then((loginResult: LoginResult) => this.afterAuthentication(loginResult));
+        const loginResult = await Security.login(this.clientId, authOptions);
+        return this.afterAuthentication(loginResult);
     }
 
     public logout(): KeycloakPromise<void, void> {
@@ -106,15 +150,17 @@ export class ArkaneConnect {
         return (<PopupSigner>signer).closePopup !== undefined;
     }
 
-    private async afterAuthentication(loginResult: LoginResult): Promise<AuthenticationResult> {
+    private afterAuthentication(loginResult: LoginResult): AuthenticationResult {
+        // this.auth is needed for the bearerTokenProvider
         this.auth = loginResult.keycloak;
         return {
+            auth: this.auth,
+            isAuthenticated: loginResult.authenticated,
             authenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
                 if (loginResult.authenticated) {
                     callback(loginResult.keycloak);
                 }
                 return this;
-
             },
             notAuthenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
                 if (!loginResult.authenticated) {
@@ -126,7 +172,15 @@ export class ArkaneConnect {
     }
 }
 
+export interface UserAndWalletsResult {
+    wallets: Wallet[],
+    auth: KeycloakInstance,
+    isAuthenticated: boolean
+}
+
 export interface AuthenticationResult {
+    auth: KeycloakInstance,
+    isAuthenticated: boolean,
     authenticated: (onAuthenticated: (auth: KeycloakInstance) => void) => AuthenticationResult;
     notAuthenticated: (onNotAuthenticated: (auth: KeycloakInstance) => void) => AuthenticationResult;
 }
@@ -135,12 +189,12 @@ export interface ConstructorOptions {
     chains?: string[];
     environment?: string;
     windowMode?: WindowMode;
-    /* Deprecated, use WindowMode */
-    signUsing?: SignMethod;
+    signUsing?: SignMethod; // Deprecated, use WindowMode
     bearerTokenProvider?: () => string;
 }
 
 export interface AuthenticationOptions {
     redirectUri?: string;
     windowMode?: WindowMode;
+    closePopup?: boolean
 }

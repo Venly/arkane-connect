@@ -6,7 +6,7 @@ import { PopupResult }  from './PopupResult';
 
 export class GeneralPopup extends Popup {
 
-    public static openNewPopup(action: PopupActions, bearerTokenProvider: () => string, data?: any) {
+    public static openNewPopup(action: PopupActions, bearerTokenProvider: () => string, data?: any): Promise<PopupResult> {
         const popup = new GeneralPopup(`${Utils.urls.connect}/popup/general/init.html`, bearerTokenProvider);
         window.addEventListener('beforeunload', () => {
             popup.close();
