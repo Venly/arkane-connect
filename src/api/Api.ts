@@ -86,7 +86,11 @@ export class Api {
     //////////////////
     public getPendingTransactions = (): Promise<TransactionRequest[]> => {
         return this.processResponse<TransactionRequest[]>(this.http.get('transactions'));
-    }
+    };
+
+    public deleteTransaction = (transactionId: string): Promise<any> => {
+        return this.processResponse<any>(this.http.delete(`transactions/${transactionId}`));
+    };
 }
 
 export interface RestApiResponseError {
