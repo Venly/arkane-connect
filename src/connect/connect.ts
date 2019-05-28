@@ -19,14 +19,14 @@ export class ArkaneConnect {
     public _bearerTokenProvider: () => string;
 
     private clientId: string;
-    private auth!: KeycloakInstance;
+    private auth?: KeycloakInstance;
 
     constructor(clientId: string, options?: ConstructorOptions) {
         this.clientId = clientId;
         this.signUsing = (options && options.signUsing as unknown as WindowMode) || WindowMode.POPUP;
         this.windowMode = (options && options.windowMode) || WindowMode.POPUP;
         Utils.rawEnvironment = options && options.environment || 'prod';
-        this._bearerTokenProvider = options && options.bearerTokenProvider || (() => this.auth.token && this.auth.token || '');
+        this._bearerTokenProvider = options && options.bearerTokenProvider || (() => this.auth && this.auth.token && this.auth.token || '');
         if (this._bearerTokenProvider) {
             this.api = new Api(Utils.urls.api, this._bearerTokenProvider);
         }
@@ -39,8 +39,8 @@ export class ArkaneConnect {
         return this.afterAuthentication(loginResult);
     }
 
-    public logout(): KeycloakPromise<void, void> {
-        return this.auth.logout();
+    public logout(): Promise<void> {
+        return this.auth ? Security.logout(this.auth) : Promise.resolve();
     }
 
     public addOnTokenRefreshCallback(tokenRefreshCallback?: (token: string) => void): void {

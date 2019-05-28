@@ -53,11 +53,25 @@ export class Security {
     }
 
     public static checkAuthenticated(clientId: string): Promise<LoginResult> {
-        return new Promise(async (resolve: (value?: LoginResult | PromiseLike<LoginResult>) => void, reject: (reason?: any) => void) => {
+        return new Promise(async (resolve: (value: LoginResult) => void, reject: (reason?: any) => void) => {
             Security.checkAuthenticatedListener = await Security.createLoginListener(clientId, EventTypes.CHECK_AUTHENTICATED, resolve, reject);
             window.addEventListener('message', Security.checkAuthenticatedListener);
             Security.initialiseCheckAuthenticatedIFrame(clientId);
-        }) as Promise<LoginResult>;
+        });
+    }
+
+    public static logout(auth: Keycloak.KeycloakInstance): Promise<void> {
+        if (auth.authenticated && auth.clientId) {
+            return new Promise<void>(async (resolve: () => void, reject: (reason?: any) => void) => {
+                if (auth.clientId) {
+                    Security.logoutListener = await Security.createLogoutListener(EventTypes.LOGOUT, auth, resolve, reject);
+                    window.addEventListener('message', Security.logoutListener);
+                    Security.initialiseLogoutIFrame(auth.clientId);
+                }
+            });
+        } else {
+            return Promise.resolve();
+        }
     }
 
     private static keycloak: KeycloakInstance;
@@ -65,7 +79,9 @@ export class Security {
     private static loginListener: any;
     private static popupWindow: Window;
     private static checkAuthenticatedListener: any;
+    private static logoutListener: any;
     private static readonly AUTH_IFRAME_ID = 'arkane-auth-iframe';
+    private static readonly LOGOUT_IFRAME_ID = 'arkane-logout-iframe';
 
     private static get checkAuthenticatedURI() {
         return `${Utils.urls.connect}/checkAuthenticated`;
@@ -73,6 +89,10 @@ export class Security {
 
     private static get authenticateURI() {
         return `${Utils.urls.connect}/authenticate`;
+    }
+
+    private static get logoutURI() {
+        return `${Utils.urls.connect}/logout`;
     }
 
     private static createLoginListener = async function(clientId: string, eventType: EventTypes, resolve: any, reject: any, closePopup?: boolean) {
@@ -88,6 +108,7 @@ export class Security {
                             refreshToken: keycloakResult.refreshToken,
                             idToken: keycloakResult.idToken,
                             timeSkew: keycloakResult.timeSkew,
+                            checkLoginIframe: false,
                         };
                         // Remove the login state from the URL when tokens are already present (the checkAuthenticated iframe already handled it)
                         Security.removeLoginState();
@@ -105,6 +126,23 @@ export class Security {
                     Security.notAuthenticated();
                     resolve({authenticated: false});
                 }
+            }
+        }
+    };
+
+    private static createLogoutListener = async function(eventType: EventTypes, auth: Keycloak.KeycloakInstance, resolve: any, reject: any) {
+        return (message: MessageEvent) => {
+            if (auth.authenticated && message && message.origin === Utils.urls.connect && message.data && message.data.type === eventType) {
+                if (!message.data.authenticated) {
+                    auth.onAuthLogout && auth.onAuthLogout();
+                    Security.notAuthenticated();
+                    resolve();
+                } else {
+                    Security.authenticated();
+                    reject();
+                }
+            } else {
+                resolve();
             }
         }
     };
@@ -138,6 +176,16 @@ export class Security {
         if(!isIframeInBody) {
             document.body.appendChild(iframe);
         }
+        return iframe;
+    }
+
+    private static initialiseLogoutIFrame(clientId: string): HTMLIFrameElement {
+        const iframe: HTMLIFrameElement = document.createElement('iframe');
+        const origin = window.location.href.replace(window.location.search, '');
+        iframe.src = `${Security.logoutURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
+        iframe.hidden = true;
+        iframe.id = Security.LOGOUT_IFRAME_ID;
+        document.body.appendChild(iframe);
         return iframe;
     }
 
