@@ -161,31 +161,29 @@ export class Security {
     // }
 
     private static initialiseCheckAuthenticatedIFrame(clientId: string): HTMLIFrameElement {
-        let iframe = document.getElementById(Security.AUTH_IFRAME_ID) as HTMLIFrameElement;
+        return this.initialiseIFrame(clientId, Security.AUTH_IFRAME_ID, Security.checkAuthenticatedURI);
+    }
+
+    private static initialiseLogoutIFrame(clientId: string): HTMLIFrameElement {
+        return this.initialiseIFrame(clientId, Security.LOGOUT_IFRAME_ID, Security.logoutURI);
+    }
+
+    private static initialiseIFrame(clientId: string, iframeID: string, uri: string): HTMLIFrameElement {
+        let iframe = document.getElementById(iframeID) as HTMLIFrameElement;
         let isIframeInBody = true;
-        if(!iframe) {
+        if (!iframe) {
             isIframeInBody = false;
             iframe = document.createElement('iframe') as HTMLIFrameElement;
         }
 
         const origin = window.location.href.replace(window.location.search, '');
-
-        iframe.src = `${Security.checkAuthenticatedURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
+        iframe.src = `${uri}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
         iframe.hidden = true;
-        iframe.id = Security.AUTH_IFRAME_ID;
-        if(!isIframeInBody) {
+        iframe.id = iframeID;
+        document.body.appendChild(iframe);
+        if (!isIframeInBody) {
             document.body.appendChild(iframe);
         }
-        return iframe;
-    }
-
-    private static initialiseLogoutIFrame(clientId: string): HTMLIFrameElement {
-        const iframe: HTMLIFrameElement = document.createElement('iframe');
-        const origin = window.location.href.replace(window.location.search, '');
-        iframe.src = `${Security.logoutURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
-        iframe.hidden = true;
-        iframe.id = Security.LOGOUT_IFRAME_ID;
-        document.body.appendChild(iframe);
         return iframe;
     }
 
