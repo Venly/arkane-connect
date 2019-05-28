@@ -26,7 +26,7 @@ export class ArkaneConnect {
         this.signUsing = (options && options.signUsing as unknown as WindowMode) || WindowMode.POPUP;
         this.windowMode = (options && options.windowMode) || WindowMode.POPUP;
         Utils.rawEnvironment = options && options.environment || 'prod';
-        this._bearerTokenProvider = options && options.bearerTokenProvider || (() => this.auth && this.auth.token && this.auth.token || '');
+        this._bearerTokenProvider = options && options.bearerTokenProvider || (() => this.auth && this.auth.token || '');
         if (this._bearerTokenProvider) {
             this.api = new Api(Utils.urls.api, this._bearerTokenProvider);
         }
