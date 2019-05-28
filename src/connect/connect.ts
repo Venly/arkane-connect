@@ -1,4 +1,4 @@
-import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
+import { KeycloakInstance } from 'keycloak-js';
 
 import { LoginResult, Security }             from './Security';
 import { Api }                               from '../api/Api';
@@ -19,14 +19,14 @@ export class ArkaneConnect {
     public _bearerTokenProvider: () => string;
 
     private clientId: string;
-    private auth!: KeycloakInstance;
+    private auth?: KeycloakInstance;
 
     constructor(clientId: string, options?: ConstructorOptions) {
         this.clientId = clientId;
         this.signUsing = (options && options.signUsing as unknown as WindowMode) || WindowMode.POPUP;
         this.windowMode = (options && options.windowMode) || WindowMode.POPUP;
         Utils.rawEnvironment = options && options.environment || 'prod';
-        this._bearerTokenProvider = options && options.bearerTokenProvider || (() => this.auth.token && this.auth.token || '');
+        this._bearerTokenProvider = options && options.bearerTokenProvider || (() => this.auth && this.auth.token || '');
         if (this._bearerTokenProvider) {
             this.api = new Api(Utils.urls.api, this._bearerTokenProvider);
         }
@@ -39,8 +39,19 @@ export class ArkaneConnect {
         return this.afterAuthentication(loginResult);
     }
 
-    public logout(): KeycloakPromise<void, void> {
-        return this.auth.logout();
+    public logout(options?: AuthenticationOptions): Promise<void> {
+        const windowMode = options && options.windowMode || this.windowMode;
+        if (windowMode === WindowMode.REDIRECT) {
+            return new Promise<void>((resolve: any, reject: any) => {
+                const logoutOptions = {};
+                if (options && options.redirectUri) {
+                    Object.assign(logoutOptions, {redirectUri: options.redirectUri});
+                }
+                this.auth ? this.auth.logout(logoutOptions).success(() => resolve()).error(() => reject) : resolve();
+            })
+        } else {
+            return this.auth ? Security.logout(this.auth) : Promise.resolve();
+        }
     }
 
     public addOnTokenRefreshCallback(tokenRefreshCallback?: (token: string) => void): void {
