@@ -39,13 +39,14 @@ export class ArkaneConnect {
         return this.afterAuthentication(loginResult);
     }
 
-    public logout(): Promise<void> {
-        if (this.windowMode === WindowMode.POPUP) {
-            return this.auth ? Security.logout(this.auth) : Promise.resolve();
-        } else {
+    public logout(options?: AuthenticationOptions): Promise<void> {
+        const windowMode = options && options.windowMode || this.windowMode;
+        if (windowMode === WindowMode.REDIRECT) {
             return new Promise<void>((resolve: any, reject: any) => {
                 this.auth ? this.auth.logout().success(() => resolve()).error(() => reject) : resolve();
             })
+        } else {
+            return this.auth ? Security.logout(this.auth) : Promise.resolve();
         }
     }
 
