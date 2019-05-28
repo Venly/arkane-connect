@@ -1,4 +1,4 @@
-import { KeycloakInstance, KeycloakPromise } from 'keycloak-js';
+import { KeycloakInstance } from 'keycloak-js';
 
 import { LoginResult, Security }             from './Security';
 import { Api }                               from '../api/Api';
@@ -40,7 +40,13 @@ export class ArkaneConnect {
     }
 
     public logout(): Promise<void> {
-        return this.auth ? Security.logout(this.auth) : Promise.resolve();
+        if (this.windowMode === WindowMode.POPUP) {
+            return this.auth ? Security.logout(this.auth) : Promise.resolve();
+        } else {
+            return new Promise<void>((resolve: any, reject: any) => {
+                this.auth ? this.auth.logout().success(() => resolve()).error(() => reject) : resolve();
+            })
+        }
     }
 
     public addOnTokenRefreshCallback(tokenRefreshCallback?: (token: string) => void): void {
