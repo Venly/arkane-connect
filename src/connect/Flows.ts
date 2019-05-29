@@ -45,16 +45,14 @@ export class Flows {
     }
 
     public async getAccount(chain: SecretType): Promise<Account> {
-        let loginResult = await Security.checkAuthenticated(this.clientId);
-        let result = this.arkaneConnect._afterAuthenticationForFlowUse(loginResult);
+        let loginResult: any = {};
         let wallets: Wallet[] = [];
+        let start = +Date.now();
 
         try {
-            // Check if authenticated
-            if (!result.isAuthenticated) {
-                loginResult = await Security.login(this.clientId, {windowMode: WindowMode.POPUP, closePopup: false});
-                result = this.arkaneConnect._afterAuthenticationForFlowUse(loginResult);
-            }
+            loginResult = await Security.login(this.clientId, {windowMode: WindowMode.POPUP, closePopup: false});
+
+            let result = this.arkaneConnect._afterAuthenticationForFlowUse(loginResult);
 
             if (result.isAuthenticated) {
                 wallets = await this.arkaneConnect.api.getWallets({secretType: chain.toUpperCase() as SecretType});
@@ -73,7 +71,14 @@ export class Flows {
         }
 
         if (loginResult && loginResult.popupWindow) {
-            loginResult.popupWindow.close();
+            let timeout = 1500 - (+Date.now() - start);
+            if (timeout <= 0) {
+                loginResult.popupWindow.close();
+            } else {
+                setTimeout(() => {
+                    loginResult.popupWindow.close();
+                }, timeout);
+            }
         }
 
         return {
