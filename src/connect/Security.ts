@@ -7,7 +7,7 @@ import { EventTypes }                            from '../types/EventTypes';
 import Utils                                     from '../utils/Utils';
 
 export class Security {
-    public static isLoggedIn = false;
+
     public static onTokenUpdate: (token: string) => void;
 
     public static getConfig(clientId?: string): any {
@@ -48,7 +48,7 @@ export class Security {
             let closePopup = options ? options.closePopup : true;
             Security.loginListener = await Security.createLoginListener(clientId, EventTypes.AUTHENTICATE, resolve, reject, closePopup);
             window.addEventListener('message', Security.loginListener);
-            Security.initialiseLoginPopup(clientId);
+            Security.initialiseLoginPopup(clientId, resolve);
         }) as Promise<LoginResult>;
     }
 
@@ -75,11 +75,14 @@ export class Security {
     }
 
     private static keycloak: KeycloakInstance;
+
     private static updateTokenInterval: any;
     private static loginListener: any;
     private static popupWindow: Window;
     private static checkAuthenticatedListener: any;
     private static logoutListener: any;
+    private static isLoginPopupClosedInterval?: any;
+
     private static readonly AUTH_IFRAME_ID = 'arkane-auth-iframe';
     private static readonly LOGOUT_IFRAME_ID = 'arkane-logout-iframe';
 
@@ -95,9 +98,12 @@ export class Security {
         return `${Utils.urls.connect}/logout`;
     }
 
-    private static createLoginListener = async function(clientId: string, eventType: EventTypes, resolve: any, reject: any, closePopup?: boolean) {
+    private static createLoginListener = async function(clientId: string, eventType: EventTypes, resolve: (value: LoginResult) => void, reject: any, closePopup?: boolean) {
         return async (message: MessageEvent) => {
             if (message && message.origin === Utils.urls.connect && message.data && message.data.type === eventType) {
+                if (Security.isLoginPopupClosedInterval) {
+                    Security.clearIsLoginPopupClosedInterval();
+                }
                 if (message.data.authenticated) {
                     try {
                         Security.cleanUp(eventType, closePopup);
@@ -119,38 +125,53 @@ export class Security {
                             popupWindow: Security.popupWindow
                         })
                     } catch (e) {
-                        Security.notAuthenticated();
-                        reject({authenticated: true, error: e});
+                        reject({error: e});
                     }
                 } else {
-                    Security.notAuthenticated();
                     resolve({authenticated: false});
                 }
             }
         }
     };
 
-    private static createLogoutListener = async function(eventType: EventTypes, auth: Keycloak.KeycloakInstance, resolve: any, reject: any) {
+
+    private static createLogoutListener = async function(eventType: EventTypes, auth: Keycloak.KeycloakInstance, resolve: () => void, reject: any) {
         return (message: MessageEvent) => {
-            if (auth.authenticated && message && message.origin === Utils.urls.connect && message.data && message.data.type === eventType) {
-                if (!message.data.authenticated) {
-                    auth.onAuthLogout && auth.onAuthLogout();
-                    Security.notAuthenticated();
-                    resolve();
+            if (message && message.origin === Utils.urls.connect && message.data && message.data.type === eventType) {
+                if (auth.authenticated) {
+                    if (!message.data.authenticated) {
+                        auth.onAuthLogout && auth.onAuthLogout();
+                        resolve();
+                    } else {
+                        reject();
+                    }
                 } else {
-                    Security.authenticated();
-                    reject();
+                    resolve();
                 }
-            } else {
-                resolve();
             }
         }
     };
 
-    private static initialiseLoginPopup(clientId: string): void {
+    private static initialiseLoginPopup(clientId: string, resolve: (value: LoginResult) => void): void {
         const origin = window.location.href.replace(window.location.search, '');
         const url = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
         Security.popupWindow = PopupUtils.openWindow(url);
+        Security.initialiseIsLoginPopupClosedInterval(resolve);
+    }
+
+    private static initialiseIsLoginPopupClosedInterval(resolve: (value: LoginResult) => void) {
+        Security.isLoginPopupClosedInterval = window.setInterval(() => {
+            if (Security.popupWindow.closed) {
+                this.clearIsLoginPopupClosedInterval();
+                this.cleanUp(EventTypes.AUTHENTICATE);
+                resolve({authenticated: false});
+            }
+        }, 2000);
+    }
+
+    private static clearIsLoginPopupClosedInterval() {
+        clearInterval(Security.isLoginPopupClosedInterval);
+        delete Security.isLoginPopupClosedInterval;
     }
 
     // private static initialiseLoginIFrame(clientId: string, iframeSelector: string): HTMLIFrameElement {
@@ -197,7 +218,6 @@ export class Security {
                 new Promise((resolve, reject) => {
                     if (Security.keycloak) {
                         Security.keycloak.updateToken(70).success((refreshed: any) => {
-                            Security.authenticated();
                             resolve(refreshed);
                         });
                     } else {
@@ -205,14 +225,12 @@ export class Security {
                     }
                 }).then((refreshed: any) => {
                     if (refreshed) {
-                        Security.authenticated();
                         if (Security.onTokenUpdate && Security.keycloak.token) {
                             Security.onTokenUpdate(Security.keycloak.token);
                         }
                     }
                 }).catch(() => {
                     (console as any).error('failed to refresh token');
-                    Security.notAuthenticated();
                     clearInterval(Security.updateTokenInterval);
                     Security.updateTokenInterval = null;
                 });
@@ -239,10 +257,7 @@ export class Security {
                     .init(initOptions)
                     .success((authenticated: any) => {
                         if (authenticated) {
-                            Security.authenticated();
                             Security.setUpdateTokenInterval();
-                        } else {
-                            Security.notAuthenticated();
                         }
                         resolve({
                             keycloak: Security.keycloak,
@@ -250,7 +265,6 @@ export class Security {
                         } as LoginResult);
                     })
                     .error((e) => {
-                        Security.notAuthenticated();
                         reject(e);
                     });
         });
@@ -263,14 +277,6 @@ export class Security {
             const newURL = url.substring(0, fragmentIndex);
             window.history.replaceState({}, '', newURL);
         }
-    }
-
-    private static authenticated(): void {
-        Security.isLoggedIn = true;
-    }
-
-    private static notAuthenticated(): void {
-        Security.isLoggedIn = false;
     }
 
     private static cleanUp(eventType: EventTypes, closePopup: boolean = true) {
@@ -297,7 +303,7 @@ export class Security {
 }
 
 export interface LoginResult {
-    keycloak: KeycloakInstance;
+    keycloak?: KeycloakInstance;
     authenticated: boolean;
     popupWindow?: Window;
 }
