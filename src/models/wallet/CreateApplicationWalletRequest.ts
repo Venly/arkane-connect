@@ -1,19 +1,8 @@
-import { SecretType }              from '../SecretType';
-import { ConfirmationRequest }     from '../ConfirmationRequest';
 import { ConfirmationRequestType } from '../ConfirmationRequestType';
+import { CreateWalletRequest }     from './CreateWalletRequest';
 
 
-export class CreateApplicationWalletRequest implements ConfirmationRequest {
+export class CreateApplicationWalletRequest extends CreateWalletRequest {
 
     public readonly confirmationRequestType = ConfirmationRequestType.CREATE_APPLICATION_WALLET;
-
-    public readonly secretType: SecretType;
-
-    public alias?: string;
-
-    public description?: string;
-
-    constructor(secretType: SecretType) {
-        this.secretType = secretType;
-    }
 }
