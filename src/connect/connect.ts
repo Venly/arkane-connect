@@ -94,12 +94,12 @@ export class ArkaneConnect {
             auth: this.auth,
             isAuthenticated: loginResult.authenticated,
             authenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
-                if (loginResult.authenticated) {
+                if (loginResult.authenticated && loginResult.keycloak) {
                     callback(loginResult.keycloak);
                 }
                 return this;
             },
-            notAuthenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
+            notAuthenticated(this: AuthenticationResult, callback: (auth?: KeycloakInstance) => void) {
                 if (!loginResult.authenticated) {
                     callback(loginResult.keycloak);
                 }
@@ -116,10 +116,10 @@ export interface Account {
 }
 
 export interface AuthenticationResult {
-    auth: KeycloakInstance,
+    auth?: KeycloakInstance,
     isAuthenticated: boolean,
     authenticated: (onAuthenticated: (auth: KeycloakInstance) => void) => AuthenticationResult;
-    notAuthenticated: (onNotAuthenticated: (auth: KeycloakInstance) => void) => AuthenticationResult;
+    notAuthenticated: (onNotAuthenticated: (auth?: KeycloakInstance) => void) => AuthenticationResult;
 }
 
 export interface ConstructorOptions {

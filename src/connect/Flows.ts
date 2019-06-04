@@ -2,13 +2,13 @@ import { KeycloakInstance } from 'keycloak-js';
 
 import { Security }                             from './Security';
 import { SecretType }                           from '../models/SecretType';
-import { Wallet }                               from '../models/wallet/Wallet';
-import { WindowMode }                           from '../models/WindowMode';
-import { GeneralPopup }                         from '../popup/GeneralPopup';
-import { PopupActions }                         from '../popup/PopupActions';
-import { PopupResult }                          from '../popup/PopupResult';
-import Utils                                    from '../utils/Utils';
-import { ArkaneConnect, AuthenticationOptions } from './connect';
+import { Wallet }                                                     from '../models/wallet/Wallet';
+import { WindowMode }                                                 from '../models/WindowMode';
+import { GeneralPopup }                                               from '../popup/GeneralPopup';
+import { PopupActions }                                               from '../popup/PopupActions';
+import { PopupResult }                                                from '../popup/PopupResult';
+import Utils                                                          from '../utils/Utils';
+import { ArkaneConnect, AuthenticationOptions, AuthenticationResult } from './connect';
 
 export class Flows {
     private clientId: string;
@@ -119,13 +119,6 @@ export class Flows {
 
 export interface Account {
     wallets: Wallet[],
-    auth: KeycloakInstance,
+    auth?: KeycloakInstance,
     isAuthenticated: boolean
-}
-
-export interface AuthenticationResult {
-    auth: KeycloakInstance,
-    isAuthenticated: boolean,
-    authenticated: (onAuthenticated: (auth: KeycloakInstance) => void) => AuthenticationResult;
-    notAuthenticated: (onNotAuthenticated: (auth: KeycloakInstance) => void) => AuthenticationResult;
 }
