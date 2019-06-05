@@ -1,14 +1,13 @@
-import { KeycloakInstance } from 'keycloak-js';
-
-import { Security }                             from './Security';
-import { SecretType }                           from '../models/SecretType';
-import { Wallet }                                                     from '../models/wallet/Wallet';
-import { WindowMode }                                                 from '../models/WindowMode';
+import Utils                                                          from '../utils/Utils';
+import { Account }                                                    from '../models/Account';
+import { ArkaneConnect, AuthenticationOptions, AuthenticationResult } from './connect';
 import { GeneralPopup }                                               from '../popup/GeneralPopup';
 import { PopupActions }                                               from '../popup/PopupActions';
 import { PopupResult }                                                from '../popup/PopupResult';
-import Utils                                                          from '../utils/Utils';
-import { ArkaneConnect, AuthenticationOptions, AuthenticationResult } from './connect';
+import { Security }                                                   from './Security';
+import { SecretType }                                                 from '../models/SecretType';
+import { Wallet }                                                     from '../models/wallet/Wallet';
+import { WindowMode }                                                 from '../models/WindowMode';
 
 export class Flows {
     private clientId: string;
@@ -115,10 +114,4 @@ export class Flows {
     private linkWalletsPopup(): Promise<PopupResult> {
         return GeneralPopup.openNewPopup(PopupActions.LINK_WALLET, this.arkaneConnect._bearerTokenProvider);
     }
-}
-
-export interface Account {
-    wallets: Wallet[],
-    auth?: KeycloakInstance,
-    isAuthenticated: boolean
 }

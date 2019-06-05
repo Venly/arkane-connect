@@ -2,7 +2,6 @@ import { KeycloakInstance } from 'keycloak-js';
 
 import { LoginResult, Security }             from './Security';
 import { Api }                               from '../api/Api';
-import { Wallet }                            from '../models/wallet/Wallet';
 import { WindowMode }                        from '../models/WindowMode';
 import { PopupResult }                       from '../popup/PopupResult';
 import { PopupSigner }                       from '../signer/PopupSigner';
@@ -107,12 +106,6 @@ export class ArkaneConnect {
             },
         };
     }
-}
-
-export interface Account {
-    wallets: Wallet[],
-    auth: KeycloakInstance,
-    isAuthenticated: boolean
 }
 
 export interface AuthenticationResult {
