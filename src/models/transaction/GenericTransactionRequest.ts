@@ -1,4 +1,5 @@
 import {SecretType} from '../SecretType';
+import { Network }  from '../Network';
 
 export class GenericTransactionRequest {
     public walletId!: string;
@@ -8,6 +9,7 @@ export class GenericTransactionRequest {
     public secretType!: SecretType;
     public tokenAddress?: string;
     public data?: string;
+    public network?: Network;
 
     constructor(walletId: string, to: string, value: number, secretType: SecretType) {
         this.walletId = walletId;
