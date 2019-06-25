@@ -1,11 +1,11 @@
 import axios, { AxiosError, AxiosInstance, AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios';
 import Utils                                                                                 from '../utils/Utils';
 import { SecretType }                                                                        from '../models/SecretType';
-import { Wallet }             from '../models/wallet/Wallet';
-import { Profile }            from '../models/profile/Profile';
-import { WalletBalance }      from '../models/wallet/WalletBalance';
-import { TokenBalance }       from '../models/wallet/TokenBalance';
-import { TransactionRequest } from '..';
+import { Wallet, WalletType }                                                                from '../models/wallet/Wallet';
+import { Profile }                                                                           from '../models/profile/Profile';
+import { WalletBalance }                                                                     from '../models/wallet/WalletBalance';
+import { TokenBalance }                                                                      from '../models/wallet/TokenBalance';
+import { TransactionRequest }                                                                from '..';
 
 export class Api {
 
@@ -34,7 +34,7 @@ export class Api {
     ////////////
     // Wallet //
     ////////////
-    public getWallets = (filter?: { secretType?: SecretType }): Promise<Wallet[]> => {
+    public getWallets = (filter?: { secretType?: SecretType, walletType?: WalletType }): Promise<Wallet[]> => {
         filter = (filter && Utils.removeNulls(filter)) || {};
         return this.processResponse<Wallet[]>(this.http.get('wallets', {params: filter}));
     };
