@@ -5,6 +5,7 @@ import { Wallet, WalletType }                                                   
 import { Profile }                                                                           from '../models/profile/Profile';
 import { WalletBalance }                                                                     from '../models/wallet/WalletBalance';
 import { TokenBalance }                                                                      from '../models/wallet/TokenBalance';
+import { NFT }                                                                               from '../models/wallet/NFT';
 import { TransactionRequest }                                                                from '..';
 
 export class Api {
@@ -55,8 +56,8 @@ export class Api {
         return this.processResponse<TokenBalance>(this.http.get(`wallets/${walletId}/balance/tokens/${tokenAddress}`));
     };
 
-    public getNonfungibles = (walletId: string): Promise<TokenBalance> => {
-        return this.processResponse<TokenBalance>(this.http.get(`wallets/${walletId}/nonfungibles`));
+    public getNonfungibles = (walletId: string): Promise<NFT> => {
+        return this.processResponse<NFT>(this.http.get(`wallets/${walletId}/nonfungibles`));
     };
 
     /////////////
@@ -69,12 +70,12 @@ export class Api {
     private processResponse<T>(axiosPromise: AxiosPromise<T>): Promise<T> {
         return new Promise<T>((resolve: any, reject: any) => {
             axiosPromise.then((axiosRes: AxiosResponse) => {
-                            if (axiosRes.data.success) {
-                                resolve(axiosRes.data.result);
-                            } else {
-                                reject(axiosRes.data.errors)
-                            }
-                        })
+                if (axiosRes.data.success) {
+                    resolve(axiosRes.data.result);
+                } else {
+                    reject(axiosRes.data.errors)
+                }
+            })
                         .catch((error: AxiosError) => {
                             if (error.response && error.response.data) {
                                 reject(error.response.data.errors);
