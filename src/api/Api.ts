@@ -55,6 +55,10 @@ export class Api {
         return this.processResponse<TokenBalance>(this.http.get(`wallets/${walletId}/balance/tokens/${tokenAddress}`));
     };
 
+    public getNonfungibles = (walletId: string, tokenAddress: string): Promise<TokenBalance> => {
+        return this.processResponse<TokenBalance>(this.http.get(`wallets/${walletId}/nonfungibles`));
+    };
+
     /////////////
     // Profile //
     /////////////
