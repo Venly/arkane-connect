@@ -10,7 +10,7 @@ export class GenericTransactionRequest {
     public tokenAddress?: string;
     public data?: string;
     public from?: string;
-    public tokenId?: bigint;
+    public tokenId?: string;
     public network?: Network;
 
     constructor(walletId: string, to: string, value: number, secretType: SecretType) {
