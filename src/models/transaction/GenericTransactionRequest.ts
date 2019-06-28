@@ -5,7 +5,7 @@ export class GenericTransactionRequest {
     public walletId!: string;
     public to!: string;
     public alias?: string;
-    public value!: number;
+    public value?: number;
     public secretType!: SecretType;
     public tokenAddress?: string;
     public data?: string;
