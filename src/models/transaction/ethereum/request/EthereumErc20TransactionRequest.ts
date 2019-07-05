@@ -1,10 +1,4 @@
-import {TransactionRequest} from '../../TransactionRequest';
+import { EthereumErcTokenTransactionRequest } from './EthereumErcTokenTransactionRequest';
 
-export class EthereumErc20TransactionRequest extends TransactionRequest {
-    public gasPrice?: number;
-    public gas?: number;
-    public nonce?: number;
-    public value!: number;
-    public tokenAddress!: string;
-    public to!: string;
+export class EthereumErc20TransactionRequest extends EthereumErcTokenTransactionRequest {
 }

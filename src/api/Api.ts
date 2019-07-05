@@ -1,11 +1,12 @@
 import axios, { AxiosError, AxiosInstance, AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios';
 import Utils                                                                                 from '../utils/Utils';
 import { SecretType }                                                                        from '../models/SecretType';
-import { Wallet }             from '../models/wallet/Wallet';
-import { Profile }            from '../models/profile/Profile';
-import { WalletBalance }      from '../models/wallet/WalletBalance';
-import { TokenBalance }       from '../models/wallet/TokenBalance';
-import { TransactionRequest } from '..';
+import { Wallet, WalletType }                                                                from '../models/wallet/Wallet';
+import { Profile }                                                                           from '../models/profile/Profile';
+import { WalletBalance }                                                                     from '../models/wallet/WalletBalance';
+import { TokenBalance }                                                                      from '../models/wallet/TokenBalance';
+import { NFT }                                                                               from '../models/wallet/NFT';
+import { TransactionRequest }                                                                from '..';
 
 export class Api {
 
@@ -34,7 +35,7 @@ export class Api {
     ////////////
     // Wallet //
     ////////////
-    public getWallets = (filter?: { secretType?: SecretType }): Promise<Wallet[]> => {
+    public getWallets = (filter?: { secretType?: SecretType, walletType?: WalletType }): Promise<Wallet[]> => {
         filter = (filter && Utils.removeNulls(filter)) || {};
         return this.processResponse<Wallet[]>(this.http.get('wallets', {params: filter}));
     };
@@ -55,6 +56,10 @@ export class Api {
         return this.processResponse<TokenBalance>(this.http.get(`wallets/${walletId}/balance/tokens/${tokenAddress}`));
     };
 
+    public getNonfungibles = (walletId: string): Promise<NFT> => {
+        return this.processResponse<NFT>(this.http.get(`wallets/${walletId}/nonfungibles`));
+    };
+
     /////////////
     // Profile //
     /////////////
@@ -65,12 +70,12 @@ export class Api {
     private processResponse<T>(axiosPromise: AxiosPromise<T>): Promise<T> {
         return new Promise<T>((resolve: any, reject: any) => {
             axiosPromise.then((axiosRes: AxiosResponse) => {
-                            if (axiosRes.data.success) {
-                                resolve(axiosRes.data.result);
-                            } else {
-                                reject(axiosRes.data.errors)
-                            }
-                        })
+                if (axiosRes.data.success) {
+                    resolve(axiosRes.data.result);
+                } else {
+                    reject(axiosRes.data.errors)
+                }
+            })
                         .catch((error: AxiosError) => {
                             if (error.response && error.response.data) {
                                 reject(error.response.data.errors);
