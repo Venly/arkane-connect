@@ -1,6 +1,6 @@
 {
   "name": "@arkane-network/arkane-connect",
-  "version": "1.4.0-develop.524",
+  "version": "1.4.0-develop.525",
   "description": "Arkane Connect - api library for 3th parties",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
