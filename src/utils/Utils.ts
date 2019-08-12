@@ -1,5 +1,5 @@
 import ENV              from '../env';
-import { EventTypes }  from '../types/EventTypes';
+import { EventTypes }   from '../types/EventTypes';
 import * as QueryString from 'querystring';
 
 export default class Utils {
