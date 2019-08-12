@@ -14,34 +14,35 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/FundRequest/arkane-connect"
+    "url": "git+https://github.com/ArkaneNetwork/arkane-connect"
   },
   "keywords": [
     "arkane"
   ],
-  "author": "Steve Maris <steve.maris@fundrequest.io>",
+  "author": "Steve Maris <steve.maris@arkane.network>",
   "contributors": [
-    "Quinten De Swaef <quinten.de.swaef@fundrequest.io>",
-    "Nico Peeters <nico.peeters@fundrequest.io>"
+    "Quinten De Swaef <quinten.de.swaef@arkane.network>",
+    "Nico Peeters <nico.peeters@arkane.network>"
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/fundrequest/arkane-connect/issues"
+    "url": "https://github.com/ArkaneNetwork/arkane-connect/issues"
   },
   "homepage": "https://arkane.network",
   "dependencies": {
-    "axios": "^0.18.0",
-    "core-js": "^2.6.5",
-    "es6-promise": "^4.2.5",
-    "keycloak-js": "4.3.0",
+    "@types/node": "^12.7.1",
+    "axios": "^0.19.0",
+    "core-js": "^3.2.1",
+    "es6-promise": "^4.2.8",
+    "keycloak-js": "^6.0.1",
     "querystring": "^0.2.0"
   },
   "devDependencies": {
-    "awesome-typescript-loader": "^5.2.0",
-    "ts-loader": "^4.5.0",
-    "typedoc": "^0.14.2",
-    "typescript": "^3.2.2",
-    "webpack": "^4.27.1",
-    "webpack-cli": "^3.1.0"
+    "awesome-typescript-loader": "^5.2.1",
+    "ts-loader": "^6.0.4",
+    "typedoc": "^0.15.0",
+    "typescript": "^3.5.3",
+    "webpack": "^4.39.1",
+    "webpack-cli": "^3.3.6"
   }
 }
