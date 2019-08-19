@@ -1,12 +1,16 @@
-import { ConfirmationRequest }       from '../models/ConfirmationRequest';
-import { EventTypes }                from '../types/EventTypes';
-import { GenericTransactionRequest } from '../models/transaction/GenericTransactionRequest';
-import { GenericSignatureRequest }   from '../models/transaction/GenericSignatureRequest';
-import Utils                         from '../utils/Utils';
-import { Signer, SignerResult }      from '../signer/Signer';
-import { TransactionRequest }        from '..';
-import Popup                         from '../popup/Popup';
-import { RequestDataType }           from '../models/RequestDataType';
+import { ConfirmationRequest }           from '../models/ConfirmationRequest';
+import { EventTypes }                    from '../types/EventTypes';
+import { BuildTransactionRequest }       from '../models/transaction/BuildTransactionRequest';
+import { GenericSignatureRequest }       from '../models/transaction/GenericSignatureRequest';
+import Utils                             from '../utils/Utils';
+import { Signer, SignerResult }          from '../signer/Signer';
+import { TransactionRequest }            from '..';
+import Popup                             from '../popup/Popup';
+import { RequestDataType }               from '../models/RequestDataType';
+import { BuildSimpleTransactionRequest } from '../models/transaction/BuildSimpleTransactionRequest';
+import { BuildTokenTransactionRequest }  from '../models/transaction/BuildTokenTransactionRequest';
+import { BuildNftTransactionRequest }    from '../models/transaction/BuildNftTransactionRequest';
+import { BuildGasTransactionRequest }    from '../models/transaction/BuildGasTransactionRequest';
 
 export class PopupSigner implements Signer {
 
@@ -41,22 +45,40 @@ export class PopupSigner implements Signer {
     }
 
     public async executeNativeTransaction(transactionRequest: TransactionRequest): Promise<SignerResult> {
-        return this.handleRequest('execute', transactionRequest);
+        return this.execute(transactionRequest);
     }
 
-    public async executeTransaction(genericTransactionRequestOrTransactionId: GenericTransactionRequest | string): Promise<SignerResult> {
+    public async executeTransaction(genericTransactionRequestOrTransactionId: BuildTransactionRequest | string): Promise<SignerResult> {
         if (typeof genericTransactionRequestOrTransactionId === 'string') {
-            const transactionId: string = genericTransactionRequestOrTransactionId;
-            return this.handleRequest('execute', {transactionId});
+            return this.execute({transactionId: genericTransactionRequestOrTransactionId});
         } else {
-            const transactionRequest: GenericTransactionRequest = genericTransactionRequestOrTransactionId;
-            return this.handleRequest('execute', transactionRequest);
+            return this.execute(BuildTransactionRequest.fromData(genericTransactionRequestOrTransactionId));
         }
+    }
+
+    public executeSimpleTransaction(buildTransactionData: BuildSimpleTransactionRequest): Promise<SignerResult> {
+        return this.execute(BuildSimpleTransactionRequest.fromData(buildTransactionData));
+    }
+
+    public executeTokenTransaction(buildTransactionData: BuildTokenTransactionRequest): Promise<SignerResult> {
+        return this.execute(BuildTokenTransactionRequest.fromData(buildTransactionData));
+    }
+
+    public executeNftTransaction(buildTransactionData: BuildNftTransactionRequest): Promise<SignerResult> {
+        return this.execute(BuildNftTransactionRequest.fromData(buildTransactionData));
+    }
+
+    public executeGasTransaction(buildTransactionData: BuildGasTransactionRequest): Promise<SignerResult> {
+        return this.execute(BuildGasTransactionRequest.fromData(buildTransactionData));
     }
 
     public async confirm(request: ConfirmationRequest): Promise<SignerResult> {
         this.popup.focus();
         return this.handleRequest('confirm', request);
+    }
+
+    private async execute(requestData: RequestDataType): Promise<SignerResult> {
+        return this.handleRequest('execute', requestData);
     }
 
     private async handleRequest(action: string, requestData: RequestDataType): Promise<SignerResult> {

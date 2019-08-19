@@ -2,13 +2,22 @@ import { PopupSigner }                     from './PopupSigner';
 import { RedirectOptions, RedirectSigner } from './RedirectSigner';
 import { ConfirmationRequest }             from '../models/ConfirmationRequest';
 import { GenericSignatureRequest }         from '../models/transaction/GenericSignatureRequest';
-import { GenericTransactionRequest }       from '../models/transaction/GenericTransactionRequest';
+import { BuildTransactionRequest }         from '../models/transaction/BuildTransactionRequest';
 import { WindowMode }                      from '../models/WindowMode';
 import { PopupResult }                     from '../popup/PopupResult';
+import { BuildSimpleTransactionRequest }   from '../models/transaction/BuildSimpleTransactionRequest';
+import { BuildTokenTransactionRequest }    from '../models/transaction/BuildTokenTransactionRequest';
+import { BuildNftTransactionRequest }      from '../models/transaction/BuildNftTransactionRequest';
+import { BuildGasTransactionRequest }      from '../models/transaction/BuildGasTransactionRequest';
 
 
 export interface Signer {
-    executeTransaction: (genericTransactionRequestOrTransactionId: GenericTransactionRequest | string, RedirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    /** Deprecated since 1.4.1 Use specific transaction functions */
+    executeTransaction: (genericTransactionRequestOrTransactionId: BuildTransactionRequest | string, RedirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    executeSimpleTransaction: (buildTransactionData: BuildSimpleTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    executeTokenTransaction: (buildTransactionData: BuildTokenTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
+    executeNftTransaction: (buildTransactionData: BuildNftTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
+    executeGasTransaction: (buildTransactionData: BuildGasTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
     executeNativeTransaction: (transactionRequest: any, RedirectOptions?: RedirectOptions) => Promise<SignerResult>;
     sign: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
     /** Deprecated since 1.1.9. Use sign instead */
