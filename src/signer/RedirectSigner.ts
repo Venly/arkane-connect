@@ -1,8 +1,13 @@
-import { ConfirmationRequest }       from '../models/ConfirmationRequest';
-import { GenericSignatureRequest }   from '../models/transaction/GenericSignatureRequest';
-import { GenericTransactionRequest } from '../models/transaction/GenericTransactionRequest';
-import { Signer, SignerResult }      from '../signer/Signer';
-import Utils                         from '../utils/Utils';
+import { ConfirmationRequest }           from '../models/ConfirmationRequest';
+import { GenericSignatureRequest }       from '../models/transaction/GenericSignatureRequest';
+import { BuildTransactionRequest }       from '../models/transaction/BuildTransactionRequest';
+import { Signer, SignerResult }          from '../signer/Signer';
+import Utils                             from '../utils/Utils';
+import { BuildGasTransactionRequest }    from '../models/transaction/BuildGasTransactionRequest';
+import { BuildTokenTransactionRequest }  from '../models/transaction/BuildTokenTransactionRequest';
+import { BuildNftTransactionRequest }    from '../models/transaction/BuildNftTransactionRequest';
+import { BuildSimpleTransactionRequest } from '../models/transaction/BuildSimpleTransactionRequest';
+import { BuildTransactionRequestBase }   from '../models/transaction/BuildTransactionRequestBase';
 
 export interface RedirectOptions {
     redirectUri?: string,
@@ -29,24 +34,42 @@ export class RedirectSigner implements Signer {
         });
     }
 
-    public executeTransaction(genericTransactionRequestOrTransactionId: GenericTransactionRequest | string, redirectOptions?: RedirectOptions): Promise<SignerResult> {
-        if (typeof genericTransactionRequestOrTransactionId === 'string') {
-            return this.executeSavedTransaction(genericTransactionRequestOrTransactionId, redirectOptions);
+    /** @Deprecated */
+    public executeTransaction(buildTransactionRequestOrTransactionId: BuildTransactionRequest | string, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        if (typeof buildTransactionRequestOrTransactionId === 'string') {
+            return this.executeSavedTransaction(buildTransactionRequestOrTransactionId, redirectOptions);
         } else {
-            return this.executeProvidedTransaction(genericTransactionRequestOrTransactionId, redirectOptions);
+            return this.executeProvidedTransaction(BuildTransactionRequest.fromData(buildTransactionRequestOrTransactionId), redirectOptions);
         }
     }
 
-    private executeSavedTransaction(transactionId: string, redirectOptions?: RedirectOptions) {
+    public executeSimpleTransaction(buildTransactionData: BuildSimpleTransactionRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return this.executeProvidedTransaction(BuildSimpleTransactionRequest.fromData(buildTransactionData), redirectOptions);
+
+    }
+
+    public executeTokenTransaction(buildTransactionData: BuildTokenTransactionRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return this.executeProvidedTransaction(BuildTokenTransactionRequest.fromData(buildTransactionData), redirectOptions);
+    }
+
+    public executeNftTransaction(buildTransactionData: BuildNftTransactionRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return this.executeProvidedTransaction(BuildNftTransactionRequest.fromData(buildTransactionData), redirectOptions);
+    }
+
+    public executeGasTransaction(buildTransactionData: BuildGasTransactionRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return this.executeProvidedTransaction(BuildGasTransactionRequest.fromData(buildTransactionData), redirectOptions);
+    }
+
+    public executeSavedTransaction(transactionId: string, redirectOptions?: RedirectOptions) {
         return new Promise<SignerResult>((resolve, reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute/${transactionId}`, {}, this.bearerTokenProvider, redirectOptions);
             resolve();
         });
     }
 
-    private executeProvidedTransaction(transactionRequest: GenericTransactionRequest, redirectOptions?: RedirectOptions) {
+    private executeProvidedTransaction(buildTransactionData: BuildTransactionRequestBase, redirectOptions?: RedirectOptions) {
         return new Promise<SignerResult>((resolve, reject) => {
-            Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute`, transactionRequest, this.bearerTokenProvider, redirectOptions);
+            Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute`, buildTransactionData, this.bearerTokenProvider, redirectOptions);
             resolve();
         });
     }

@@ -12,7 +12,7 @@ export { SignatureRequestType }                                             from
 export { TransactionRequestType }                                           from './models/TransactionRequestType';
 export { Wallet }                                                           from './models/wallet/Wallet';
 export { Profile }                                                          from './models/profile/Profile';
-export { GenericTransactionRequest }                                        from './models/transaction/GenericTransactionRequest';
+export { BuildTransactionRequest }                                          from './models/transaction/BuildTransactionRequest';
 export { TransactionRequest }                                               from './models/transaction/TransactionRequest';
 export { EthereumErc20TransactionRequest }                                  from './models/transaction/ethereum/request/EthereumErc20TransactionRequest';
 export { EthereumTransactionRequest }                                       from './models/transaction/ethereum/request/EthereumTransactionRequest';
