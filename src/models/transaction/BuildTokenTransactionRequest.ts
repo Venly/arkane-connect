@@ -3,7 +3,7 @@ import { Network }                     from '../Network';
 import { BuildTransactionRequestType } from './BuildTransactionRequestType';
 import { BuildTransactionRequestBase } from './BuildTransactionRequestBase';
 
-export class BuildTokenTransactionRequest extends BuildTransactionRequestBase implements BuildTransactionRequestBase {
+export class BuildTokenTransactionRequest extends BuildTransactionRequestBase {
 
     public value!: number;
     public tokenAddress!: string;

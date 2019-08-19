@@ -3,7 +3,7 @@ import { Network }                     from '../Network';
 import { BuildTransactionRequestType } from './BuildTransactionRequestType';
 import { BuildTransactionRequestBase } from './BuildTransactionRequestBase';
 
-export class BuildNftTransactionRequest extends BuildTransactionRequestBase implements BuildTransactionRequestBase {
+export class BuildNftTransactionRequest extends BuildTransactionRequestBase {
     public tokenAddress!: string;
     public tokenId!: string;
     public from?: string;

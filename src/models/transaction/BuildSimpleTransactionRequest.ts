@@ -3,7 +3,7 @@ import { Network }                     from '../Network';
 import { BuildTransactionRequestType } from './BuildTransactionRequestType';
 import { BuildTransactionRequestBase } from './BuildTransactionRequestBase';
 
-export class BuildSimpleTransactionRequest extends BuildTransactionRequestBase implements BuildTransactionRequestBase {
+export class BuildSimpleTransactionRequest extends BuildTransactionRequestBase {
 
     public static fromData(requestData: any): BuildSimpleTransactionRequest {
         const {walletId, to, alias, value, secretType, data, network} = requestData;
