@@ -78,6 +78,10 @@ export class PopupSigner implements Signer {
         return this.execute(BuildGasTransferRequest.fromData(buildTransactionData));
     }
 
+    public executeSavedTransaction(transactionId: string): Promise<SignerResult> {
+        return this.handleRequest(`execute/${transactionId}`, {});
+    }
+
     public async confirm(request: ConfirmationRequest): Promise<SignerResult> {
         this.popup.focus();
         return this.handleRequest('confirm', request);

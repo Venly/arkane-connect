@@ -19,6 +19,7 @@ export interface Signer {
     executeTokenTransfer: (buildTransactionData: BuildTokenTransferRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
     executeNftTransfer: (buildTransactionData: BuildNftTransferRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
     executeGasTransfer: (buildTransactionData: BuildGasTransferRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
+    executeSavedTransaction: (transactionId: string, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
     sign: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
     /** Deprecated since 1.1.9. Use sign instead */
     signTransaction: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;

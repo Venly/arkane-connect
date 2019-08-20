@@ -3,4 +3,4 @@ import { BuildTransferRequestBase } from './transaction/build/BuildTransferReque
 import { GenericSignatureRequest }  from './transaction/GenericSignatureRequest';
 import { ConfirmationRequest }      from './ConfirmationRequest';
 
-export type RequestDataType = TransactionRequest | BuildTransferRequestBase | GenericSignatureRequest | { transactionId: string } | ConfirmationRequest;
+export type RequestDataType = TransactionRequest | BuildTransferRequestBase | GenericSignatureRequest | ConfirmationRequest | {};
