@@ -1,9 +1,9 @@
-import { SecretType }                      from '../../SecretType';
-import { Network }                         from '../../Network';
-import { BuildTransactionRequestType }     from './BuildTransactionRequestType';
-import { BuildTransactionRequestBaseData } from './BuildTransactionRequestBaseData';
+import { SecretType }                     from '../../SecretType';
+import { Network }                        from '../../Network';
+import { BuildTransactionRequestType }    from './BuildTransactionRequestType';
+import { BuildTransactionRequestBaseDto } from './BuildTransactionRequestBaseDto';
 
-export abstract class BuildTransactionRequestBase implements BuildTransactionRequestBaseData {
+export abstract class BuildTransactionRequestBase implements BuildTransactionRequestBaseDto {
     public walletId!: string;
     public to!: string;
     public secretType!: SecretType;

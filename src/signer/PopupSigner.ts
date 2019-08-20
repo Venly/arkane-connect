@@ -1,16 +1,20 @@
-import { ConfirmationRequest }           from '../models/ConfirmationRequest';
-import { EventTypes }                    from '../types/EventTypes';
-import { BuildTransactionRequest }       from '../models/transaction/build/BuildTransactionRequest';
-import { GenericSignatureRequest }       from '../models/transaction/GenericSignatureRequest';
-import Utils                             from '../utils/Utils';
-import { Signer, SignerResult }          from '../signer/Signer';
-import { TransactionRequest }            from '..';
-import Popup                             from '../popup/Popup';
-import { RequestDataType }               from '../models/RequestDataType';
-import { BuildSimpleTransactionRequest } from '../models/transaction/build/BuildSimpleTransactionRequest';
-import { BuildTokenTransactionRequest }  from '../models/transaction/build/BuildTokenTransactionRequest';
-import { BuildNftTransactionRequest }    from '../models/transaction/build/BuildNftTransactionRequest';
-import { BuildGasTransactionRequest }    from '../models/transaction/build/BuildGasTransactionRequest';
+import { ConfirmationRequest }              from '../models/ConfirmationRequest';
+import { EventTypes }                       from '../types/EventTypes';
+import { BuildTransactionRequest }          from '../models/transaction/build/BuildTransactionRequest';
+import { GenericSignatureRequest }          from '../models/transaction/GenericSignatureRequest';
+import Utils                                from '../utils/Utils';
+import { Signer, SignerResult }             from '../signer/Signer';
+import { TransactionRequest }               from '..';
+import Popup                                from '../popup/Popup';
+import { RequestDataType }                  from '../models/RequestDataType';
+import { BuildSimpleTransactionRequest }    from '../models/transaction/build/BuildSimpleTransactionRequest';
+import { BuildTokenTransactionRequest }     from '../models/transaction/build/BuildTokenTransactionRequest';
+import { BuildNftTransactionRequest }       from '../models/transaction/build/BuildNftTransactionRequest';
+import { BuildGasTransactionRequest }       from '../models/transaction/build/BuildGasTransactionRequest';
+import { BuildSimpleTransactionRequestDto } from '../models/transaction/build/BuildSimpleTransactionRequestDto';
+import { BuildTokenTransactionRequestDto }  from '../models/transaction/build/BuildTokenTransactionRequestDto';
+import { BuildNftTransactionRequestDto }    from '../models/transaction/build/BuildNftTransactionRequestDto';
+import { BuildGasTransactionRequestDto }    from '../models/transaction/build/BuildGasTransactionRequestDto';
 
 export class PopupSigner implements Signer {
 
@@ -47,6 +51,7 @@ export class PopupSigner implements Signer {
     public async executeNativeTransaction(transactionRequest: TransactionRequest): Promise<SignerResult> {
         return this.execute(transactionRequest);
     }
+
     /** Deprecated since 1.4.1. Use transfer functions instead */
     public async executeTransaction(genericTransactionRequestOrTransactionId: BuildTransactionRequest | string): Promise<SignerResult> {
         if (typeof genericTransactionRequestOrTransactionId === 'string') {
@@ -56,19 +61,19 @@ export class PopupSigner implements Signer {
         }
     }
 
-    public executeTransfer(buildTransactionData: BuildSimpleTransactionRequest): Promise<SignerResult> {
+    public executeTransfer(buildTransactionData: BuildSimpleTransactionRequestDto): Promise<SignerResult> {
         return this.execute(BuildSimpleTransactionRequest.fromData(buildTransactionData));
     }
 
-    public executeTokenTransfer(buildTransactionData: BuildTokenTransactionRequest): Promise<SignerResult> {
+    public executeTokenTransfer(buildTransactionData: BuildTokenTransactionRequestDto): Promise<SignerResult> {
         return this.execute(BuildTokenTransactionRequest.fromData(buildTransactionData));
     }
 
-    public executeNftTransfer(buildTransactionData: BuildNftTransactionRequest): Promise<SignerResult> {
+    public executeNftTransfer(buildTransactionData: BuildNftTransactionRequestDto): Promise<SignerResult> {
         return this.execute(BuildNftTransactionRequest.fromData(buildTransactionData));
     }
 
-    public executeGasTransfer(buildTransactionData: BuildGasTransactionRequest): Promise<SignerResult> {
+    public executeGasTransfer(buildTransactionData: BuildGasTransactionRequestDto): Promise<SignerResult> {
         return this.execute(BuildGasTransactionRequest.fromData(buildTransactionData));
     }
 
