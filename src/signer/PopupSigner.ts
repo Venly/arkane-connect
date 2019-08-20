@@ -47,7 +47,7 @@ export class PopupSigner implements Signer {
     public async executeNativeTransaction(transactionRequest: TransactionRequest): Promise<SignerResult> {
         return this.execute(transactionRequest);
     }
-
+    /** Deprecated since 1.4.1. Use transfer functions instead */
     public async executeTransaction(genericTransactionRequestOrTransactionId: BuildTransactionRequest | string): Promise<SignerResult> {
         if (typeof genericTransactionRequestOrTransactionId === 'string') {
             return this.execute({transactionId: genericTransactionRequestOrTransactionId});
@@ -56,19 +56,19 @@ export class PopupSigner implements Signer {
         }
     }
 
-    public executeSimpleTransaction(buildTransactionData: BuildSimpleTransactionRequest): Promise<SignerResult> {
+    public executeTransfer(buildTransactionData: BuildSimpleTransactionRequest): Promise<SignerResult> {
         return this.execute(BuildSimpleTransactionRequest.fromData(buildTransactionData));
     }
 
-    public executeTokenTransaction(buildTransactionData: BuildTokenTransactionRequest): Promise<SignerResult> {
+    public executeTokenTransfer(buildTransactionData: BuildTokenTransactionRequest): Promise<SignerResult> {
         return this.execute(BuildTokenTransactionRequest.fromData(buildTransactionData));
     }
 
-    public executeNftTransaction(buildTransactionData: BuildNftTransactionRequest): Promise<SignerResult> {
+    public executeNftTransfer(buildTransactionData: BuildNftTransactionRequest): Promise<SignerResult> {
         return this.execute(BuildNftTransactionRequest.fromData(buildTransactionData));
     }
 
-    public executeGasTransaction(buildTransactionData: BuildGasTransactionRequest): Promise<SignerResult> {
+    public executeGasTransfer(buildTransactionData: BuildGasTransactionRequest): Promise<SignerResult> {
         return this.execute(BuildGasTransactionRequest.fromData(buildTransactionData));
     }
 

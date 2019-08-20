@@ -12,13 +12,13 @@ import { BuildGasTransactionRequest }      from '../models/transaction/BuildGasT
 
 
 export interface Signer {
-    /** Deprecated since 1.4.1 Use specific transaction functions */
+    /** Deprecated since 1.4.1 Use specific transfer functions */
     executeTransaction: (genericTransactionRequestOrTransactionId: BuildTransactionRequest | string, RedirectOptions?: RedirectOptions) => Promise<SignerResult>;
-    executeSimpleTransaction: (buildTransactionData: BuildSimpleTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
-    executeTokenTransaction: (buildTransactionData: BuildTokenTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
-    executeNftTransaction: (buildTransactionData: BuildNftTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
-    executeGasTransaction: (buildTransactionData: BuildGasTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
     executeNativeTransaction: (transactionRequest: any, RedirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    executeTransfer: (buildTransactionData: BuildSimpleTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    executeTokenTransfer: (buildTransactionData: BuildTokenTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
+    executeNftTransfer: (buildTransactionData: BuildNftTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
+    executeGasTransfer: (buildTransactionData: BuildGasTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
     sign: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
     /** Deprecated since 1.1.9. Use sign instead */
     signTransaction: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;

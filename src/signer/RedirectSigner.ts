@@ -43,20 +43,20 @@ export class RedirectSigner implements Signer {
         }
     }
 
-    public executeSimpleTransaction(buildTransactionData: BuildSimpleTransactionRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+    public executeTransfer(buildTransactionData: BuildSimpleTransactionRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.executeProvidedTransaction(BuildSimpleTransactionRequest.fromData(buildTransactionData), redirectOptions);
 
     }
 
-    public executeTokenTransaction(buildTransactionData: BuildTokenTransactionRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+    public executeTokenTransfer(buildTransactionData: BuildTokenTransactionRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.executeProvidedTransaction(BuildTokenTransactionRequest.fromData(buildTransactionData), redirectOptions);
     }
 
-    public executeNftTransaction(buildTransactionData: BuildNftTransactionRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+    public executeNftTransfer(buildTransactionData: BuildNftTransactionRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.executeProvidedTransaction(BuildNftTransactionRequest.fromData(buildTransactionData), redirectOptions);
     }
 
-    public executeGasTransaction(buildTransactionData: BuildGasTransactionRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+    public executeGasTransfer(buildTransactionData: BuildGasTransactionRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.executeProvidedTransaction(BuildGasTransactionRequest.fromData(buildTransactionData), redirectOptions);
     }
 
