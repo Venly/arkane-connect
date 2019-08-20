@@ -15,6 +15,7 @@ import { BuildSimpleTransactionRequestDto } from '../models/transaction/build/Bu
 import { BuildTokenTransactionRequestDto }  from '../models/transaction/build/BuildTokenTransactionRequestDto';
 import { BuildNftTransactionRequestDto }    from '../models/transaction/build/BuildNftTransactionRequestDto';
 import { BuildGasTransactionRequestDto }    from '../models/transaction/build/BuildGasTransactionRequestDto';
+import { BuildTransactionRequestDto }       from '../models/transaction/build/BuildTransactionRequestDto';
 
 export class PopupSigner implements Signer {
 
@@ -52,8 +53,8 @@ export class PopupSigner implements Signer {
         return this.execute(transactionRequest);
     }
 
-    /** Deprecated since 1.4.1. Use transfer functions instead */
-    public async executeTransaction(genericTransactionRequestOrTransactionId: BuildTransactionRequest | string): Promise<SignerResult> {
+    /** Deprecated since 1.4.0. Use transfer functions instead */
+    public async executeTransaction(genericTransactionRequestOrTransactionId: BuildTransactionRequestDto | string): Promise<SignerResult> {
         if (typeof genericTransactionRequestOrTransactionId === 'string') {
             return this.execute({transactionId: genericTransactionRequestOrTransactionId});
         } else {

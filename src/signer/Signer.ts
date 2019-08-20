@@ -1,24 +1,24 @@
-import { PopupSigner }                     from './PopupSigner';
-import { RedirectOptions, RedirectSigner } from './RedirectSigner';
-import { ConfirmationRequest }             from '../models/ConfirmationRequest';
-import { GenericSignatureRequest }         from '../models/transaction/GenericSignatureRequest';
-import { BuildTransactionRequest }         from '../models/transaction/build/BuildTransactionRequest';
-import { WindowMode }                      from '../models/WindowMode';
-import { PopupResult }                     from '../popup/PopupResult';
-import { BuildSimpleTransactionRequest }   from '../models/transaction/build/BuildSimpleTransactionRequest';
-import { BuildTokenTransactionRequest }    from '../models/transaction/build/BuildTokenTransactionRequest';
-import { BuildNftTransactionRequest }      from '../models/transaction/build/BuildNftTransactionRequest';
-import { BuildGasTransactionRequest }      from '../models/transaction/build/BuildGasTransactionRequest';
+import { PopupSigner }                      from './PopupSigner';
+import { RedirectOptions, RedirectSigner }  from './RedirectSigner';
+import { ConfirmationRequest }              from '../models/ConfirmationRequest';
+import { GenericSignatureRequest }          from '../models/transaction/GenericSignatureRequest';
+import { WindowMode }                       from '../models/WindowMode';
+import { PopupResult }                      from '../popup/PopupResult';
+import { BuildGasTransactionRequestDto }    from '../models/transaction/build/BuildGasTransactionRequestDto';
+import { BuildNftTransactionRequestDto }    from '../models/transaction/build/BuildNftTransactionRequestDto';
+import { BuildTokenTransactionRequestDto }  from '../models/transaction/build/BuildTokenTransactionRequestDto';
+import { BuildTransactionRequestDto }       from '../models/transaction/build/BuildTransactionRequestDto';
+import { BuildSimpleTransactionRequestDto } from '../models/transaction/build/BuildSimpleTransactionRequestDto';
 
 
 export interface Signer {
-    /** Deprecated since 1.4.1 Use specific transfer functions */
-    executeTransaction: (genericTransactionRequestOrTransactionId: BuildTransactionRequest | string, RedirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    /** Deprecated since 1.4.0 Use specific transfer functions */
+    executeTransaction: (genericTransactionRequestOrTransactionId: BuildTransactionRequestDto | string, RedirectOptions?: RedirectOptions) => Promise<SignerResult>;
     executeNativeTransaction: (transactionRequest: any, RedirectOptions?: RedirectOptions) => Promise<SignerResult>;
-    executeTransfer: (buildTransactionData: BuildSimpleTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
-    executeTokenTransfer: (buildTransactionData: BuildTokenTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
-    executeNftTransfer: (buildTransactionData: BuildNftTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
-    executeGasTransfer: (buildTransactionData: BuildGasTransactionRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
+    executeTransfer: (buildTransactionData: BuildSimpleTransactionRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    executeTokenTransfer: (buildTransactionData: BuildTokenTransactionRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
+    executeNftTransfer: (buildTransactionData: BuildNftTransactionRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
+    executeGasTransfer: (buildTransactionData: BuildGasTransactionRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
     sign: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
     /** Deprecated since 1.1.9. Use sign instead */
     signTransaction: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
