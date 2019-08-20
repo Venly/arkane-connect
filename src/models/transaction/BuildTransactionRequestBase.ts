@@ -9,7 +9,7 @@ export abstract class BuildTransactionRequestBase {
     public alias?: string;
     public network?: Network;
 
-    private type!: BuildTransactionRequestType;
+    private type?: BuildTransactionRequestType;
 
     constructor(type: BuildTransactionRequestType, walletId: string, to: string, secretType: SecretType, alias?: string, network?: Network) {
         this.type = type;
@@ -18,5 +18,9 @@ export abstract class BuildTransactionRequestBase {
         this.secretType = secretType;
         alias ? this.alias = alias : undefined;
         network ? this.network = network : undefined;
+
+        if(typeof this.type === 'undefined') {
+            throw new Error('Type is not provided.');
+        }
     }
 }
