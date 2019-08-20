@@ -1,15 +1,15 @@
-import { SecretType }                    from '../../SecretType';
-import { Network }                       from '../../Network';
-import { BuildTransactionRequestType }   from './BuildTransactionRequestType';
-import { BuildTransactionRequestBase }   from './BuildTransactionRequestBase';
-import { BuildNftTransactionRequestDto } from './BuildNftTransactionRequestDto';
+import { SecretType }                  from '../../SecretType';
+import { Network }                     from '../../Network';
+import { BuildTransactionRequestType } from './BuildTransactionRequestType';
+import { BuildTransferRequestBase }    from './BuildTransferRequestBase';
+import { BuildNftTransferRequestDto }  from './BuildNftTransferRequestDto';
 
-export class BuildNftTransactionRequest extends BuildTransactionRequestBase implements BuildNftTransactionRequestDto {
+export class BuildNftTransferRequest extends BuildTransferRequestBase implements BuildNftTransferRequestDto {
     public tokenAddress!: string;
     public tokenId!: string;
     public from?: string;
 
-    public static fromData(requestData: BuildNftTransactionRequestDto): BuildNftTransactionRequest {
+    public static fromData(requestData: BuildNftTransferRequestDto): BuildNftTransferRequest {
         const {walletId, to, secretType, tokenAddress, tokenId, from, alias, network} = requestData;
         return new this(walletId, to, secretType, tokenAddress, tokenId, from, alias, network);
     }

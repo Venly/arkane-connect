@@ -1,6 +1,6 @@
-import { TransactionRequest }          from './transaction/TransactionRequest';
-import { BuildTransactionRequestBase } from './transaction/build/BuildTransactionRequestBase';
-import { GenericSignatureRequest }     from './transaction/GenericSignatureRequest';
-import { ConfirmationRequest }         from './ConfirmationRequest';
+import { TransactionRequest }       from './transaction/TransactionRequest';
+import { BuildTransferRequestBase } from './transaction/build/BuildTransferRequestBase';
+import { GenericSignatureRequest }  from './transaction/GenericSignatureRequest';
+import { ConfirmationRequest }      from './ConfirmationRequest';
 
-export type RequestDataType = TransactionRequest | BuildTransactionRequestBase | GenericSignatureRequest | { transactionId: string } | ConfirmationRequest;
+export type RequestDataType = TransactionRequest | BuildTransferRequestBase | GenericSignatureRequest | { transactionId: string } | ConfirmationRequest;

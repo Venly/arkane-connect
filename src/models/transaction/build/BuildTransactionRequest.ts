@@ -1,17 +1,17 @@
-import { SecretType }                  from '../../SecretType';
-import { Network }                     from '../../Network';
-import { BuildTransactionRequestType } from './BuildTransactionRequestType';
-import { BuildTransactionRequestBase } from './BuildTransactionRequestBase';
-import { BuildTransactionRequestDto }  from './BuildTransactionRequestDto';
+import { SecretType }                     from '../../SecretType';
+import { Network }                        from '../../Network';
+import { BuildTransactionRequestType }    from './BuildTransactionRequestType';
+import { BuildTransferRequestBase }       from './BuildTransferRequestBase';
+import { BuildGenericTransferRequestDto } from './BuildGenericTransferRequestDto';
 
-export class BuildTransactionRequest extends BuildTransactionRequestBase implements BuildTransactionRequestDto {
+export class BuildTransactionRequest extends BuildTransferRequestBase implements BuildGenericTransferRequestDto {
     public value?: number;
     public tokenAddress?: string;
     public data?: string;
     public from?: string;
     public tokenId?: string;
 
-    public static fromData(requestData: BuildTransactionRequestDto): BuildTransactionRequest {
+    public static fromData(requestData: BuildGenericTransferRequestDto): BuildTransactionRequest {
         const {walletId, to, secretType, value, alias, tokenAddress, data, from, tokenId, network} = requestData;
         return new this(walletId, to, secretType, value, alias, tokenAddress, data, from, tokenId, network);
     }
