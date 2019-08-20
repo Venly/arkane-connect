@@ -1,16 +1,16 @@
 import { ConfirmationRequest }           from '../models/ConfirmationRequest';
 import { EventTypes }                    from '../types/EventTypes';
-import { BuildTransactionRequest }       from '../models/transaction/BuildTransactionRequest';
+import { BuildTransactionRequest }       from '../models/transaction/build/BuildTransactionRequest';
 import { GenericSignatureRequest }       from '../models/transaction/GenericSignatureRequest';
 import Utils                             from '../utils/Utils';
 import { Signer, SignerResult }          from '../signer/Signer';
 import { TransactionRequest }            from '..';
 import Popup                             from '../popup/Popup';
 import { RequestDataType }               from '../models/RequestDataType';
-import { BuildSimpleTransactionRequest } from '../models/transaction/BuildSimpleTransactionRequest';
-import { BuildTokenTransactionRequest }  from '../models/transaction/BuildTokenTransactionRequest';
-import { BuildNftTransactionRequest }    from '../models/transaction/BuildNftTransactionRequest';
-import { BuildGasTransactionRequest }    from '../models/transaction/BuildGasTransactionRequest';
+import { BuildSimpleTransactionRequest } from '../models/transaction/build/BuildSimpleTransactionRequest';
+import { BuildTokenTransactionRequest }  from '../models/transaction/build/BuildTokenTransactionRequest';
+import { BuildNftTransactionRequest }    from '../models/transaction/build/BuildNftTransactionRequest';
+import { BuildGasTransactionRequest }    from '../models/transaction/build/BuildGasTransactionRequest';
 
 export class PopupSigner implements Signer {
 
