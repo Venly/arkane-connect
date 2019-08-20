@@ -9,7 +9,7 @@ export abstract class BuildTransactionRequestBase {
     public alias?: string;
     public network?: Network;
 
-    private type: BuildTransactionRequestType;
+    private type!: BuildTransactionRequestType;
 
     constructor(type: BuildTransactionRequestType, walletId: string, to: string, secretType: SecretType, alias?: string, network?: Network) {
         this.type = type;
