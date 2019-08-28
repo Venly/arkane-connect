@@ -1,8 +1,18 @@
-import { ConfirmationRequest }       from '../models/ConfirmationRequest';
-import { GenericSignatureRequest }   from '../models/transaction/GenericSignatureRequest';
-import { GenericTransactionRequest } from '../models/transaction/GenericTransactionRequest';
-import { Signer, SignerResult }      from '../signer/Signer';
-import Utils                         from '../utils/Utils';
+import { ConfirmationRequest }            from '../models/ConfirmationRequest';
+import { GenericSignatureRequest }        from '../models/transaction/GenericSignatureRequest';
+import { BuildTransactionRequest }        from '../models/transaction/build/BuildTransactionRequest';
+import { Signer, SignerResult }           from '../signer/Signer';
+import Utils                              from '../utils/Utils';
+import { BuildGasTransferRequest }        from '../models/transaction/build/BuildGasTransferRequest';
+import { BuildTokenTransferRequest }      from '../models/transaction/build/BuildTokenTransferRequest';
+import { BuildNftTransferRequest }        from '../models/transaction/build/BuildNftTransferRequest';
+import { BuildSimpleTransactionRequest }  from '../models/transaction/build/BuildSimpleTransactionRequest';
+import { BuildTransferRequestBase }       from '../models/transaction/build/BuildTransferRequestBase';
+import { BuildGenericTransferRequestDto } from '../models/transaction/build/BuildGenericTransferRequestDto';
+import { BuildTransferRequestDto }        from '../models/transaction/build/BuildTransferRequestDto';
+import { BuildTokenTransferRequestDto }   from '../models/transaction/build/BuildTokenTransferRequestDto';
+import { BuildNftTransferRequestDto }     from '../models/transaction/build/BuildNftTransferRequestDto';
+import { BuildGasTransferRequestDto }     from '../models/transaction/build/BuildGasTransferRequestDto';
 
 export interface RedirectOptions {
     redirectUri?: string,
@@ -29,24 +39,42 @@ export class RedirectSigner implements Signer {
         });
     }
 
-    public executeTransaction(genericTransactionRequestOrTransactionId: GenericTransactionRequest | string, redirectOptions?: RedirectOptions): Promise<SignerResult> {
-        if (typeof genericTransactionRequestOrTransactionId === 'string') {
-            return this.executeSavedTransaction(genericTransactionRequestOrTransactionId, redirectOptions);
+    /** @Deprecated */
+    public executeTransaction(buildTransactionRequestOrTransactionId: BuildGenericTransferRequestDto | string, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        if (typeof buildTransactionRequestOrTransactionId === 'string') {
+            return this.executeSavedTransaction(buildTransactionRequestOrTransactionId, redirectOptions);
         } else {
-            return this.executeProvidedTransaction(genericTransactionRequestOrTransactionId, redirectOptions);
+            return this.executeProvidedTransaction(BuildTransactionRequest.fromData(buildTransactionRequestOrTransactionId), redirectOptions);
         }
     }
 
-    private executeSavedTransaction(transactionId: string, redirectOptions?: RedirectOptions) {
+    public executeTransfer(buildTransactionData: BuildTransferRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return this.executeProvidedTransaction(BuildSimpleTransactionRequest.fromData(buildTransactionData), redirectOptions);
+
+    }
+
+    public executeTokenTransfer(buildTransactionData: BuildTokenTransferRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return this.executeProvidedTransaction(BuildTokenTransferRequest.fromData(buildTransactionData), redirectOptions);
+    }
+
+    public executeNftTransfer(buildTransactionData: BuildNftTransferRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return this.executeProvidedTransaction(BuildNftTransferRequest.fromData(buildTransactionData), redirectOptions);
+    }
+
+    public executeGasTransfer(buildTransactionData: BuildGasTransferRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return this.executeProvidedTransaction(BuildGasTransferRequest.fromData(buildTransactionData), redirectOptions);
+    }
+
+    public executeSavedTransaction(transactionId: string, redirectOptions?: RedirectOptions) {
         return new Promise<SignerResult>((resolve, reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute/${transactionId}`, {}, this.bearerTokenProvider, redirectOptions);
             resolve();
         });
     }
 
-    private executeProvidedTransaction(transactionRequest: GenericTransactionRequest, redirectOptions?: RedirectOptions) {
+    private executeProvidedTransaction(buildTransactionData: BuildTransferRequestBase, redirectOptions?: RedirectOptions) {
         return new Promise<SignerResult>((resolve, reject) => {
-            Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute`, transactionRequest, this.bearerTokenProvider, redirectOptions);
+            Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute`, buildTransactionData, this.bearerTokenProvider, redirectOptions);
             resolve();
         });
     }
