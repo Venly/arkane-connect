@@ -1,12 +1,16 @@
 import {TransactionRequest} from '../../TransactionRequest';
-import {EthereumExecutableContractCall} from "./EthereumExecutableContractCall";
+
+export interface EthereumContractCallInput {
+    type: string;
+    value: string;
+}
 
 export class EthereumContractCallExecutionRequest extends TransactionRequest {
-    public blockRef?: string;
-    public chainTag?: string;
-    public expiration: number = 0;
-    public gas!: number;
-    public gasPriceCoef!: number;
-    public nonce?: string;
-    public contractCalls: EthereumExecutableContractCall[] = [];
+    public gasPrice?: number;
+    public gas?: number;
+    public nonce?: number;
+    public contractAddress!: string;
+    public amount!: number;
+    public functionName!: string;
+    public inputs: EthereumContractCallInput[] = [];
 }
