@@ -61,7 +61,7 @@ export class Api {
     };
 
     public unlink = (walletId: string): void => {
-        this.http.delete(`wallets/${walletId}/link`);
+        this.processResponse(this.http.delete(`wallets/${walletId}/link`));
     };
 
     /////////////
@@ -75,7 +75,11 @@ export class Api {
         return new Promise<T>((resolve: any, reject: any) => {
             axiosPromise.then((axiosRes: AxiosResponse) => {
                             if (axiosRes.data.success) {
-                                resolve(axiosRes.data.result);
+                                if (axiosRes.data.result) {
+                                    resolve(axiosRes.data.result);
+                                } else {
+                                    resolve();
+                                }
                             } else {
                                 reject(axiosRes.data.errors)
                             }
