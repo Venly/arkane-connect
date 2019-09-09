@@ -17,7 +17,6 @@ export {TransactionRequest}                                               from '
 export {EthereumErc20TransactionRequest}                                  from './models/transaction/ethereum/request/EthereumErc20TransactionRequest';
 export {EthereumTransactionRequest}                                       from './models/transaction/ethereum/request/EthereumTransactionRequest';
 export {EthereumContractCallExecutionRequest}                             from './models/transaction/ethereum/request/EthereumContractCallExecutionRequest';
-export {EthereumExecutableContractCall, EthereumContractCallInput}        from './models/transaction/ethereum/request/EthereumExecutableContractCall';
 export {GochainErc20TransactionRequest}                                   from './models/transaction/gochain/request/GochainErc20TransactionRequest';
 export {GochainTransactionRequest}                                        from './models/transaction/gochain/request/GochainTransactionRequest';
 export {TronTransactionRequest}                                           from './models/transaction/tron/request/TronTransactionRequest';
