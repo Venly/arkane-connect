@@ -60,6 +60,10 @@ export class Api {
         return this.processResponse<NFT>(this.http.get(`wallets/${walletId}/nonfungibles`));
     };
 
+    public unlink = (walletId: string): void => {
+        this.http.delete(`wallets/${walletId}/link`);
+    };
+
     /////////////
     // Profile //
     /////////////
@@ -70,12 +74,12 @@ export class Api {
     private processResponse<T>(axiosPromise: AxiosPromise<T>): Promise<T> {
         return new Promise<T>((resolve: any, reject: any) => {
             axiosPromise.then((axiosRes: AxiosResponse) => {
-                if (axiosRes.data.success) {
-                    resolve(axiosRes.data.result);
-                } else {
-                    reject(axiosRes.data.errors)
-                }
-            })
+                            if (axiosRes.data.success) {
+                                resolve(axiosRes.data.result);
+                            } else {
+                                reject(axiosRes.data.errors)
+                            }
+                        })
                         .catch((error: AxiosError) => {
                             if (error.response && error.response.data) {
                                 reject(error.response.data.errors);
