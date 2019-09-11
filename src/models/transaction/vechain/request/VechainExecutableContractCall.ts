@@ -5,7 +5,7 @@ export interface VechainContractCallInput {
 }
 
 export class VechainExecutableContractCall {
-    public contractAddress!: string;
+    public to!: string;
     public amount!: number;
     public functionName!: string;
     public inputs: VechainContractCallInput[] = [];
