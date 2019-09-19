@@ -20,6 +20,7 @@ export {EthereumContractCallExecutionRequest}                             from '
 export {GochainErc20TransactionRequest}                                   from './models/transaction/gochain/request/GochainErc20TransactionRequest';
 export {GochainTransactionRequest}                                        from './models/transaction/gochain/request/GochainTransactionRequest';
 export {TronTransactionRequest}                                           from './models/transaction/tron/request/TronTransactionRequest';
+export {TronContractCallExecutionRequest}                                 from './models/transaction/tron/request/TronContractCallExecutionRequest';
 export {VechainTransactionRequest, VechainTransactionRequestClause}       from './models/transaction/vechain/request/VechainTransactionRequest';
 export {VechainVip180TransactionRequest, VechainVip180TransactionClause}  from './models/transaction/vechain/request/VechainVip180TransactionRequest';
 export {VechainContractCallExecutionRequest}                              from './models/transaction/vechain/request/VechainContractCallExecutionRequest';
