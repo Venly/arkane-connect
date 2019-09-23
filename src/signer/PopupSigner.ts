@@ -11,11 +11,13 @@ import { BuildSimpleTransactionRequest }  from '../models/transaction/build/Buil
 import { BuildTokenTransferRequest }      from '../models/transaction/build/BuildTokenTransferRequest';
 import { BuildNftTransferRequest }        from '../models/transaction/build/BuildNftTransferRequest';
 import { BuildGasTransferRequest }        from '../models/transaction/build/BuildGasTransferRequest';
-import { BuildTransferRequestDto }        from '../models/transaction/build/BuildTransferRequestDto';
-import { BuildTokenTransferRequestDto }   from '../models/transaction/build/BuildTokenTransferRequestDto';
-import { BuildNftTransferRequestDto }     from '../models/transaction/build/BuildNftTransferRequestDto';
-import { BuildGasTransferRequestDto }     from '../models/transaction/build/BuildGasTransferRequestDto';
-import { BuildGenericTransferRequestDto } from '../models/transaction/build/BuildGenericTransferRequestDto';
+import { BuildTransferRequestDto }          from '../models/transaction/build/BuildTransferRequestDto';
+import { BuildTokenTransferRequestDto }     from '../models/transaction/build/BuildTokenTransferRequestDto';
+import { BuildNftTransferRequestDto }       from '../models/transaction/build/BuildNftTransferRequestDto';
+import { BuildGasTransferRequestDto }       from '../models/transaction/build/BuildGasTransferRequestDto';
+import { BuildGenericTransferRequestDto }   from '../models/transaction/build/BuildGenericTransferRequestDto';
+import { BuildContractExecutionRequestDto } from '../models/transaction/build/BuildContractExecutionRequestDto';
+import { BuildContractExecutionRequest }    from '../models/transaction/build/BuildContractExecutionRequest';
 
 export class PopupSigner implements Signer {
 
@@ -76,6 +78,10 @@ export class PopupSigner implements Signer {
 
     public executeGasTransfer(buildTransactionData: BuildGasTransferRequestDto): Promise<SignerResult> {
         return this.execute(BuildGasTransferRequest.fromData(buildTransactionData));
+    }
+
+    public executeContract(buildTransactionData: BuildContractExecutionRequestDto): Promise<SignerResult> {
+        return this.execute(BuildContractExecutionRequest.fromData(buildTransactionData));
     }
 
     public executeSavedTransaction(transactionId: string): Promise<SignerResult> {

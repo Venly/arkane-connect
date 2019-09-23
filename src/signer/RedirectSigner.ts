@@ -8,11 +8,13 @@ import { BuildTokenTransferRequest }      from '../models/transaction/build/Buil
 import { BuildNftTransferRequest }        from '../models/transaction/build/BuildNftTransferRequest';
 import { BuildSimpleTransactionRequest }  from '../models/transaction/build/BuildSimpleTransactionRequest';
 import { BuildTransferRequestBase }       from '../models/transaction/build/BuildTransferRequestBase';
-import { BuildGenericTransferRequestDto } from '../models/transaction/build/BuildGenericTransferRequestDto';
-import { BuildTransferRequestDto }        from '../models/transaction/build/BuildTransferRequestDto';
-import { BuildTokenTransferRequestDto }   from '../models/transaction/build/BuildTokenTransferRequestDto';
-import { BuildNftTransferRequestDto }     from '../models/transaction/build/BuildNftTransferRequestDto';
-import { BuildGasTransferRequestDto }     from '../models/transaction/build/BuildGasTransferRequestDto';
+import { BuildGenericTransferRequestDto }   from '../models/transaction/build/BuildGenericTransferRequestDto';
+import { BuildTransferRequestDto }          from '../models/transaction/build/BuildTransferRequestDto';
+import { BuildTokenTransferRequestDto }     from '../models/transaction/build/BuildTokenTransferRequestDto';
+import { BuildNftTransferRequestDto }       from '../models/transaction/build/BuildNftTransferRequestDto';
+import { BuildGasTransferRequestDto }       from '../models/transaction/build/BuildGasTransferRequestDto';
+import { BuildContractExecutionRequestDto } from '../models/transaction/build/BuildContractExecutionRequestDto';
+import { BuildContractExecutionRequest }    from '../models/transaction/build/BuildContractExecutionRequest';
 
 export interface RedirectOptions {
     redirectUri?: string,
@@ -63,6 +65,10 @@ export class RedirectSigner implements Signer {
 
     public executeGasTransfer(buildTransactionData: BuildGasTransferRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.executeProvidedTransaction(BuildGasTransferRequest.fromData(buildTransactionData), redirectOptions);
+    }
+
+    public executeContract(buildTransactionData: BuildContractExecutionRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return this.executeProvidedTransaction(BuildContractExecutionRequest.fromData(buildTransactionData), redirectOptions);
     }
 
     public executeSavedTransaction(transactionId: string, redirectOptions?: RedirectOptions) {
