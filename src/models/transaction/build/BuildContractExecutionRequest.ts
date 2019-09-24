@@ -1,9 +1,9 @@
-import { BuildTransferRequestBase }         from './BuildTransferRequestBase';
-import { BuildTransactionRequestType }      from './BuildTransactionRequestType';
-import { SecretType }                       from '../../SecretType';
-import { Network }                          from '../../Network';
-import { BuildContractExecutionRequestDto } from './BuildContractExecutionRequestDto';
-import { ContractCallInput }                from './ContractCallInput';
+import {BuildTransferRequestBase} from './BuildTransferRequestBase';
+import {BuildTransactionRequestType} from './BuildTransactionRequestType';
+import {SecretType} from '../../SecretType';
+import {Network} from '../../Network';
+import {BuildContractExecutionRequestDto} from './BuildContractExecutionRequestDto';
+import {ContractCallInput} from './ContractCallInput';
 
 export class BuildContractExecutionRequest extends BuildTransferRequestBase {
 
@@ -13,7 +13,7 @@ export class BuildContractExecutionRequest extends BuildTransferRequestBase {
 
     public static fromData(data: BuildContractExecutionRequestDto): BuildContractExecutionRequest {
         const {walletId, to, secretType, alias, network, functionName, value} = data;
-        const inputs = data.inputs.map((inputDto) => ContractCallInput.fromData(inputDto));
+        const inputs = data.inputs ? data.inputs.map((inputDto) => ContractCallInput.fromData(inputDto)) : [];
         return new this(walletId, to, secretType, functionName, inputs, value, alias, network);
     }
 
