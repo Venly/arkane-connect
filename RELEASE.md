@@ -15,7 +15,6 @@ Merge release branch to master
 
 Run in **master**:
 ```bash
-#set version to a new minor version (can also be major or patch)
 npm install 
 
 npm run build
