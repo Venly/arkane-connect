@@ -120,7 +120,7 @@ class PopupSignerPopup extends Popup {
         action: string,
         requestData: RequestDataType
     ): Promise<SignerResult> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve: (value?: SignerResult | PromiseLike<SignerResult>) => void, reject: (reason?: any) => void) => {
             this.onPopupMountedQueue.push(this.attachFinishedListener(resolve, reject));
             this.onPopupMountedQueue.push(this.sendDataToPopup(action, requestData));
             this.processPopupMountedQueue();

@@ -1,9 +1,18 @@
 import Utils           from '../utils/Utils';
-import { EventTypes } from '../types/EventTypes';
+import { EventTypes }  from '../types/EventTypes';
 import { PopupResult } from './PopupResult';
 import { PopupUtils }  from './PopupUtils';
 
 export default abstract class Popup {
+    private static popupIntervals: number[] = [];
+
+    private static clearPopupIntervals() {
+        // Make sure, all intervals are cleared;
+        Popup.popupIntervals.forEach((v: number, i: number) => {
+            clearInterval(Popup.popupIntervals[i]);
+        });
+        Popup.popupIntervals = [];
+    }
 
     protected popupMountedListener?: (message: MessageEvent) => any;
     protected finishedListener?: (message: MessageEvent) => any;
@@ -45,12 +54,14 @@ export default abstract class Popup {
         this.popupWindow.focus();
     }
 
-    protected attachFinishedListener(resolve: any, reject: any): () => void {
+    protected attachFinishedListener(resolve: (value?: any) => void, reject: (reason?: any) => void): () => void {
         return () => {
+            Popup.clearPopupIntervals();
             if (this.finishedListener) {
                 window.removeEventListener('message', this.finishedListener);
                 delete this.finishedListener;
             }
+            Popup.popupIntervals.push(this.createPopupClosedListener(reject));
             this.finishedListener = this.createFinishedListener(resolve, reject);
             window.addEventListener('message', this.finishedListener);
         };
@@ -71,11 +82,22 @@ export default abstract class Popup {
         };
     }
 
-    protected createFinishedListener(resolve: any, reject: any) {
+    protected createPopupClosedListener(reject: (reason?: any) => void) {
+        return window.setInterval(() => {
+            if (!this.popupWindow || this.popupWindow.closed) {
+                Popup.clearPopupIntervals();
+                reject({status: 'ABORTED', errors: []});
+            }
+        }, 100);
+    }
+
+    protected createFinishedListener(resolve: (value?: any) => void, reject: (reason?: any) => void) {
         return (message: MessageEvent) => {
             if (Utils.messages().hasValidOrigin(message)
                 && Utils.messages().isOfType(message, this.finishedEventType)
                 && Utils.messages().hasCorrectCorrelationID(message, this.correlationID)) {
+                // Finished handler will take cre of popup closing
+                Popup.clearPopupIntervals();
                 switch (message.data.result.status) {
                     case 'SUCCESS':
                         resolve(message.data && {...message.data.result});
