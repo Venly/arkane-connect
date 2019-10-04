@@ -10,17 +10,19 @@ export class BuildContractExecutionRequest extends BuildTransferRequestBase {
     public functionName!: string;
     public value?: number;
     public inputs: ContractCallInput[];
+    public chainSpecificFields?: any;
 
     public static fromData(data: BuildContractExecutionRequestDto): BuildContractExecutionRequest {
-        const {walletId, to, secretType, alias, network, functionName, value} = data;
+        const {walletId, to, secretType, alias, network, functionName, value, chainSpecificFields} = data;
         const inputs = data.inputs ? data.inputs.map((inputDto) => ContractCallInput.fromData(inputDto)) : [];
-        return new this(walletId, to, secretType, functionName, inputs, value, alias, network);
+        return new this(walletId, to, secretType, functionName, inputs, value, chainSpecificFields, alias, network);
     }
 
-    constructor(walletId: string, to: string, secretType: SecretType, functionName: string, inputs: ContractCallInput[], value?: number, alias?: string, network?: Network) {
+    constructor(walletId: string, to: string, secretType: SecretType, functionName: string, inputs: ContractCallInput[], value?: number, chainSpecificFields?: any, alias?: string, network?: Network) {
         super(BuildTransactionRequestType.CONTRACT_EXECUTION, walletId, to, secretType, alias, network);
         this.functionName = functionName;
         this.value = value;
         this.inputs = inputs;
+        this.chainSpecificFields = chainSpecificFields;
     }
 }
