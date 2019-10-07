@@ -9,6 +9,8 @@ export interface NeoContractCallInput {
 export class NeoContractExecutionRequest extends TransactionRequest {
     public to!: string;
     public functionName: string = "";
+    public networkFee: string = "";
+    public systemFee: string = "";
     public inputs: NeoContractCallInput[] = [];
     public outputs: NeoContractCallOutput[] = [];
 }
