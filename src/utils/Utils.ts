@@ -23,31 +23,51 @@ export default class Utils {
         return ENV;
     }
 
-    public static get urls() {
-        let prefix = '';
+    public static environments(): { [key: string]: { api: string, connect: string, login: string }; } {
+        return {
+            'qa2': {
+                api: 'https://api-qa.arkane.network/api',
+                connect: 'https://connect-qa2.arkane.network',
+                login: 'https://login-qa.arkane.network/auth',
+            }
+        }
+    }
+
+    public static get urls(): { api: string, connect: string, login: string } {
+        let postfix = '';
         switch (Utils.environment) {
             case 'local':
-                prefix = '-tst1';
+                postfix = 'tst1';
                 break;
             case 'prod':
             case 'production':
-                prefix = '';
+                postfix = '';
                 break;
             default:
-                prefix = '-' + Utils.environment;
+                postfix = Utils.environment;
         }
 
-        return {
-            api: `https://api${prefix}.arkane.network/api`,
-            connect: Utils.environment === 'local' || Utils.connectEnvironment === 'local' ? 'http://localhost:8181' : `https://connect${prefix}.arkane.network`,
-            login: `https://login${prefix}.arkane.network/auth`,
-        };
+        const environment = this.environments()[postfix];
+        if (environment) {
+            return {
+                api: environment.api,
+                connect: Utils.environment === 'local' || Utils.connectEnvironment === 'local' ? 'http://localhost:8181' : environment.connect,
+                login: environment.login,
+            }
+        } else {
+            return {
+                api: `https://api${postfix ? '-' + postfix : ''}.arkane.network/api`,
+                connect: Utils.environment === 'local' || Utils.connectEnvironment === 'local' ? 'http://localhost:8181' : `https://connect${postfix ? '-' + postfix : ''}.arkane.network`,
+                login: `https://login${postfix ? '-' + postfix : ''}.arkane.network/auth`,
+            };
+        }
     }
 
     public static removeNulls(obj: any): any {
         return Object.keys(obj)
                      .filter((key) => obj[key] !== null && obj[key] !== undefined)  // Remove undef. and null.
-                     .reduce((newObj, key) => {
+                     .reduce((newObj,
+                              key) => {
                          if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
                              return Object.assign(newObj, {[key]: Utils.removeNulls(obj[key])});
                          } else {
@@ -59,7 +79,8 @@ export default class Utils {
     public static removeNullsAndEmpty(obj: any): any {
         return Object.keys(obj)
                      .filter((key) => obj[key] !== null && obj[key] !== undefined && obj[key] !== '')  // Remove undef. and null.
-                     .reduce((newObj, key) => {
+                     .reduce((newObj,
+                              key) => {
                          if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
                              return Object.assign(newObj, {[key]: Utils.removeNullsAndEmpty(obj[key])});
                          } else {
@@ -77,16 +98,20 @@ export default class Utils {
             hasType: (message: MessageEvent) => {
                 return message.data && message.data.type && message.data.type !== '';
             },
-            isOfType: (message: MessageEvent, eventType: EventTypes) => {
+            isOfType: (message: MessageEvent,
+                       eventType: EventTypes) => {
                 return Utils.messages().hasType(message) && message.data.type === eventType.toString();
             },
-            hasCorrectCorrelationID(message: MessageEvent, correlationID: string) {
+            hasCorrectCorrelationID(message: MessageEvent,
+                                    correlationID: string) {
                 return message.data && message.data.correlationID === correlationID;
             }
         };
     }
 
-    public static formatNumber(value: number, minDecimals: number = 2, maxDecimals: number = minDecimals) {
+    public static formatNumber(value: number,
+                               minDecimals: number = 2,
+                               maxDecimals: number = minDecimals) {
         return new Intl.NumberFormat('en-US', {
             minimumFractionDigits: minDecimals,
             maximumFractionDigits: maxDecimals,
@@ -95,7 +120,8 @@ export default class Utils {
 
     public static rawValue() {
         return {
-            toTokenValue: (rawValue: number, decimals: number) => rawValue / Math.pow(10, decimals),
+            toTokenValue: (rawValue: number,
+                           decimals: number) => rawValue / Math.pow(10, decimals),
             toGwei: (rawValue: number) => rawValue / Math.pow(10, 9),
         };
     }
@@ -106,7 +132,8 @@ export default class Utils {
         };
     }
 
-    public static openExternalUrl(url: string, targetBlank: boolean = true): Window | null {
+    public static openExternalUrl(url: string,
+                                  targetBlank: boolean = true): Window | null {
         if (targetBlank) {
             const newWindow = window.open('', '_blank');
             if (newWindow) {
@@ -134,7 +161,10 @@ export default class Utils {
 
     public static http() {
         return {
-            postInForm: (to: string, request: any, bearerTokenProvider: () => string, options?: { redirectUri?: string, correlationID?: string }): void => {
+            postInForm: (to: string,
+                         request: any,
+                         bearerTokenProvider: () => string,
+                         options?: { redirectUri?: string, correlationID?: string }): void => {
                 options = Utils.defaultRedirectUriIfNotPresent(options);
 
                 const form = document.createElement('form');
@@ -156,7 +186,8 @@ export default class Utils {
                 document.body.appendChild(form);
                 form.submit();
             },
-            buildUrl: (to: string, options ?: { redirectUri?: string; correlationID?: string }): string => {
+            buildUrl: (to: string,
+                       options ?: { redirectUri?: string; correlationID?: string }): string => {
                 if (options && (options.redirectUri || options.correlationID)) {
                     const params: { [key: string]: string } = {};
                     if (options.redirectUri) {
@@ -169,7 +200,8 @@ export default class Utils {
                 }
                 return to;
             },
-            addRequestParams: (url: string, params: { [key: string]: string }): string => {
+            addRequestParams: (url: string,
+                               params: { [key: string]: string }): string => {
                 if (url && params) {
                     const paramsAsString = QueryString.stringify(params);
                     if (url && url.indexOf('?') > 0) {
