@@ -64,7 +64,7 @@ export class ArkaneConnect {
     }
 
     public isPopupSigner(signer: Signer): signer is PopupSigner {
-        return (<PopupSigner>signer).closePopup !== undefined;
+        return typeof (<PopupSigner>signer).closePopup !== 'undefined';
     }
 
     /* Deprecated - Use flows.authenticate instead */
