@@ -24,4 +24,4 @@ logs
 # Generated resources
 docs/*
 .npmrc
-.tgz
+*.tgz
