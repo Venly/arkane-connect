@@ -4,6 +4,14 @@ import { PopupResult } from './PopupResult';
 import { PopupUtils }  from './PopupUtils';
 
 export default abstract class Popup {
+    private static CONST = {
+        overlayClassName: 'arkane-connect__overlay',
+        overlayLinkClassName: 'arkane-connect__reopen-link',
+        overlayCloseLinkClassName: 'arkane-connect__close-link',
+        overlayMessage: 'Don’t see the popup? We’ll help you re-open the popup to complete your action.',
+        overlayLinkMessage: 'Click to continue',
+        overlayLinkStyle: 'color: white; text-decoration: underline; font-weight: bold;',
+    };
     private static popupIntervals: number[] = [];
 
     private static clearPopupIntervals() {
@@ -18,6 +26,7 @@ export default abstract class Popup {
     protected finishedListener?: (message: MessageEvent) => any;
     protected onPopupMountedQueue: Array<() => void> = [];
     protected isPopupMounted: boolean = false;
+    protected useOverlay: boolean = true;
 
     protected popupWindow: Window;
     protected correlationID: string;
@@ -26,13 +35,15 @@ export default abstract class Popup {
     protected abstract finishedEventType: EventTypes;
     protected abstract sendDataEventType: EventTypes;
 
-    constructor(url: string, bearerTokenProvider: () => string) {
+    constructor(url: string, bearerTokenProvider: () => string, useOverlay: boolean = true) {
+        this.useOverlay = useOverlay;
         this.correlationID = '' + Date.now() + Math.random();
         this.bearerTokenProvider = bearerTokenProvider;
         this.popupMountedListener = this.createPopupMountedListener(this.correlationID);
         window.addEventListener('message', this.popupMountedListener);
         url = Utils.http().addRequestParams(url, {cid: this.correlationID, webURI: Utils.urls.connect});
         this.popupWindow = PopupUtils.openWindow(url);
+        this.addOverlay();
     }
 
     public abstract sendData(action: string, data: any): Promise<PopupResult>;
@@ -43,10 +54,60 @@ export default abstract class Popup {
         return this.popupWindow && !this.popupWindow.closed;
     }
 
+    public addOverlay(): void {
+        if (this.useOverlay) {
+            this.removeOverlay();
+            const overlayDiv: HTMLDivElement = document.createElement('div');
+            overlayDiv.classList.add(Popup.CONST.overlayClassName);
+            overlayDiv.style.zIndex = '2147483647';
+            overlayDiv.style.display = 'flex';
+            overlayDiv.style.alignItems = 'center';
+            overlayDiv.style.justifyContent = 'center';
+            overlayDiv.style.textAlign = 'center';
+            overlayDiv.style.position = 'fixed';
+            overlayDiv.style.left = '0px';
+            overlayDiv.style.right = '0px';
+            overlayDiv.style.top = '0px';
+            overlayDiv.style.bottom = '0px';
+            overlayDiv.style.background = 'rgba(0,0,0,0.80)';
+            overlayDiv.style.color = 'white';
+            overlayDiv.style.border = '2px solid #f1f1f1';
+            overlayDiv.innerHTML = `<div style="max-width: 350px;">` +
+                `<div style="margin-bottom: 1rem">${Popup.CONST.overlayMessage}</div>` +
+                `<div><a style="${Popup.CONST.overlayLinkStyle}" href="javascript:void(0)" class="${Popup.CONST.overlayLinkClassName}">${Popup.CONST.overlayLinkMessage}</a></div>` +
+                `<a style="${Popup.CONST.overlayLinkStyle} position: absolute; right: 1rem; top: 1rem;" href="javascript:void(0)" class="${Popup.CONST.overlayCloseLinkClassName}">X</a>` +
+                `</div>`;
+            document.body.appendChild(overlayDiv);
+            const link = overlayDiv.querySelector(`.${Popup.CONST.overlayLinkClassName}`);
+            const closeLink = overlayDiv.querySelector(`.${Popup.CONST.overlayCloseLinkClassName}`);
+            if (link) {
+                link.addEventListener('click', () => {
+                    this.focus();
+                });
+            }
+            if(closeLink) {
+                closeLink.addEventListener('click', () => {
+                    this.close();
+                })
+            }
+        }
+    }
+
+    public removeOverlay(): void {
+        if(this.useOverlay) {
+            const overlays = document.querySelectorAll(`.${Popup.CONST.overlayClassName}`);
+            for (let j = overlays.length - 1; j >= 0; j--) {
+                let overlayParent = overlays[j].parentNode;
+                overlayParent ? overlayParent.removeChild(overlays[j]) : null;
+            }
+        }
+    }
+
     public close() {
         if (this.popupMountedListener) {
             window.removeEventListener('message', this.popupMountedListener);
         }
+        this.removeOverlay();
         this.popupWindow.close();
     }
 
@@ -85,6 +146,7 @@ export default abstract class Popup {
     protected createPopupClosedListener(reject: (reason?: any) => void) {
         return window.setInterval(() => {
             if (!this.popupWindow || this.popupWindow.closed) {
+                this.removeOverlay();
                 Popup.clearPopupIntervals();
                 reject({status: 'ABORTED', errors: []});
             }

@@ -1,16 +1,10 @@
-import { ConfirmationRequest }            from '../models/ConfirmationRequest';
-import { EventTypes }                     from '../types/EventTypes';
-import { BuildTransactionRequest }        from '../models/transaction/build/BuildTransactionRequest';
-import { GenericSignatureRequest }        from '../models/transaction/GenericSignatureRequest';
-import Utils                              from '../utils/Utils';
-import { Signer, SignerResult }           from '../signer/Signer';
-import { TransactionRequest }             from '..';
-import Popup                              from '../popup/Popup';
-import { RequestDataType }                from '../models/RequestDataType';
-import { BuildSimpleTransactionRequest }  from '../models/transaction/build/BuildSimpleTransactionRequest';
-import { BuildTokenTransferRequest }      from '../models/transaction/build/BuildTokenTransferRequest';
-import { BuildNftTransferRequest }        from '../models/transaction/build/BuildNftTransferRequest';
-import { BuildGasTransferRequest }        from '../models/transaction/build/BuildGasTransferRequest';
+import { ConfirmationRequest }              from '../models/ConfirmationRequest';
+import { RequestDataType }                  from '../models/RequestDataType';
+import { BuildTransactionRequest }          from '../models/transaction/build/BuildTransactionRequest';
+import { BuildSimpleTransactionRequest }    from '../models/transaction/build/BuildSimpleTransactionRequest';
+import { BuildTokenTransferRequest }        from '../models/transaction/build/BuildTokenTransferRequest';
+import { BuildNftTransferRequest }          from '../models/transaction/build/BuildNftTransferRequest';
+import { BuildGasTransferRequest }          from '../models/transaction/build/BuildGasTransferRequest';
 import { BuildTransferRequestDto }          from '../models/transaction/build/BuildTransferRequestDto';
 import { BuildTokenTransferRequestDto }     from '../models/transaction/build/BuildTokenTransferRequestDto';
 import { BuildNftTransferRequestDto }       from '../models/transaction/build/BuildNftTransferRequestDto';
@@ -18,15 +12,21 @@ import { BuildGasTransferRequestDto }       from '../models/transaction/build/Bu
 import { BuildGenericTransferRequestDto }   from '../models/transaction/build/BuildGenericTransferRequestDto';
 import { BuildContractExecutionRequestDto } from '../models/transaction/build/BuildContractExecutionRequestDto';
 import { BuildContractExecutionRequest }    from '../models/transaction/build/BuildContractExecutionRequest';
+import { GenericSignatureRequest }          from '../models/transaction/GenericSignatureRequest';
+import { TransactionRequest }               from '../models/transaction/TransactionRequest';
+import Popup                                from '../popup/Popup';
+import { Signer, SignerResult }             from './Signer';
+import { EventTypes }                       from '../types/EventTypes';
+import Utils                                from '../utils/Utils';
 
 export class PopupSigner implements Signer {
 
     private popup: PopupSignerPopup;
     private bearerTokenProvider: () => string;
 
-    constructor(bearerTokenProvider: () => string) {
+    constructor(bearerTokenProvider: () => string, useOverlay: boolean) {
         this.bearerTokenProvider = bearerTokenProvider;
-        this.popup = new PopupSignerPopup(`${Utils.urls.connect}/popup/transaction/init.html`, this.bearerTokenProvider);
+        this.popup = new PopupSignerPopup(`${Utils.urls.connect}/popup/transaction/init.html`, this.bearerTokenProvider, useOverlay);
         window.addEventListener('beforeunload', () => {
             this.closePopup();
         });
@@ -112,8 +112,8 @@ class PopupSignerPopup extends Popup {
     protected finishedEventType = EventTypes.SIGNER_FINISHED;
     protected sendDataEventType = EventTypes.SEND_TRANSACTION_DATA;
 
-    constructor(url: string, bearerTokenProvider: () => string) {
-        super(url, bearerTokenProvider);
+    constructor(url: string, bearerTokenProvider: () => string, useOverlay?: boolean) {
+        super(url, bearerTokenProvider, useOverlay);
     }
 
     public sendData(

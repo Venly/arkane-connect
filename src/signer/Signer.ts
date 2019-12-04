@@ -33,7 +33,9 @@ export class SignerFactory {
     public static createSignerFor(signMethod: WindowMode, bearerTokenProvider: () => string): Signer {
         switch (signMethod) {
             case WindowMode.POPUP:
-                return new PopupSigner(bearerTokenProvider);
+                return new PopupSigner(bearerTokenProvider, false);
+            case WindowMode.POPUP_WITH_OVERLAY:
+                return new PopupSigner(bearerTokenProvider, true);
             case WindowMode.REDIRECT:
                 return new RedirectSigner(bearerTokenProvider);
             default:
