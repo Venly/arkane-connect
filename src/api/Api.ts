@@ -107,7 +107,7 @@ export class Api {
     };
 
     public getTransactionStatus = (transactionHash: string, secretType: SecretType): Promise<RestApiResponseTxStatus> => {
-        return this.processResponse<RestApiResponseTxStatus>(this.http.get(`transactions/status?secretType=${secretType}&transactionHash=${transactionHash}`));
+        return this.processResponse<RestApiResponseTxStatus>(this.http.get(`transactions/${secretType}/${transactionHash}/status`));
     };
 }
 
