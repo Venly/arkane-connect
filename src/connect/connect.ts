@@ -8,6 +8,7 @@ import { PopupSigner }                       from '../signer/PopupSigner';
 import { Signer, SignerFactory, SignMethod } from '../signer/Signer';
 import Utils                                 from '../utils/Utils';
 import { Flows }                             from './Flows';
+import { PopupOptions }                      from '../popup/Popup';
 
 export class ArkaneConnect {
 
@@ -15,6 +16,7 @@ export class ArkaneConnect {
     public signUsing: WindowMode;
     public flows: Flows;
     public windowMode: WindowMode;
+    public useOverlayWithPopup: boolean;
     public _bearerTokenProvider: () => string;
 
     private clientId: string;
@@ -24,6 +26,7 @@ export class ArkaneConnect {
         this.clientId = clientId;
         this.signUsing = (options && options.signUsing as unknown as WindowMode) || WindowMode.POPUP;
         this.windowMode = (options && options.windowMode) || WindowMode.POPUP;
+        this.useOverlayWithPopup = (options && options.useOverlayWithPopup) || true;
         Utils.rawEnvironment = options && options.environment || 'prod';
         this._bearerTokenProvider = options && options.bearerTokenProvider || (() => this.auth && this.auth.token || '');
         if (this._bearerTokenProvider) {
@@ -59,8 +62,8 @@ export class ArkaneConnect {
         }
     }
 
-    public createSigner(windowMode?: WindowMode): Signer {
-        return SignerFactory.createSignerFor(windowMode || this.signUsing || this.windowMode, this._bearerTokenProvider);
+    public createSigner(windowMode?: WindowMode, popupOptions?: PopupOptions): Signer {
+        return SignerFactory.createSignerFor(windowMode || this.signUsing || this.windowMode, this._bearerTokenProvider, popupOptions);
     }
 
     public isPopupSigner(signer: Signer): signer is PopupSigner {
@@ -121,6 +124,7 @@ export interface ConstructorOptions {
     windowMode?: WindowMode;
     signUsing?: SignMethod; // Deprecated, use WindowMode
     bearerTokenProvider?: () => string;
+    useOverlayWithPopup?: boolean;
 }
 
 export interface AuthenticationOptions {

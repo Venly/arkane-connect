@@ -14,7 +14,7 @@ import { BuildContractExecutionRequestDto } from '../models/transaction/build/Bu
 import { BuildContractExecutionRequest }    from '../models/transaction/build/BuildContractExecutionRequest';
 import { GenericSignatureRequest }          from '../models/transaction/GenericSignatureRequest';
 import { TransactionRequest }               from '../models/transaction/TransactionRequest';
-import Popup                                from '../popup/Popup';
+import Popup, { PopupOptions }              from '../popup/Popup';
 import { Signer, SignerResult }             from './Signer';
 import { EventTypes }                       from '../types/EventTypes';
 import Utils                                from '../utils/Utils';
@@ -24,9 +24,9 @@ export class PopupSigner implements Signer {
     private popup: PopupSignerPopup;
     private bearerTokenProvider: () => string;
 
-    constructor(bearerTokenProvider: () => string, useOverlay: boolean) {
+    constructor(bearerTokenProvider: () => string, options?: PopupOptions) {
         this.bearerTokenProvider = bearerTokenProvider;
-        this.popup = new PopupSignerPopup(`${Utils.urls.connect}/popup/transaction/init.html`, this.bearerTokenProvider, useOverlay);
+        this.popup = new PopupSignerPopup(`${Utils.urls.connect}/popup/transaction/init.html`, this.bearerTokenProvider, options);
         window.addEventListener('beforeunload', () => {
             this.closePopup();
         });
@@ -112,8 +112,8 @@ class PopupSignerPopup extends Popup {
     protected finishedEventType = EventTypes.SIGNER_FINISHED;
     protected sendDataEventType = EventTypes.SEND_TRANSACTION_DATA;
 
-    constructor(url: string, bearerTokenProvider: () => string, useOverlay?: boolean) {
-        super(url, bearerTokenProvider, useOverlay);
+    constructor(url: string, bearerTokenProvider: () => string, options?: PopupOptions) {
+        super(url, bearerTokenProvider, options);
     }
 
     public sendData(

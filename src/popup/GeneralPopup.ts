@@ -1,13 +1,13 @@
-import { EventTypes }  from '../types/EventTypes';
-import Popup            from './Popup';
-import Utils            from '../utils/Utils';
+import { EventTypes }          from '../types/EventTypes';
+import Popup, { PopupOptions } from './Popup';
+import Utils                   from '../utils/Utils';
 import { PopupActions } from './PopupActions';
 import { PopupResult }  from './PopupResult';
 
 export class GeneralPopup extends Popup {
 
-    public static openNewPopup(action: PopupActions, bearerTokenProvider: () => string, data?: any): Promise<PopupResult> {
-        const popup = new GeneralPopup(`${Utils.urls.connect}/popup/general/init.html`, bearerTokenProvider);
+    public static openNewPopup(action: PopupActions, bearerTokenProvider: () => string, data?: any, options?: PopupOptions): Promise<PopupResult> {
+        const popup = new GeneralPopup(`${Utils.urls.connect}/popup/general/init.html`, bearerTokenProvider, options);
         window.addEventListener('beforeunload', () => {
             popup.close();
         });
