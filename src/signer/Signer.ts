@@ -10,6 +10,7 @@ import { BuildTokenTransferRequestDto }     from '../models/transaction/build/Bu
 import { BuildGenericTransferRequestDto }   from '../models/transaction/build/BuildGenericTransferRequestDto';
 import { BuildTransferRequestDto }          from '../models/transaction/build/BuildTransferRequestDto';
 import { BuildContractExecutionRequestDto } from '../models/transaction/build/BuildContractExecutionRequestDto';
+import { PopupOptions }                     from '../popup/Popup';
 
 
 export interface Signer {
@@ -30,10 +31,10 @@ export interface Signer {
 
 export class SignerFactory {
 
-    public static createSignerFor(signMethod: WindowMode, bearerTokenProvider: () => string): Signer {
+    public static createSignerFor(signMethod: WindowMode, bearerTokenProvider: () => string, popupOptions?: PopupOptions): Signer {
         switch (signMethod) {
             case WindowMode.POPUP:
-                return new PopupSigner(bearerTokenProvider);
+                return new PopupSigner(bearerTokenProvider, popupOptions);
             case WindowMode.REDIRECT:
                 return new RedirectSigner(bearerTokenProvider);
             default:

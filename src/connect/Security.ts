@@ -1,10 +1,11 @@
 import { KeycloakInitOptions, KeycloakInstance } from 'keycloak-js';
 import QueryString                               from 'querystring';
-import { AuthenticationOptions }                 from './connect';
-import { PopupUtils }                            from '../popup/PopupUtils';
-import { WindowMode }                            from '../models/WindowMode';
-import { EventTypes }                            from '../types/EventTypes';
-import Utils                                     from '../utils/Utils';
+
+import { AuthenticationOptions } from './connect';
+import { WindowMode }            from '../models/WindowMode';
+import { PopupWindow }           from '../popup/PopupWindow';
+import { EventTypes }            from '../types/EventTypes';
+import Utils                     from '../utils/Utils';
 
 export class Security {
 
@@ -47,7 +48,7 @@ export class Security {
         const closePopup = options ? options.closePopup : true;
         return Promise.race([
             Security.initialiseAuthenticatedListener(clientId, EventTypes.AUTHENTICATE, closePopup),
-            Security.initialiseLoginPopup(clientId)
+            Security.initialiseLoginPopup(clientId),
         ]);
     }
 
@@ -75,7 +76,7 @@ export class Security {
 
     private static updateTokenInterval: any;
     private static authenticatedListener: any;
-    private static popupWindow: Window;
+    private static popupWindow: PopupWindow;
     private static logoutListener: any;
     private static isLoginPopupClosedInterval?: any;
 
@@ -153,7 +154,7 @@ export class Security {
     private static initialiseLoginPopup(clientId: string): Promise<LoginResult> {
         const origin = window.location.href.replace(window.location.search, '');
         const url = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
-        Security.popupWindow = PopupUtils.openWindow(url);
+        Security.popupWindow = PopupWindow.openNew(url, {useOverlay: false});
         return Security.initialiseIsLoginPopupClosedInterval();
     }
 
@@ -165,7 +166,7 @@ export class Security {
                     Security.cleanUp(EventTypes.AUTHENTICATE);
                     resolve({authenticated: false});
                 }
-            }, 2000)
+            }, 2000);
         });
     }
 
@@ -300,5 +301,5 @@ export class Security {
 export interface LoginResult {
     keycloak?: KeycloakInstance;
     authenticated: boolean;
-    popupWindow?: Window;
+    popupWindow?: PopupWindow;
 }

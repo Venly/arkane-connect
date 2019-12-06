@@ -1,7 +1,7 @@
-import Utils           from '../utils/Utils';
-import { EventTypes }  from '../types/EventTypes';
 import { PopupResult } from './PopupResult';
-import { PopupUtils }  from './PopupUtils';
+import { PopupWindow } from './PopupWindow';
+import { EventTypes }  from '../types/EventTypes';
+import Utils           from '../utils/Utils';
 
 export default abstract class Popup {
     private static popupIntervals: number[] = [];
@@ -18,21 +18,23 @@ export default abstract class Popup {
     protected finishedListener?: (message: MessageEvent) => any;
     protected onPopupMountedQueue: Array<() => void> = [];
     protected isPopupMounted: boolean = false;
+    protected useOverlay: boolean = true;
 
-    protected popupWindow: Window;
+    protected popupWindow: PopupWindow;
     protected correlationID: string;
     protected readonly bearerTokenProvider: () => string;
 
     protected abstract finishedEventType: EventTypes;
     protected abstract sendDataEventType: EventTypes;
 
-    constructor(url: string, bearerTokenProvider: () => string) {
+    constructor(url: string, bearerTokenProvider: () => string, options?: PopupOptions) {
+        this.useOverlay = (options && typeof options.useOverlay !== 'undefined') ? options.useOverlay : true;
         this.correlationID = '' + Date.now() + Math.random();
         this.bearerTokenProvider = bearerTokenProvider;
         this.popupMountedListener = this.createPopupMountedListener(this.correlationID);
         window.addEventListener('message', this.popupMountedListener);
         url = Utils.http().addRequestParams(url, {cid: this.correlationID, webURI: Utils.urls.connect});
-        this.popupWindow = PopupUtils.openWindow(url);
+        this.popupWindow = PopupWindow.openNew(url, {useOverlay: this.useOverlay});
     }
 
     public abstract sendData(action: string, data: any): Promise<PopupResult>;
@@ -125,4 +127,8 @@ export default abstract class Popup {
             }
         }
     }
+}
+
+export interface PopupOptions {
+    useOverlay: boolean
 }
