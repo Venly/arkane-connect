@@ -3,7 +3,7 @@
 ## 1.13.0
 * Add support `MATIC` blockchain
 * PopupSigner adds by default an overlay on the parent window when the popup opens. This functionality can be disabled using the `useOverlay` in `PopupOptions`.
-* Add `api.getTrnasactionStatus(transactionHash: string, secretType: SecretType)` to retrieve the status of a transaction.
+* Add `api.getTransactionStatus(transactionHash: string, secretType: SecretType)` to retrieve the status of a transaction.
 
 ## 1.12.0
 * Add `VECHAIN_RAW` SignatureRequestType
