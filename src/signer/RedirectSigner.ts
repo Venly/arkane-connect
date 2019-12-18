@@ -1,13 +1,13 @@
-import { ConfirmationRequest }            from '../models/ConfirmationRequest';
-import { GenericSignatureRequest }        from '../models/transaction/GenericSignatureRequest';
-import { BuildTransactionRequest }        from '../models/transaction/build/BuildTransactionRequest';
-import { Signer, SignerResult }           from '../signer/Signer';
-import Utils                              from '../utils/Utils';
-import { BuildGasTransferRequest }        from '../models/transaction/build/BuildGasTransferRequest';
-import { BuildTokenTransferRequest }      from '../models/transaction/build/BuildTokenTransferRequest';
-import { BuildNftTransferRequest }        from '../models/transaction/build/BuildNftTransferRequest';
-import { BuildSimpleTransactionRequest }  from '../models/transaction/build/BuildSimpleTransactionRequest';
-import { BuildTransferRequestBase }       from '../models/transaction/build/BuildTransferRequestBase';
+import { ConfirmationRequest }              from '../models/ConfirmationRequest';
+import { GenericSignatureRequest }          from '../models/transaction/GenericSignatureRequest';
+import { BuildTransactionRequest }          from '../models/transaction/build/BuildTransactionRequest';
+import { Signer, SignerResult }             from '../signer/Signer';
+import Utils                                from '../utils/Utils';
+import { BuildGasTransferRequest }          from '../models/transaction/build/BuildGasTransferRequest';
+import { BuildTokenTransferRequest }        from '../models/transaction/build/BuildTokenTransferRequest';
+import { BuildNftTransferRequest }          from '../models/transaction/build/BuildNftTransferRequest';
+import { BuildSimpleTransactionRequest }    from '../models/transaction/build/BuildSimpleTransactionRequest';
+import { BuildTransferRequestBase }         from '../models/transaction/build/BuildTransferRequestBase';
 import { BuildGenericTransferRequestDto }   from '../models/transaction/build/BuildGenericTransferRequestDto';
 import { BuildTransferRequestDto }          from '../models/transaction/build/BuildTransferRequestDto';
 import { BuildTokenTransferRequestDto }     from '../models/transaction/build/BuildTokenTransferRequestDto';
@@ -15,6 +15,9 @@ import { BuildNftTransferRequestDto }       from '../models/transaction/build/Bu
 import { BuildGasTransferRequestDto }       from '../models/transaction/build/BuildGasTransferRequestDto';
 import { BuildContractExecutionRequestDto } from '../models/transaction/build/BuildContractExecutionRequestDto';
 import { BuildContractExecutionRequest }    from '../models/transaction/build/BuildContractExecutionRequest';
+import { BuildMessageSignRequest }          from '../models/transaction/build/BuildMessageSignRequest';
+import { BuildMessageSignRequestDto }       from '../models/transaction/build/BuildMessageSignRequestDto';
+import { BuildSignRequestBase }             from '../models/transaction/build/BuildSignRequestBase';
 
 export interface RedirectOptions {
     redirectUri?: string,
@@ -88,6 +91,17 @@ export class RedirectSigner implements Signer {
     public sign(signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return new Promise<SignerResult>((resolve, reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/transaction/sign/${signatureRequest.type.toLowerCase()}`, signatureRequest, this.bearerTokenProvider, redirectOptions);
+            resolve();
+        });
+    }
+
+    public signMessage(buildData: BuildMessageSignRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return this.signProvidedSignature(BuildMessageSignRequest.fromData(buildData), redirectOptions);
+    }
+
+    private signProvidedSignature(buildSignatureData: BuildSignRequestBase, redirectOptions?: RedirectOptions) {
+        return new Promise<SignerResult>((resolve, reject) => {
+            Utils.http().postInForm(`${Utils.urls.connect}/transaction/sign/`, buildSignatureData, this.bearerTokenProvider, redirectOptions);
             resolve();
         });
     }

@@ -11,6 +11,7 @@ import { BuildGenericTransferRequestDto }   from '../models/transaction/build/Bu
 import { BuildTransferRequestDto }          from '../models/transaction/build/BuildTransferRequestDto';
 import { BuildContractExecutionRequestDto } from '../models/transaction/build/BuildContractExecutionRequestDto';
 import { PopupOptions }                     from '../popup/Popup';
+import { BuildMessageSignRequestDto }       from '../models/transaction/build/BuildMessageSignRequestDto';
 
 
 export interface Signer {
@@ -24,6 +25,7 @@ export interface Signer {
     executeContract: (buildTransactionData: BuildContractExecutionRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
     executeSavedTransaction: (transactionId: string, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
     sign: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    signMessage: (buildSignatureData: BuildMessageSignRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
     /** Deprecated since 1.1.9. Use sign instead */
     signTransaction: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
     confirm: (request: ConfirmationRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
