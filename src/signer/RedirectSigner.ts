@@ -101,7 +101,7 @@ export class RedirectSigner implements Signer {
 
     private signProvidedSignature(buildSignatureData: BuildSignRequestBase, redirectOptions?: RedirectOptions) {
         return new Promise<SignerResult>((resolve, reject) => {
-            Utils.http().postInForm(`${Utils.urls.connect}/transaction/sign/`, buildSignatureData, this.bearerTokenProvider, redirectOptions);
+            Utils.http().postInForm(`${Utils.urls.connect}/transaction/sign`, buildSignatureData, this.bearerTokenProvider, redirectOptions);
             resolve();
         });
     }
