@@ -18,6 +18,8 @@ import Popup, { PopupOptions }              from '../popup/Popup';
 import { Signer, SignerResult }             from './Signer';
 import { EventTypes }                       from '../types/EventTypes';
 import Utils                                from '../utils/Utils';
+import { BuildMessageSignRequestDto }       from '../models/transaction/build/BuildMessageSignRequestDto';
+import { BuildMessageSignRequest }          from '../models/transaction/build/BuildMessageSignRequest';
 
 export class PopupSigner implements Signer {
 
@@ -43,7 +45,11 @@ export class PopupSigner implements Signer {
     public async sign(signatureRequest: GenericSignatureRequest): Promise<SignerResult> {
         signatureRequest.hash = typeof signatureRequest.hash === 'undefined' ? true : signatureRequest.hash;
         signatureRequest.prefix = typeof signatureRequest.hash === 'undefined' ? true : signatureRequest.prefix;
-        return this.handleRequest('sign', signatureRequest);
+        return this.signRequest(signatureRequest);
+    }
+
+    public async signMessage(buildDate: BuildMessageSignRequestDto): Promise<SignerResult> {
+        return this.signRequest(BuildMessageSignRequest.fromData(buildDate));
     }
 
     /** Deprecated since 1.1.9. Use sign instead */
@@ -95,6 +101,10 @@ export class PopupSigner implements Signer {
 
     private async execute(requestData: RequestDataType): Promise<SignerResult> {
         return this.handleRequest('execute', requestData);
+    }
+
+    private async signRequest(requestData: RequestDataType): Promise<SignerResult> {
+        return this.handleRequest('sign', requestData);
     }
 
     private async handleRequest(action: string, requestData: RequestDataType): Promise<SignerResult> {
