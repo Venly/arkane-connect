@@ -51,13 +51,13 @@ export default class Utils {
         if (environment) {
             return {
                 api: environment.api,
-                connect: Utils.environment === 'local' || Utils.connectEnvironment === 'local' ? 'http://localhost:8181' : environment.connect,
+                connect: Utils.environment === 'local' || Utils.connectEnvironment === 'local' ? 'http://127.0.0.1:8181' : environment.connect,
                 login: environment.login,
             }
         } else {
             return {
-                api: `https://api${postfix ? '-' + postfix : ''}.arkane.network/api`,
-                connect: Utils.environment === 'local' || Utils.connectEnvironment === 'local' ? 'http://localhost:8181' : `https://connect${postfix ? '-' + postfix : ''}.arkane.network`,
+                api: Utils.environment === 'local' ? 'http://127.0.0.1:8581/api' : `https://api${postfix ? '-' + postfix : ''}.arkane.network/api`,
+                connect: Utils.environment === 'local' || Utils.connectEnvironment === 'local' ? 'http://127.0.0.1:8181' : `https://connect${postfix ? '-' + postfix : ''}.arkane.network`,
                 login: `https://login${postfix ? '-' + postfix : ''}.arkane.network/auth`,
             };
         }
