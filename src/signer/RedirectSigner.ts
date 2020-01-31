@@ -81,6 +81,20 @@ export class RedirectSigner implements Signer {
         });
     }
 
+    public resubmitTransaction(transactionId: string, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return new Promise<SignerResult>((resolve, reject) => {
+            Utils.http().postInForm(`${Utils.urls.connect}/transaction/resubmit/${transactionId}`, {}, this.bearerTokenProvider, redirectOptions);
+            resolve();
+        });
+    }
+
+    public cancelTransaction(transactionId: string, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return new Promise<SignerResult>((resolve, reject) => {
+            Utils.http().postInForm(`${Utils.urls.connect}/transaction/cancel/${transactionId}`, {}, this.bearerTokenProvider, redirectOptions);
+            resolve();
+        });
+    }
+
     private executeProvidedTransaction(buildTransactionData: BuildTransferRequestBase, redirectOptions?: RedirectOptions) {
         return new Promise<SignerResult>((resolve, reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute`, buildTransactionData, this.bearerTokenProvider, redirectOptions);
