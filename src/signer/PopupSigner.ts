@@ -94,8 +94,15 @@ export class PopupSigner implements Signer {
         return this.handleRequest(`execute/${transactionId}`, {});
     }
 
+    public resubmitTransaction(transactionId: string): Promise<SignerResult> {
+        return this.handleRequest('resubmit', {transactionId});
+    }
+
+    public cancelTransaction(transactionId: string): Promise<SignerResult> {
+        return this.handleRequest('cancel', {transactionId});
+    }
+
     public async confirm(request: ConfirmationRequest): Promise<SignerResult> {
-        this.popup.focus();
         return this.handleRequest('confirm', request);
     }
 
