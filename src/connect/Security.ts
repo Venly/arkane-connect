@@ -171,7 +171,7 @@ export class Security {
         const origin = window.location.href.replace(window.location.search, '');
         let url = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
         if (options && options.idpHint) {
-            url += QueryString.stringify({kc_idp_hint: options.idpHint});
+            url += "&" + QueryString.stringify({kc_idp_hint: options.idpHint});
         }
         Security.popupWindow = PopupWindow.openNew(url, {useOverlay: false});
         return Security.initialiseIsLoginPopupClosedInterval();
