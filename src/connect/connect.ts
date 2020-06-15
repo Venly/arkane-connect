@@ -22,7 +22,8 @@ export class ArkaneConnect {
     private clientId: string;
     private auth?: KeycloakInstance;
 
-    constructor(clientId: string, options?: ConstructorOptions) {
+    constructor(clientId: string,
+                options?: ConstructorOptions) {
         this.clientId = clientId;
         this.signUsing = (options && options.signUsing as unknown as WindowMode) || WindowMode.POPUP;
         this.windowMode = (options && options.windowMode) || WindowMode.POPUP;
@@ -44,7 +45,8 @@ export class ArkaneConnect {
     public logout(options?: AuthenticationOptions): Promise<void> {
         const windowMode = options && options.windowMode || this.windowMode;
         if (windowMode === WindowMode.REDIRECT) {
-            return new Promise<void>((resolve: any, reject: any) => {
+            return new Promise<void>((resolve: any,
+                                      reject: any) => {
                 const logoutOptions = {};
                 if (options && options.redirectUri) {
                     Object.assign(logoutOptions, {redirectUri: options.redirectUri});
@@ -62,7 +64,8 @@ export class ArkaneConnect {
         }
     }
 
-    public createSigner(windowMode?: WindowMode, popupOptions?: PopupOptions): Signer {
+    public createSigner(windowMode?: WindowMode,
+                        popupOptions?: PopupOptions): Signer {
         return SignerFactory.createSignerFor(windowMode || this.signUsing || this.windowMode, this._bearerTokenProvider, popupOptions);
     }
 
@@ -76,7 +79,8 @@ export class ArkaneConnect {
     }
 
     /* Deprecated - Use flows.manageWallets instead */
-    public manageWallets(chain: string, options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode }): Promise<PopupResult | void> {
+    public manageWallets(chain: string,
+                         options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode }): Promise<PopupResult | void> {
         return this.flows.manageWallets(chain, options);
     }
 
@@ -95,13 +99,15 @@ export class ArkaneConnect {
         return {
             auth: this.auth,
             isAuthenticated: loginResult.authenticated,
-            authenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
+            authenticated(this: AuthenticationResult,
+                          callback: (auth: KeycloakInstance) => void) {
                 if (loginResult.authenticated && loginResult.keycloak) {
                     callback(loginResult.keycloak);
                 }
                 return this;
             },
-            notAuthenticated(this: AuthenticationResult, callback: (auth?: KeycloakInstance) => void) {
+            notAuthenticated(this: AuthenticationResult,
+                             callback: (auth?: KeycloakInstance) => void) {
                 if (!loginResult.authenticated) {
                     callback(loginResult.keycloak);
                 }
@@ -131,4 +137,5 @@ export interface AuthenticationOptions {
     redirectUri?: string;
     windowMode?: WindowMode;
     closePopup?: boolean
+    idpHint?: string;
 }

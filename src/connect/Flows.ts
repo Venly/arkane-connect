@@ -46,13 +46,17 @@ export class Flows {
         }
     }
 
-    public async getAccount(chain: SecretType): Promise<Account> {
+    public async getAccount(chain: SecretType, authenticationOptions?: AuthenticationOptions): Promise<Account> {
         let loginResult: any = {};
         let wallets: Wallet[] = [];
         let start = +Date.now();
 
         try {
-            loginResult = await Security.login(this.clientId, {windowMode: WindowMode.POPUP, closePopup: false});
+            let options:AuthenticationOptions = {windowMode: WindowMode.POPUP, closePopup: false};
+            if (authenticationOptions && authenticationOptions.idpHint) {
+                options.idpHint = authenticationOptions.idpHint;
+            }
+            loginResult = await Security.login(this.clientId, options);
 
             let result = this.arkaneConnect._afterAuthenticationForFlowUse(loginResult);
 
