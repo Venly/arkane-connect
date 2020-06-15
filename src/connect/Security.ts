@@ -1,5 +1,5 @@
-import { KeycloakInitOptions, KeycloakInstance, KeycloakLoginOptions } from 'keycloak-js';
-import QueryString                                                     from 'querystring';
+import { KeycloakConfig, KeycloakInitOptions, KeycloakInstance, KeycloakLoginOptions } from 'keycloak-js';
+import QueryString                                                                     from 'querystring';
 
 import { AuthenticationOptions } from './connect';
 import { WindowMode }            from '../models/WindowMode';
@@ -265,7 +265,7 @@ export class Security {
 
     private static async keycloakLogin(config: any,
                                        loginOptions?: KeycloakLoginOptions): Promise<LoginResult> {
-        const Keycloak: { default: (config?: string | {} | undefined) => KeycloakInstance } = await import ('keycloak-js');
+        const Keycloak: { default: (config?: KeycloakConfig | string | undefined) => KeycloakInstance } = await import ('keycloak-js');
         Security.keycloak = Keycloak.default(config);
         return new Promise((resolve,
                             reject) => {
@@ -288,7 +288,7 @@ export class Security {
 
     private static async initKeycloak(config: any,
                                       initOptions: Keycloak.KeycloakInitOptions): Promise<LoginResult> {
-        const Keycloak: { default: (config?: string | {} | undefined) => KeycloakInstance } = await import ('keycloak-js');
+        const Keycloak: { default: (config?: KeycloakConfig | string | undefined) => KeycloakInstance } = await import ('keycloak-js');
         Security.keycloak = Keycloak.default(config);
         return new Promise((resolve,
                             reject) => {
