@@ -113,11 +113,13 @@ export class Security {
             Security.authenticatedListener = async (message: MessageEvent) => {
                 console.log('Received message', message);
                 if (message && message.origin === Utils.urls.connect && message.data && message.data.type === eventType) {
+                    console.log(('inside received message 116'));
                     if (Security.isLoginPopupClosedInterval) {
                         Security.clearIsLoginPopupClosedInterval();
                     }
                     if (message.data.authenticated) {
                         try {
+                            console.log(('cleaning up 122 116'));
                             Security.cleanUp(eventType, closePopup);
                             const keycloakResult = message.data.keycloak;
                             const initOptions: KeycloakInitOptions = {
@@ -129,8 +131,11 @@ export class Security {
                                 checkLoginIframe: false,
                             };
                             // Remove the login state from the URL when tokens are already present (the checkAuthenticated iframe already handled it)
+                            console.log('removing login state');
                             Security.removeLoginState();
+                            console.log('Init keycloak')
                             const loginResult = await Security.initKeycloak(Security.getConfig(clientId), initOptions);
+                            console.log('has login result', loginResult);
                             resolve({
                                 keycloak: loginResult.keycloak,
                                 authenticated: loginResult.authenticated,
