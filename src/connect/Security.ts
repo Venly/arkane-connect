@@ -270,10 +270,7 @@ export class Security {
         return new Promise((resolve,
                             reject) => {
             Security.keycloak
-                    .init({
-                        responseMode: 'fragment',
-                        flow: 'standard'
-                    }).then(() => Security.keycloak
+                    .init({}).then(() => Security.keycloak
                                           .login(loginOptions)
                                           .then((authenticated: any) => {
                                               if (authenticated) {
