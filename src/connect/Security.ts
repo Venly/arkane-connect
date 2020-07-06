@@ -340,6 +340,9 @@ export class Security {
             if (iframe) {
                 iframe.remove();
             }
+            if (closePopup && Security.popupWindow && !Security.popupWindow.closed) {
+                Security.popupWindow.close();
+            }
         } else if (eventType === EventTypes.AUTHENTICATE) {
             if (closePopup && Security.popupWindow && !Security.popupWindow.closed) {
                 Security.popupWindow.close();
