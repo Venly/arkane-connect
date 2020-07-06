@@ -54,6 +54,7 @@ export class Security {
     private static loginPopup(clientId: string,
                               options?: AuthenticationOptions): Promise<LoginResult> {
         const closePopup = options ? options.closePopup : true;
+        window.addEventListener('message', (e)=> console.log('MESSAGE', e));
         return Promise.race([
             Security.initialiseAuthenticatedListener(clientId, EventTypes.AUTHENTICATE, closePopup),
             Security.initialiseLoginPopup(clientId, options),
