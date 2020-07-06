@@ -110,6 +110,7 @@ export class Security {
         return new Promise((resolve: (value: LoginResult) => void,
                             reject: any) => {
             Security.authenticatedListener = async (message: MessageEvent) => {
+                console.log('Received message', message);
                 if (message && message.origin === Utils.urls.connect && message.data && message.data.type === eventType) {
                     if (Security.isLoginPopupClosedInterval) {
                         Security.clearIsLoginPopupClosedInterval();
