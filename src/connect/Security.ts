@@ -145,6 +145,7 @@ export class Security {
                 }
             };
             window.addEventListener('message', Security.authenticatedListener);
+            console.log('added message event listener');
         });
     };
 
