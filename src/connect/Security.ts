@@ -184,6 +184,7 @@ export class Security {
                             reject: any) => {
             Security.isLoginPopupClosedInterval = window.setInterval(() => {
                 if (Security.popupWindow.closed) {
+                    console.log('cleaning up from initialiseIsLoginPopupClosedInterval');
                     Security.clearIsLoginPopupClosedInterval();
                     Security.cleanUp(EventTypes.AUTHENTICATE);
                     resolve({authenticated: false});
