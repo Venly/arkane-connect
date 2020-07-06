@@ -119,7 +119,7 @@ export class Security {
                     }
                     if (message.data.authenticated) {
                         try {
-                            console.log(('cleaning up 122 116'));
+                            console.log('cleaning up 122', eventType, closePopup);
                             Security.cleanUp(eventType, closePopup);
                             const keycloakResult = message.data.keycloak;
                             const initOptions: KeycloakInitOptions = {
