@@ -270,19 +270,24 @@ export class Security {
         return new Promise((resolve,
                             reject) => {
             Security.keycloak
-                    .login(loginOptions)
-                    .success((authenticated: any) => {
-                        if (authenticated) {
-                            Security.setUpdateTokenInterval();
-                        }
-                        resolve({
-                            keycloak: Security.keycloak,
-                            authenticated,
-                        } as LoginResult);
-                    })
-                    .error((e) => {
-                        reject(e);
-                    });
+                    .init({
+                        responseMode: 'fragment',
+                        flow: 'standard'
+                    }).then(() => Security.keycloak
+                                          .login(loginOptions)
+                                          .then((authenticated: any) => {
+                                              if (authenticated) {
+                                                  Security.setUpdateTokenInterval();
+                                              }
+                                              resolve({
+                                                  keycloak: Security.keycloak,
+                                                  authenticated,
+                                              } as LoginResult);
+                                          })
+                                          .catch((e) => {
+                                              reject(e);
+                                          }));
+
         });
     }
 
