@@ -54,7 +54,6 @@ export class Security {
     private static loginPopup(clientId: string,
                               options?: AuthenticationOptions): Promise<LoginResult> {
         const closePopup = options ? options.closePopup : true;
-        window.addEventListener('message', (e)=> console.log('MESSAGE', e));
         return Promise.race([
             Security.initialiseAuthenticatedListener(clientId, EventTypes.AUTHENTICATE, closePopup),
             Security.initialiseLoginPopup(clientId, options),
@@ -111,15 +110,12 @@ export class Security {
         return new Promise((resolve: (value: LoginResult) => void,
                             reject: any) => {
             Security.authenticatedListener = async (message: MessageEvent) => {
-                console.log('Received message', message);
                 if (message && message.origin === Utils.urls.connect && message.data && message.data.type === eventType) {
-                    console.log(('inside received message 116'));
                     if (Security.isLoginPopupClosedInterval) {
                         Security.clearIsLoginPopupClosedInterval();
                     }
                     if (message.data.authenticated) {
                         try {
-                            console.log('cleaning up 122', eventType, closePopup);
                             Security.cleanUp(eventType, closePopup);
                             const keycloakResult = message.data.keycloak;
                             const initOptions: KeycloakInitOptions = {
@@ -131,11 +127,8 @@ export class Security {
                                 checkLoginIframe: false,
                             };
                             // Remove the login state from the URL when tokens are already present (the checkAuthenticated iframe already handled it)
-                            console.log('removing login state');
                             Security.removeLoginState();
-                            console.log('Init keycloak')
                             const loginResult = await Security.initKeycloak(Security.getConfig(clientId), initOptions);
-                            console.log('has login result', loginResult);
                             resolve({
                                 keycloak: loginResult.keycloak,
                                 authenticated: loginResult.authenticated,
@@ -150,7 +143,6 @@ export class Security {
                 }
             };
             window.addEventListener('message', Security.authenticatedListener);
-            console.log('added message event listener');
         });
     };
 
@@ -190,7 +182,6 @@ export class Security {
                             reject: any) => {
             Security.isLoginPopupClosedInterval = window.setInterval(() => {
                 if (Security.popupWindow.closed) {
-                    console.log('cleaning up from initialiseIsLoginPopupClosedInterval');
                     Security.clearIsLoginPopupClosedInterval();
                     Security.cleanUp(EventTypes.AUTHENTICATE);
                     resolve({authenticated: false});
