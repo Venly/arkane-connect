@@ -7,6 +7,7 @@ import { WalletBalance }                                                        
 import { TokenBalance }                                                                      from '../models/wallet/TokenBalance';
 import { NFT }                                                                               from '../models/wallet/NFT';
 import { TransactionRequest }                                                                from '..';
+import { TxStatus }                                                                          from '../models/transaction/TxStatus';
 
 export class Api {
 
@@ -104,6 +105,14 @@ export class Api {
     public deleteTransaction = (transactionId: string): Promise<any> => {
         return this.processResponse<any>(this.http.delete(`transactions/${transactionId}`));
     };
+
+    public getTransactionStatus = (transactionHash: string, secretType: SecretType): Promise<RestApiResponseTxStatus> => {
+        return this.processResponse<RestApiResponseTxStatus>(this.http.get(`transactions/${secretType}/${transactionHash}/status`));
+    };
+}
+
+export interface RestApiResponseTxStatus {
+    status: TxStatus;
 }
 
 export interface RestApiResponseError {

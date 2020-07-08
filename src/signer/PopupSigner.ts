@@ -1,16 +1,10 @@
-import { ConfirmationRequest }            from '../models/ConfirmationRequest';
-import { EventTypes }                     from '../types/EventTypes';
-import { BuildTransactionRequest }        from '../models/transaction/build/BuildTransactionRequest';
-import { GenericSignatureRequest }        from '../models/transaction/GenericSignatureRequest';
-import Utils                              from '../utils/Utils';
-import { Signer, SignerResult }           from '../signer/Signer';
-import { TransactionRequest }             from '..';
-import Popup                              from '../popup/Popup';
-import { RequestDataType }                from '../models/RequestDataType';
-import { BuildSimpleTransactionRequest }  from '../models/transaction/build/BuildSimpleTransactionRequest';
-import { BuildTokenTransferRequest }      from '../models/transaction/build/BuildTokenTransferRequest';
-import { BuildNftTransferRequest }        from '../models/transaction/build/BuildNftTransferRequest';
-import { BuildGasTransferRequest }        from '../models/transaction/build/BuildGasTransferRequest';
+import { ConfirmationRequest }              from '../models/ConfirmationRequest';
+import { RequestDataType }                  from '../models/RequestDataType';
+import { BuildTransactionRequest }          from '../models/transaction/build/BuildTransactionRequest';
+import { BuildSimpleTransactionRequest }    from '../models/transaction/build/BuildSimpleTransactionRequest';
+import { BuildTokenTransferRequest }        from '../models/transaction/build/BuildTokenTransferRequest';
+import { BuildNftTransferRequest }          from '../models/transaction/build/BuildNftTransferRequest';
+import { BuildGasTransferRequest }          from '../models/transaction/build/BuildGasTransferRequest';
 import { BuildTransferRequestDto }          from '../models/transaction/build/BuildTransferRequestDto';
 import { BuildTokenTransferRequestDto }     from '../models/transaction/build/BuildTokenTransferRequestDto';
 import { BuildNftTransferRequestDto }       from '../models/transaction/build/BuildNftTransferRequestDto';
@@ -18,15 +12,23 @@ import { BuildGasTransferRequestDto }       from '../models/transaction/build/Bu
 import { BuildGenericTransferRequestDto }   from '../models/transaction/build/BuildGenericTransferRequestDto';
 import { BuildContractExecutionRequestDto } from '../models/transaction/build/BuildContractExecutionRequestDto';
 import { BuildContractExecutionRequest }    from '../models/transaction/build/BuildContractExecutionRequest';
+import { GenericSignatureRequest }          from '../models/transaction/GenericSignatureRequest';
+import { TransactionRequest }               from '../models/transaction/TransactionRequest';
+import Popup, { PopupOptions }              from '../popup/Popup';
+import { Signer, SignerResult }             from './Signer';
+import { EventTypes }                       from '../types/EventTypes';
+import Utils                                from '../utils/Utils';
+import { BuildMessageSignRequestDto }       from '../models/transaction/build/BuildMessageSignRequestDto';
+import { BuildMessageSignRequest }          from '../models/transaction/build/BuildMessageSignRequest';
 
 export class PopupSigner implements Signer {
 
     private popup: PopupSignerPopup;
     private bearerTokenProvider: () => string;
 
-    constructor(bearerTokenProvider: () => string) {
+    constructor(bearerTokenProvider: () => string, options?: PopupOptions) {
         this.bearerTokenProvider = bearerTokenProvider;
-        this.popup = new PopupSignerPopup(`${Utils.urls.connect}/popup/transaction/init.html`, this.bearerTokenProvider);
+        this.popup = new PopupSignerPopup(`${Utils.urls.connect}/popup/transaction/init.html`, this.bearerTokenProvider, options);
         window.addEventListener('beforeunload', () => {
             this.closePopup();
         });
@@ -43,7 +45,11 @@ export class PopupSigner implements Signer {
     public async sign(signatureRequest: GenericSignatureRequest): Promise<SignerResult> {
         signatureRequest.hash = typeof signatureRequest.hash === 'undefined' ? true : signatureRequest.hash;
         signatureRequest.prefix = typeof signatureRequest.hash === 'undefined' ? true : signatureRequest.prefix;
-        return this.handleRequest('sign', signatureRequest);
+        return this.signRequest(signatureRequest);
+    }
+
+    public async signMessage(buildDate: BuildMessageSignRequestDto): Promise<SignerResult> {
+        return this.signRequest(BuildMessageSignRequest.fromData(buildDate));
     }
 
     /** Deprecated since 1.1.9. Use sign instead */
@@ -88,13 +94,24 @@ export class PopupSigner implements Signer {
         return this.handleRequest(`execute/${transactionId}`, {});
     }
 
+    public resubmitTransaction(transactionId: string): Promise<SignerResult> {
+        return this.handleRequest('resubmit', {transactionId});
+    }
+
+    public cancelTransaction(transactionId: string): Promise<SignerResult> {
+        return this.handleRequest('cancel', {transactionId});
+    }
+
     public async confirm(request: ConfirmationRequest): Promise<SignerResult> {
-        this.popup.focus();
         return this.handleRequest('confirm', request);
     }
 
     private async execute(requestData: RequestDataType): Promise<SignerResult> {
         return this.handleRequest('execute', requestData);
+    }
+
+    private async signRequest(requestData: RequestDataType): Promise<SignerResult> {
+        return this.handleRequest('sign', requestData);
     }
 
     private async handleRequest(action: string, requestData: RequestDataType): Promise<SignerResult> {
@@ -112,8 +129,8 @@ class PopupSignerPopup extends Popup {
     protected finishedEventType = EventTypes.SIGNER_FINISHED;
     protected sendDataEventType = EventTypes.SEND_TRANSACTION_DATA;
 
-    constructor(url: string, bearerTokenProvider: () => string) {
-        super(url, bearerTokenProvider);
+    constructor(url: string, bearerTokenProvider: () => string, options?: PopupOptions) {
+        super(url, bearerTokenProvider, options);
     }
 
     public sendData(

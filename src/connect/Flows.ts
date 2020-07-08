@@ -8,6 +8,7 @@ import { Security }                                                   from './Se
 import { SecretType }                                                 from '../models/SecretType';
 import { Wallet }                                                     from '../models/wallet/Wallet';
 import { WindowMode }                                                 from '../models/WindowMode';
+import { PopupOptions }                                               from '../popup/Popup';
 
 export class Flows {
     private clientId: string;
@@ -25,31 +26,37 @@ export class Flows {
         return this.arkaneConnect._afterAuthenticationForFlowUse(loginResult);
     }
 
-    public manageWallets(chain: string, options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode }): Promise<PopupResult | void> {
+    public manageWallets(chain: string, options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode, useOverlayWithPopup?: boolean }): Promise<PopupResult | void> {
         const windowMode = options && options.windowMode || this.arkaneConnect.windowMode;
+        const useOverlayWithPopup = options && options.useOverlayWithPopup || this.arkaneConnect.useOverlayWithPopup;
         if (windowMode === WindowMode.REDIRECT) {
             return this.manageWalletsRedirect(chain, options);
         } else {
-            return this.manageWalletsPopup(chain);
+            return this.manageWalletsPopup(chain, {useOverlay: useOverlayWithPopup});
         }
     }
 
-    public linkWallets(options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode }): Promise<PopupResult | void> {
+    public linkWallets(options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode, useOverlayWithPopup?: boolean }): Promise<PopupResult | void> {
         const windowMode = options && options.windowMode || this.arkaneConnect.windowMode;
+        const useOverlayWithPopup = options && options.useOverlayWithPopup || this.arkaneConnect.useOverlayWithPopup;
         if (windowMode === WindowMode.REDIRECT) {
             return this.linkWalletsRedirect(options);
         } else {
-            return this.linkWalletsPopup();
+            return this.linkWalletsPopup({useOverlay: useOverlayWithPopup});
         }
     }
 
-    public async getAccount(chain: SecretType): Promise<Account> {
+    public async getAccount(chain: SecretType, authenticationOptions?: AuthenticationOptions): Promise<Account> {
         let loginResult: any = {};
         let wallets: Wallet[] = [];
         let start = +Date.now();
 
         try {
-            loginResult = await Security.login(this.clientId, {windowMode: WindowMode.POPUP, closePopup: false});
+            let options:AuthenticationOptions = {windowMode: WindowMode.POPUP, closePopup: false};
+            if (authenticationOptions && authenticationOptions.idpHint) {
+                options.idpHint = authenticationOptions.idpHint;
+            }
+            loginResult = await Security.login(this.clientId, options);
 
             let result = this.arkaneConnect._afterAuthenticationForFlowUse(loginResult);
 
@@ -97,8 +104,8 @@ export class Flows {
         return Promise.resolve();
     }
 
-    private manageWalletsPopup(chain: string): Promise<PopupResult> {
-        return GeneralPopup.openNewPopup(PopupActions.MANAGE_WALLETS, this.arkaneConnect._bearerTokenProvider, {chain: chain.toLowerCase()});
+    private manageWalletsPopup(chain: string, options: PopupOptions): Promise<PopupResult> {
+        return GeneralPopup.openNewPopup(PopupActions.MANAGE_WALLETS, this.arkaneConnect._bearerTokenProvider, {chain: chain.toLowerCase()}, options);
     }
 
     private linkWalletsRedirect(options?: { redirectUri?: string, correlationID?: string }): Promise<void> {
@@ -111,7 +118,7 @@ export class Flows {
         return Promise.resolve();
     }
 
-    private linkWalletsPopup(): Promise<PopupResult> {
-        return GeneralPopup.openNewPopup(PopupActions.LINK_WALLET, this.arkaneConnect._bearerTokenProvider);
+    private linkWalletsPopup(options?: PopupOptions): Promise<PopupResult> {
+        return GeneralPopup.openNewPopup(PopupActions.LINK_WALLET, this.arkaneConnect._bearerTokenProvider, undefined, options);
     }
 }
