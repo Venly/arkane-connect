@@ -171,7 +171,11 @@ export class Security {
         const origin = window.location.href.replace(window.location.search, '');
         let url = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
         if (options && options.idpHint) {
-            url += "&" + QueryString.stringify({kc_idp_hint: options.idpHint});
+            let kcIdpHint = options.idpHint;
+            if (kcIdpHint === 'twitter' || kcIdpHint === 'facebook') {
+                kcIdpHint = 'arkane-' + kcIdpHint;
+            }
+            url += "&" + QueryString.stringify({kc_idp_hint: kcIdpHint});
         }
         Security.popupWindow = PopupWindow.openNew(url, {useOverlay: false});
         return Security.initialiseIsLoginPopupClosedInterval();
@@ -271,19 +275,19 @@ export class Security {
                             reject) => {
             Security.keycloak
                     .init({}).then(() => Security.keycloak
-                                          .login(loginOptions)
-                                          .then((authenticated: any) => {
-                                              if (authenticated) {
-                                                  Security.setUpdateTokenInterval();
-                                              }
-                                              resolve({
-                                                  keycloak: Security.keycloak,
-                                                  authenticated,
-                                              } as LoginResult);
-                                          })
-                                          .catch((e) => {
-                                              reject(e);
-                                          }));
+                                                 .login(loginOptions)
+                                                 .then((authenticated: any) => {
+                                                     if (authenticated) {
+                                                         Security.setUpdateTokenInterval();
+                                                     }
+                                                     resolve({
+                                                         keycloak: Security.keycloak,
+                                                         authenticated,
+                                                     } as LoginResult);
+                                                 })
+                                                 .catch((e) => {
+                                                     reject(e);
+                                                 }));
 
         });
     }
