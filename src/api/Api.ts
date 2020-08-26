@@ -36,9 +36,9 @@ export class Api {
     ////////////
     // Wallet //
     ////////////
-    public getWallets = (filter?: { secretType?: SecretType, walletType?: WalletType }): Promise<Wallet[]> => {
-        filter = (filter && Utils.removeNulls(filter)) || {};
-        return this.processResponse<Wallet[]>(this.http.get('wallets', {params: filter}));
+    public getWallets = (params?: { secretType?: SecretType, walletType?: WalletType, includeBalance?:boolean }): Promise<Wallet[]> => {
+        params = (params && Utils.removeNulls(params)) || {};
+        return this.processResponse<Wallet[]>(this.http.get('wallets', {params: params}));
     };
 
     public getWallet = (walletId: string): Promise<Wallet> => {
