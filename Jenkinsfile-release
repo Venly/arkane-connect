@@ -21,5 +21,35 @@ pipeline {
                 }
             }
         }
+
+        stage ('merge and publish') {
+            environment {
+                NPM_KEY = credentials('NPM_KEY')
+            }
+            steps {
+                sh "git checkout master"
+                sh "git merge --no-ff ${RELEASE_BRANCH}"
+                sh "npm i"
+                sh "npm run build-ts"
+                sh "npm run build-js"
+                sh "printf '//registry.npmjs.org/:_authToken=' > .npmrc && printf '${NPM_KEY}' >> .npmrc"
+                sh 'npm publish --tag develop'
+                withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/FundRequest/arkane-connect.git HEAD:refs/heads/${GIT_BRANCH}'
+                    sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/FundRequest/arkane-connect.git --tags'
+                }
+            }
+        }
+
+        stage ('backmerge to develop and increase dev version') {
+            steps {
+                sh "git checkout develop"
+                sh "git merge --no-ff master"
+                sh "npm version preminor --preid=develop --git-tag-version=false"
+                withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/FundRequest/arkane-connect.git HEAD:refs/heads/${GIT_BRANCH}'
+                }
+            }
+        }
     }
 }
