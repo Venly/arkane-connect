@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         GITHUB_CREDS = credentials('GITHUB_CRED')
-        RELEASE_BRANCH = 'release-${BUILD_DATE}'
+        RELEASE_BRANCH = 'release-' + env.BUILD_DATE
     }
     options {
         disableConcurrentBuilds()
@@ -33,7 +33,7 @@ pipeline {
                 sh "npm run build-ts"
                 sh "npm run build-js"
                 sh "printf '//registry.npmjs.org/:_authToken=' > .npmrc && printf '${NPM_KEY}' >> .npmrc"
-                sh 'npm publish --tag develop'
+                sh 'npm publish'
                 withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                     sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/FundRequest/arkane-connect.git HEAD:refs/heads/master'
                     sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/FundRequest/arkane-connect.git --tags'
