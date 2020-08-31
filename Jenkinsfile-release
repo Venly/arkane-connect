@@ -9,6 +9,11 @@ pipeline {
         timeout(time: 15, unit: 'MINUTES')
     }
     stages {
+        stage('CleanWorkspace') {
+            steps {
+                cleanWs()
+            }
+        }
         stage ('release branch and set version') {
             steps {
                 sh "git config --global user.email \"jenkins@arkane.network\""
@@ -49,11 +54,6 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                     sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/FundRequest/arkane-connect.git HEAD:refs/heads/${GIT_BRANCH}'
                 }
-            }
-        }
-        post {
-            always {
-                cleanWs()
             }
         }
     }
