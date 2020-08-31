@@ -13,7 +13,7 @@ pipeline {
             steps {
                 sh "git config --global user.email \"jenkins@arkane.network\""
                 sh "git config --global user.name \"Jenkins\""
-                sh "git checkout ${RELEASE_BRANCH}"
+                sh "git checkout -b ${RELEASE_BRANCH}"
                 sh "npm version minor"
                 withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                     sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/FundRequest/arkane-connect.git HEAD:refs/heads/${GIT_BRANCH}'
