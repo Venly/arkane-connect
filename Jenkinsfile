@@ -46,24 +46,5 @@ pipeline {
                 }
             }
         }
-        stage ('Publish (master)') {
-            environment {
-                NPM_KEY = credentials('NPM_KEY')
-            }
-            when {
-                expression {
-                    GIT_BRANCH = env.BRANCH_NAME
-                    return GIT_BRANCH == 'master'
-                }
-            }
-            steps {
-                sh "printf '//registry.npmjs.org/:_authToken=' > .npmrc && printf '${NPM_KEY}' >> .npmrc"
-                sh 'npm publish'
-                withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                    sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ArkaneNetwork/arkane-connect.git HEAD:refs/heads/${GIT_BRANCH}'
-                    sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ArkaneNetwork/arkane-connect.git --tags'
-                }
-            }
-        }
     }
 }
