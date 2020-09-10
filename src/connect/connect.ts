@@ -51,7 +51,7 @@ export class ArkaneConnect {
                 if (options && options.redirectUri) {
                     Object.assign(logoutOptions, {redirectUri: options.redirectUri});
                 }
-                this.auth ? this.auth.logout(logoutOptions).success(() => resolve()).error(() => reject) : resolve();
+                this.auth ? this.auth.logout(logoutOptions).then(() => resolve()).catch(() => reject) : resolve();
             })
         } else {
             return this.auth ? Security.logout(this.auth) : Promise.resolve();
