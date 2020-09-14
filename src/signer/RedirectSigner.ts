@@ -18,6 +18,8 @@ import { BuildContractExecutionRequest }    from '../models/transaction/build/Bu
 import { BuildMessageSignRequest }          from '../models/transaction/build/BuildMessageSignRequest';
 import { BuildMessageSignRequestDto }       from '../models/transaction/build/BuildMessageSignRequestDto';
 import { BuildSignRequestBase }             from '../models/transaction/build/BuildSignRequestBase';
+import { BuildEip712SignRequestDto }        from '../models/transaction/build/BuildEip712SignRequestDto';
+import { BuildEip712SignRequest }           from '../models/transaction/build/BuildEip712SignRequest';
 
 export interface RedirectOptions {
     redirectUri?: string,
@@ -111,6 +113,10 @@ export class RedirectSigner implements Signer {
 
     public signMessage(buildData: BuildMessageSignRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.signProvidedSignature(BuildMessageSignRequest.fromData(buildData), redirectOptions);
+    }
+
+    public signEip712(buildData: BuildEip712SignRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return this.signProvidedSignature(BuildEip712SignRequest.fromData(buildData), redirectOptions);
     }
 
     private signProvidedSignature(buildSignatureData: BuildSignRequestBase, redirectOptions?: RedirectOptions) {
