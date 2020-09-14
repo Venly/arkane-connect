@@ -245,7 +245,7 @@ export class Security {
                 new Promise((resolve,
                              reject) => {
                     if (Security.keycloak) {
-                        Security.keycloak.updateToken(70).success((refreshed: any) => {
+                        Security.keycloak.updateToken(70).then((refreshed: any) => {
                             resolve(refreshed);
                         });
                     } else {
@@ -300,7 +300,7 @@ export class Security {
                             reject) => {
             Security.keycloak
                     .init(initOptions)
-                    .success((authenticated: any) => {
+                    .then((authenticated: any) => {
                         if (authenticated) {
                             Security.setUpdateTokenInterval();
                         }
@@ -309,7 +309,7 @@ export class Security {
                             authenticated,
                         } as LoginResult);
                     })
-                    .error((e) => {
+                    .catch((e) => {
                         reject(e);
                     });
         });
