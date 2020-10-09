@@ -63,7 +63,7 @@ export class Api {
 
     public getAllNonfungibles = (secretTypes?: SecretType[]): Promise<NFT> => {
         return this.processResponse<NFT>(this.http.get(`wallets/nonfungibles`, secretTypes ? undefined : {params: {
-                "secret-type": secretTypes
+                "secret-type": [SecretType.MATIC]
             }}));
     };
 
