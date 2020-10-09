@@ -62,7 +62,9 @@ export class Api {
     };
 
     public getAllNonfungibles = (secretTypes?: SecretType[]): Promise<NFT> => {
-        return this.processResponse<NFT>(this.http.get(`wallets/nonfungibles`, secretTypes ? {} : {params: {"secret-type": secretTypes}}));
+        return this.processResponse<NFT>(this.http.get(`wallets/nonfungibles`, secretTypes ? undefined : {params: {
+                "secret-type": secretTypes
+            }}));
     };
 
     public unlink = (walletId: string): Promise<void> => {
