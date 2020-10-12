@@ -21,7 +21,11 @@ export class Api {
 
         if (tokenProvider) {
             this.http.interceptors.request.use((config: AxiosRequestConfig): AxiosRequestConfig => {
-                config.headers.common = {Authorization: 'Bearer ' + tokenProvider()};
+                let bearerToken = tokenProvider();
+                if (!bearerToken) {
+                    throw new Error('Not authenticated')
+                }
+                config.headers.common = {Authorization: 'Bearer ' + bearerToken};
                 return config;
             });
         }
@@ -98,6 +102,9 @@ export class Api {
                         .catch((error: AxiosError) => {
                             if (error.response && error.response.data) {
                                 reject(error.response.data.errors);
+                            } else if (error.message) {
+                                let code = error.message.indexOf('authenticat') >= 0 ? 'auth.error' : 'unknown.error';
+                                reject([{code: code, message: error.message}]);
                             } else {
                                 reject([{code: 'unknown.error', message: 'An unknown error occured'}]);
                             }
