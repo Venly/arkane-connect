@@ -65,7 +65,7 @@ export class Api {
 
     public getAllNonfungibles = (secretTypes: SecretType[]): Promise<NFT> => {
         const queryParams: string = secretTypes && secretTypes.length > 0
-            ? "?" + secretTypes.map(st => "secret-type=" + st).join("&")
+            ? "?" + secretTypes.map(st => "secretType=" + st).join("&")
             : "";
         return this.processResponse<NFT>(this.http.get(`wallets/nonfungibles${queryParams}`));
     };
