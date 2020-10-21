@@ -67,8 +67,18 @@ export class Security {
     }
 
     public static logout(auth: Keycloak.KeycloakInstance): Promise<void> {
-        return auth.logout({redirectUri:'https://arkane.network'})
-            .then(() => Promise.resolve());
+        if (auth.authenticated && auth.clientId) {
+            return new Promise<void>(async (resolve: () => void,
+                                            reject: (reason?: any) => void) => {
+                if (auth.clientId) {
+                    Security.logoutListener = await Security.createLogoutListener(EventTypes.LOGOUT, auth, resolve, reject);
+                    window.addEventListener('message', Security.logoutListener);
+                    Security.initialiseLogoutIFrame(auth.clientId);
+                }
+            });
+        } else {
+            return Promise.resolve();
+        }
     }
 
     private static keycloak: KeycloakInstance;
