@@ -71,6 +71,23 @@ export class Security {
             return new Promise<void>(async (resolve: () => void,
                                             reject: (reason?: any) => void) => {
                 if (auth.clientId) {
+                    const params: any = {
+                        client_id: auth.clientId,
+                        refresh_token: auth.refreshToken
+                    };
+
+                    const searchParams = Object.keys(params).map((key) => {
+                        return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+                    }).join('&');
+
+                    await fetch(Utils.urls.login + '/realms/Arkane/protocol/openid-connect/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                        },
+                        body: searchParams
+                    });
+
                     Security.logoutListener = await Security.createLogoutListener(EventTypes.LOGOUT, auth, resolve, reject);
                     window.addEventListener('message', Security.logoutListener);
                     Security.initialiseLogoutIFrame(auth.clientId);
