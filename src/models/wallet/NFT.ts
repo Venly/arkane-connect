@@ -1,11 +1,15 @@
 export interface NFT {
     id: string;
+    tokenId?: string;
     owner: string;
     name?: string;
     description?: string;
     url?: string;
     backgroundColor?: string;
     imageUrl?: string;
+    imagePreviewUrl?: string;
+    imageThumbnailUrl?: string;
+    attributes?: Trait[];
     contract: NFTContract;
 }
 
@@ -16,4 +20,12 @@ export interface NFTContract {
     symbol?: string;
     url?: string;
     imageUrl?: string;
+    type?: string;
+}
+
+export interface Trait {
+    traitType?: string;
+    value?: string;
+    displayType?: string;
+    traitCount?: string;
 }

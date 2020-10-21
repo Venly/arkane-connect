@@ -13,14 +13,19 @@ export class Api {
 
     private http: AxiosInstance;
 
-    constructor(baseURL: string, tokenProvider?: any) {
+    constructor(baseURL: string,
+                tokenProvider?: any) {
         this.http = axios.create({
             baseURL: baseURL.endsWith('/') ? baseURL.substring(0, baseURL.length - 1) : baseURL,
         });
 
         if (tokenProvider) {
             this.http.interceptors.request.use((config: AxiosRequestConfig): AxiosRequestConfig => {
-                config.headers.common = {Authorization: 'Bearer ' + tokenProvider()};
+                let bearerToken = tokenProvider();
+                if (!bearerToken) {
+                    throw new Error('Not authenticated')
+                }
+                config.headers.common = {Authorization: 'Bearer ' + bearerToken};
                 return config;
             });
         }
@@ -36,7 +41,7 @@ export class Api {
     ////////////
     // Wallet //
     ////////////
-    public getWallets = (params?: { secretType?: SecretType, walletType?: WalletType, includeBalance?:boolean }): Promise<Wallet[]> => {
+    public getWallets = (params?: { secretType?: SecretType, walletType?: WalletType, includeBalance?: boolean }): Promise<Wallet[]> => {
         params = (params && Utils.removeNulls(params)) || {};
         return this.processResponse<Wallet[]>(this.http.get('wallets', {params: params}));
     };
@@ -53,12 +58,20 @@ export class Api {
         return this.processResponse<TokenBalance[]>(this.http.get(`wallets/${walletId}/balance/tokens`));
     };
 
-    public getTokenBalance = (walletId: string, tokenAddress: string): Promise<TokenBalance> => {
+    public getTokenBalance = (walletId: string,
+                              tokenAddress: string): Promise<TokenBalance> => {
         return this.processResponse<TokenBalance>(this.http.get(`wallets/${walletId}/balance/tokens/${tokenAddress}`));
     };
 
     public getNonfungibles = (walletId: string): Promise<NFT> => {
         return this.processResponse<NFT>(this.http.get(`wallets/${walletId}/nonfungibles`));
+    };
+
+    public getAllNonfungibles = (secretTypes?: SecretType[]): Promise<NFT> => {
+        const queryParams: string = secretTypes && secretTypes.length > 0
+            ? "?" + secretTypes.map(st => "secretType=" + st).join("&")
+            : "";
+        return this.processResponse<NFT>(this.http.get(`wallets/nonfungibles${queryParams}`));
     };
 
     public unlink = (walletId: string): Promise<void> => {
@@ -73,7 +86,8 @@ export class Api {
     };
 
     private processResponse<T>(axiosPromise: AxiosPromise<T>): Promise<T> {
-        return new Promise<T>((resolve: any, reject: any) => {
+        return new Promise<T>((resolve: any,
+                               reject: any) => {
             axiosPromise.then((axiosRes: AxiosResponse) => {
                             if (axiosRes.data.success) {
                                 if (axiosRes.data.result) {
@@ -88,6 +102,9 @@ export class Api {
                         .catch((error: AxiosError) => {
                             if (error.response && error.response.data) {
                                 reject(error.response.data.errors);
+                            } else if (error.message) {
+                                let code = error.message.indexOf('authenticat') >= 0 ? 'auth.error' : 'unknown.error';
+                                reject([{code: code, message: error.message}]);
                             } else {
                                 reject([{code: 'unknown.error', message: 'An unknown error occured'}]);
                             }
@@ -106,7 +123,8 @@ export class Api {
         return this.processResponse<any>(this.http.delete(`transactions/${transactionId}`));
     };
 
-    public getTransactionStatus = (transactionHash: string, secretType: SecretType): Promise<RestApiResponseTxStatus> => {
+    public getTransactionStatus = (transactionHash: string,
+                                   secretType: SecretType): Promise<RestApiResponseTxStatus> => {
         return this.processResponse<RestApiResponseTxStatus>(this.http.get(`transactions/${secretType}/${transactionHash}/status`));
     };
 }
