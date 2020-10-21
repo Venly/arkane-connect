@@ -67,18 +67,8 @@ export class Security {
     }
 
     public static logout(auth: Keycloak.KeycloakInstance): Promise<void> {
-        if (auth.authenticated && auth.clientId) {
-            return new Promise<void>(async (resolve: () => void,
-                                            reject: (reason?: any) => void) => {
-                if (auth.clientId) {
-                    Security.logoutListener = await Security.createLogoutListener(EventTypes.LOGOUT, auth, resolve, reject);
-                    window.addEventListener('message', Security.logoutListener);
-                    Security.initialiseLogoutIFrame(auth.clientId);
-                }
-            });
-        } else {
-            return Promise.resolve();
-        }
+        return auth.logout()
+            .then(() => Promise.resolve());
     }
 
     private static keycloak: KeycloakInstance;
