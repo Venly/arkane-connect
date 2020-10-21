@@ -67,7 +67,7 @@ export class Security {
     }
 
     public static logout(auth: Keycloak.KeycloakInstance): Promise<void> {
-        return auth.logout()
+        return auth.logout({redirectUri:'https://arkane.network'})
             .then(() => Promise.resolve());
     }
 
