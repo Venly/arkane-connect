@@ -60,31 +60,15 @@ export class Security {
         ]);
     }
 
-    private static logoutPopup(clientId: string,
-                              options?: AuthenticationOptions): Promise<LoginResult> {
-        const closePopup = options ? options.closePopup : true;
-        return Security.initialiseLogoutPopup(clientId, options);
-    }
-
     public static checkAuthenticated(clientId: string): Promise<LoginResult> {
         const authenticatedPromise = Security.initialiseAuthenticatedListener(clientId, EventTypes.CHECK_AUTHENTICATED);
         Security.initialiseCheckAuthenticatedIFrame(clientId);
         return authenticatedPromise;
     }
 
-    public static logout(auth?: Keycloak.KeycloakInstance): Promise<void> {
-        if (auth && auth.authenticated && auth.clientId) {
-            return new Promise<void>(async (resolve: () => void,
-                                            reject: (reason?: any) => void) => {
-                if (auth.clientId) {
-                    Security.logoutListener = await Security.createLogoutListener(EventTypes.LOGOUT, auth, resolve, reject);
-                    window.addEventListener('message', Security.logoutListener);
-                    return Security.logoutPopup(auth.clientId);
-                }
-            });
-        } else {
-            return Promise.resolve();
-        }
+    public static logout(auth: Keycloak.KeycloakInstance): Promise<void> {
+        return auth.logout({redirectUri:'https://arkane.network'})
+            .then(() => Promise.resolve());
     }
 
     private static keycloak: KeycloakInstance;
@@ -183,13 +167,6 @@ export class Security {
             }
             url += "&" + QueryString.stringify({kc_idp_hint: kcIdpHint});
         }
-        Security.popupWindow = PopupWindow.openNew(url, {useOverlay: false});
-        return Security.initialiseIsLoginPopupClosedInterval();
-    }
-
-    private static initialiseLogoutPopup(clientId: string,
-                                        options?: AuthenticationOptions): Promise<LoginResult> {
-        let url = `${Security.logoutURI}`;
         Security.popupWindow = PopupWindow.openNew(url, {useOverlay: false});
         return Security.initialiseIsLoginPopupClosedInterval();
     }

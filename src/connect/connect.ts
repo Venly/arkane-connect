@@ -21,7 +21,7 @@ export class ArkaneConnect {
     public _bearerTokenProvider: () => string;
 
     private clientId: string;
-    public auth?: KeycloakInstance;
+    private auth?: KeycloakInstance;
     private loginResult?: LoginResult;
 
     constructor(clientId: string,

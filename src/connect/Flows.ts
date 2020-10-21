@@ -26,12 +26,6 @@ export class Flows {
         return this.arkaneConnect._afterAuthenticationForFlowUse(loginResult);
     }
 
-    public async logout(options?: AuthenticationOptions): Promise<void> {
-        let authOptions: AuthenticationOptions = {...options};
-        authOptions.windowMode = authOptions.windowMode || this.arkaneConnect.windowMode;
-        return await Security.logout(this.arkaneConnect.auth);
-    }
-
     public manageWallets(chain: string, options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode, useOverlayWithPopup?: boolean }): Promise<PopupResult | void> {
         const windowMode = options && options.windowMode || this.arkaneConnect.windowMode;
         const useOverlayWithPopup = options && options.useOverlayWithPopup || this.arkaneConnect.useOverlayWithPopup;
