@@ -4,9 +4,9 @@ import { SecretType }                                                           
 import { Wallet, WalletType }                                                                from '../models/wallet/Wallet';
 import { Profile }                                                                           from '../models/profile/Profile';
 import { WalletBalance }                                                                     from '../models/wallet/WalletBalance';
-import { TokenBalance }                                                                      from '../models/wallet/TokenBalance';
-import { NFT }                                                                               from '../models/wallet/NFT';
-import { TransactionRequest }                                                                from '..';
+import { TokenBalance }       from '../models/wallet/TokenBalance';
+import { NFT, WalletItems }   from '../models/wallet/NFT';
+import { TransactionRequest } from '..';
 import { TxStatus }                                                                          from '../models/transaction/TxStatus';
 
 export class Api {
@@ -67,11 +67,11 @@ export class Api {
         return this.processResponse<NFT>(this.http.get(`wallets/${walletId}/nonfungibles`));
     };
 
-    public getAllNonfungibles = (secretTypes?: SecretType[]): Promise<NFT> => {
+    public getAllNonfungibles = (secretTypes?: SecretType[]): Promise<WalletItems[]> => {
         const queryParams: string = secretTypes && secretTypes.length > 0
             ? "?" + secretTypes.map(st => "secretType=" + st).join("&")
             : "";
-        return this.processResponse<NFT>(this.http.get(`wallets/nonfungibles${queryParams}`));
+        return this.processResponse<WalletItems[]>(this.http.get(`wallets/nonfungibles${queryParams}`));
     };
 
     public unlink = (walletId: string): Promise<void> => {

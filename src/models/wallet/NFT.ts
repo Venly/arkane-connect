@@ -1,3 +1,5 @@
+import { SecretType } from '../SecretType';
+
 export interface NFT {
     id: string;
     tokenId?: string;
@@ -28,4 +30,11 @@ export interface Trait {
     value?: string;
     displayType?: string;
     traitCount?: string;
+}
+
+export interface WalletItems {
+    walletId: string;
+    walletAddress: string;
+    secretType: SecretType;
+    items: NFT[];
 }
