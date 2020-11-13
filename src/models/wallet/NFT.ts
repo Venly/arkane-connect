@@ -1,4 +1,5 @@
 import { SecretType } from '../SecretType';
+import { WalletType } from './Wallet';
 
 export interface NFT {
     id: string;
@@ -35,6 +36,7 @@ export interface Trait {
 export interface WalletItems {
     walletId: string;
     walletAddress: string;
+    walletType: WalletType;
     secretType: SecretType;
     items: NFT[];
 }
