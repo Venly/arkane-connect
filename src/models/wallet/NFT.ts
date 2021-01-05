@@ -24,6 +24,7 @@ export interface NFTContract {
     url?: string;
     imageUrl?: string;
     type?: string;
+    media?: string;
 }
 
 export interface Trait {
