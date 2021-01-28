@@ -4,7 +4,6 @@ import { WalletType } from './Wallet';
 export interface NFT {
     id: string;
     tokenId?: string;
-    owner: string;
     name?: string;
     description?: string;
     url?: string;
@@ -12,7 +11,7 @@ export interface NFT {
     imageUrl?: string;
     imagePreviewUrl?: string;
     imageThumbnailUrl?: string;
-    attributes?: Trait[];
+    attributes?: Attribute[];
     contract: NFTContract;
 }
 
@@ -27,11 +26,11 @@ export interface NFTContract {
     media?: string;
 }
 
-export interface Trait {
-    traitType?: string;
+export interface Attribute {
+    type?: string;
+    name?: string;
     value?: string;
-    displayType?: string;
-    traitCount?: string;
+    maxValue?: number;
 }
 
 export interface WalletItems {
