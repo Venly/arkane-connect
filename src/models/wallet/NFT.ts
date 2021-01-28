@@ -3,7 +3,6 @@ import { WalletType } from './Wallet';
 
 export interface NFT {
     id: string;
-    tokenId?: string;
     name?: string;
     description?: string;
     url?: string;
@@ -12,6 +11,8 @@ export interface NFT {
     imagePreviewUrl?: string;
     imageThumbnailUrl?: string;
     attributes?: Attribute[];
+    animationUrl?: string;
+    fungible?: boolean;
     contract: NFTContract;
 }
 
