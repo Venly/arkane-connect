@@ -13,6 +13,7 @@ export interface NFT {
     attributes?: Attribute[];
     animationUrl?: string;
     fungible?: boolean;
+    maxSupply?: number;
     contract: NFTContract;
 }
 
