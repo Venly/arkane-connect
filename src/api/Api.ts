@@ -63,12 +63,12 @@ export class Api {
         return this.processResponse<TokenBalance>(this.http.get(`wallets/${walletId}/balance/tokens/${tokenAddress}`));
     };
 
-    public getNonfungibles = (walletId: string): Promise<NFT> => {
-        return this.processResponse<NFT>(this.http.get(`wallets/${walletId}/nonfungibles`));
+    public getNonfungibles = (walletId: string): Promise<NFT[]> => {
+        return this.processResponse<NFT[]>(this.http.get(`wallets/${walletId}/nonfungibles`));
     };
 
-    public getNonfungiblesByAddress = (secretType: SecretType, walletAddress: string): Promise<NFT> => {
-        return this.processResponse<NFT>(this.http.get(`wallets/${secretType}/${walletAddress}/nonfungibles`));
+    public getNonfungiblesByAddress = (secretType: SecretType, walletAddress: string): Promise<NFT[]> => {
+        return this.processResponse<NFT[]>(this.http.get(`wallets/${secretType}/${walletAddress}/nonfungibles`));
     };
 
     public getAllNonfungibles = (secretTypes?: SecretType[]): Promise<WalletItems[]> => {

@@ -11,7 +11,7 @@ export interface NFT {
     imagePreviewUrl?: string;
     imageThumbnailUrl?: string;
     attributes?: Attribute[];
-    animationUrl?: string;
+    animationUrls?: TypeValue[];
     fungible?: boolean;
     maxSupply?: number;
     contract: NFTContract;
@@ -25,7 +25,7 @@ export interface NFTContract {
     url?: string;
     imageUrl?: string;
     type?: string;
-    media?: string;
+    media?: TypeValue[];
 }
 
 export interface Attribute {
@@ -41,4 +41,9 @@ export interface WalletItems {
     walletType: WalletType;
     secretType: SecretType;
     items: NFT[];
+}
+
+export interface TypeValue {
+    type: string;
+    value: string;
 }
