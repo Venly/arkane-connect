@@ -26,6 +26,7 @@ export interface NFTContract {
     imageUrl?: string;
     type?: string;
     media?: TypeValue[];
+    verified?: boolean;
 }
 
 export interface Attribute {
