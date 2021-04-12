@@ -3,4 +3,5 @@ import { EthereumErcTokenTransactionRequest } from './EthereumErcTokenTransactio
 export class EthereumErc721TransactionRequest extends EthereumErcTokenTransactionRequest {
     public from!: string;
     public tokenId!: number;
+    public amount?: number;
 }
