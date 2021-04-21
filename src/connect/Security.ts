@@ -202,6 +202,7 @@ export class Security {
         iframe.src = `${uri}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
         iframe.hidden = true;
         iframe.id = iframeID;
+        iframe.setAttribute('style', 'display: none!important;');
         document.body.appendChild(iframe);
         if (!isIframeInBody) {
             document.body.appendChild(iframe);
