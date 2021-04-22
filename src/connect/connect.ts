@@ -26,7 +26,7 @@ export class ArkaneConnect {
         this.clientId = clientId;
         this.signUsing = (options && options.signUsing as unknown as WindowMode) || WindowMode.POPUP;
         this.windowMode = (options && options.windowMode) || WindowMode.POPUP;
-        this.useOverlayWithPopup = (options && options.useOverlayWithPopup) || true;
+        this.useOverlayWithPopup = (options && options.useOverlayWithPopup != undefined) ? options.useOverlayWithPopup : true;
         Utils.rawEnvironment = options && options.environment || 'prod';
         this._bearerTokenProvider = options && options.bearerTokenProvider || (() => this.auth && this.auth.token || '');
         if (this._bearerTokenProvider) {
@@ -63,6 +63,9 @@ export class ArkaneConnect {
     }
 
     public createSigner(windowMode?: WindowMode, popupOptions?: PopupOptions): Signer {
+        if (!popupOptions || popupOptions.useOverlay == undefined) {
+            popupOptions = {useOverlay: this.useOverlayWithPopup}
+        }
         return SignerFactory.createSignerFor(windowMode || this.signUsing || this.windowMode, this._bearerTokenProvider, popupOptions);
     }
 
