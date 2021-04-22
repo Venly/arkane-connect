@@ -18,6 +18,8 @@ import { BuildContractExecutionRequest }    from '../models/transaction/build/Bu
 import { BuildMessageSignRequest }          from '../models/transaction/build/BuildMessageSignRequest';
 import { BuildMessageSignRequestDto }       from '../models/transaction/build/BuildMessageSignRequestDto';
 import { BuildSignRequestBase }             from '../models/transaction/build/BuildSignRequestBase';
+import { BuildEip712SignRequestDto }        from '../models/transaction/build/BuildEip712SignRequestDto';
+import { BuildEip712SignRequest }           from '../models/transaction/build/BuildEip712SignRequest';
 
 export interface RedirectOptions {
     redirectUri?: string,
@@ -81,6 +83,20 @@ export class RedirectSigner implements Signer {
         });
     }
 
+    public resubmitTransaction(transactionId: string, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return new Promise<SignerResult>((resolve, reject) => {
+            Utils.http().postInForm(`${Utils.urls.connect}/transaction/resubmit/${transactionId}`, {}, this.bearerTokenProvider, redirectOptions);
+            resolve();
+        });
+    }
+
+    public cancelTransaction(transactionId: string, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return new Promise<SignerResult>((resolve, reject) => {
+            Utils.http().postInForm(`${Utils.urls.connect}/transaction/cancel/${transactionId}`, {}, this.bearerTokenProvider, redirectOptions);
+            resolve();
+        });
+    }
+
     private executeProvidedTransaction(buildTransactionData: BuildTransferRequestBase, redirectOptions?: RedirectOptions) {
         return new Promise<SignerResult>((resolve, reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute`, buildTransactionData, this.bearerTokenProvider, redirectOptions);
@@ -97,6 +113,10 @@ export class RedirectSigner implements Signer {
 
     public signMessage(buildData: BuildMessageSignRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.signProvidedSignature(BuildMessageSignRequest.fromData(buildData), redirectOptions);
+    }
+
+    public signEip712(buildData: BuildEip712SignRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return this.signProvidedSignature(BuildEip712SignRequest.fromData(buildData), redirectOptions);
     }
 
     private signProvidedSignature(buildSignatureData: BuildSignRequestBase, redirectOptions?: RedirectOptions) {

@@ -47,13 +47,27 @@ export class Flows {
         }
     }
 
-    public async getAccount(chain: SecretType): Promise<Account> {
+    public claimWallets(options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode, useOverlayWithPopup?: boolean }): Promise<PopupResult | void> {
+        const windowMode = options && options.windowMode || this.arkaneConnect.windowMode;
+        const useOverlayWithPopup = options && options.useOverlayWithPopup || this.arkaneConnect.useOverlayWithPopup;
+        if (windowMode === WindowMode.REDIRECT) {
+            return this.claimWalletsRedirect(options);
+        } else {
+            return this.claimWalletsPopup({useOverlay: useOverlayWithPopup});
+        }
+    }
+
+    public async getAccount(chain: SecretType, authenticationOptions?: AuthenticationOptions): Promise<Account> {
         let loginResult: any = {};
         let wallets: Wallet[] = [];
         let start = +Date.now();
 
         try {
-            loginResult = await Security.login(this.clientId, {windowMode: WindowMode.POPUP, closePopup: false});
+            let options:AuthenticationOptions = {windowMode: WindowMode.POPUP, closePopup: false};
+            if (authenticationOptions && authenticationOptions.idpHint) {
+                options.idpHint = authenticationOptions.idpHint;
+            }
+            loginResult = await Security.login(this.clientId, options);
 
             let result = this.arkaneConnect._afterAuthenticationForFlowUse(loginResult);
 
@@ -117,5 +131,19 @@ export class Flows {
 
     private linkWalletsPopup(options?: PopupOptions): Promise<PopupResult> {
         return GeneralPopup.openNewPopup(PopupActions.LINK_WALLET, this.arkaneConnect._bearerTokenProvider, undefined, options);
+    }
+
+    private claimWalletsRedirect(options?: { redirectUri?: string, correlationID?: string }): Promise<void> {
+        Utils.http().postInForm(
+          `${Utils.urls.connect}/wallets/claim`,
+          {},
+          this.arkaneConnect._bearerTokenProvider,
+          options
+        );
+        return Promise.resolve();
+    }
+
+    private claimWalletsPopup(options?: PopupOptions): Promise<PopupResult> {
+        return GeneralPopup.openNewPopup(PopupActions.CLAIM_WALLETS, this.arkaneConnect._bearerTokenProvider, undefined, options);
     }
 }

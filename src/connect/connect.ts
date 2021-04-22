@@ -9,6 +9,7 @@ import { Signer, SignerFactory, SignMethod } from '../signer/Signer';
 import Utils                                 from '../utils/Utils';
 import { Flows }                             from './Flows';
 import { PopupOptions }                      from '../popup/Popup';
+import { log }                               from 'util';
 
 export class ArkaneConnect {
 
@@ -21,14 +22,16 @@ export class ArkaneConnect {
 
     private clientId: string;
     private auth?: KeycloakInstance;
+    private loginResult?: LoginResult;
 
-    constructor(clientId: string, options?: ConstructorOptions) {
+    constructor(clientId: string,
+                options?: ConstructorOptions) {
         this.clientId = clientId;
         this.signUsing = (options && options.signUsing as unknown as WindowMode) || WindowMode.POPUP;
         this.windowMode = (options && options.windowMode) || WindowMode.POPUP;
         this.useOverlayWithPopup = (options && options.useOverlayWithPopup != undefined) ? options.useOverlayWithPopup : true;
         Utils.rawEnvironment = options && options.environment || 'prod';
-        this._bearerTokenProvider = options && options.bearerTokenProvider || (() => this.auth && this.auth.token || '');
+        this._bearerTokenProvider = options && options.bearerTokenProvider || (() => this.loginResult && this.loginResult.authenticated && this.auth && this.auth.token || '');
         if (this._bearerTokenProvider) {
             this.api = new Api(Utils.urls.api, this._bearerTokenProvider);
         }
@@ -37,22 +40,33 @@ export class ArkaneConnect {
     }
 
     public async checkAuthenticated(): Promise<AuthenticationResult> {
-        const loginResult = await Security.checkAuthenticated(this.clientId);
-        return this.afterAuthentication(loginResult);
+        if (this.loginResult) {
+            return this.afterAuthentication(this.loginResult);
+        } else {
+            const loginResult = await Security.checkAuthenticated(this.clientId);
+            return this.afterAuthentication(loginResult);
+        }
+
     }
 
     public logout(options?: AuthenticationOptions): Promise<void> {
+        this.loginResult = undefined;
         const windowMode = options && options.windowMode || this.windowMode;
         if (windowMode === WindowMode.REDIRECT) {
-            return new Promise<void>((resolve: any, reject: any) => {
+            return new Promise<void>((resolve: any,
+                                      reject: any) => {
                 const logoutOptions = {};
                 if (options && options.redirectUri) {
                     Object.assign(logoutOptions, {redirectUri: options.redirectUri});
                 }
-                this.auth ? this.auth.logout(logoutOptions).success(() => resolve()).error(() => reject) : resolve();
+                this.auth ? this.auth.logout(logoutOptions).then(() => resolve()).catch(() => reject) : resolve();
             })
         } else {
-            return this.auth ? Security.logout(this.auth) : Promise.resolve();
+            if (this.auth) {
+                return Security.logout(this.auth).then(() => this.auth = undefined);
+            } else {
+                return Promise.resolve()
+            }
         }
     }
 
@@ -62,7 +76,8 @@ export class ArkaneConnect {
         }
     }
 
-    public createSigner(windowMode?: WindowMode, popupOptions?: PopupOptions): Signer {
+    public createSigner(windowMode?: WindowMode,
+                        popupOptions?: PopupOptions): Signer {
         if (!popupOptions || popupOptions.useOverlay == undefined) {
             popupOptions = {useOverlay: this.useOverlayWithPopup}
         }
@@ -79,7 +94,8 @@ export class ArkaneConnect {
     }
 
     /* Deprecated - Use flows.manageWallets instead */
-    public manageWallets(chain: string, options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode }): Promise<PopupResult | void> {
+    public manageWallets(chain: string,
+                         options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode }): Promise<PopupResult | void> {
         return this.flows.manageWallets(chain, options);
     }
 
@@ -94,17 +110,20 @@ export class ArkaneConnect {
 
     private afterAuthentication(loginResult: LoginResult): AuthenticationResult {
         // this.auth is needed for the bearerTokenProvider
+        this.loginResult = loginResult;
         this.auth = loginResult.keycloak;
         return {
             auth: this.auth,
             isAuthenticated: loginResult.authenticated,
-            authenticated(this: AuthenticationResult, callback: (auth: KeycloakInstance) => void) {
+            authenticated(this: AuthenticationResult,
+                          callback: (auth: KeycloakInstance) => void) {
                 if (loginResult.authenticated && loginResult.keycloak) {
                     callback(loginResult.keycloak);
                 }
                 return this;
             },
-            notAuthenticated(this: AuthenticationResult, callback: (auth?: KeycloakInstance) => void) {
+            notAuthenticated(this: AuthenticationResult,
+                             callback: (auth?: KeycloakInstance) => void) {
                 if (!loginResult.authenticated) {
                     callback(loginResult.keycloak);
                 }
@@ -134,4 +153,5 @@ export interface AuthenticationOptions {
     redirectUri?: string;
     windowMode?: WindowMode;
     closePopup?: boolean
+    idpHint?: string;
 }

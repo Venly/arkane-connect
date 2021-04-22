@@ -8,7 +8,8 @@ export class PopupWindow {
         overlayLinkStyle: 'color: white; text-decoration: underline; font-weight: bold;',
     };
 
-    public static openNew(url: string, options?: OpenWindowOptions): PopupWindow {
+    public static openNew(url: string,
+                          options?: OpenWindowOptions): PopupWindow {
         const mergedOptions = Object.assign({
             title: 'Arkane Connect',
             w: 350,
@@ -27,7 +28,11 @@ export class PopupWindow {
     private win?: Window | null;
     private interval?: number;
 
-    constructor(url?: string, target?: string, features?: string, useOverlay?: boolean, replace?: boolean) {
+    constructor(url?: string,
+                target?: string,
+                features?: string,
+                useOverlay?: boolean,
+                replace?: boolean) {
         this.id = `id-${PopupWindow.uuidv4()}`;
         this.useOverlay = typeof useOverlay !== 'undefined' ? useOverlay : true;
         this.win = window.open(url, target, features, replace);
@@ -73,7 +78,9 @@ export class PopupWindow {
         }
     }
 
-    public postMessage(message: any, targetOrigin: string, transfer?: Transferable[]): void {
+    public postMessage(message: any,
+                       targetOrigin: string,
+                       transfer?: Transferable[]): void {
         if (this.win) {
             this.win.postMessage(message, targetOrigin, transfer);
         }
@@ -90,6 +97,9 @@ export class PopupWindow {
 
     private openOverlay(): void {
         if (this.useOverlay) {
+            //remove existing overlay divs
+
+
             const overlayDiv: HTMLDivElement = document.createElement('div');
             overlayDiv.id = this.id;
             overlayDiv.classList.add(PopupWindow.CONST.overlayClassName);
@@ -111,6 +121,13 @@ export class PopupWindow {
                 `<div><a style="${PopupWindow.CONST.overlayLinkStyle}" href="javascript:void(0)" class="${PopupWindow.CONST.overlayLinkClassName}">${PopupWindow.CONST.overlayLinkMessage}</a></div>` +
                 `<a style="${PopupWindow.CONST.overlayLinkStyle} position: absolute; right: 1rem; top: 1rem;" href="javascript:void(0)" class="${PopupWindow.CONST.overlayCloseLinkClassName}">X</a>` +
                 `</div>`;
+            let existingOverlays = document.getElementsByClassName(PopupWindow.CONST.overlayClassName);
+            for (var i = 0; i < existingOverlays.length; i++) {
+                let existingOverlay = existingOverlays.item(i);
+                if (existingOverlay) {
+                    existingOverlay.remove();
+                }
+            }
             document.body.appendChild(overlayDiv);
             const link = overlayDiv.querySelector(`#${this.id} .${PopupWindow.CONST.overlayLinkClassName}`);
             const closeLink = overlayDiv.querySelector(`#${this.id} .${PopupWindow.CONST.overlayCloseLinkClassName}`);

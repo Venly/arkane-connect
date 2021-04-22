@@ -20,6 +20,8 @@ import { EventTypes }                       from '../types/EventTypes';
 import Utils                                from '../utils/Utils';
 import { BuildMessageSignRequestDto }       from '../models/transaction/build/BuildMessageSignRequestDto';
 import { BuildMessageSignRequest }          from '../models/transaction/build/BuildMessageSignRequest';
+import { BuildEip712SignRequestDto }        from '../models/transaction/build/BuildEip712SignRequestDto';
+import { BuildEip712SignRequest }           from '../models/transaction/build/BuildEip712SignRequest';
 
 export class PopupSigner implements Signer {
 
@@ -50,6 +52,10 @@ export class PopupSigner implements Signer {
 
     public async signMessage(buildDate: BuildMessageSignRequestDto): Promise<SignerResult> {
         return this.signRequest(BuildMessageSignRequest.fromData(buildDate));
+    }
+
+    public async signEip712(buildDate: BuildEip712SignRequestDto): Promise<SignerResult> {
+        return this.signRequest(BuildEip712SignRequest.fromData(buildDate));
     }
 
     /** Deprecated since 1.1.9. Use sign instead */
@@ -94,8 +100,15 @@ export class PopupSigner implements Signer {
         return this.handleRequest(`execute/${transactionId}`, {});
     }
 
+    public resubmitTransaction(transactionId: string): Promise<SignerResult> {
+        return this.handleRequest('resubmit', {transactionId});
+    }
+
+    public cancelTransaction(transactionId: string): Promise<SignerResult> {
+        return this.handleRequest('cancel', {transactionId});
+    }
+
     public async confirm(request: ConfirmationRequest): Promise<SignerResult> {
-        this.popup.focus();
         return this.handleRequest('confirm', request);
     }
 

@@ -1,11 +1,19 @@
+import { SecretType } from '../SecretType';
+import { WalletType } from './Wallet';
+
 export interface NFT {
     id: string;
-    owner: string;
     name?: string;
     description?: string;
     url?: string;
     backgroundColor?: string;
     imageUrl?: string;
+    imagePreviewUrl?: string;
+    imageThumbnailUrl?: string;
+    attributes?: Attribute[];
+    animationUrls?: TypeValue[];
+    fungible?: boolean;
+    maxSupply?: number;
     contract: NFTContract;
 }
 
@@ -16,4 +24,27 @@ export interface NFTContract {
     symbol?: string;
     url?: string;
     imageUrl?: string;
+    type?: string;
+    media?: TypeValue[];
+    verified?: boolean;
+}
+
+export interface Attribute {
+    type?: string;
+    name?: string;
+    value?: string;
+    maxValue?: number;
+}
+
+export interface WalletItems {
+    walletId: string;
+    walletAddress: string;
+    walletType: WalletType;
+    secretType: SecretType;
+    items: NFT[];
+}
+
+export interface TypeValue {
+    type: string;
+    value: string;
 }
