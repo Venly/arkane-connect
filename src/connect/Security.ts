@@ -1,5 +1,5 @@
-import { KeycloakInitOptions, KeycloakInstance } from 'keycloak-js';
-import QueryString                               from 'querystring';
+import { KeycloakConfig, KeycloakInitOptions, KeycloakInstance, KeycloakLoginOptions } from 'keycloak-js';
+import QueryString                                                                     from 'querystring';
 
 import { AuthenticationOptions } from './connect';
 import { WindowMode }            from '../models/WindowMode';
@@ -21,7 +21,8 @@ export class Security {
         };
     }
 
-    public static login(clientId: string, options?: AuthenticationOptions): Promise<LoginResult> {
+    public static login(clientId: string,
+                        options?: AuthenticationOptions): Promise<LoginResult> {
         switch (options && options.windowMode) {
             case WindowMode.POPUP:
                 return Security.loginPopup(clientId, options);
@@ -40,15 +41,22 @@ export class Security {
     //     }) as Promise<LoginResult>;
     // }
 
-    private static loginRedirect(clientId: string, options?: AuthenticationOptions): Promise<LoginResult> {
-        return Security.initializeAuth(Security.getConfig(clientId), 'login-required', options);
+    private static loginRedirect(clientId: string,
+                                 options?: AuthenticationOptions): Promise<LoginResult> {
+        let config = Security.getConfig(clientId);
+        const loginOptions: KeycloakLoginOptions = {};
+        if (options && options.idpHint) {
+            loginOptions.idpHint = options.idpHint
+        }
+        return this.keycloakLogin(config, options);
     }
 
-    private static loginPopup(clientId: string, options?: AuthenticationOptions): Promise<LoginResult> {
+    private static loginPopup(clientId: string,
+                              options?: AuthenticationOptions): Promise<LoginResult> {
         const closePopup = options ? options.closePopup : true;
         return Promise.race([
             Security.initialiseAuthenticatedListener(clientId, EventTypes.AUTHENTICATE, closePopup),
-            Security.initialiseLoginPopup(clientId),
+            Security.initialiseLoginPopup(clientId, options),
         ]);
     }
 
@@ -60,8 +68,26 @@ export class Security {
 
     public static logout(auth: Keycloak.KeycloakInstance): Promise<void> {
         if (auth.authenticated && auth.clientId) {
-            return new Promise<void>(async (resolve: () => void, reject: (reason?: any) => void) => {
+            return new Promise<void>(async (resolve: () => void,
+                                            reject: (reason?: any) => void) => {
                 if (auth.clientId) {
+                    const params: any = {
+                        client_id: auth.clientId,
+                        refresh_token: auth.refreshToken
+                    };
+
+                    const searchParams = Object.keys(params).map((key) => {
+                        return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+                    }).join('&');
+
+                    await fetch(Utils.urls.login + '/realms/Arkane/protocol/openid-connect/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                        },
+                        body: searchParams
+                    });
+
                     Security.logoutListener = await Security.createLogoutListener(EventTypes.LOGOUT, auth, resolve, reject);
                     window.addEventListener('message', Security.logoutListener);
                     Security.initialiseLogoutIFrame(auth.clientId);
@@ -95,8 +121,11 @@ export class Security {
         return `${Utils.urls.connect}/logout`;
     }
 
-    private static initialiseAuthenticatedListener = async function(clientId: string, eventType: EventTypes, closePopup?: boolean) {
-        return new Promise((resolve: (value: LoginResult) => void, reject: any) => {
+    private static initialiseAuthenticatedListener = async function(clientId: string,
+                                                                    eventType: EventTypes,
+                                                                    closePopup?: boolean) {
+        return new Promise((resolve: (value: LoginResult) => void,
+                            reject: any) => {
             Security.authenticatedListener = async (message: MessageEvent) => {
                 if (message && message.origin === Utils.urls.connect && message.data && message.data.type === eventType) {
                     if (Security.isLoginPopupClosedInterval) {
@@ -134,7 +163,10 @@ export class Security {
         });
     };
 
-    private static createLogoutListener = async function(eventType: EventTypes, auth: Keycloak.KeycloakInstance, resolve: () => void, reject: any) {
+    private static createLogoutListener = async function(eventType: EventTypes,
+                                                         auth: Keycloak.KeycloakInstance,
+                                                         resolve: () => void,
+                                                         reject: any) {
         return (message: MessageEvent) => {
             if (message && message.origin === Utils.urls.connect && message.data && message.data.type === eventType) {
                 if (auth.authenticated) {
@@ -151,15 +183,24 @@ export class Security {
         }
     };
 
-    private static initialiseLoginPopup(clientId: string): Promise<LoginResult> {
+    private static initialiseLoginPopup(clientId: string,
+                                        options?: AuthenticationOptions): Promise<LoginResult> {
         const origin = window.location.href.replace(window.location.search, '');
-        const url = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
+        let url = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
+        if (options && options.idpHint) {
+            let kcIdpHint = options.idpHint;
+            if (kcIdpHint === 'twitter' || kcIdpHint === 'facebook') {
+                kcIdpHint = 'arkane-' + kcIdpHint;
+            }
+            url += "&" + QueryString.stringify({kc_idp_hint: kcIdpHint});
+        }
         Security.popupWindow = PopupWindow.openNew(url, {useOverlay: false});
         return Security.initialiseIsLoginPopupClosedInterval();
     }
 
     private static initialiseIsLoginPopupClosedInterval(): Promise<LoginResult> {
-        return new Promise((resolve: (value: LoginResult) => void, reject: any) => {
+        return new Promise((resolve: (value: LoginResult) => void,
+                            reject: any) => {
             Security.isLoginPopupClosedInterval = window.setInterval(() => {
                 if (Security.popupWindow.closed) {
                     Security.clearIsLoginPopupClosedInterval();
@@ -190,7 +231,9 @@ export class Security {
         return this.initialiseIFrame(clientId, Security.LOGOUT_IFRAME_ID, Security.logoutURI);
     }
 
-    private static initialiseIFrame(clientId: string, iframeID: string, uri: string): HTMLIFrameElement {
+    private static initialiseIFrame(clientId: string,
+                                    iframeID: string,
+                                    uri: string): HTMLIFrameElement {
         let iframe = document.getElementById(iframeID) as HTMLIFrameElement;
         let isIframeInBody = true;
         if (!iframe) {
@@ -217,9 +260,10 @@ export class Security {
         }
         Security.updateTokenInterval = setInterval(
             async () => {
-                new Promise((resolve, reject) => {
+                new Promise((resolve,
+                             reject) => {
                     if (Security.keycloak) {
-                        Security.keycloak.updateToken(70).success((refreshed: any) => {
+                        Security.keycloak.updateToken(70).then((refreshed: any) => {
                             resolve(refreshed);
                         });
                     } else {
@@ -241,23 +285,40 @@ export class Security {
         );
     }
 
-    private static async initializeAuth(config: any, onLoad: 'check-sso' | 'login-required', options?: AuthenticationOptions): Promise<LoginResult> {
-        const initOptions: KeycloakInitOptions = {
-            onLoad,
-        };
-        if (options && options.redirectUri) {
-            Object.assign(initOptions, {redirectUri: options.redirectUri});
-        }
-        return Security.initKeycloak(config, initOptions);
+    private static async keycloakLogin(config: any,
+                                       loginOptions?: KeycloakLoginOptions): Promise<LoginResult> {
+        const Keycloak: { default: (config?: KeycloakConfig | string | undefined) => KeycloakInstance } = await import ('keycloak-js');
+        Security.keycloak = Keycloak.default(config);
+        return new Promise((resolve,
+                            reject) => {
+            Security.keycloak
+                    .init({}).then(() => Security.keycloak
+                                                 .login(loginOptions)
+                                                 .then((authenticated: any) => {
+                                                     if (authenticated) {
+                                                         Security.setUpdateTokenInterval();
+                                                     }
+                                                     resolve({
+                                                         keycloak: Security.keycloak,
+                                                         authenticated,
+                                                     } as LoginResult);
+                                                 })
+                                                 .catch((e) => {
+                                                     reject(e);
+                                                 }));
+
+        });
     }
 
-    private static async initKeycloak(config: any, initOptions: Keycloak.KeycloakInitOptions): Promise<LoginResult> {
-        const Keycloak: { default: (config?: string | {} | undefined) => KeycloakInstance } = await import ('keycloak-js');
+    private static async initKeycloak(config: any,
+                                      initOptions: Keycloak.KeycloakInitOptions): Promise<LoginResult> {
+        const Keycloak: { default: (config?: KeycloakConfig | string | undefined) => KeycloakInstance } = await import ('keycloak-js');
         Security.keycloak = Keycloak.default(config);
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve,
+                            reject) => {
             Security.keycloak
                     .init(initOptions)
-                    .success((authenticated: any) => {
+                    .then((authenticated: any) => {
                         if (authenticated) {
                             Security.setUpdateTokenInterval();
                         }
@@ -266,7 +327,7 @@ export class Security {
                             authenticated,
                         } as LoginResult);
                     })
-                    .error((e) => {
+                    .catch((e) => {
                         reject(e);
                     });
         });
@@ -281,7 +342,8 @@ export class Security {
         }
     }
 
-    private static cleanUp(eventType: EventTypes, closePopup: boolean = true) {
+    private static cleanUp(eventType: EventTypes,
+                           closePopup: boolean = true) {
         if (Security.authenticatedListener) {
             window.removeEventListener('message', Security.authenticatedListener);
             delete Security.authenticatedListener;

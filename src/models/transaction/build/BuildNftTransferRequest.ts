@@ -8,16 +8,18 @@ export class BuildNftTransferRequest extends BuildTransferRequestBase implements
     public tokenAddress!: string;
     public tokenId!: string;
     public from?: string;
+    public amount?: number;
 
     public static fromData(requestData: BuildNftTransferRequestDto): BuildNftTransferRequest {
-        const {walletId, to, secretType, tokenAddress, tokenId, from, alias, network} = requestData;
-        return new this(walletId, to, secretType, tokenAddress, tokenId, from, alias, network);
+        const {walletId, to, secretType, tokenAddress, tokenId, amount, from, alias, network} = requestData;
+        return new this(walletId, to, secretType, tokenAddress, tokenId, amount, from, alias, network);
     }
 
-    constructor(walletId: string, to: string, secretType: SecretType, tokenAddress: string, tokenId: string, from?: string, alias?: string, network?: Network) {
+    constructor(walletId: string, to: string, secretType: SecretType, tokenAddress: string, tokenId: string, amount?: number, from?: string, alias?: string, network?: Network) {
         super(BuildTransactionRequestType.NFT_TRANSFER, walletId, to, secretType, alias, network);
         this.tokenAddress = tokenAddress;
         this.tokenId = tokenId;
+        this.amount = amount ? amount : 1;
         from ? this.from = from : undefined;
     }
 }

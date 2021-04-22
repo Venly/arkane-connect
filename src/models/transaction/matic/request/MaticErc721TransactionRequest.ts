@@ -3,4 +3,5 @@ import { MaticErcTokenTransactionRequest } from './MaticErcTokenTransactionReque
 export class MaticErc721TransactionRequest extends MaticErcTokenTransactionRequest {
     public from!: string;
     public tokenId!: number;
+    public amount?: number;
 }
