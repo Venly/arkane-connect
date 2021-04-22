@@ -28,7 +28,8 @@ export class Flows {
 
     public manageWallets(chain: string, options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode, useOverlayWithPopup?: boolean }): Promise<PopupResult | void> {
         const windowMode = options && options.windowMode || this.arkaneConnect.windowMode;
-        const useOverlayWithPopup = options && options.useOverlayWithPopup || this.arkaneConnect.useOverlayWithPopup;
+
+        const useOverlayWithPopup = options && options.useOverlayWithPopup != undefined ? options.useOverlayWithPopup : this.arkaneConnect.useOverlayWithPopup;
         if (windowMode === WindowMode.REDIRECT) {
             return this.manageWalletsRedirect(chain, options);
         } else {
@@ -38,7 +39,7 @@ export class Flows {
 
     public linkWallets(options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode, useOverlayWithPopup?: boolean }): Promise<PopupResult | void> {
         const windowMode = options && options.windowMode || this.arkaneConnect.windowMode;
-        const useOverlayWithPopup = options && options.useOverlayWithPopup || this.arkaneConnect.useOverlayWithPopup;
+        const useOverlayWithPopup = options && options.useOverlayWithPopup != undefined ? options.useOverlayWithPopup : this.arkaneConnect.useOverlayWithPopup;
         if (windowMode === WindowMode.REDIRECT) {
             return this.linkWalletsRedirect(options);
         } else {
