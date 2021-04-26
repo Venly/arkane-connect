@@ -20,11 +20,7 @@
   "keywords": [
     "arkane"
   ],
-  "author": "Steve Maris <steve.maris@arkane.network>",
-  "contributors": [
-    "Quinten De Swaef <quinten.de.swaef@arkane.network>",
-    "Nico Peeters <nico.peeters@arkane.network>"
-  ],
+  "author": "@arkane-network <info@arkane.network>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ArkaneNetwork/arkane-connect/issues"
