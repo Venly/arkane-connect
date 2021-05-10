@@ -27,6 +27,8 @@ export interface NFTContract {
     type?: string;
     media?: TypeValue[];
     verified?: boolean;
+    premium?: boolean;
+    categories?: string[];
 }
 
 export interface Attribute {
