@@ -15,6 +15,7 @@ export interface NFT {
     fungible?: boolean;
     maxSupply?: number;
     contract: NFTContract;
+    balance: number;
 }
 
 export interface NFTContract {
