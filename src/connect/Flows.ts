@@ -63,8 +63,7 @@ export class Flows {
         let start = +Date.now();
 
         try {
-            let windowMode = (authenticationOptions && authenticationOptions.windowMode) || this.arkaneConnect.windowMode || 'POPUP';
-            let options: AuthenticationOptions = {windowMode: windowMode, closePopup: false};
+            let options:AuthenticationOptions = {windowMode: WindowMode.POPUP, closePopup: false};
             if (authenticationOptions && authenticationOptions.idpHint) {
                 options.idpHint = authenticationOptions.idpHint;
             }
