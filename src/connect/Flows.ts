@@ -63,6 +63,7 @@ export class Flows {
         let start = +Date.now();
 
         try {
+            // POPUP is mandatory for this flow
             let options:AuthenticationOptions = {windowMode: WindowMode.POPUP, closePopup: false};
             if (authenticationOptions && authenticationOptions.idpHint) {
                 options.idpHint = authenticationOptions.idpHint;
