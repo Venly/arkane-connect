@@ -1,14 +1,14 @@
 export enum SecretType {
     AETERNITY = 'AETERNITY',
     AVAC = 'AVAC',
-    BSC = 'BSC',
     BITCOIN = 'BITCOIN',
+    BSC = 'BSC',
     ETHEREUM = 'ETHEREUM',
     GOCHAIN = 'GOCHAIN',
     HEDERA = 'HEDERA',
     LITECOIN = 'LITECOIN',
+    MATIC = 'MATIC',
+    NEO = 'NEO',
     TRON = 'TRON',
     VECHAIN = 'VECHAIN',
-    NEO = 'NEO',
-    MATIC = 'MATIC',
 }
