@@ -64,7 +64,7 @@ export class PopupSigner implements Signer {
     }
 
     public async executeNativeTransaction(transactionRequest: TransactionRequest): Promise<SignerResult> {
-        return this.execute(transactionRequest);
+        return this.handleRequest(`execute/${transactionRequest.type}`, transactionRequest);
     }
 
     /** Deprecated since 1.4.0. Use transfer functions instead */
