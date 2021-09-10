@@ -5,4 +5,5 @@ export class TokenBalance {
     public symbol!: string;
     public logo!: string;
     public decimals!: number;
+    public name!: string;
 }
