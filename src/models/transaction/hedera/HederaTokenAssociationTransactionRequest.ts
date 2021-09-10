@@ -1,4 +1,5 @@
-export class HederaTokenAssociationTransactionRequest {
-  public accountId!: string;
-  public tokenIds!: string[];
+import { TransactionRequest } from '../TransactionRequest';
+
+export class HederaTokenAssociationTransactionRequest extends TransactionRequest {
+    public tokenIds!: string[];
 }
