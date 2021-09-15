@@ -35,7 +35,7 @@ export class PopupWindow {
                 replace?: boolean) {
         this.id = `id-${PopupWindow.uuidv4()}`;
         this.useOverlay = typeof useOverlay !== 'undefined' ? useOverlay : true;
-        this.win = window.open(url, target, features, replace);
+        this.win = window.open(url, target, features);
         if (this.win) {
             this.setCloseInterval();
         } else {
