@@ -25,11 +25,16 @@ export default class Utils {
 
     public static environments(): { [key: string]: { api: string, connect: string, login: string }; } {
         return {
-            'qa2': {
-                api: 'https://api-qa.arkane.network/api',
-                connect: 'https://connect-qa2.arkane.network',
+            'qa': {
+                api: 'https://api-wallet-qa.venly.io/api',
+                connect: 'https://connect-qa.venly.io',
                 login: 'https://login-qa.arkane.network/auth',
-            }
+            },
+            'staging': {
+                api: 'https://api-wallet-staging.venly.io/api',
+                connect: 'https://connect-staging.venly.io',
+                login: 'https://login-staging.arkane.network/auth',
+            },
         }
     }
 
@@ -37,7 +42,7 @@ export default class Utils {
         let postfix = '';
         switch (Utils.environment) {
             case 'local':
-                postfix = 'tst1';
+                postfix = 'qa';
                 break;
             case 'prod':
             case 'production':
@@ -56,9 +61,9 @@ export default class Utils {
             }
         } else {
             return {
-                api: Utils.environment === 'local' ? 'http://127.0.0.1:8581/api' : `https://api${postfix ? '-' + postfix : ''}.arkane.network/api`,
-                connect: Utils.environment === 'local' || Utils.connectEnvironment === 'local' ? 'http://127.0.0.1:8181' : `https://connect${postfix ? '-' + postfix : ''}.arkane.network`,
-                login: `https://login${postfix ? '-' + postfix : ''}.arkane.network/auth`,
+                api: `https://api-wallet.venly.io/api`,
+                connect: `https://connect.venly.io`,
+                login: `https://login.arkane.network/auth`,
             };
         }
     }
