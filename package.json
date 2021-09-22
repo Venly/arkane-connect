@@ -1,6 +1,6 @@
 {
   "name": "@venly/widget",
-  "version": "1.29.0-develop.1",
+  "version": "1.29.0-develop.2",
   "description": "Venly Widget SDK",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
