@@ -106,8 +106,8 @@ export class Security {
     private static logoutListener: any;
     private static isLoginPopupClosedInterval?: any;
 
-    private static readonly AUTH_IFRAME_ID = 'arkane-auth-iframe';
-    private static readonly LOGOUT_IFRAME_ID = 'arkane-logout-iframe';
+    private static readonly AUTH_IFRAME_ID = 'venly-auth-iframe';
+    private static readonly LOGOUT_IFRAME_ID = 'venly-logout-iframe';
 
     private static get checkAuthenticatedURI() {
         return `${Utils.urls.connect}/checkAuthenticated`;

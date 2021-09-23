@@ -1,8 +1,8 @@
 export class PopupWindow {
     private static CONST = {
-        overlayClassName: 'arkane-connect__overlay',
-        overlayLinkClassName: 'arkane-connect__reopen-link',
-        overlayCloseLinkClassName: 'arkane-connect__close-link',
+        overlayClassName: 'venly-connect__overlay',
+        overlayLinkClassName: 'venly-connect__reopen-link',
+        overlayCloseLinkClassName: 'venly-connect__close-link',
         overlayMessage: 'Don’t see the popup? We’ll help you re-open the popup to complete your action.',
         overlayLinkMessage: 'Click to continue',
         overlayLinkStyle: 'color: white; text-decoration: underline; font-weight: bold;',
@@ -11,7 +11,7 @@ export class PopupWindow {
     public static openNew(url: string,
                           options?: OpenWindowOptions): PopupWindow {
         const mergedOptions = Object.assign({
-            title: 'Arkane Connect',
+            title: 'Venly Connect',
             w: 350,
             h: 685,
             useOverlay: true

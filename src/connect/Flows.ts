@@ -1,35 +1,37 @@
-import Utils                                                          from '../utils/Utils';
-import { Account }                                                    from '../models/Account';
-import { ArkaneConnect, AuthenticationOptions, AuthenticationResult } from './connect';
-import { GeneralPopup }                                               from '../popup/GeneralPopup';
-import { PopupActions }                                               from '../popup/PopupActions';
-import { PopupResult }                                                from '../popup/PopupResult';
-import { Security }                                                   from './Security';
-import { SecretType }                                                 from '../models/SecretType';
-import { Wallet }                                                     from '../models/wallet/Wallet';
-import { WindowMode }                                                 from '../models/WindowMode';
-import { PopupOptions }                                               from '../popup/Popup';
+import Utils                                                         from '../utils/Utils';
+import { Account }                                                   from '../models/Account';
+import { AuthenticationOptions, AuthenticationResult, VenlyConnect } from './connect';
+import { GeneralPopup }                                              from '../popup/GeneralPopup';
+import { PopupActions }                                              from '../popup/PopupActions';
+import { PopupResult }                                               from '../popup/PopupResult';
+import { Security }                                                  from './Security';
+import { SecretType }                                                from '../models/SecretType';
+import { Wallet }                                                    from '../models/wallet/Wallet';
+import { WindowMode }                                                from '../models/WindowMode';
+import { PopupOptions }                                              from '../popup/Popup';
 
 export class Flows {
     private clientId: string;
-    private arkaneConnect: ArkaneConnect;
+    private connect: VenlyConnect;
 
-    constructor(arkaneConnect: ArkaneConnect, clientId: string) {
+    constructor(venlyConnect: VenlyConnect,
+                clientId: string) {
         this.clientId = clientId;
-        this.arkaneConnect = arkaneConnect;
+        this.connect = venlyConnect;
     }
 
     public async authenticate(options?: AuthenticationOptions): Promise<AuthenticationResult> {
         let authOptions: AuthenticationOptions = {...options};
-        authOptions.windowMode = authOptions.windowMode || this.arkaneConnect.windowMode;
+        authOptions.windowMode = authOptions.windowMode || this.connect.windowMode;
         const loginResult = await Security.login(this.clientId, authOptions);
-        return this.arkaneConnect._afterAuthenticationForFlowUse(loginResult);
+        return this.connect._afterAuthenticationForFlowUse(loginResult);
     }
 
-    public manageWallets(chain: string, options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode, useOverlayWithPopup?: boolean }): Promise<PopupResult | void> {
-        const windowMode = options && options.windowMode || this.arkaneConnect.windowMode;
+    public manageWallets(chain: string,
+                         options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode, useOverlayWithPopup?: boolean }): Promise<PopupResult | void> {
+        const windowMode = options && options.windowMode || this.connect.windowMode;
 
-        const useOverlayWithPopup = options && options.useOverlayWithPopup != undefined ? options.useOverlayWithPopup : this.arkaneConnect.useOverlayWithPopup;
+        const useOverlayWithPopup = options && options.useOverlayWithPopup != undefined ? options.useOverlayWithPopup : this.connect.useOverlayWithPopup;
         if (windowMode === WindowMode.REDIRECT) {
             return this.manageWalletsRedirect(chain, options);
         } else {
@@ -38,8 +40,8 @@ export class Flows {
     }
 
     public linkWallets(options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode, useOverlayWithPopup?: boolean }): Promise<PopupResult | void> {
-        const windowMode = options && options.windowMode || this.arkaneConnect.windowMode;
-        const useOverlayWithPopup = options && options.useOverlayWithPopup != undefined ? options.useOverlayWithPopup : this.arkaneConnect.useOverlayWithPopup;
+        const windowMode = options && options.windowMode || this.connect.windowMode;
+        const useOverlayWithPopup = options && options.useOverlayWithPopup != undefined ? options.useOverlayWithPopup : this.connect.useOverlayWithPopup;
         if (windowMode === WindowMode.REDIRECT) {
             return this.linkWalletsRedirect(options);
         } else {
@@ -48,8 +50,8 @@ export class Flows {
     }
 
     public claimWallets(options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode, useOverlayWithPopup?: boolean }): Promise<PopupResult | void> {
-        const windowMode = options && options.windowMode || this.arkaneConnect.windowMode;
-        const useOverlayWithPopup = options && options.useOverlayWithPopup || this.arkaneConnect.useOverlayWithPopup;
+        const windowMode = options && options.windowMode || this.connect.windowMode;
+        const useOverlayWithPopup = options && options.useOverlayWithPopup || this.connect.useOverlayWithPopup;
         if (windowMode === WindowMode.REDIRECT) {
             return this.claimWalletsRedirect(options);
         } else {
@@ -57,27 +59,28 @@ export class Flows {
         }
     }
 
-    public async getAccount(chain: SecretType, authenticationOptions?: AuthenticationOptions): Promise<Account> {
+    public async getAccount(chain: SecretType,
+                            authenticationOptions?: AuthenticationOptions): Promise<Account> {
         let loginResult: any = {};
         let wallets: Wallet[] = [];
         let start = +Date.now();
 
         try {
             // POPUP is mandatory for this flow
-            let options:AuthenticationOptions = {windowMode: WindowMode.POPUP, closePopup: false};
+            let options: AuthenticationOptions = {windowMode: WindowMode.POPUP, closePopup: false};
             if (authenticationOptions && authenticationOptions.idpHint) {
                 options.idpHint = authenticationOptions.idpHint;
             }
             loginResult = await Security.login(this.clientId, options);
 
-            let result = this.arkaneConnect._afterAuthenticationForFlowUse(loginResult);
+            let result = this.connect._afterAuthenticationForFlowUse(loginResult);
 
             if (result.isAuthenticated) {
-                wallets = await this.arkaneConnect.api.getWallets({secretType: chain.toUpperCase() as SecretType});
+                wallets = await this.connect.api.getWallets({secretType: chain.toUpperCase() as SecretType});
                 if (!(wallets && wallets.length > 0)) {
                     const popupResult = await this.manageWallets(chain, {windowMode: WindowMode.POPUP});
                     if (popupResult && popupResult.status === 'SUCCESS') {
-                        wallets = await this.arkaneConnect.api.getWallets({secretType: chain.toUpperCase() as SecretType});
+                        wallets = await this.connect.api.getWallets({secretType: chain.toUpperCase() as SecretType});
                     }
                 }
             }
@@ -106,45 +109,47 @@ export class Flows {
         }
     }
 
-    private manageWalletsRedirect(chain: string, options?: { redirectUri?: string, correlationID?: string }): Promise<void> {
+    private manageWalletsRedirect(chain: string,
+                                  options?: { redirectUri?: string, correlationID?: string }): Promise<void> {
         Utils.http().postInForm(
             `${Utils.urls.connect}/wallets/manage`,
             {chain: chain.toLowerCase()},
-            this.arkaneConnect._bearerTokenProvider,
+            this.connect._bearerTokenProvider,
             options
         );
         return Promise.resolve();
     }
 
-    private manageWalletsPopup(chain: string, options: PopupOptions): Promise<PopupResult> {
-        return GeneralPopup.openNewPopup(PopupActions.MANAGE_WALLETS, this.arkaneConnect._bearerTokenProvider, {chain: chain.toLowerCase()}, options);
+    private manageWalletsPopup(chain: string,
+                               options: PopupOptions): Promise<PopupResult> {
+        return GeneralPopup.openNewPopup(PopupActions.MANAGE_WALLETS, this.connect._bearerTokenProvider, {chain: chain.toLowerCase()}, options);
     }
 
     private linkWalletsRedirect(options?: { redirectUri?: string, correlationID?: string }): Promise<void> {
         Utils.http().postInForm(
             `${Utils.urls.connect}/wallets/link`,
             {},
-            this.arkaneConnect._bearerTokenProvider,
+            this.connect._bearerTokenProvider,
             options
         );
         return Promise.resolve();
     }
 
     private linkWalletsPopup(options?: PopupOptions): Promise<PopupResult> {
-        return GeneralPopup.openNewPopup(PopupActions.LINK_WALLET, this.arkaneConnect._bearerTokenProvider, undefined, options);
+        return GeneralPopup.openNewPopup(PopupActions.LINK_WALLET, this.connect._bearerTokenProvider, undefined, options);
     }
 
     private claimWalletsRedirect(options?: { redirectUri?: string, correlationID?: string }): Promise<void> {
         Utils.http().postInForm(
-          `${Utils.urls.connect}/wallets/claim`,
-          {},
-          this.arkaneConnect._bearerTokenProvider,
-          options
+            `${Utils.urls.connect}/wallets/claim`,
+            {},
+            this.connect._bearerTokenProvider,
+            options
         );
         return Promise.resolve();
     }
 
     private claimWalletsPopup(options?: PopupOptions): Promise<PopupResult> {
-        return GeneralPopup.openNewPopup(PopupActions.CLAIM_WALLETS, this.arkaneConnect._bearerTokenProvider, undefined, options);
+        return GeneralPopup.openNewPopup(PopupActions.CLAIM_WALLETS, this.connect._bearerTokenProvider, undefined, options);
     }
 }

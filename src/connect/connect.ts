@@ -9,9 +9,8 @@ import { Signer, SignerFactory, SignMethod } from '../signer/Signer';
 import Utils                                 from '../utils/Utils';
 import { Flows }                             from './Flows';
 import { PopupOptions }                      from '../popup/Popup';
-import { log }                               from 'util';
 
-export class ArkaneConnect {
+export class VenlyConnect {
 
     public api!: Api;
     public signUsing: WindowMode;

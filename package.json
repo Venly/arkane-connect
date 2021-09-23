@@ -1,10 +1,10 @@
 {
-  "name": "@venly/widget",
+  "name": "@venly/connect",
   "version": "1.30.0-develop.0",
-  "description": "Venly Widget SDK",
+  "description": "Venly Connect SDK",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
-  "unpkg": "dist/widget.js",
+  "unpkg": "dist/connect.js",
   "scripts": {
     "clean": "rm -rf dist",
     "build-ts": "tsc -p .",
@@ -18,6 +18,7 @@
     "url": "git+https://github.com/ArkaneNetwork/arkane-connect"
   },
   "keywords": [
+    "venly-connect",
     "venly-widget",
     "venly",
     "venly.io",
@@ -34,7 +35,7 @@
     "erc-1155",
     "arkane"
   ],
-  "author": "@arkane-network <info@arkane.network>",
+  "author": "@venly <info@venly.io>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ArkaneNetwork/arkane-connect/issues"
