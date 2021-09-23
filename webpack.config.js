@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
     entry: path.join(__dirname, 'src/index.ts'),
     output: {
-        filename: 'widget.js',
+        filename: 'connect.js',
         path: path.join(__dirname, './dist'),
     },
     watch: false,
