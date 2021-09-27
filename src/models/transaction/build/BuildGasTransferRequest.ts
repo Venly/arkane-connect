@@ -8,12 +8,12 @@ export class BuildGasTransferRequest extends BuildTransferRequestBase implements
     public value!: number;
 
     public static fromData(data: BuildGasTransferRequestDto) {
-        const {walletId, to, value, secretType, alias, network} = data;
-        return new this(walletId, to, value, secretType, alias, network);
+        const {walletId, to, value, secretType, network} = data;
+        return new this(walletId, to, value, secretType, network);
     }
 
-    constructor(walletId: string, to: string, value: number, secretType: SecretType, alias?: string, network?: Network) {
-        super(BuildTransactionRequestType.GAS_TRANSFER, walletId, to, secretType, alias, network);
+    constructor(walletId: string, to: string, value: number, secretType: SecretType, network?: Network) {
+        super(BuildTransactionRequestType.GAS_TRANSFER, walletId, to, secretType, network);
         this.value = value;
     }
 }

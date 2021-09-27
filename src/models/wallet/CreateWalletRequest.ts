@@ -9,8 +9,6 @@ export abstract class CreateWalletRequest implements ConfirmationRequest {
 
     public readonly secretType: SecretType;
 
-    public alias?: string;
-
     public description?: string;
 
     constructor(secretType: SecretType) {
