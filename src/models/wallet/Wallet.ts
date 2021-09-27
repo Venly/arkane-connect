@@ -20,7 +20,6 @@ export class Wallet {
     public walletType?: WalletType;
     public secretType!: SecretType;
     public archived!: boolean;
-    public alias?: string = '';
     public description?: string = '';
     public primary?: boolean;
     public balance?: WalletBalance;
