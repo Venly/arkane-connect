@@ -7,17 +7,15 @@ export abstract class BuildTransferRequestBase implements BuildTransferRequestBa
     public walletId!: string;
     public to!: string;
     public secretType!: SecretType;
-    public alias?: string;
     public network?: Network;
 
     private type: BuildTransactionRequestType;
 
-    constructor(type: BuildTransactionRequestType, walletId: string, to: string, secretType: SecretType, alias?: string, network?: Network) {
+    constructor(type: BuildTransactionRequestType, walletId: string, to: string, secretType: SecretType, network?: Network) {
         this.type = type;
         this.walletId = walletId;
         this.to = to;
         this.secretType = secretType;
-        alias ? this.alias = alias : undefined;
         network ? this.network = network : undefined;
     }
 }

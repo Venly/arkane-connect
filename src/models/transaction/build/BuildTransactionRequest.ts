@@ -12,8 +12,8 @@ export class BuildTransactionRequest extends BuildTransferRequestBase implements
     public tokenId?: string;
 
     public static fromData(requestData: BuildGenericTransferRequestDto): BuildTransactionRequest {
-        const {walletId, to, secretType, value, alias, tokenAddress, data, from, tokenId, network} = requestData;
-        return new this(walletId, to, secretType, value, alias, tokenAddress, data, from, tokenId, network);
+        const {walletId, to, secretType, value, tokenAddress, data, from, tokenId, network} = requestData;
+        return new this(walletId, to, secretType, value, tokenAddress, data, from, tokenId, network);
     }
 
     constructor(
@@ -21,7 +21,6 @@ export class BuildTransactionRequest extends BuildTransferRequestBase implements
         to: string,
         secretType: SecretType,
         value?: number,
-        alias?: string,
         tokenAddress?: string,
         data?: string,
         from?: string,
@@ -36,7 +35,7 @@ export class BuildTransactionRequest extends BuildTransferRequestBase implements
         } else {
             type = BuildTransactionRequestType.TRANSFER;
         }
-        super(type, walletId, to, secretType, alias, network);
+        super(type, walletId, to, secretType, network);
 
         this.value = value;
         tokenAddress ? this.tokenAddress = tokenAddress : undefined;
