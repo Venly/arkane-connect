@@ -1,3 +1,5 @@
+import Utils from '../utils/Utils';
+
 export class PopupWindow {
     private static CONST = {
         overlayClassName: 'venly-connect__overlay',
@@ -33,7 +35,7 @@ export class PopupWindow {
                 features?: string,
                 useOverlay?: boolean,
                 replace?: boolean) {
-        this.id = `id-${PopupWindow.uuidv4()}`;
+        this.id = `id-${Utils.uuidv4()}`;
         this.useOverlay = typeof useOverlay !== 'undefined' ? useOverlay : true;
         this.win = window.open(url, target, features);
         if (this.win) {
@@ -142,13 +144,6 @@ export class PopupWindow {
                 })
             }
         }
-    }
-
-    private static uuidv4(): string {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
     }
 }
 

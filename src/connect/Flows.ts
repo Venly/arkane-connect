@@ -60,18 +60,18 @@ export class Flows {
     }
 
     public async getAccount(chain: SecretType,
-                            authenticationOptions?: AuthenticationOptions): Promise<Account> {
+                            options?: { idpHint?: string }): Promise<Account> {
         let loginResult: any = {};
         let wallets: Wallet[] = [];
-        let start = +Date.now();
+        const correlationId = Utils.uuidv4();
 
         try {
             // POPUP is mandatory for this flow
-            let options: AuthenticationOptions = {windowMode: WindowMode.POPUP, closePopup: false};
-            if (authenticationOptions && authenticationOptions.idpHint) {
-                options.idpHint = authenticationOptions.idpHint;
+            const authenticationOptions: AuthenticationOptions = {windowMode: WindowMode.POPUP, closePopup: false};
+            if (options && options.idpHint) {
+                authenticationOptions.idpHint = options.idpHint;
             }
-            loginResult = await Security.login(this.clientId, options);
+            loginResult = await Security.login(this.clientId, authenticationOptions, correlationId);
 
             let result = this.connect._afterAuthenticationForFlowUse(loginResult);
 
@@ -91,15 +91,8 @@ export class Flows {
             console.error(e);
         }
 
-        if (loginResult && loginResult.popupWindow) {
-            let timeout = 1500 - (+Date.now() - start);
-            if (timeout <= 0) {
-                loginResult.popupWindow.close();
-            } else {
-                setTimeout(() => {
-                    loginResult.popupWindow.close();
-                }, timeout);
-            }
+        if (Security.hasPopupWindow(correlationId)) {
+            Security.closePopupWindow(correlationId);
         }
 
         return {
