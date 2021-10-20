@@ -22,10 +22,11 @@ export class Security {
     }
 
     public static login(clientId: string,
-                        options?: AuthenticationOptions): Promise<LoginResult> {
+                        options?: AuthenticationOptions,
+                        cid?: string): Promise<LoginResult> {
         switch (options && options.windowMode) {
             case WindowMode.POPUP:
-                return Security.loginPopup(clientId, options);
+                return Security.loginPopup(clientId, !!cid ? cid : Utils.uuidv4(), options);
             // case WindowMode.IFRAME:
             //     return Security.initLoginIFrame(clientId, options && options.iFrameSelector || '#login-iframe');
             default:
@@ -52,16 +53,17 @@ export class Security {
     }
 
     private static loginPopup(clientId: string,
+                              cid: string,
                               options?: AuthenticationOptions): Promise<LoginResult> {
         const closePopup = options ? options.closePopup : true;
         return Promise.race([
-            Security.initialiseAuthenticatedListener(clientId, EventTypes.AUTHENTICATE, closePopup),
-            Security.initialiseLoginPopup(clientId, options),
+            Security.initialiseAuthenticatedListener(clientId, EventTypes.AUTHENTICATE, cid, closePopup),
+            Security.initialiseLoginPopup(clientId, cid, options),
         ]);
     }
 
     public static checkAuthenticated(clientId: string): Promise<LoginResult> {
-        const authenticatedPromise = Security.initialiseAuthenticatedListener(clientId, EventTypes.CHECK_AUTHENTICATED);
+        const authenticatedPromise = Security.initialiseAuthenticatedListener(clientId, EventTypes.CHECK_AUTHENTICATED, Utils.uuidv4());
         Security.initialiseCheckAuthenticatedIFrame(clientId);
         return authenticatedPromise;
     }
@@ -98,11 +100,25 @@ export class Security {
         }
     }
 
+    public static hasPopupWindow(cid: string) {
+        return this.popupWindow.has(cid);
+    }
+
+    public static closePopupWindow(cid: string) {
+        Security.closedPopupWindows.push(cid);
+        const popupWindow = Security.popupWindow.get(cid);
+        if (popupWindow && !popupWindow.closed) {
+            popupWindow.close();
+            Security.popupWindow.delete(cid);
+        }
+    }
+
     private static keycloak: KeycloakInstance;
 
     private static updateTokenInterval: any;
     private static authenticatedListener: any;
-    private static popupWindow: PopupWindow;
+    private static popupWindow: Map<string, PopupWindow> = new Map<string, PopupWindow>();
+    private static closedPopupWindows: string[] = [];
     private static logoutListener: any;
     private static isLoginPopupClosedInterval?: any;
 
@@ -123,6 +139,7 @@ export class Security {
 
     private static initialiseAuthenticatedListener = async function(clientId: string,
                                                                     eventType: EventTypes,
+                                                                    cid: string,
                                                                     closePopup?: boolean) {
         return new Promise((resolve: (value: LoginResult) => void,
                             reject: any) => {
@@ -133,7 +150,7 @@ export class Security {
                     }
                     if (message.data.authenticated) {
                         try {
-                            Security.cleanUp(eventType, closePopup);
+                            Security.cleanUp(eventType, cid, closePopup);
                             const keycloakResult = message.data.keycloak;
                             const initOptions: KeycloakInitOptions = {
                                 onLoad: 'check-sso',
@@ -149,7 +166,6 @@ export class Security {
                             resolve({
                                 keycloak: loginResult.keycloak,
                                 authenticated: loginResult.authenticated,
-                                popupWindow: Security.popupWindow
                             })
                         } catch (e) {
                             reject({error: e});
@@ -184,6 +200,7 @@ export class Security {
     };
 
     private static initialiseLoginPopup(clientId: string,
+                                        cid: string,
                                         options?: AuthenticationOptions): Promise<LoginResult> {
         const origin = window.location.href.replace(window.location.search, '');
         let url = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
@@ -194,17 +211,21 @@ export class Security {
             }
             url += "&" + QueryString.stringify({kc_idp_hint: kcIdpHint});
         }
-        Security.popupWindow = PopupWindow.openNew(url, {useOverlay: false});
-        return Security.initialiseIsLoginPopupClosedInterval();
+        Security.popupWindow.set(cid, PopupWindow.openNew(url, {useOverlay: false}));
+        if (!!Security.closedPopupWindows.find(v => v === cid)) {
+            Security.closePopupWindow(cid);
+        }
+        return Security.initialiseIsLoginPopupClosedInterval(cid);
     }
 
-    private static initialiseIsLoginPopupClosedInterval(): Promise<LoginResult> {
+    private static initialiseIsLoginPopupClosedInterval(cid: string): Promise<LoginResult> {
         return new Promise((resolve: (value: LoginResult) => void,
                             reject: any) => {
             Security.isLoginPopupClosedInterval = window.setInterval(() => {
-                if (Security.popupWindow.closed) {
+                let popupWindow = Security.popupWindow.get(cid);
+                if (popupWindow && popupWindow.closed) {
                     Security.clearIsLoginPopupClosedInterval();
-                    Security.cleanUp(EventTypes.AUTHENTICATE);
+                    Security.cleanUp(EventTypes.AUTHENTICATE, cid);
                     resolve({authenticated: false});
                 }
             }, 2000);
@@ -343,6 +364,7 @@ export class Security {
     }
 
     private static cleanUp(eventType: EventTypes,
+                           cid: string,
                            closePopup: boolean = true) {
         if (Security.authenticatedListener) {
             window.removeEventListener('message', Security.authenticatedListener);
@@ -354,8 +376,12 @@ export class Security {
                 iframe.remove();
             }
         } else if (eventType === EventTypes.AUTHENTICATE) {
-            if (closePopup && Security.popupWindow && !Security.popupWindow.closed) {
-                Security.popupWindow.close();
+            if (closePopup) {
+                const popupWindow = Security.popupWindow.get(cid);
+                if (popupWindow && !popupWindow.closed) {
+                    popupWindow.close();
+                    Security.popupWindow.delete(cid);
+                }
             }
         }
     }
