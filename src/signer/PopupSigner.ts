@@ -11,24 +11,26 @@ import { BuildNftTransferRequestDto }       from '../models/transaction/build/Bu
 import { BuildGasTransferRequestDto }       from '../models/transaction/build/BuildGasTransferRequestDto';
 import { BuildGenericTransferRequestDto }   from '../models/transaction/build/BuildGenericTransferRequestDto';
 import { BuildContractExecutionRequestDto } from '../models/transaction/build/BuildContractExecutionRequestDto';
-import { BuildContractExecutionRequest }    from '../models/transaction/build/BuildContractExecutionRequest';
-import { GenericSignatureRequest }          from '../models/transaction/GenericSignatureRequest';
-import { TransactionRequest }               from '../models/transaction/TransactionRequest';
-import Popup, { PopupOptions }              from '../popup/Popup';
-import { Signer, SignerResult }             from './Signer';
-import { EventTypes }                       from '../types/EventTypes';
-import Utils                                from '../utils/Utils';
-import { BuildMessageSignRequestDto }       from '../models/transaction/build/BuildMessageSignRequestDto';
-import { BuildMessageSignRequest }          from '../models/transaction/build/BuildMessageSignRequest';
-import { BuildEip712SignRequestDto }        from '../models/transaction/build/BuildEip712SignRequestDto';
-import { BuildEip712SignRequest }           from '../models/transaction/build/BuildEip712SignRequest';
+import { BuildContractExecutionRequest } from '../models/transaction/build/BuildContractExecutionRequest';
+import { GenericSignatureRequest }       from '../models/transaction/GenericSignatureRequest';
+import { TransactionRequest }            from '../models/transaction/TransactionRequest';
+import Popup, { PopupOptions }           from '../popup/Popup';
+import { Signer, SignerResult }          from './Signer';
+import { EventTypes }                    from '../types/EventTypes';
+import Utils                             from '../utils/Utils';
+import { BuildMessageSignRequestDto }    from '../models/transaction/build/BuildMessageSignRequestDto';
+import { BuildMessageSignRequest }       from '../models/transaction/build/BuildMessageSignRequest';
+import { BuildEip712SignRequestDto }     from '../models/transaction/build/BuildEip712SignRequestDto';
+import { BuildEip712SignRequest }        from '../models/transaction/build/BuildEip712SignRequest';
+import { ImportWalletRequest }           from '../models/wallet/ImportWalletRequest';
 
 export class PopupSigner implements Signer {
 
     private popup: PopupSignerPopup;
     private bearerTokenProvider: () => string;
 
-    constructor(bearerTokenProvider: () => string, options?: PopupOptions) {
+    constructor(bearerTokenProvider: () => string,
+                options?: PopupOptions) {
         this.bearerTokenProvider = bearerTokenProvider;
         this.popup = new PopupSignerPopup(`${Utils.urls.connect}/popup/transaction/init.html`, this.bearerTokenProvider, options);
         window.addEventListener('beforeunload', () => {
@@ -108,6 +110,10 @@ export class PopupSigner implements Signer {
         return this.handleRequest('cancel', {transactionId});
     }
 
+    public async importWallet(request: ImportWalletRequest): Promise<SignerResult> {
+        return this.confirm(ImportWalletRequest.fromData(request));
+    }
+
     public async confirm(request: ConfirmationRequest): Promise<SignerResult> {
         return this.handleRequest('confirm', request);
     }
@@ -120,7 +126,8 @@ export class PopupSigner implements Signer {
         return this.handleRequest('sign', requestData);
     }
 
-    private async handleRequest(action: string, requestData: RequestDataType): Promise<SignerResult> {
+    private async handleRequest(action: string,
+                                requestData: RequestDataType): Promise<SignerResult> {
         this.popup.focus();
         return this.popup
                    .sendData(action, Object.assign({}, requestData))
@@ -135,7 +142,9 @@ class PopupSignerPopup extends Popup {
     protected finishedEventType = EventTypes.SIGNER_FINISHED;
     protected sendDataEventType = EventTypes.SEND_TRANSACTION_DATA;
 
-    constructor(url: string, bearerTokenProvider: () => string, options?: PopupOptions) {
+    constructor(url: string,
+                bearerTokenProvider: () => string,
+                options?: PopupOptions) {
         super(url, bearerTokenProvider, options);
     }
 
@@ -143,7 +152,8 @@ class PopupSignerPopup extends Popup {
         action: string,
         requestData: RequestDataType
     ): Promise<SignerResult> {
-        return new Promise((resolve: (value?: SignerResult | PromiseLike<SignerResult>) => void, reject: (reason?: any) => void) => {
+        return new Promise((resolve: (value?: SignerResult | PromiseLike<SignerResult>) => void,
+                            reject: (reason?: any) => void) => {
             this.onPopupMountedQueue.push(this.attachFinishedListener(resolve, reject));
             this.onPopupMountedQueue.push(this.sendDataToPopup(action, requestData));
             this.processPopupMountedQueue();

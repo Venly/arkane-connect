@@ -4,10 +4,12 @@ import { SecretType }                                                           
 import { Wallet, WalletType }                                                                from '../models/wallet/Wallet';
 import { Profile }                                                                           from '../models/profile/Profile';
 import { WalletBalance }                                                                     from '../models/wallet/WalletBalance';
-import { TokenBalance }       from '../models/wallet/TokenBalance';
-import { NFT, WalletItems }   from '../models/wallet/NFT';
-import { TransactionRequest } from '..';
+import { TokenBalance }                                                                      from '../models/wallet/TokenBalance';
+import { NFT, WalletItems }                                                                  from '../models/wallet/NFT';
+import { TransactionRequest }                                                                from '..';
 import { TxStatus }                                                                          from '../models/transaction/TxStatus';
+import { ContractReadRequest }                                                               from '../models/contract/ContractReadRequest';
+import { ContractReadResult }                                                                from '../models/contract/ContractReadResult';
 
 export class Api {
 
@@ -131,10 +133,22 @@ export class Api {
                                    secretType: SecretType): Promise<RestApiResponseTxStatus> => {
         return this.processResponse<RestApiResponseTxStatus>(this.http.get(`transactions/${secretType}/${transactionHash}/status`));
     };
+
+    ///////////////
+    // Contracts //
+    ///////////////
+    public readContract = (contractReadRequest: ContractReadRequest): Promise<ContractReadResult> => {
+        return this.processResponse<ContractReadResult>(this.http.post('contracts/read', contractReadRequest));
+    };
 }
 
 export interface RestApiResponseTxStatus {
+    hash: string;
     status: TxStatus;
+    confirmations: number;
+    blockHash: string;
+    blockNumber: number;
+    hasReachedFinality: boolean;
 }
 
 export interface RestApiResponseError {

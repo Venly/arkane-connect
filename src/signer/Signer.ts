@@ -13,6 +13,7 @@ import { BuildContractExecutionRequestDto } from '../models/transaction/build/Bu
 import { PopupOptions }                     from '../popup/Popup';
 import { BuildMessageSignRequestDto }       from '../models/transaction/build/BuildMessageSignRequestDto';
 import { BuildEip712SignRequestDto }        from '../models/transaction/build/BuildEip712SignRequestDto';
+import { ImportWalletRequest }              from '../models/wallet/ImportWalletRequest';
 
 
 export interface Signer {
@@ -22,17 +23,29 @@ export interface Signer {
     executeTransfer: (buildTransactionData: BuildTransferRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
     executeTokenTransfer: (buildTransactionData: BuildTokenTransferRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
     executeNftTransfer: (buildTransactionData: BuildNftTransferRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
-    executeGasTransfer: (buildTransactionData: BuildGasTransferRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
-    executeContract: (buildTransactionData: BuildContractExecutionRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>,
-    executeSavedTransaction: (transactionId: string, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
-    resubmitTransaction: (transactionId: string, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
-    cancelTransaction: (transactionId: string, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
-    sign: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
-    signMessage: (buildSignatureData: BuildMessageSignRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
-    signEip712: (buildSignatureData: BuildEip712SignRequestDto, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    executeGasTransfer: (buildTransactionData: BuildGasTransferRequestDto,
+                         redirectOptions?: RedirectOptions) => Promise<SignerResult>,
+    executeContract: (buildTransactionData: BuildContractExecutionRequestDto,
+                      redirectOptions?: RedirectOptions) => Promise<SignerResult>,
+    executeSavedTransaction: (transactionId: string,
+                              redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    resubmitTransaction: (transactionId: string,
+                          redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    cancelTransaction: (transactionId: string,
+                        redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    sign: (signatureRequest: GenericSignatureRequest,
+           redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    signMessage: (buildSignatureData: BuildMessageSignRequestDto,
+                  redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    signEip712: (buildSignatureData: BuildEip712SignRequestDto,
+                 redirectOptions?: RedirectOptions) => Promise<SignerResult>;
     /** Deprecated since 1.1.9. Use sign instead */
-    signTransaction: (signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
-    confirm: (request: ConfirmationRequest, redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    signTransaction: (signatureRequest: GenericSignatureRequest,
+                      redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    importWallet: (request: ImportWalletRequest,
+                   redirectOptions?: RedirectOptions) => Promise<SignerResult>;
+    confirm: (request: ConfirmationRequest,
+              redirectOptions?: RedirectOptions) => Promise<SignerResult>;
 }
 
 export class SignerFactory {

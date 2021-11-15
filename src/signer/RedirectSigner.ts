@@ -20,6 +20,7 @@ import { BuildMessageSignRequestDto }       from '../models/transaction/build/Bu
 import { BuildSignRequestBase }             from '../models/transaction/build/BuildSignRequestBase';
 import { BuildEip712SignRequestDto }        from '../models/transaction/build/BuildEip712SignRequestDto';
 import { BuildEip712SignRequest }           from '../models/transaction/build/BuildEip712SignRequest';
+import { ImportWalletRequest }              from '../models/wallet/ImportWalletRequest';
 
 export interface RedirectOptions {
     redirectUri?: string,
@@ -34,8 +35,10 @@ export class RedirectSigner implements Signer {
         this.bearerTokenProvider = bearerTokenProvider;
     }
 
-    public executeNativeTransaction(transactionRequest: any, redirectOptions?: RedirectOptions): Promise<SignerResult> {
-        return new Promise<SignerResult>((resolve, reject) => {
+    public executeNativeTransaction(transactionRequest: any,
+                                    redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return new Promise<SignerResult>((resolve,
+                                          reject) => {
             Utils.http().postInForm(
                 `${Utils.urls.connect}/transaction/execute/${transactionRequest.type.toLowerCase()}`,
                 transactionRequest,
@@ -47,7 +50,8 @@ export class RedirectSigner implements Signer {
     }
 
     /** @Deprecated */
-    public executeTransaction(buildTransactionRequestOrTransactionId: BuildGenericTransferRequestDto | string, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+    public executeTransaction(buildTransactionRequestOrTransactionId: BuildGenericTransferRequestDto | string,
+                              redirectOptions?: RedirectOptions): Promise<SignerResult> {
         if (typeof buildTransactionRequestOrTransactionId === 'string') {
             return this.executeSavedTransaction(buildTransactionRequestOrTransactionId, redirectOptions);
         } else {
@@ -55,84 +59,111 @@ export class RedirectSigner implements Signer {
         }
     }
 
-    public executeTransfer(buildTransactionData: BuildTransferRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+    public executeTransfer(buildTransactionData: BuildTransferRequestDto,
+                           redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.executeProvidedTransaction(BuildSimpleTransactionRequest.fromData(buildTransactionData), redirectOptions);
 
     }
 
-    public executeTokenTransfer(buildTransactionData: BuildTokenTransferRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+    public executeTokenTransfer(buildTransactionData: BuildTokenTransferRequestDto,
+                                redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.executeProvidedTransaction(BuildTokenTransferRequest.fromData(buildTransactionData), redirectOptions);
     }
 
-    public executeNftTransfer(buildTransactionData: BuildNftTransferRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+    public executeNftTransfer(buildTransactionData: BuildNftTransferRequestDto,
+                              redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.executeProvidedTransaction(BuildNftTransferRequest.fromData(buildTransactionData), redirectOptions);
     }
 
-    public executeGasTransfer(buildTransactionData: BuildGasTransferRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+    public executeGasTransfer(buildTransactionData: BuildGasTransferRequestDto,
+                              redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.executeProvidedTransaction(BuildGasTransferRequest.fromData(buildTransactionData), redirectOptions);
     }
 
-    public executeContract(buildTransactionData: BuildContractExecutionRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+    public executeContract(buildTransactionData: BuildContractExecutionRequestDto,
+                           redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.executeProvidedTransaction(BuildContractExecutionRequest.fromData(buildTransactionData), redirectOptions);
     }
 
-    public executeSavedTransaction(transactionId: string, redirectOptions?: RedirectOptions) {
-        return new Promise<SignerResult>((resolve, reject) => {
+    public executeSavedTransaction(transactionId: string,
+                                   redirectOptions?: RedirectOptions) {
+        return new Promise<SignerResult>((resolve,
+                                          reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute/${transactionId}`, {}, this.bearerTokenProvider, redirectOptions);
             resolve();
         });
     }
 
-    public resubmitTransaction(transactionId: string, redirectOptions?: RedirectOptions): Promise<SignerResult> {
-        return new Promise<SignerResult>((resolve, reject) => {
+    public resubmitTransaction(transactionId: string,
+                               redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return new Promise<SignerResult>((resolve,
+                                          reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/transaction/resubmit/${transactionId}`, {}, this.bearerTokenProvider, redirectOptions);
             resolve();
         });
     }
 
-    public cancelTransaction(transactionId: string, redirectOptions?: RedirectOptions): Promise<SignerResult> {
-        return new Promise<SignerResult>((resolve, reject) => {
+    public cancelTransaction(transactionId: string,
+                             redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return new Promise<SignerResult>((resolve,
+                                          reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/transaction/cancel/${transactionId}`, {}, this.bearerTokenProvider, redirectOptions);
             resolve();
         });
     }
 
-    private executeProvidedTransaction(buildTransactionData: BuildTransferRequestBase, redirectOptions?: RedirectOptions) {
-        return new Promise<SignerResult>((resolve, reject) => {
+    private executeProvidedTransaction(buildTransactionData: BuildTransferRequestBase,
+                                       redirectOptions?: RedirectOptions) {
+        return new Promise<SignerResult>((resolve,
+                                          reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/transaction/execute`, buildTransactionData, this.bearerTokenProvider, redirectOptions);
             resolve();
         });
     }
 
-    public sign(signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
-        return new Promise<SignerResult>((resolve, reject) => {
+    public sign(signatureRequest: GenericSignatureRequest,
+                redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return new Promise<SignerResult>((resolve,
+                                          reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/transaction/sign/${signatureRequest.type.toLowerCase()}`, signatureRequest, this.bearerTokenProvider, redirectOptions);
             resolve();
         });
     }
 
-    public signMessage(buildData: BuildMessageSignRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+    public signMessage(buildData: BuildMessageSignRequestDto,
+                       redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.signProvidedSignature(BuildMessageSignRequest.fromData(buildData), redirectOptions);
     }
 
-    public signEip712(buildData: BuildEip712SignRequestDto, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+    public signEip712(buildData: BuildEip712SignRequestDto,
+                      redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.signProvidedSignature(BuildEip712SignRequest.fromData(buildData), redirectOptions);
     }
 
-    private signProvidedSignature(buildSignatureData: BuildSignRequestBase, redirectOptions?: RedirectOptions) {
-        return new Promise<SignerResult>((resolve, reject) => {
+    private signProvidedSignature(buildSignatureData: BuildSignRequestBase,
+                                  redirectOptions?: RedirectOptions) {
+        return new Promise<SignerResult>((resolve,
+                                          reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/transaction/sign`, buildSignatureData, this.bearerTokenProvider, redirectOptions);
             resolve();
         });
     }
 
     /** Deprecated since v1.1.9: Use 'sign' instead. */
-    public signTransaction(signatureRequest: GenericSignatureRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
+    public signTransaction(signatureRequest: GenericSignatureRequest,
+                           redirectOptions?: RedirectOptions): Promise<SignerResult> {
         return this.sign(signatureRequest, redirectOptions);
     }
 
-    public async confirm(request: ConfirmationRequest, redirectOptions?: RedirectOptions): Promise<SignerResult> {
-        return new Promise<SignerResult>((resolve, reject) => {
+    public async importWallet(request: ImportWalletRequest,
+                              redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return this.confirm(ImportWalletRequest.fromData(request), redirectOptions);
+    }
+
+    public async confirm(request: ConfirmationRequest,
+                         redirectOptions?: RedirectOptions): Promise<SignerResult> {
+        return new Promise<SignerResult>((resolve,
+                                          reject) => {
             Utils.http().postInForm(`${Utils.urls.connect}/confirm/${request.confirmationRequestType.toLowerCase()}`, request, this.bearerTokenProvider, redirectOptions);
             resolve();
         });
