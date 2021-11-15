@@ -138,7 +138,7 @@ export class Api {
     // Contracts //
     ///////////////
     public readContract = (contractReadRequest: ContractReadRequest): Promise<ContractReadResult> => {
-        return this.processResponse<ContractReadResult>(this.http.post('contracts/read'));
+        return this.processResponse<ContractReadResult>(this.http.post('contracts/read', contractReadRequest));
     };
 }
 
