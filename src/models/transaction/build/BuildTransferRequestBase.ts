@@ -8,16 +8,16 @@ export abstract class BuildTransferRequestBase implements BuildTransferRequestBa
     public to!: string;
     public secretType!: SecretType;
     public network?: Network;
-    public memo?:string;
+    public chainSpecificFields?: any;
 
     private type: BuildTransactionRequestType;
 
-    constructor(type: BuildTransactionRequestType, walletId: string, to: string, secretType: SecretType, network?: Network, memo?: string) {
+    constructor(type: BuildTransactionRequestType, walletId: string, to: string, secretType: SecretType, network?: Network, chainSpecificFields?: string) {
         this.type = type;
         this.walletId = walletId;
         this.to = to;
         this.secretType = secretType;
         network ? this.network = network : undefined;
-        memo ? this.memo = memo : undefined;
+        chainSpecificFields ? this.chainSpecificFields = chainSpecificFields : undefined;
     }
 }
