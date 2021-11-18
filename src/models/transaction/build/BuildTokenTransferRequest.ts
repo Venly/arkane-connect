@@ -10,8 +10,8 @@ export class BuildTokenTransferRequest extends BuildTransferRequestBase implemen
     public tokenAddress!: string;
 
     public static fromData(requestData: BuildTokenTransferRequestDto): BuildTokenTransferRequest {
-        const {walletId, to,  value, secretType, tokenAddress, network} = requestData;
-        return new this(walletId, to, value, secretType, tokenAddress,  network);
+        const {walletId, to, value, secretType, tokenAddress, network, chainSpecificFields} = requestData;
+        return new this(walletId, to, value, secretType, tokenAddress, network, chainSpecificFields);
     }
 
     constructor(
@@ -20,9 +20,10 @@ export class BuildTokenTransferRequest extends BuildTransferRequestBase implemen
         value: number,
         secretType: SecretType,
         tokenAddress: string,
-        network?: Network
+        network?: Network,
+        chainSpecificFields?: string
     ) {
-        super(BuildTransactionRequestType.TOKEN_TRANSFER, walletId, to, secretType,  network);
+        super(BuildTransactionRequestType.TOKEN_TRANSFER, walletId, to, secretType, network, chainSpecificFields);
 
         this.value = value;
         this.tokenAddress = tokenAddress;
