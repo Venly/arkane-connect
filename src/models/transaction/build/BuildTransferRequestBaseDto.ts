@@ -6,4 +6,5 @@ export abstract class BuildTransferRequestBaseDto {
     public to!: string;
     public secretType!: SecretType;
     public network?: Network;
+    public chainSpecificFields?: any;
 }
