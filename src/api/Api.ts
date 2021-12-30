@@ -56,13 +56,26 @@ export class Api {
         return this.processResponse<WalletBalance>(this.http.get(`wallets/${walletId}/balance`));
     };
 
+    public getBalanceByAddress = (secretType: SecretType, walletAddress: string): Promise<WalletBalance> => {
+        return this.processResponse<WalletBalance>(this.http.get(`wallets/${secretType}/${walletAddress}/balance`));
+    };
+
     public getTokenBalances = (walletId: string): Promise<TokenBalance[]> => {
         return this.processResponse<TokenBalance[]>(this.http.get(`wallets/${walletId}/balance/tokens`));
+    };
+
+    public getTokenBalancesByAddress = (secretType: SecretType, walletAddress: string): Promise<TokenBalance[]> => {
+        return this.processResponse<TokenBalance[]>(this.http.get(`wallets/${secretType}/${walletAddress}/balance/tokens`));
     };
 
     public getTokenBalance = (walletId: string,
                               tokenAddress: string): Promise<TokenBalance> => {
         return this.processResponse<TokenBalance>(this.http.get(`wallets/${walletId}/balance/tokens/${tokenAddress}`));
+    };
+
+    public getTokenBalanceByAddress = (secretType: SecretType, walletAddress: string,
+                              tokenAddress: string): Promise<TokenBalance> => {
+        return this.processResponse<TokenBalance>(this.http.get(`wallets/${secretType}/${walletAddress}/balance/tokens/${tokenAddress}`));
     };
 
     public getNonfungibles = (walletId: string): Promise<NFT[]> => {
