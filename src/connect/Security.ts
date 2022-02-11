@@ -125,6 +125,8 @@ export class Security {
     private static readonly AUTH_IFRAME_ID = 'venly-auth-iframe';
     private static readonly LOGOUT_IFRAME_ID = 'venly-logout-iframe';
 
+    private static readonly THIRD_PARTY_COOKIES_DISABLED = 'Third party cookies are disabled';
+
     private static get checkAuthenticatedURI() {
         return `${Utils.urls.connect}/checkAuthenticated`;
     }
@@ -148,30 +150,40 @@ export class Security {
                     if (Security.isLoginPopupClosedInterval) {
                         Security.clearIsLoginPopupClosedInterval();
                     }
-                    if (message.data.authenticated) {
-                        try {
-                            Security.cleanUp(eventType, cid, closePopup);
-                            const keycloakResult = message.data.keycloak;
-                            const initOptions: KeycloakInitOptions = {
-                                onLoad: 'check-sso',
-                                token: keycloakResult.token,
-                                refreshToken: keycloakResult.refreshToken,
-                                idToken: keycloakResult.idToken,
-                                timeSkew: keycloakResult.timeSkew,
-                                checkLoginIframe: false,
-                            };
-                            // Remove the login state from the URL when tokens are already present (the checkAuthenticated iframe already handled it)
-                            Security.removeLoginState();
-                            const loginResult = await Security.initKeycloak(Security.getConfig(clientId), initOptions);
+                    try {
+                        if (message.data.success) {
+                            if (message.data.authenticated) {
+                                Security.cleanUp(eventType, cid, closePopup);
+                                const keycloakResult = message.data.keycloak;
+                                const initOptions: KeycloakInitOptions = {
+                                    onLoad: 'check-sso',
+                                    token: keycloakResult.token,
+                                    refreshToken: keycloakResult.refreshToken,
+                                    idToken: keycloakResult.idToken,
+                                    timeSkew: keycloakResult.timeSkew,
+                                    checkLoginIframe: false,
+                                };
+                                // Remove the login state from the URL when tokens are already present (the checkAuthenticated iframe already handled it)
+                                Security.removeLoginState();
+                                const loginResult = await Security.initKeycloak(Security.getConfig(clientId), initOptions);
+                                resolve({
+                                    keycloak: loginResult.keycloak,
+                                    authenticated: loginResult.authenticated,
+                                })
+                            } else {
+                                resolve({authenticated: false});
+                            }
+                        } else if (message.data.reason && message.data.reason === Security.THIRD_PARTY_COOKIES_DISABLED) {
+                            const loginResult = await Security.initKeycloak(Security.getConfig(clientId), {onLoad: 'check-sso'});
                             resolve({
                                 keycloak: loginResult.keycloak,
                                 authenticated: loginResult.authenticated,
                             })
-                        } catch (e) {
-                            reject({error: e});
+                        } else {
+                            reject({error: message.data.reason});
                         }
-                    } else {
-                        resolve({authenticated: false});
+                    } catch (e) {
+                        reject({error: e});
                     }
                 }
             };
@@ -313,20 +325,21 @@ export class Security {
         return new Promise((resolve,
                             reject) => {
             Security.keycloak
-                    .init({}).then(() => Security.keycloak
-                                                 .login(loginOptions)
-                                                 .then((authenticated: any) => {
-                                                     if (authenticated) {
-                                                         Security.setUpdateTokenInterval();
-                                                     }
-                                                     resolve({
-                                                         keycloak: Security.keycloak,
-                                                         authenticated,
-                                                     } as LoginResult);
-                                                 })
-                                                 .catch((e) => {
-                                                     reject(e);
-                                                 }));
+                    .init({})
+                    .then(() => Security.keycloak
+                                        .login(loginOptions)
+                                        .then((authenticated: any) => {
+                                            if (authenticated) {
+                                                Security.setUpdateTokenInterval();
+                                            }
+                                            resolve({
+                                                keycloak: Security.keycloak,
+                                                authenticated,
+                                            } as LoginResult);
+                                        })
+                                        .catch((e) => {
+                                            reject(e);
+                                        }));
 
         });
     }
