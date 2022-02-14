@@ -147,14 +147,15 @@ export class Security {
                             reject: any) => {
             Security.authenticatedListener = async (message: MessageEvent) => {
                 if (message && message.origin === Utils.urls.connect && message.data && message.data.type === eventType) {
+                    const auth = message.data;
                     if (Security.isLoginPopupClosedInterval) {
                         Security.clearIsLoginPopupClosedInterval();
                     }
                     try {
-                        if (message.data.success) {
-                            if (message.data.authenticated) {
+                        if (auth.success) {
+                            if (auth.authenticated) {
                                 Security.cleanUp(eventType, cid, closePopup);
-                                const keycloakResult = message.data.keycloak;
+                                const keycloakResult = auth.keycloak;
                                 const initOptions: KeycloakInitOptions = {
                                     onLoad: 'check-sso',
                                     token: keycloakResult.token,
@@ -173,14 +174,14 @@ export class Security {
                             } else {
                                 resolve({authenticated: false});
                             }
-                        } else if (message.data.reason && message.data.reason === Security.THIRD_PARTY_COOKIES_DISABLED) {
+                        } else if (auth.reason && auth.reason === Security.THIRD_PARTY_COOKIES_DISABLED) {
                             const loginResult = await Security.initKeycloak(Security.getConfig(clientId), {onLoad: 'check-sso'});
                             resolve({
                                 keycloak: loginResult.keycloak,
                                 authenticated: loginResult.authenticated,
                             })
                         } else {
-                            reject({error: message.data.reason});
+                            reject({error: auth.reason});
                         }
                     } catch (e) {
                         reject({error: e});
