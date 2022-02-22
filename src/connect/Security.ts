@@ -116,7 +116,7 @@ export class Security {
     private static keycloak: KeycloakInstance;
 
     private static updateTokenInterval: any;
-    private static authenticatedListener: any;
+    private static authenticatedListeners: Map<EventTypes, any> = new Map<EventTypes, any>();
     private static popupWindow: Map<string, PopupWindow> = new Map<string, PopupWindow>();
     private static closedPopupWindows: string[] = [];
     private static logoutListener: any;
@@ -145,7 +145,7 @@ export class Security {
                                                                     closePopup?: boolean) {
         return new Promise((resolve: (value: LoginResult) => void,
                             reject: any) => {
-            Security.authenticatedListener = async (message: MessageEvent) => {
+            const newListener = async (message: MessageEvent) => {
                 if (message && message.origin === Utils.urls.connect && message.data && message.data.type === eventType) {
                     const auth = message.data;
                     if (Security.isLoginPopupClosedInterval) {
@@ -188,7 +188,12 @@ export class Security {
                     }
                 }
             };
-            window.addEventListener('message', Security.authenticatedListener);
+
+            window.addEventListener('message', newListener);
+            if (Security.authenticatedListeners.has(eventType)) {
+                window.removeEventListener('message', Security.authenticatedListeners.get(eventType));
+            }
+            Security.authenticatedListeners.set(eventType, newListener);
         });
     };
 
@@ -380,9 +385,9 @@ export class Security {
     private static cleanUp(eventType: EventTypes,
                            cid: string,
                            closePopup: boolean = true) {
-        if (Security.authenticatedListener) {
-            window.removeEventListener('message', Security.authenticatedListener);
-            delete Security.authenticatedListener;
+        if (Security.authenticatedListeners.has(eventType)) {
+            window.removeEventListener('message', Security.authenticatedListeners.get(eventType));
+            Security.authenticatedListeners.delete(eventType);
         }
         if (eventType === EventTypes.CHECK_AUTHENTICATED) {
             const iframe = document.getElementById(Security.AUTH_IFRAME_ID);
