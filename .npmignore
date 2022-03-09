@@ -1,32 +1,5 @@
-# Builds
-_old
-dist
-npm
-
-# OSX
-.DS_Store
-
-# Dependency directory
-node_modules
-
-# Editors
-.idea
-.vscode
-*.sublime-project
-*.sublime-workspace
-*.iml
-
-# Logs
-logs
-*.log
-.yarnclean
-
-# Generated resources
-docs/*
-/webpack.config.js
-/tslint.json
-/tsconfig.json
-/Jenkinsfile
-/.gitignore
-/src
-/logo.png
+/
+!/dist
+!/LICENSE
+!/package.json
+!/README.md
