@@ -24,6 +24,9 @@ export class Security {
     public static login(clientId: string,
                         options?: AuthenticationOptions,
                         cid?: string): Promise<LoginResult> {
+        if (options && options.idpHint && (options.idpHint === 'twitter' || options.idpHint === 'facebook')) {
+            options.idpHint = 'arkane-' + options.idpHint;
+        }
         switch (options && options.windowMode) {
             case WindowMode.POPUP:
                 return Security.loginPopup(clientId, !!cid ? cid : Utils.uuidv4(), options);
@@ -224,9 +227,6 @@ export class Security {
         let url = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
         if (options && options.idpHint) {
             let kcIdpHint = options.idpHint;
-            if (kcIdpHint === 'twitter' || kcIdpHint === 'facebook') {
-                kcIdpHint = 'arkane-' + kcIdpHint;
-            }
             url += "&" + QueryString.stringify({kc_idp_hint: kcIdpHint});
         }
         Security.popupWindow.set(cid, PopupWindow.openNew(url, {useOverlay: false}));
