@@ -11,13 +11,13 @@ export class Security {
 
     public static onTokenUpdate: (token: string) => void;
 
-    public static getConfig(clientId?: string): any {
+    public static getConfig(clientId: string): any {
         return {
-            'clientId': clientId || Utils.env.CONNECT_JS_CLIENT_ID,
-            'realm': Utils.env.CONNECT_JS_REALM,
+            'clientId': clientId,
+            'realm': 'Arkane',
             'url': Utils.urls.login,
-            'ssl-required': Utils.env.CONNECT_JS_SSL_REQUIRED,
-            'public-client': Utils.env.CONNECT_JS_PUBLIC_CLIENT,
+            'ssl-required': 'external',
+            'public-client': 'true',
         };
     }
 
