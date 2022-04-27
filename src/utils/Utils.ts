@@ -1,4 +1,3 @@
-import ENV              from '../env';
 import { EventTypes }   from '../types/EventTypes';
 import * as QueryString from 'querystring';
 
@@ -17,10 +16,6 @@ export default class Utils {
 
     public static get rawEnvironment() {
         return Utils.rawEnvironmentHolder;
-    }
-
-    public static get env() {
-        return ENV;
     }
 
     public static environments(): { [key: string]: { api: string, connect: string, login: string }; } {
