@@ -1,4 +1,3 @@
-import axios, { AxiosError, AxiosInstance, AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios';
 import Utils                                                                                 from '../utils/Utils';
 import { SecretType }                                                                        from '../models/SecretType';
 import { Wallet, WalletType }                                                                from '../models/wallet/Wallet';
@@ -15,34 +14,10 @@ export class Api {
     private _baseUrl: string;
     private _tokenProvider: any;
 
-    private http: AxiosInstance;
-
     constructor(baseURL: string, tokenProvider?: any) {
         this._baseUrl = baseURL.endsWith('/') ? baseURL.substring(0, baseURL.length - 1) : baseURL;
         this._tokenProvider = tokenProvider;
-
-        this.http = axios.create({
-            baseURL: baseURL.endsWith('/') ? baseURL.substring(0, baseURL.length - 1) : baseURL,
-        });
-
-        if (tokenProvider) {
-            this.http.interceptors.request.use((config: AxiosRequestConfig): AxiosRequestConfig => {
-                let bearerToken = tokenProvider();
-                if (!bearerToken) {
-                    throw new Error('Not authenticated')
-                }
-                config.headers.common = {Authorization: 'Bearer ' + bearerToken};
-                return config;
-            });
-        }
     }
-
-    ////////////
-    // Chains //
-    ////////////
-    public getAvailableSecretTypes = (): Promise<SecretType[]> => {
-        return this.processResponse<SecretType[]>(this.http.get(`chains`));
-    };
 
     private async fetchGet<T>(url: string, queryParams?: any): Promise<T> {
         const bearerToken = this._tokenProvider();
@@ -76,6 +51,14 @@ export class Api {
             headers: { Authorization: `Bearer ${bearerToken}` }
         }).then(response => response.json()).then(data => data as T);
     }
+
+    ////////////
+    // Chains //
+    ////////////
+    public getAvailableSecretTypes = (): Promise<SecretType[]> => {
+        const response = this.fetchGet<SecretType[]>(`chains`);
+        return this.processResponse<SecretType[]>(response);
+    };
 
     ////////////
     // Wallet //
