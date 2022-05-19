@@ -1,6 +1,6 @@
 import { RestApiResponseTxStatus } from './RestApiResponseTxStatus';
 
-export interface TronTxInfo extends RestApiResponseTxStatus{
+export interface TronTxInfo extends RestApiResponseTxStatus {
     contracts: any[];
     id: string;
     fee: number;
@@ -20,7 +20,7 @@ export interface TronTxInfo extends RestApiResponseTxStatus{
     exchangeId: number;
 }
 
-export interface TronReceipt{
+export interface TronReceipt {
     energyUsage: number;
     energyFee: number;
     originEnergyUsage: number;
@@ -30,18 +30,18 @@ export interface TronReceipt{
     result: string;
 }
 
-export interface TronLog{
+export interface TronLog {
     address: string;
     topics: string[];
     data: string;
 }
 
-export interface TronCallValueInfo{
+export interface TronCallValueInfo {
     callValue: number;
     tokenId: any;
 }
 
-export interface TronInternalTransaction{
+export interface TronInternalTransaction {
     callerAddress: string;
     transferToAddress: string;
     callValueInfo: TronCallValueInfo[];

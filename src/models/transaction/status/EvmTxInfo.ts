@@ -1,6 +1,6 @@
 import { RestApiResponseTxStatus } from './RestApiResponseTxStatus';
 
-export interface EvmTxInfo extends RestApiResponseTxStatus{
+export interface EvmTxInfo extends RestApiResponseTxStatus {
     nonce: number;
     gas: number;
     gasUsed: number;
@@ -10,7 +10,7 @@ export interface EvmTxInfo extends RestApiResponseTxStatus{
     to: string;
 }
 
-export interface EvmTxLog{
+export interface EvmTxLog {
     logIndex: number;
     data: string;
     type: string;

@@ -1,6 +1,6 @@
 import { RestApiResponseTxStatus } from './RestApiResponseTxStatus';
 
-export interface HederaTxInfo extends RestApiResponseTxStatus{
+export interface HederaTxInfo extends RestApiResponseTxStatus {
     chargedTxFee: string;
     consensusTimestamp: string;
     entityId: string;
@@ -17,12 +17,12 @@ export interface HederaTxInfo extends RestApiResponseTxStatus{
     tokenTransfers: HederaTokenTransfer[];
 }
 
-export interface HederaTransfer{
+export interface HederaTransfer {
     account: string;
     amount: number;
 }
 
-export interface HederaTokenTransfer{
+export interface HederaTokenTransfer {
     tokenId: string;
     account: string;
     amount: number;
