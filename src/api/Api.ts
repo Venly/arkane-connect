@@ -1,15 +1,19 @@
 import axios, { AxiosError, AxiosInstance, AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios';
-import Utils                                                                                 from '../utils/Utils';
-import { SecretType }                                                                        from '../models/SecretType';
-import { Wallet, WalletType }                                                                from '../models/wallet/Wallet';
-import { Profile }                                                                           from '../models/profile/Profile';
-import { WalletBalance }                                                                     from '../models/wallet/WalletBalance';
-import { TokenBalance }                                                                      from '../models/wallet/TokenBalance';
-import { NFT, WalletItems }                                                                  from '../models/wallet/NFT';
-import { TransactionRequest }                                                                from '..';
-import { TxStatus }                                                                          from '../models/transaction/TxStatus';
-import { ContractReadRequest }                                                               from '../models/contract/ContractReadRequest';
-import { ContractReadResult }                                                                from '../models/contract/ContractReadResult';
+import Utils                       from '../utils/Utils';
+import { SecretType }              from '../models/SecretType';
+import { Wallet, WalletType }      from '../models/wallet/Wallet';
+import { Profile }                 from '../models/profile/Profile';
+import { WalletBalance }           from '../models/wallet/WalletBalance';
+import { TokenBalance }            from '../models/wallet/TokenBalance';
+import { NFT, WalletItems }        from '../models/wallet/NFT';
+import { TransactionRequest }      from '..';
+import { ContractReadRequest }     from '../models/contract/ContractReadRequest';
+import { ContractReadResult }      from '../models/contract/ContractReadResult';
+import { RestApiResponseTxStatus } from '../models/transaction/status/RestApiResponseTxStatus';
+import { EvmTxInfo }               from '../models/transaction/status/EvmTxInfo';
+import { HederaTxInfo } from '../models/transaction/status/HederaTxInfo';
+import { TronTxInfo } from '../models/transaction/status/TronTxInfo';
+import { VechainTxInfo } from '../models/transaction/status/VechainTxInfo';
 
 export class Api {
 
@@ -144,8 +148,24 @@ export class Api {
 
     public getTransactionStatus = (transactionHash: string,
                                    secretType: SecretType): Promise<RestApiResponseTxStatus> => {
-        return this.processResponse<RestApiResponseTxStatus>(this.http.get(`transactions/${secretType}/${transactionHash}/status`));
+        let response = this.http.get(`transactions/${secretType}/${transactionHash}/status`);
+        return this.mapTransactionData(secretType,response);
     };
+
+    private mapTransactionData = (secretType: SecretType,response: any): Promise<RestApiResponseTxStatus> => {
+        switch (secretType){
+            case SecretType.AVAC || SecretType.BSC || SecretType.ETHEREUM || SecretType.GOCHAIN || SecretType.MATIC:
+                return this.processResponse<EvmTxInfo>(response);
+            case SecretType.HEDERA:
+                return this.processResponse<HederaTxInfo>(response);
+            case SecretType.TRON:
+                return this.processResponse<TronTxInfo>(response);
+            case SecretType.VECHAIN:
+                return this.processResponse<VechainTxInfo>(response);
+            default:
+                return this.processResponse<RestApiResponseTxStatus>(response);
+        }
+    }
 
     ///////////////
     // Contracts //
@@ -153,15 +173,6 @@ export class Api {
     public readContract = (contractReadRequest: ContractReadRequest): Promise<ContractReadResult> => {
         return this.processResponse<ContractReadResult>(this.http.post('contracts/read', contractReadRequest));
     };
-}
-
-export interface RestApiResponseTxStatus {
-    hash: string;
-    status: TxStatus;
-    confirmations: number;
-    blockHash: string;
-    blockNumber: number;
-    hasReachedFinality: boolean;
 }
 
 export interface RestApiResponseError {
