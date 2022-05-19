@@ -5,7 +5,7 @@ export interface VechainTxInfo extends RestApiResponseTxStatus{
     gas: number;
     gasUsed: number;
     gasPriceCoef: number;
-    outputs: [VechainReceiptOutput];
+    outputs: VechainReceiptOutput[];
 }
 
 export interface VechainTxTransfer{
@@ -16,12 +16,12 @@ export interface VechainTxTransfer{
 
 export interface VechainTxEvent{
     address: string;
-    topics: [string];
+    topics: string[];
     data: string;
 }
 
 export interface VechainReceiptOutput{
     contractAddress: string;
-    transfers: [VechainTxTransfer];
-    events: [VechainTxEvent];
+    transfers: VechainTxTransfer[];
+    events: VechainTxEvent[];
 }

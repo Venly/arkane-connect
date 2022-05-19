@@ -13,8 +13,8 @@ export interface HederaTxInfo extends RestApiResponseTxStatus{
     validDurationSeconds: string;
     validStartTimestamp: string;
     result: string;
-    transfers: [HederaTransfer];
-    tokenTransfers: [HederaTokenTransfer];
+    transfers: HederaTransfer[];
+    tokenTransfers: HederaTokenTransfer[];
 }
 
 export interface HederaTransfer{

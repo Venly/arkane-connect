@@ -5,7 +5,7 @@ export interface EvmTxInfo extends RestApiResponseTxStatus{
     gas: number;
     gasUsed: number;
     gasPrice: number;
-    logs: [EvmTxLog];
+    logs: EvmTxLog[];
     from: string;
     to: string;
 }
@@ -14,5 +14,5 @@ export interface EvmTxLog{
     logIndex: number;
     data: string;
     type: string;
-    topics: [string];
+    topics: string[];
 }

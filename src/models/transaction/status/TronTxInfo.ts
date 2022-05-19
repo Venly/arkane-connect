@@ -1,11 +1,11 @@
 import { RestApiResponseTxStatus } from './RestApiResponseTxStatus';
 
 export interface TronTxInfo extends RestApiResponseTxStatus{
-    contracts: [any];
+    contracts: any[];
     id: string;
     fee: number;
-    contractResult: [string];
-    contractAddress: [string];
+    contractResult: string[];
+    contractAddress: string[];
     receipt: TronReceipt;
     log: TronLog;
     result: number;
@@ -13,7 +13,7 @@ export interface TronTxInfo extends RestApiResponseTxStatus{
     assetIssueID: any;
     withdrawAmount: number;
     unfreezeAmount: number;
-    internalTransactions: [TronInternalTransaction];
+    internalTransactions: TronInternalTransaction[];
     exchangeReceivedAmount: number;
     exchangeInjectAnotherAmount: number;
     exchangeWithdrawAnotherAmount: number;
@@ -32,7 +32,7 @@ export interface TronReceipt{
 
 export interface TronLog{
     address: string;
-    topics: [string];
+    topics: string[];
     data: string;
 }
 
@@ -44,7 +44,7 @@ export interface TronCallValueInfo{
 export interface TronInternalTransaction{
     callerAddress: string;
     transferToAddress: string;
-    callValueInfo: [TronCallValueInfo];
+    callValueInfo: TronCallValueInfo[];
     note: string;
     rejected: boolean;
 }
