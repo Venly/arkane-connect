@@ -51,7 +51,7 @@
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.1",
     "ts-loader": "^6.0.4",
-    "typedoc": "^0.15.0",
+    "typedoc": "^0.23.10",
     "typescript": "^3.5.3",
     "webpack": "^4.39.1",
     "webpack-cli": "^3.3.6"
