@@ -1,6 +1,6 @@
 import { TransactionRequest } from '../TransactionRequest';
 
-export class EthTransferTransactionRequest extends TransactionRequest {
+export class ImxTransactionRequest extends TransactionRequest {
     public to!: string;
     public amount!: number;
 }
