@@ -103,8 +103,8 @@ export default class Utils {
                 return Utils.messages().hasType(message) && message.data.type === eventType.toString();
             },
             hasCorrectCorrelationID(message: MessageEvent,
-                                    correlationID: string) {
-                return message.data && message.data.correlationID === correlationID;
+                                    correlationID: string | undefined) {
+                return correlationID && message.data && message.data.correlationID === correlationID;
             }
         };
     }

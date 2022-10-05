@@ -3,7 +3,7 @@ import QueryString                                                              
 
 import { AuthenticationOptions } from './connect';
 import { WindowMode }            from '../models/WindowMode';
-import { PopupWindow }           from '../popup/PopupWindow';
+import { PopupWindowAsync }      from '../popup/PopupWindowAsync';
 import { EventTypes }            from '../types/EventTypes';
 import Utils                     from '../utils/Utils';
 
@@ -30,20 +30,10 @@ export class Security {
         switch (options && options.windowMode) {
             case WindowMode.POPUP:
                 return Security.loginPopup(clientId, !!cid ? cid : Utils.uuidv4(), options);
-            // case WindowMode.IFRAME:
-            //     return Security.initLoginIFrame(clientId, options && options.iFrameSelector || '#login-iframe');
             default:
                 return Security.loginRedirect(clientId, options);
         }
     }
-
-    // public static initLoginIFrame(clientId: string, iFrameSelector: string) {
-    //     return new Promise(async (resolve: (value?: LoginResult | PromiseLike<LoginResult>) => void, reject: (reason?: any) => void) => {
-    //         Security.loginListener = await Security.createLoginListener(clientId, EventTypes.AUTHENTICATE, resolve, reject);
-    //         window.addEventListener('message', Security.loginListener);
-    //         Security.initialiseLoginIFrame(clientId, iFrameSelector);
-    //     }) as Promise<LoginResult>;
-    // }
 
     private static loginRedirect(clientId: string,
                                  options?: AuthenticationOptions): Promise<LoginResult> {
@@ -104,15 +94,15 @@ export class Security {
     }
 
     public static hasPopupWindow(cid: string) {
-        return this.popupWindow.has(cid);
+        return this.popupWindows.has(cid);
     }
 
     public static closePopupWindow(cid: string) {
         Security.closedPopupWindows.push(cid);
-        const popupWindow = Security.popupWindow.get(cid);
+        const popupWindow = Security.popupWindows.get(cid);
         if (popupWindow && !popupWindow.closed) {
             popupWindow.close();
-            Security.popupWindow.delete(cid);
+            Security.popupWindows.delete(cid);
         }
     }
 
@@ -120,7 +110,7 @@ export class Security {
 
     private static updateTokenInterval: any;
     private static authenticatedListeners: Map<EventTypes, any> = new Map<EventTypes, any>();
-    private static popupWindow: Map<string, PopupWindow> = new Map<string, PopupWindow>();
+    private static popupWindows: Map<string, PopupWindowAsync> = new Map<string, PopupWindowAsync>();
     private static closedPopupWindows: string[] = [];
     private static logoutListener: any;
     private static isLoginPopupClosedInterval?: any;
@@ -220,16 +210,17 @@ export class Security {
         }
     };
 
-    private static initialiseLoginPopup(clientId: string,
-                                        cid: string,
-                                        options?: AuthenticationOptions): Promise<LoginResult> {
+    private static async initialiseLoginPopup(clientId: string,
+                                              cid: string,
+                                              options?: AuthenticationOptions): Promise<LoginResult> {
         const origin = window.location.href.replace(window.location.search, '');
         let url = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
         if (options && options.idpHint) {
             let kcIdpHint = options.idpHint;
             url += "&" + QueryString.stringify({kc_idp_hint: kcIdpHint});
         }
-        Security.popupWindow.set(cid, PopupWindow.openNew(url, {useOverlay: false}));
+        const popupWindow = await PopupWindowAsync.openNew(url, cid, {useOverlay: false});
+        this.popupWindows.set(cid, popupWindow);
         if (!!Security.closedPopupWindows.find(v => v === cid)) {
             Security.closePopupWindow(cid);
         }
@@ -240,7 +231,7 @@ export class Security {
         return new Promise((resolve: (value: LoginResult) => void,
                             reject: any) => {
             Security.isLoginPopupClosedInterval = window.setInterval(() => {
-                let popupWindow = Security.popupWindow.get(cid);
+                let popupWindow = Security.popupWindows.get(cid);
                 if (popupWindow && popupWindow.closed) {
                     Security.clearIsLoginPopupClosedInterval();
                     Security.cleanUp(EventTypes.AUTHENTICATE, cid);
@@ -254,13 +245,6 @@ export class Security {
         clearInterval(Security.isLoginPopupClosedInterval);
         delete Security.isLoginPopupClosedInterval;
     }
-
-    // private static initialiseLoginIFrame(clientId: string, iframeSelector: string): HTMLIFrameElement {
-    //     const iframe = document.querySelector(iframeSelector) as HTMLIFrameElement;
-    //     const origin = window.location.href.replace(window.location.search, '');
-    //     iframe.src = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
-    //     return iframe;
-    // }
 
     private static initialiseCheckAuthenticatedIFrame(clientId: string): HTMLIFrameElement {
         return this.initialiseIFrame(clientId, Security.AUTH_IFRAME_ID, Security.checkAuthenticatedURI);
@@ -396,10 +380,10 @@ export class Security {
             }
         } else if (eventType === EventTypes.AUTHENTICATE) {
             if (closePopup) {
-                const popupWindow = Security.popupWindow.get(cid);
+                const popupWindow = Security.popupWindows.get(cid);
                 if (popupWindow && !popupWindow.closed) {
                     popupWindow.close();
-                    Security.popupWindow.delete(cid);
+                    Security.popupWindows.delete(cid);
                 }
             }
         }
@@ -409,5 +393,5 @@ export class Security {
 export interface LoginResult {
     keycloak?: KeycloakInstance;
     authenticated: boolean;
-    popupWindow?: PopupWindow;
+    popupWindow?: PopupWindowAsync;
 }

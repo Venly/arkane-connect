@@ -89,21 +89,27 @@ export class PopupWindow {
     }
 
     private closeOverlay(): void {
-        if (this.useOverlay) {
-            const overlay = document.querySelector(`#${this.id}`);
+        PopupWindow.closeOverlay(this.id, this.useOverlay);
+    }
+
+    public openOverlay(): void {
+        PopupWindow.openOverlay(this.id, this.useOverlay, this.focus, this.close);
+    }
+
+    static closeOverlay(id: string, useOverlay: boolean): void {
+        if (useOverlay) {
+            const overlay = document.querySelector(`#${id}`);
             if (overlay && overlay.parentNode) {
                 overlay.parentNode.removeChild(overlay);
             }
         }
     }
 
-    private openOverlay(): void {
-        if (this.useOverlay) {
+    static openOverlay(id: string, useOverlay: boolean, focus: () => void, close: () => void): void {
+        if (useOverlay) {
             //remove existing overlay divs
-
-
             const overlayDiv: HTMLDivElement = document.createElement('div');
-            overlayDiv.id = this.id;
+            overlayDiv.id = id;
             overlayDiv.classList.add(PopupWindow.CONST.overlayClassName);
             overlayDiv.style.zIndex = '2147483647';
             overlayDiv.style.display = 'flex';
@@ -131,16 +137,16 @@ export class PopupWindow {
                 }
             }
             document.body.appendChild(overlayDiv);
-            const link = overlayDiv.querySelector(`#${this.id} .${PopupWindow.CONST.overlayLinkClassName}`);
-            const closeLink = overlayDiv.querySelector(`#${this.id} .${PopupWindow.CONST.overlayCloseLinkClassName}`);
+            const link = overlayDiv.querySelector(`#${id} .${PopupWindow.CONST.overlayLinkClassName}`);
+            const closeLink = overlayDiv.querySelector(`#${id} .${PopupWindow.CONST.overlayCloseLinkClassName}`);
             if (link) {
                 link.addEventListener('click', () => {
-                    this.focus();
+                    focus();
                 });
             }
             if (closeLink) {
                 closeLink.addEventListener('click', () => {
-                    this.close();
+                    close();
                 })
             }
         }
