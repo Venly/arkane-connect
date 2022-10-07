@@ -57,7 +57,6 @@ export class PopupWindowAsync {
             this.popupMountedListener = this.createPopupMountedListener(this.correlationID, resolve);
             window.addEventListener('message', this.popupMountedListener);
             try {
-                console.debug('Opening popup');
                 window.open(this.url, this.target, this.features);
             } catch (e) {
                 console.debug('popup open failed', e);
@@ -70,10 +69,11 @@ export class PopupWindowAsync {
 
     private createPopupMountedListener(correlationID: string, resolve: (value?: Window) => void) {
         return (message: MessageEvent) => {
-            console.debug('Message:', message);
             if (Utils.messages().hasValidOrigin(message)
-                && Utils.messages().hasCorrectCorrelationID(message, correlationID)
                 && Utils.messages().isOfType(message, EventTypes.POPUP_MOUNTED)) {
+                if (!Utils.messages().hasCorrectCorrelationID(message, correlationID)) {
+                    console.debug("Popup mounted - correlationID did not match", correlationID, message)
+                }
                 if (this.popupMountedListener) {
                     window.removeEventListener('message', this.popupMountedListener);
                     delete this.popupMountedListener;
@@ -86,7 +86,6 @@ export class PopupWindowAsync {
     private setCloseInterval() {
         this.closeInterval = window.setInterval(() => {
             if (!this.win || this.win.closed) {
-                this.clearCloseInterval();
                 this.close();
             }
         }, 100);
@@ -97,10 +96,23 @@ export class PopupWindowAsync {
     }
 
     public close() {
+        this.closePopup();
+        this.closeOverlay();
+        this.clearCloseInterval();
+        this.removePopupMountedListener();
+    }
+
+    private closePopup() {
         if (this.win) {
             this.win.close();
         }
-        this.closeOverlay();
+    }
+
+    private removePopupMountedListener() {
+        if (this.popupMountedListener) {
+            window.removeEventListener('message', this.popupMountedListener);
+            delete this.popupMountedListener;
+        }
     }
 
     public get closed(): boolean {
