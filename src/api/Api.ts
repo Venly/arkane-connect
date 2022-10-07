@@ -124,7 +124,7 @@ export class Api {
         const queryParams: string = secretTypes && secretTypes.length > 0
             ? "?" + secretTypes.map(st => "secretType=" + st).join("&")
             : "";
-        const response = this.fetchGet<WalletItems[]>(`wallets/nonfungibles${queryParams}`);
+        const response = this.fetchGet<WalletItems[]>(`wallets/nonfungibles`, queryParams);
         return this.processResponse<WalletItems[]>(response);
     };
 
