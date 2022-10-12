@@ -91,8 +91,8 @@ export class Flows {
             console.error(e);
         }
 
-        if (Security.hasPopupWindow(correlationId)) {
-            Security.closePopupWindow(correlationId);
+        if (Security.hasPopupWindow()) {
+            Security.closePopupWindow();
         }
 
         return {

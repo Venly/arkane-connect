@@ -71,9 +71,6 @@ export class PopupWindowAsync {
         return (message: MessageEvent) => {
             if (Utils.messages().hasValidOrigin(message)
                 && Utils.messages().isOfType(message, EventTypes.POPUP_MOUNTED)) {
-                if (!Utils.messages().hasCorrectCorrelationID(message, correlationID)) {
-                    console.debug("Popup mounted - correlationID did not match", correlationID, message)
-                }
                 if (this.popupMountedListener) {
                     window.removeEventListener('message', this.popupMountedListener);
                     delete this.popupMountedListener;
