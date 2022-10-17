@@ -1,6 +1,6 @@
 {
   "name": "@venly/connect",
-  "version": "1.38.0",
+  "version": "1.39.0",
   "description": "Venly Connect SDK",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -43,7 +43,6 @@
   "homepage": "https://venly.io",
   "dependencies": {
     "@types/node": "^12.7.1",
-    "axios": "^0.21.1",
     "core-js": "^3.2.1",
     "es6-promise": "^4.2.8",
     "keycloak-js": "11.0.2",
@@ -52,7 +51,7 @@
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.1",
     "ts-loader": "^6.0.4",
-    "typedoc": "^0.15.0",
+    "typedoc": "^0.23.15",
     "typescript": "^3.5.3",
     "webpack": "^4.39.1",
     "webpack-cli": "^3.3.6"
