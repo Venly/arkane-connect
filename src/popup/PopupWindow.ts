@@ -93,7 +93,7 @@ export class PopupWindow {
     }
 
     public openOverlay(): void {
-        PopupWindow.openOverlay(this.id, this.useOverlay, this.focus, this.close);
+        PopupWindow.openOverlay(this.id, this.useOverlay, this.focus.bind(this), this.close.bind(this));
     }
 
     static closeOverlay(id: string, useOverlay: boolean): void {

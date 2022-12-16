@@ -6,4 +6,17 @@ export class Profile {
     public firstName!: string;
     public lastName!: string;
     public nickname!: string;
+    public verification!: ProfileVerification;
+}
+
+export interface ProfileVerification {
+    result: VerificationResult;
+    reason?: string;
+    timestamp: Date | string;
+    reference: string;
+}
+
+export enum VerificationResult {
+    VERIFIED = 'verified',
+    FRAUD = 'fraud'
 }

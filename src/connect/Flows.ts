@@ -59,6 +59,17 @@ export class Flows {
         }
     }
 
+    public performKYC(options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode, useOverlayWithPopup?: boolean }): Promise<PopupResult | void> {
+        const windowMode = options && options.windowMode || this.connect.windowMode;
+        const useOverlayWithPopup = options && options.useOverlayWithPopup != undefined ? options.useOverlayWithPopup : this.connect.useOverlayWithPopup;
+
+        if (windowMode === WindowMode.REDIRECT) {
+            return this.performKYCRedirect(options);
+        } else {
+            return this.performKYCPopup({useOverlay: useOverlayWithPopup});
+        }
+    }
+
     public async getAccount(chain: SecretType,
                             options?: { idpHint?: string }): Promise<Account> {
         let loginResult: any = {};
@@ -128,8 +139,22 @@ export class Flows {
         return Promise.resolve();
     }
 
+    private performKYCRedirect(options?: { redirectUri?: string, correlationID?: string }): Promise<void> {
+        Utils.http().postInForm(
+            `${Utils.urls.connect}/verification/sessions`,
+            {},
+            this.connect._bearerTokenProvider,
+            options
+        );
+        return Promise.resolve();
+    }
+
     private linkWalletsPopup(options?: PopupOptions): Promise<PopupResult> {
         return GeneralPopup.openNewPopup(PopupActions.LINK_WALLET, this.connect._bearerTokenProvider, undefined, options);
+    }
+
+    private performKYCPopup(options?: PopupOptions): Promise<PopupResult> {
+        return GeneralPopup.openNewPopup(PopupActions.PERFORM_KYC, this.connect._bearerTokenProvider, undefined, options);
     }
 
     private claimWalletsRedirect(options?: { redirectUri?: string, correlationID?: string }): Promise<void> {
