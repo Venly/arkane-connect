@@ -40,9 +40,14 @@ export class Security {
         let config = Security.getConfig(clientId);
         const loginOptions: KeycloakLoginOptions = {};
         if (options && options.idpHint) {
-            loginOptions.idpHint = options.idpHint
+            loginOptions.idpHint = options.idpHint;
         }
-        return this.keycloakLogin(config, options);
+        if (options
+            && options.emailHint
+            && options.idpHint === 'password') {
+            loginOptions.loginHint = options.emailHint;
+        }
+        return this.keycloakLogin(config, loginOptions);
     }
 
     private static loginPopup(clientId: string,
@@ -218,6 +223,12 @@ export class Security {
         if (options && options.idpHint) {
             let kcIdpHint = options.idpHint;
             url += "&" + QueryString.stringify({kc_idp_hint: kcIdpHint});
+        }
+        if (options
+            && options.emailHint
+            && options.idpHint === 'password') {
+            const loginHint = options.emailHint;
+            url += "&" + QueryString.stringify({login_hint: loginHint});
         }
         this.popupWindow = await PopupWindowAsync.openNew(url, cid, {useOverlay: false});
         return Security.initialiseIsLoginPopupClosedInterval(cid);
