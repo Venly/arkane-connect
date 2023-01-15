@@ -6,6 +6,7 @@ import { WindowMode }            from '../models/WindowMode';
 import { PopupWindowAsync }      from '../popup/PopupWindowAsync';
 import { EventTypes }            from '../types/EventTypes';
 import Utils                     from '../utils/Utils';
+import { DialogWindow }          from '../dialog/DialogWindow';
 
 export class Security {
 
@@ -30,6 +31,8 @@ export class Security {
         switch (options && options.windowMode) {
             case WindowMode.POPUP:
                 return Security.loginPopup(clientId, !!cid ? cid : Utils.uuidv4(), options);
+            case WindowMode.DIALOG:
+                return DialogWindow.openLoginDialog(clientId, options);
             default:
                 return Security.loginRedirect(clientId, options);
         }
