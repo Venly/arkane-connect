@@ -152,5 +152,6 @@ export interface AuthenticationOptions {
     redirectUri?: string;
     windowMode?: WindowMode;
     closePopup?: boolean
-    idpHint?: string;
+    idpHint?: 'password' | string;
+    emailHint?: string;
 }
