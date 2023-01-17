@@ -9,8 +9,9 @@ export class DialogWindow {
         .then(response => response.text())
         .then(template => {
           const container = document.createElement('div');
+          const shadowRoot = container.attachShadow({ mode: 'closed' });
           container.classList.add('venly-connect-dialog-container');
-          container.innerHTML = template;
+          shadowRoot.innerHTML = template;
           container.style.position = 'absolute';
           container.style.top = 'calc(50% - 380px)';
           container.style.left = 'calc(50% - 150px)';
@@ -18,11 +19,17 @@ export class DialogWindow {
 
           const backdrop = document.createElement('div');
           backdrop.classList.add('venly-connect-dialog-backdrop');
+          backdrop.style.position = 'absolute';
+          backdrop.style.width = '100%';
+          backdrop.style.height = '100%';
+          backdrop.style.background = 'rgba(33, 37, 41, 0.5)';
+          backdrop.style.zIndex = '99999';
+          (backdrop.style as any).backdropFilter = 'blur(5px)';
 
           document.body.appendChild(backdrop);
           document.body.appendChild(container);
-          this.addAuthEventListeners(clientId, options as AuthenticationOptions, resolve);
-          this.addCloseListeners();
+          this.addAuthEventListeners(clientId, options as AuthenticationOptions, resolve, shadowRoot);
+          this.addCloseListeners(shadowRoot);
         });
     });
   }
@@ -30,9 +37,10 @@ export class DialogWindow {
   private static addAuthEventListeners(
     clientId: string,
     options: AuthenticationOptions,
-    authResolver: (value?: LoginResult | PromiseLike<LoginResult> | undefined) => void
+    authResolver: (value?: LoginResult | PromiseLike<LoginResult> | undefined) => void,
+    root: ShadowRoot
   ) {
-    const authActions = document.body.querySelectorAll('.auth-action');
+    const authActions = root.querySelectorAll('.auth-action');
     Array.from(authActions).forEach((authAction: any) => {
       authAction.addEventListener('click', (event: MouseEvent) => {
         const idpHint = (event.target as any).dataset.idpHint;
@@ -49,8 +57,8 @@ export class DialogWindow {
     });
   }
 
-  private static addCloseListeners() {
-    (document.body.querySelector('.venly-connect-close-dialog') as Element)
+  private static addCloseListeners(root: ShadowRoot) {
+    (root.querySelector('.venly-connect-close-dialog') as Element)
       .addEventListener('click', () => this.closeLoginDialog());
 
     (document.body.querySelector('.venly-connect-dialog-backdrop') as Element)
