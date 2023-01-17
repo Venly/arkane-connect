@@ -8,7 +8,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build-ts": "tsc -p .",
-    "build-js": "npx webpack --mode development",
+    "build-js": "npx webpack --mode production",
     "build": "npm run clean && npm run build-js && npm run build-ts",
     "build-and-pack": "npm run clean && npm run build-js && npm run build-ts && npm pack",
     "typedoc": "typedoc --out './docs' './src' --excludeExternals --target 'ES5' --theme 'minimal' --hideGenerator"
@@ -43,7 +43,6 @@
   "homepage": "https://venly.io",
   "dependencies": {
     "@types/node": "^12.7.1",
-    "@venly/connect": "^1.39.0",
     "core-js": "^3.2.1",
     "es6-promise": "^4.2.8",
     "keycloak-js": "11.0.2",
