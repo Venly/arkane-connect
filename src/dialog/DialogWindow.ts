@@ -5,7 +5,7 @@ import { WindowMode } from '../models/WindowMode';
 export class DialogWindow {
   public static async openLoginDialog(clientId: string, options?: AuthenticationOptions): Promise<LoginResult> {
     return new Promise(resolve => {
-      fetch('http://127.0.0.1:8080/src/login-none-idp-hint.html') // TODO: To be updated
+      fetch('https://connect-qa.venly.io/static/html/login-none-idp-hint.html')
         .then(response => response.text())
         .then(template => {
           const container = document.createElement('div');
