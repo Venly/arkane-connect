@@ -51,6 +51,9 @@ export class DialogWindow {
           backdrop.style.zIndex = '99999';
           (backdrop.style as any).backdropFilter = 'blur(5px)';
 
+          const companyLogo = shadowRoot.querySelector('.connect-company-logo');
+          (companyLogo as HTMLImageElement).src = `https://content.venly.io/connected-apps/logos/${clientId}.png`;
+
           document.body.appendChild(backdrop);
           document.body.appendChild(container);
           this.addAuthEventListeners(clientId, options as AuthenticationOptions, resolve, shadowRoot);
@@ -68,7 +71,7 @@ export class DialogWindow {
     const authActions = root.querySelectorAll('.auth-action');
     Array.from(authActions).forEach((authAction: any) => {
       authAction.addEventListener('click', (event: MouseEvent) => {
-        const idpHint = (event.target as any).dataset.idpHint;
+        const idpHint = (event.target as any).dataset.idpHint || (event.target as any).parentElement.dataset.idpHint;
 
         Security.login(clientId, {
           ...options,
