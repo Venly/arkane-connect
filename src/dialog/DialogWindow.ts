@@ -4,8 +4,33 @@ import { WindowMode } from '../models/WindowMode';
 
 export class DialogWindow {
   public static async openLoginDialog(clientId: string, options?: AuthenticationOptions): Promise<LoginResult> {
+    let templateUrl: string;
+
+    switch ((options as AuthenticationOptions).idpHint) {
+      case 'google':
+        templateUrl = 'https://connect-qa.venly.io/static/html/login-google-idp-hint.html';
+        break;
+      case 'apple':
+        templateUrl = 'https://connect-qa.venly.io/static/html/login-apple-idp-hint.html';
+        break;
+      case 'twitter':
+      case 'arkane-twitter':
+        templateUrl = 'https://connect-qa.venly.io/static/html/login-twitter-idp-hint.html';
+        break;
+      case 'facebook':
+      case 'arkane-facebook':
+        templateUrl = 'https://connect-qa.venly.io/static/html/login-facebook-idp-hint.html';
+        break;
+      case 'password':
+        templateUrl = 'https://connect-qa.venly.io/static/html/login-password-idp-hint.html';
+        break;
+      default:
+        templateUrl = 'https://connect-qa.venly.io/static/html/login-none-idp-hint.html';
+        break;
+    }
+
     return new Promise(resolve => {
-      fetch('https://connect-qa.venly.io/static/html/login-none-idp-hint.html')
+      fetch(templateUrl)
         .then(response => response.text())
         .then(template => {
           const container = document.createElement('div');
@@ -55,6 +80,15 @@ export class DialogWindow {
         });
       });
     });
+
+    const selectAnotherOption = root.querySelector('.select-another-option');
+    if (selectAnotherOption) {
+      selectAnotherOption.addEventListener('click', () => {
+        this.closeLoginDialog();
+        delete options.idpHint;
+        this.openLoginDialog(clientId, options);
+      });
+    }
   }
 
   private static addCloseListeners(root: ShadowRoot) {
