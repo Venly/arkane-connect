@@ -112,6 +112,12 @@ export class Security {
         }
     }
 
+    public static focusPopupWindow() {
+        if (Security.popupWindow && !Security.popupWindow.closed) {
+            Security.popupWindow.focus();
+        }
+    }
+
     private static keycloak: KeycloakInstance;
 
     private static updateTokenInterval: any;
