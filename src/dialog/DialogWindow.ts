@@ -78,9 +78,14 @@ export class DialogWindow {
           idpHint,
           windowMode: WindowMode.POPUP
         }).then(authResult => {
-          this.closeLoginDialog();
-          authResolver(authResult);
+          this.removeBackdrop();
+          this.closeRefocusLayout();
+
+          authResolver(authResult)
         });
+
+        this.closeLoginDialog();
+        this.showRefocusLayout();
       });
     });
 
@@ -88,6 +93,7 @@ export class DialogWindow {
     if (selectAnotherOption) {
       selectAnotherOption.addEventListener('click', () => {
         this.closeLoginDialog();
+        this.removeBackdrop();
         delete options.idpHint;
         this.openLoginDialog(clientId, options);
       });
@@ -95,15 +101,84 @@ export class DialogWindow {
   }
 
   private static addCloseListeners(root: ShadowRoot) {
-    (root.querySelector('.venly-connect-close-dialog') as Element)
-      .addEventListener('click', () => this.closeLoginDialog());
+    const close = root.querySelector('.venly-connect-close-dialog');
+    const backdrop = document.body.querySelector('.venly-connect-dialog-backdrop');
 
-    (document.body.querySelector('.venly-connect-dialog-backdrop') as Element)
-      .addEventListener('click', () => this.closeLoginDialog());
+    if (close ) {
+      close.addEventListener('click', () => {
+        this.closeLoginDialog();
+        this.removeBackdrop();
+      });
+    }
+
+    if (backdrop) {
+      backdrop.addEventListener('click', () => {
+        this.closeLoginDialog();
+        this.removeBackdrop();
+        this.closeRefocusLayout();
+      });
+    }
   }
 
   private static closeLoginDialog() {
-    (document.body.querySelector('.venly-connect-dialog-container') as Element).remove();
-    (document.body.querySelector('.venly-connect-dialog-backdrop') as Element).remove();
+    const dialogContainer = document.body.querySelector('.venly-connect-dialog-container');
+
+    if (dialogContainer) {
+      dialogContainer.remove();
+    }
+  }
+
+  private static removeBackdrop() {
+    const backdrop = document.body.querySelector('.venly-connect-dialog-backdrop');
+
+    if (backdrop) {
+      backdrop.remove();
+    }
+  }
+
+  private static showRefocusLayout() {
+    fetch('https://connect-qa.venly.io/static/html/re-focus-layout.html')
+      .then(response => response.text())
+      .then(template => {
+        const container = document.createElement('div');
+        const shadowRoot = container.attachShadow({ mode: 'closed' });
+        container.classList.add('venly-connect-refocus-container');
+        shadowRoot.innerHTML = template;
+        container.style.position = 'absolute';
+        container.style.top = 'calc(50% - 380px)';
+        container.style.left = 'calc(50% - 150px)';
+        container.style.zIndex = '999999';
+        document.body.appendChild(container);
+
+        this.addRefocusListeners(shadowRoot);
+      });
+  }
+
+  private static closeRefocusLayout() {
+    const refocusContainer = document.body.querySelector('.venly-connect-refocus-container');
+    Security.closePopupWindow();
+
+    if (refocusContainer) {
+      refocusContainer.remove();
+    }
+  }
+
+  private static addRefocusListeners(root: ShadowRoot) {
+    const wrapper = root.querySelector('.venly-connect-re-focus-wrapper');
+    const reopenAction = root.querySelector('.venly-connect-re-focus-wrapper .reopen-action');
+
+    if (wrapper) {
+      wrapper.addEventListener('click', e => {
+        if ((e.target as any).classList.contains('venly-connect-re-focus-wrapper')) {
+          this.removeBackdrop();
+          this.closeRefocusLayout();
+          Security.closePopupWindow();
+        }
+      });
+    }
+
+    if (reopenAction) {
+      reopenAction.addEventListener('click', () => Security.focusPopupWindow());
+    }
   }
 }
