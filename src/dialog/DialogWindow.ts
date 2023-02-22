@@ -162,7 +162,7 @@ export class DialogWindow {
         container.classList.add('venly-connect-refocus-container');
         shadowRoot.innerHTML = template;
         container.style.position = 'absolute';
-        container.style.top = 'calc(50% - 380 px)';
+        container.style.top = 'calc(50% - 380px)';
         container.style.left = 'calc(50% - 150px)';
         container.style.zIndex = '999999';
         document.body.appendChild(container);
