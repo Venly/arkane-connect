@@ -55,9 +55,24 @@ export class DialogWindow {
           (companyLogo as HTMLImageElement).src = `https://content.venly.io/connected-apps/logos/${clientId}.png`;
 
           document.body.appendChild(backdrop);
-          document.body.appendChild(container);
-          this.addAuthEventListeners(clientId, options as AuthenticationOptions, resolve, shadowRoot);
-          this.addCloseListeners(shadowRoot);
+
+          const { idpHint } = options as AuthenticationOptions;
+          if (idpHint === 'register') {
+            this.showRefocusLayout();
+            Security.login(clientId, {
+              ...options,
+              idpHint,
+              windowMode: WindowMode.POPUP
+            }).then(authResult => {
+              this.removeBackdrop();
+              this.closeRefocusLayout();
+              resolve(authResult)
+            });
+          } else {
+            document.body.appendChild(container);
+            this.addAuthEventListeners(clientId, options as AuthenticationOptions, resolve, shadowRoot);
+            this.addCloseListeners(shadowRoot);
+          }
         });
     });
   }
@@ -113,9 +128,11 @@ export class DialogWindow {
 
     if (backdrop) {
       backdrop.addEventListener('click', () => {
-        this.closeLoginDialog();
-        this.removeBackdrop();
-        this.closeRefocusLayout();
+        if (!Security.hasPopupWindow()) {
+          this.closeLoginDialog();
+          this.removeBackdrop();
+          this.closeRefocusLayout();
+        }
       });
     }
   }
@@ -164,18 +181,7 @@ export class DialogWindow {
   }
 
   private static addRefocusListeners(root: ShadowRoot) {
-    const wrapper = root.querySelector('.venly-connect-re-focus-wrapper');
     const reopenAction = root.querySelector('.venly-connect-re-focus-wrapper .reopen-action');
-
-    if (wrapper) {
-      wrapper.addEventListener('click', e => {
-        if ((e.target as any).classList.contains('venly-connect-re-focus-wrapper')) {
-          this.removeBackdrop();
-          this.closeRefocusLayout();
-          Security.closePopupWindow();
-        }
-      });
-    }
 
     if (reopenAction) {
       reopenAction.addEventListener('click', () => Security.focusPopupWindow());
