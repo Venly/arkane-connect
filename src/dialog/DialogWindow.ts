@@ -39,7 +39,7 @@ export class DialogWindow {
           shadowRoot.innerHTML = template;
           container.style.position = 'absolute';
           container.style.top = 'calc(50% - 380px)';
-          container.style.left = 'calc(50% - 150px)';
+          container.style.left = `calc(50% - ${(window.innerWidth > 450 ? 400 : 335) / 2}px)`;
           container.style.zIndex = '999999';
 
           const backdrop = document.createElement('div');
@@ -163,7 +163,7 @@ export class DialogWindow {
         shadowRoot.innerHTML = template;
         container.style.position = 'absolute';
         container.style.top = 'calc(50% - 380px)';
-        container.style.left = 'calc(50% - 150px)';
+        container.style.left = 'calc(50% - 147.5px)';
         container.style.zIndex = '999999';
         document.body.appendChild(container);
 
