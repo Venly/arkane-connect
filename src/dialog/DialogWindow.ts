@@ -55,6 +55,7 @@ export class DialogWindow {
           (companyLogo as HTMLImageElement).src = `https://content.venly.io/connected-apps/logos/${clientId}.png`;
 
           document.body.appendChild(backdrop);
+          this.addFonts();
 
           const { idpHint } = options as AuthenticationOptions;
           if (idpHint === 'register') {
@@ -75,6 +76,15 @@ export class DialogWindow {
           }
         });
     });
+  }
+
+  private static addFonts() {
+    const style = 'https://connect-qa.venly.io/static/css/connect/fonts.css';
+    const stylesheet = document.createElement('link');
+    stylesheet.setAttribute('rel', 'stylesheet');
+    stylesheet.setAttribute('href', style);
+    stylesheet.setAttribute('type', 'text/css');
+    (document.querySelector('head') as HTMLHeadElement).appendChild(stylesheet);
   }
 
   private static addAuthEventListeners(
