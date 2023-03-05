@@ -145,7 +145,7 @@ export class DialogWindow {
         this.closeLoginDialog();
         this.removeBackdrop();
         delete options.idpHint;
-        this.openLoginDialog(clientId, options);
+        authResolver(this.openLoginDialog(clientId, options));
       });
     }
   }
