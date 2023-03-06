@@ -2,6 +2,8 @@ import { LoginResult, Security } from '../connect/Security';
 import { AuthenticationOptions } from '../connect/connect';
 import { WindowMode } from '../models/WindowMode';
 
+declare const lottie: any;
+
 export class DialogWindow {
   public static async openLoginDialog(clientId: string, options?: AuthenticationOptions): Promise<LoginResult> {
     let templateUrl: string;
@@ -38,13 +40,12 @@ export class DialogWindow {
           container.classList.add('venly-connect-dialog-container');
           shadowRoot.innerHTML = template;
           container.style.position = 'absolute';
-          container.style.top = 'calc(50% - 380px)';
           container.style.left = `calc(50% - ${(window.innerWidth > 450 ? 400 : 335) / 2}px)`;
           container.style.zIndex = '999999';
 
           const backdrop = document.createElement('div');
           backdrop.classList.add('venly-connect-dialog-backdrop');
-          backdrop.style.position = 'absolute';
+          backdrop.style.position = 'fixed';
           backdrop.style.width = '100%';
           backdrop.style.height = '100%';
           backdrop.style.background = 'rgba(33, 37, 41, 0.5)';
@@ -56,6 +57,7 @@ export class DialogWindow {
 
           document.body.appendChild(backdrop);
           this.addFonts();
+          this.addAnimationScript(shadowRoot);
 
           const { idpHint } = options as AuthenticationOptions;
           if (idpHint === 'register') {
@@ -85,6 +87,29 @@ export class DialogWindow {
     stylesheet.setAttribute('href', style);
     stylesheet.setAttribute('type', 'text/css');
     (document.querySelector('head') as HTMLHeadElement).appendChild(stylesheet);
+  }
+
+  private static addAnimationScript(shadowRoot: any) {
+    const lootieScript = document.createElement('script');
+    lootieScript.setAttribute('src', 'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.10.2/lottie.min.js');
+    lootieScript.setAttribute('integrity', 'sha512-fTTVSuY9tLP+l/6c6vWz7uAQqd1rq3Q/GyKBN2jOZvJSLC5RjggSdboIFL1ox09/Ezx/AKwcv/xnDeYN9+iDDA==');
+    lootieScript.setAttribute('crossorigin', 'anonymous');
+    lootieScript.setAttribute('referrerpolicy', 'no-referrer');
+    (document.querySelector('head') as HTMLHeadElement).appendChild(lootieScript);
+
+    const interval = setInterval(() => {
+      const lt = lottie; // TS compiler trick
+      if (lt) {
+        lt.loadAnimation({
+          container: shadowRoot.querySelector('.animation'),
+          renderer: 'svg',
+          loop: true,
+          autoplay: true,
+          path: 'https://connect-qa.venly.io/static/animations/login-animation.json'
+        });
+        clearInterval(interval);
+      }
+    }, 100);
   }
 
   private static addAuthEventListeners(
@@ -120,7 +145,7 @@ export class DialogWindow {
         this.closeLoginDialog();
         this.removeBackdrop();
         delete options.idpHint;
-        this.openLoginDialog(clientId, options);
+        authResolver(this.openLoginDialog(clientId, options));
       });
     }
   }
@@ -172,7 +197,7 @@ export class DialogWindow {
         container.classList.add('venly-connect-refocus-container');
         shadowRoot.innerHTML = template;
         container.style.position = 'absolute';
-        container.style.top = 'calc(50% - 380px)';
+        container.style.top = 'calc(50% - 218px)';
         container.style.left = 'calc(50% - 147.5px)';
         container.style.zIndex = '999999';
         document.body.appendChild(container);
