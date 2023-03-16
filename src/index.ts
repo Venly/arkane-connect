@@ -1,6 +1,6 @@
 import { VenlyConnect } from './connect/connect';
 
-export { VenlyConnect, AuthenticationOptions }                            from './connect/connect';
+export { VenlyConnect, AuthenticationOptions, AuthenticationResult }      from './connect/connect';
 export { Signer, SignMethod, SignerResult }                               from './signer/Signer';
 export { PopupSigner }                                                    from './signer/PopupSigner';
 export { RedirectSigner, RedirectOptions }                                from './signer/RedirectSigner';
