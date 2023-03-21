@@ -35,6 +35,7 @@ export class DialogWindow {
       fetch(templateUrl)
         .then(response => response.text())
         .then(template => {
+          const overlayContainer = this.createOverlayContainer();
           const container = document.createElement('div');
           const shadowRoot = container.attachShadow({ mode: 'closed' });
           container.classList.add('venly-connect-dialog-container');
@@ -48,14 +49,13 @@ export class DialogWindow {
           backdrop.style.position = 'fixed';
           backdrop.style.width = '100%';
           backdrop.style.height = '100%';
-          backdrop.style.background = 'rgba(33, 37, 41, 0.5)';
           backdrop.style.zIndex = '99999';
           (backdrop.style as any).backdropFilter = 'blur(5px)';
 
           const companyLogo = shadowRoot.querySelector('.connect-company-logo');
           (companyLogo as HTMLImageElement).src = `https://content.venly.io/connected-apps/logos/${clientId}.png`;
 
-          document.body.appendChild(backdrop);
+          overlayContainer.appendChild(backdrop);
           this.addFonts();
           this.addAnimationScript(shadowRoot);
 
@@ -72,8 +72,9 @@ export class DialogWindow {
               resolve(authResult)
             });
           } else {
-            document.body.appendChild(container);
+            overlayContainer.appendChild(container);
             this.addAuthEventListeners(clientId, options as AuthenticationOptions, resolve, shadowRoot);
+            document.body.appendChild(overlayContainer);
             this.addCloseListeners(shadowRoot);
           }
         });
@@ -154,7 +155,7 @@ export class DialogWindow {
     const close = root.querySelector('.venly-connect-close-dialog');
     const backdrop = document.body.querySelector('.venly-connect-dialog-backdrop');
 
-    if (close ) {
+    if (close) {
       close.addEventListener('click', () => {
         this.closeLoginDialog();
         this.removeBackdrop();
@@ -181,7 +182,7 @@ export class DialogWindow {
   }
 
   private static removeBackdrop() {
-    const backdrop = document.body.querySelector('.venly-connect-dialog-backdrop');
+    const backdrop = document.body.querySelector('.overlay-container');
 
     if (backdrop) {
       backdrop.remove();
@@ -192,6 +193,7 @@ export class DialogWindow {
     fetch('https://connect-qa.venly.io/static/html/re-focus-layout.html')
       .then(response => response.text())
       .then(template => {
+        const overlayContainer = this.createOverlayContainer();
         const container = document.createElement('div');
         const shadowRoot = container.attachShadow({ mode: 'closed' });
         container.classList.add('venly-connect-refocus-container');
@@ -200,18 +202,19 @@ export class DialogWindow {
         container.style.top = 'calc(50% - 218px)';
         container.style.left = 'calc(50% - 147.5px)';
         container.style.zIndex = '999999';
-        document.body.appendChild(container);
+        overlayContainer.appendChild(container);
+        document.body.appendChild(overlayContainer);
 
         this.addRefocusListeners(shadowRoot);
       });
   }
 
   private static closeRefocusLayout() {
-    const refocusContainer = document.body.querySelector('.venly-connect-refocus-container');
+    const backdrop = document.body.querySelector('.overlay-container');
     Security.closePopupWindow();
 
-    if (refocusContainer) {
-      refocusContainer.remove();
+    if (backdrop) {
+      backdrop.remove();
     }
   }
 
@@ -221,5 +224,19 @@ export class DialogWindow {
     if (reopenAction) {
       reopenAction.addEventListener('click', () => Security.focusPopupWindow());
     }
+  }
+
+  private static createOverlayContainer(): HTMLDivElement {
+    const overlayContainer = document.createElement('div');
+    overlayContainer.classList.add('overlay-container');
+    overlayContainer.style.position = 'fixed';
+    overlayContainer.style.zIndex = '99999';
+    overlayContainer.style.top = '0';
+    overlayContainer.style.left = '0';
+    overlayContainer.style.height = '100%';
+    overlayContainer.style.background = 'rgba(33, 37, 41, 0.5)';
+    overlayContainer.style.width = '100%';
+
+    return overlayContainer;
   }
 }
