@@ -1,13 +1,12 @@
 const path = require('path');
 
 module.exports = {
-    mode: 'development',
     entry: path.join(__dirname, 'src/index.ts'),
     output: {
         filename: 'connect.js',
         path: path.join(__dirname, './dist'),
     },
-    watch: true,
+    watch: false,
     module: {
         rules: [
             {
@@ -22,8 +21,5 @@ module.exports = {
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js']
-    },
-    optimization: {
-        minimize: false
     },
 };
