@@ -27,7 +27,7 @@ pipeline {
               sh "npm run build-js"
             }
         }
-        stage ('Publish (develop)') {
+        stage ('Publish to npmjs') {
             environment {
                 NPM_KEY = credentials('NPM_KEY')
             }
