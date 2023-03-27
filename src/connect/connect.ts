@@ -38,11 +38,13 @@ export class VenlyConnect {
         this.flows = new Flows(this, this.clientId);
     }
 
-    public async checkAuthenticated(): Promise<AuthenticationResult> {
+    public async checkAuthenticated(options?: AuthenticationOptions): Promise<AuthenticationResult> {
         if (this.loginResult) {
             return this.afterAuthentication(this.loginResult);
         } else {
-            const loginResult = await Security.checkAuthenticated(this.clientId);
+            const authOptions: AuthenticationOptions = {...options};
+            authOptions.windowMode = authOptions.windowMode || this.windowMode;
+            const loginResult = await Security.checkAuthenticated(this.clientId, authOptions);
             return this.afterAuthentication(loginResult);
         }
 
