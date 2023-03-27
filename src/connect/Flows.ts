@@ -23,6 +23,7 @@ export class Flows {
     public async authenticate(options?: AuthenticationOptions): Promise<AuthenticationResult> {
         let authOptions: AuthenticationOptions = {...options};
         authOptions.windowMode = authOptions.windowMode || this.connect.windowMode;
+        authOptions.windowMode = authOptions.windowMode === WindowMode.POPUP ? WindowMode.DIALOG : authOptions.windowMode;
         const loginResult = await Security.login(this.clientId, authOptions);
         return this.connect._afterAuthenticationForFlowUse(loginResult);
     }
@@ -71,7 +72,7 @@ export class Flows {
     }
 
     public async getAccount(chain: SecretType,
-                            options?: { idpHint?: string }): Promise<Account> {
+                            options?: { idpHint?: string, emailHint?: string }): Promise<Account> {
         let loginResult: any = {};
         let wallets: Wallet[] = [];
         const correlationId = Utils.uuidv4();
@@ -81,6 +82,9 @@ export class Flows {
             const authenticationOptions: AuthenticationOptions = {windowMode: WindowMode.POPUP, closePopup: false};
             if (options && options.idpHint) {
                 authenticationOptions.idpHint = options.idpHint;
+            }
+            if (options && options.emailHint) {
+                authenticationOptions.emailHint = options.emailHint;
             }
             loginResult = await Security.login(this.clientId, authenticationOptions, correlationId);
 

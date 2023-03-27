@@ -1,11 +1,12 @@
 import { VenlyConnect } from './connect/connect';
 
-export { VenlyConnect }                                                   from './connect/connect';
+export { VenlyConnect, AuthenticationOptions, AuthenticationResult }      from './connect/connect';
 export { Signer, SignMethod, SignerResult }                               from './signer/Signer';
 export { PopupSigner }                                                    from './signer/PopupSigner';
 export { RedirectSigner, RedirectOptions }                                from './signer/RedirectSigner';
 export { Api }                                                            from './api/Api';
 export { PopupResult }                                                    from './popup/PopupResult';
+export { Account }                                                        from './models/Account';
 export { SecretType }                                                     from './models/SecretType';
 export { WindowMode }                                                     from './models/WindowMode';
 export { SignatureRequestType }                                           from './models/SignatureRequestType';
