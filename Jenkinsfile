@@ -8,10 +8,14 @@ pipeline {
         timeout(time: 15, unit: 'MINUTES')
     }
     stages {
-        stage ('Bump version (develop)') {
+        stage ('Bump version') {
             when {
                 expression {
-                    return env.BRANCH_NAME == 'develop'
+                    anyOf {
+                        branch 'develop'
+                        branch 'hotfix-*'
+                        branch 'release-*'
+                    }
                 }
             }
             steps {
