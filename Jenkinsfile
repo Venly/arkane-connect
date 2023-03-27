@@ -8,10 +8,14 @@ pipeline {
         timeout(time: 15, unit: 'MINUTES')
     }
     stages {
-        stage ('Bump version (develop)') {
+        stage ('Bump version') {
             when {
                 expression {
-                    return env.BRANCH_NAME == 'develop'
+                    anyOf {
+                        branch 'develop'
+                        branch 'hotfix-*'
+                        branch 'release-*'
+                    }
                 }
             }
             steps {
@@ -27,7 +31,7 @@ pipeline {
               sh "npm run build-js"
             }
         }
-        stage ('Publish (develop)') {
+        stage ('Publish to npmjs') {
             environment {
                 NPM_KEY = credentials('NPM_KEY')
             }
