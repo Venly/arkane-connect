@@ -10,12 +10,10 @@ pipeline {
     stages {
         stage('Bump version') {
             when {
-                expression {
-                    anyOf {
-                        branch 'develop'
-                        branch 'hotfix-*'
-                        branch 'release-*'
-                    }
+                anyOf {
+                    branch 'develop'
+                    branch 'hotfix-*'
+                    branch 'release-*'
                 }
             }
             steps {
@@ -36,13 +34,11 @@ pipeline {
                 NPM_KEY = credentials('NPM_KEY')
             }
             when {
-                expression {
-                    anyOf {
-                        branch 'develop'
-                        branch 'hotfix-*'
-                        branch 'release-*'
-                        branch 'master'
-                    }
+                anyOf {
+                    branch 'develop'
+                    branch 'hotfix-*'
+                    branch 'release-*'
+                    branch 'master'
                 }
             }
             steps {
