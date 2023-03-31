@@ -8,7 +8,7 @@ pipeline {
         timeout(time: 15, unit: 'MINUTES')
     }
     stages {
-        stage ('Bump version') {
+        stage('Bump version') {
             when {
                 expression {
                     anyOf {
@@ -26,12 +26,12 @@ pipeline {
         }
         stage('Build') {
             steps {
-              sh "npm i"
-              sh "npm run build-ts"
-              sh "npm run build-js"
+                sh "npm i"
+                sh "npm run build-ts"
+                sh "npm run build-js"
             }
         }
-        stage ('Publish to npmjs') {
+        stage('Publish to npmjs') {
             environment {
                 NPM_KEY = credentials('NPM_KEY')
             }
@@ -41,19 +41,26 @@ pipeline {
                         branch 'develop'
                         branch 'hotfix-*'
                         branch 'release-*'
+                        branch 'master'
                     }
                 }
             }
             steps {
                 sh "printf '//registry.npmjs.org/:_authToken=' > .npmrc && printf '${NPM_KEY}' >> .npmrc"
-                sh 'npm publish --tag ${BRANCH_NAME}'
+                script {
+                    if (env.BRANCH_NAME == 'master') {
+                        sh 'npm publish'
+                    } else {
+                        sh 'npm publish --tag ${BRANCH_NAME}'
+                    }
+                }
                 withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                     sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ArkaneNetwork/arkane-connect.git HEAD:refs/heads/${BRANCH_NAME}'
                     sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ArkaneNetwork/arkane-connect.git --tags'
                 }
             }
         }
-        stage ('Merge back to develop') {
+        stage('Merge back to develop') {
             when {
                 anyOf {
                     branch 'hotfix-*'
