@@ -41,12 +41,17 @@ pipeline {
                         branch 'develop'
                         branch 'hotfix-*'
                         branch 'release-*'
+                        branch 'master'
                     }
                 }
             }
             steps {
                 sh "printf '//registry.npmjs.org/:_authToken=' > .npmrc && printf '${NPM_KEY}' >> .npmrc"
-                sh 'npm publish --tag ${BRANCH_NAME}'
+                if (branch.equals('master')) {
+                    sh 'npm publish'
+                } else {
+                    sh 'npm publish --tag ${BRANCH_NAME}'
+                }
                 withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                     sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ArkaneNetwork/arkane-connect.git HEAD:refs/heads/${BRANCH_NAME}'
                     sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ArkaneNetwork/arkane-connect.git --tags'
