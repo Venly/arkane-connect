@@ -59,6 +59,11 @@ pipeline {
                     sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ArkaneNetwork/arkane-connect.git --tags'
                 }
             }
+            post {
+                always {
+                    cleanWs(deleteDirs: true, patterns: [[pattern: '.npmrc', type: 'INCLUDE']])
+                }
+            }
         }
         stage('Merge back to develop') {
             when {
