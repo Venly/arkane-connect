@@ -55,10 +55,21 @@ export class Security {
         ]);
     }
 
-    public static checkAuthenticated(clientId: string): Promise<LoginResult> {
-        const authenticatedPromise = Security.initialiseAuthenticatedListener(clientId, EventTypes.CHECK_AUTHENTICATED, Utils.uuidv4());
-        Security.initialiseCheckAuthenticatedIFrame(clientId);
-        return authenticatedPromise;
+    public static checkAuthenticated(clientId: string, options: AuthenticationOptions): Promise<LoginResult> {
+        if ((options && options.windowMode) === WindowMode.REDIRECT) {
+            const initOptions: KeycloakInitOptions = {
+                onLoad: 'check-sso',
+                checkLoginIframe: false,
+            };
+            if (options.redirectUri) {
+                initOptions.redirectUri = options.redirectUri;
+            }
+            return Security.initKeycloak(Security.getConfig(clientId), initOptions);
+        } else {
+            const authenticatedPromise = Security.initialiseAuthenticatedListener(clientId, EventTypes.CHECK_AUTHENTICATED, Utils.uuidv4());
+            Security.initialiseCheckAuthenticatedIFrame(clientId);
+            return authenticatedPromise
+        }
     }
 
     public static logout(auth: Keycloak.KeycloakInstance): Promise<void> {
@@ -166,7 +177,7 @@ export class Security {
                                     resolve({authenticated: false});
                                 }
                             } else if (auth.reason && auth.reason === Security.THIRD_PARTY_COOKIES_DISABLED) {
-                                const loginResult = await Security.initKeycloak(Security.getConfig(clientId), {onLoad: 'check-sso'});
+                                const loginResult = await Security.initKeycloak(Security.getConfig(clientId), {onLoad: 'check-sso', checkLoginIframe: false});
                                 resolve({
                                     keycloak: loginResult.keycloak,
                                     authenticated: loginResult.authenticated,
