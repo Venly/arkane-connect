@@ -23,7 +23,7 @@ export class Flows {
     public async authenticate(options?: AuthenticationOptions): Promise<AuthenticationResult> {
         let authOptions: AuthenticationOptions = {...options};
         authOptions.windowMode = authOptions.windowMode || this.connect.windowMode;
-        authOptions.windowMode = authOptions.windowMode === WindowMode.POPUP ? WindowMode.DIALOG : authOptions.windowMode;
+        authOptions.windowMode = authOptions.windowMode === WindowMode.POPUP && !authOptions.forcePopup ? WindowMode.DIALOG : authOptions.windowMode;
         const loginResult = await Security.login(this.clientId, authOptions);
         return this.connect._afterAuthenticationForFlowUse(loginResult);
     }
