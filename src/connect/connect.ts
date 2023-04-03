@@ -156,4 +156,5 @@ export interface AuthenticationOptions {
     closePopup?: boolean
     idpHint?: 'password' | string;
     emailHint?: string;
+    forcePopup?: boolean;
 }

@@ -42,14 +42,15 @@ export class DialogWindow {
           shadowRoot.innerHTML = template;
           container.style.position = 'absolute';
           container.style.left = `calc(50% - ${(window.innerWidth > 450 ? 400 : 335) / 2}px)`;
-          container.style.zIndex = '999999';
+          container.style.zIndex = '2147483647';
+          container.style.display = 'block';
 
           const backdrop = document.createElement('div');
           backdrop.classList.add('venly-connect-dialog-backdrop');
           backdrop.style.position = 'fixed';
           backdrop.style.width = '100%';
           backdrop.style.height = '100%';
-          backdrop.style.zIndex = '99999';
+          backdrop.style.zIndex = '2147483647';
           (backdrop.style as any).backdropFilter = 'blur(5px)';
 
           const companyLogo = shadowRoot.querySelector('.connect-company-logo');
@@ -130,7 +131,7 @@ export class DialogWindow {
           windowMode: WindowMode.POPUP
         }).then(authResult => {
           this.removeBackdrop();
-          this.closeRefocusLayout();
+          this.closeRefocusLayout(options.closePopup);
 
           authResolver(authResult)
         });
@@ -201,7 +202,7 @@ export class DialogWindow {
         container.style.position = 'absolute';
         container.style.top = 'calc(50% - 218px)';
         container.style.left = 'calc(50% - 147.5px)';
-        container.style.zIndex = '999999';
+        container.style.zIndex = '2147483647';
         overlayContainer.appendChild(container);
         document.body.appendChild(overlayContainer);
 
@@ -209,9 +210,10 @@ export class DialogWindow {
       });
   }
 
-  private static closeRefocusLayout() {
+  private static closeRefocusLayout(closePopup: boolean = true) {
     const backdrop = document.body.querySelector('.overlay-container');
-    Security.closePopupWindow();
+    if (closePopup)
+      Security.closePopupWindow();
 
     if (backdrop) {
       backdrop.remove();
@@ -230,7 +232,7 @@ export class DialogWindow {
     const overlayContainer = document.createElement('div');
     overlayContainer.classList.add('overlay-container');
     overlayContainer.style.position = 'fixed';
-    overlayContainer.style.zIndex = '99999';
+    overlayContainer.style.zIndex = '2147483647';
     overlayContainer.style.top = '0';
     overlayContainer.style.left = '0';
     overlayContainer.style.height = '100%';
