@@ -1,10 +1,14 @@
 const path = require('path');
 
 module.exports = {
-    entry: path.join(__dirname, 'src/index.ts'),
+    entry: path.join(__dirname, 'dist/index.js'),
     output: {
-        filename: 'connect.js',
-        path: path.join(__dirname, './dist'),
+        path: path.resolve(__dirname, 'umd'),
+        filename: "index.js",
+        libraryTarget: 'umd',
+        globalObject: 'this',
+        library: 'VenlyConnect',
+        libraryExport: 'VenlyConnect'
     },
     watch: false,
     module: {
@@ -12,10 +16,12 @@ module.exports = {
             {
                 test: /\.tsx?$/,
                 loader: 'awesome-typescript-loader',
-                exclude: /node_modules/,
                 query: {
                     declaration: false,
                 },
+                include: [
+                    path.resolve(__dirname, 'src')
+                ]
             },
         ]
     },
