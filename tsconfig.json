@@ -12,7 +12,7 @@
     "sourceMap": true,
     "baseUrl": "/",
     "declaration": true,
-    "outDir": "./dist/src",
+    "outDir": "dist",
     "paths": {
       "@/*": [
         "src/*"
@@ -32,6 +32,8 @@
     "src/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist",
+    "umd"
   ]
 }
