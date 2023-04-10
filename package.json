@@ -9,8 +9,8 @@
     "clean": "rm -rf dist",
     "build-ts": "tsc -p .",
     "build-js": "npx webpack --mode production",
-    "build": "npm run clean && npm run build-js && npm run build-ts",
-    "build-and-pack": "npm run clean && npm run build-js && npm run build-ts && npm pack",
+    "build": "npm run clean && npm run build-ts && npm run build-js",
+    "build-and-pack": "npm run clean && npm run build-ts && npm run build-js && npm pack",
     "typedoc": "typedoc --out './docs' './src' --excludeExternals --target 'ES5' --theme 'minimal' --hideGenerator"
   },
   "repository": {
