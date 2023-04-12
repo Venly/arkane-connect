@@ -41,9 +41,12 @@ export class DialogWindow {
           container.classList.add('venly-connect-dialog-container');
           shadowRoot.innerHTML = template;
           container.style.position = 'absolute';
-          container.style.left = `calc(50% - ${(window.innerWidth > 450 ? 400 : 335) / 2}px)`;
           container.style.zIndex = '2147483647';
-          container.style.display = 'block';
+          container.style.display = 'flex';
+          container.style.alignItems = 'center';
+          container.style.justifyContent = 'center';
+          container.style.height = '100%';
+          container.style.width = '100%';
 
           const backdrop = document.createElement('div');
           backdrop.classList.add('venly-connect-dialog-backdrop');
