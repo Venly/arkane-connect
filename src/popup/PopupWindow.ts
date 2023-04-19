@@ -112,7 +112,7 @@ export class PopupWindow {
                 .then(template => {
                     const overlayContainer = this.createOverlayContainer(id);
                     const container = document.createElement('div');
-                    const shadowRoot = container.attachShadow({ mode: 'closed' });
+                    const shadowRoot = container.attachShadow({ mode: 'open' });
                     container.classList.add('venly-connect-refocus-container');
                     shadowRoot.innerHTML = template;
                     container.style.position = 'absolute';
