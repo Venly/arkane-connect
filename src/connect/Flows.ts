@@ -72,7 +72,7 @@ export class Flows {
     }
 
     public async getAccount(chain: SecretType,
-                            options?: { idpHint?: string, emailHint?: string }): Promise<Account> {
+                            options?: AuthenticationOptions): Promise<Account> {
         let loginResult: any = {};
         let wallets: Wallet[] = [];
         const correlationId = Utils.uuidv4();
@@ -106,7 +106,7 @@ export class Flows {
             console.error(e);
         }
 
-        if (Security.hasPopupWindow()) {
+        if (Security.hasPopupWindow() && !(options && options.closePopup == false)) {
             Security.closePopupWindow();
         }
 
