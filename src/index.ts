@@ -11,7 +11,7 @@ export { SecretType }                                                     from '
 export { WindowMode }                                                     from './models/WindowMode';
 export { SignatureRequestType }                                           from './models/SignatureRequestType';
 export { TransactionRequestType }                                         from './models/TransactionRequestType';
-export { Wallet }                                                         from './models/wallet/Wallet';
+export { Wallet, WalletType }                                             from './models/wallet/Wallet';
 export { Profile }                                                        from './models/profile/Profile';
 export {BuildTransactionRequest}                                          from './models/transaction/build/BuildTransactionRequest';
 export {TransactionRequest}                                               from './models/transaction/TransactionRequest';
