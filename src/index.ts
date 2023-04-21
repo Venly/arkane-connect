@@ -12,10 +12,14 @@ export { WindowMode }                                                      from 
 export { SignatureRequestType }                                            from './models/SignatureRequestType';
 export { TransactionRequestType }                                          from './models/TransactionRequestType';
 export { Wallet, WalletType }                                              from './models/wallet/Wallet';
+export { WalletBalance }                                                   from './models/wallet/WalletBalance';
+export { TokenBalance }                                                    from './models/wallet/TokenBalance';
+export { NFT, NFTContract, TypeValue }                                     from './models/wallet/NFT';
 export { Profile, VerificationResult }                                     from './models/profile/Profile';
+export { TransactionResult }                                               from './models/transaction/TransactionResult';
+export { TransactionRequest }                                              from './models/transaction/TransactionRequest';
 export { BuildTransactionRequest }                                         from './models/transaction/build/BuildTransactionRequest';
 export { BuildContractExecutionRequestDto }                                from './models/transaction/build/BuildContractExecutionRequestDto';
-export { TransactionRequest }                                              from './models/transaction/TransactionRequest';
 export { EthereumErc20TransactionRequest }                                 from './models/transaction/ethereum/request/EthereumErc20TransactionRequest';
 export { EthereumTransactionRequest }                                      from './models/transaction/ethereum/request/EthereumTransactionRequest';
 export { EthereumContractCallExecutionRequest }                            from './models/transaction/ethereum/request/EthereumContractCallExecutionRequest';
@@ -29,10 +33,6 @@ export { VechainContractCallExecutionRequest }                             from 
 export { VechainExecutableContractCall, VechainContractCallInput }         from './models/transaction/vechain/request/VechainExecutableContractCall';
 export { BitcoinTransactionRequest }                                       from './models/transaction/bitcoin/request/BitcoinTransactionRequest';
 export { LitecoinTransactionRequest }                                      from './models/transaction/litecoin/request/LitecoinTransactionRequest';
-export { WalletBalance }                                                   from './models/wallet/WalletBalance';
-export { TokenBalance }                                                    from './models/wallet/TokenBalance';
-export { TransactionResult }                                               from './models/transaction/TransactionResult';
-export { NFT, NFTContract, TypeValue }                                     from './models/wallet/NFT';
 
 if (typeof window !== 'undefined') {
     (window as any).VenlyConnect = VenlyConnect;
