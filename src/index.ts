@@ -1,78 +1,76 @@
 import { VenlyConnect } from './connect/connect';
 
 export * from './api/Api';
-export * from './api/ResponseBody';
-
 export * from './connect/connect';
 
-export * from './models/Account';
-export * from './models/ConfirmationRequest';
-export * from './models/ConfirmationRequestType';
-export * from './models/Network';
-export * from './models/RequestDataType';
-export * from './models/SecretType';
-export * from './models/SignatureRequestType';
-export * from './models/TransactionRequestType';
-export * from './models/WindowMode';
+export { Account }                              from './models/Account';
+export { ConfirmationRequest }                  from './models/ConfirmationRequest';
+export { ConfirmationRequestType }              from './models/ConfirmationRequestType';
+export { Network }                              from './models/Network';
+export { RequestDataType }                      from './models/RequestDataType';
+export { SecretType }                           from './models/SecretType';
+export { SignatureRequestType }                 from './models/SignatureRequestType';
+export { TransactionRequestType }               from './models/TransactionRequestType';
+export { WindowMode }                           from './models/WindowMode';
 
-export * from './models/contract/ContractReadRequest';
-export * from './models/contract/ContractReadRequestInputParam';
-export * from './models/contract/ContractReadRequestOutputParam';
-export * from './models/contract/ContractReadResult';
+export { ContractReadRequest }                  from './models/contract/ContractReadRequest';
+export { ContractReadRequestInputParam }        from './models/contract/ContractReadRequestInputParam';
+export { ContractReadRequestOutputParam }       from './models/contract/ContractReadRequestOutputParam';
+export { ContractReadResult }                   from './models/contract/ContractReadResult';
 
 export * from './models/profile/Profile';
 
-export * from './models/transaction/GenericSignatureRequest';
-export * from './models/transaction/TransactionRequest';
-export * from './models/transaction/TransactionResult';
-export * from './models/transaction/TxStatus';
+export { GenericSignatureRequest }              from './models/transaction/GenericSignatureRequest';
+export { TransactionRequest }                   from './models/transaction/TransactionRequest';
+export { TransactionResult }                    from './models/transaction/TransactionResult';
+export { TxStatus }                             from './models/transaction/TxStatus';
 
-export * from './models/transaction/build/BuildTransactionRequest';
-export * from './models/transaction/build/BuildContractExecutionRequestDto';
+export { BuildTransactionRequest }              from './models/transaction/build/BuildTransactionRequest';
+export { BuildContractExecutionRequestDto }     from './models/transaction/build/BuildContractExecutionRequestDto';
 
-export * from './models/transaction/ethereum/request/EthereumContractCallExecutionRequest';
-export * from './models/transaction/ethereum/request/EthereumErc20TransactionRequest';
-export * from './models/transaction/ethereum/request/EthereumErc721TransactionRequest';
-export * from './models/transaction/ethereum/request/EthereumErcTokenTransactionRequest';
-export * from './models/transaction/ethereum/request/EthereumTransactionRequest';
+export *                                        from './models/transaction/ethereum/request/EthereumContractCallExecutionRequest';
+export { EthereumErc20TransactionRequest }      from './models/transaction/ethereum/request/EthereumErc20TransactionRequest';
+export { EthereumErc721TransactionRequest }     from './models/transaction/ethereum/request/EthereumErc721TransactionRequest';
+export { EthereumErcTokenTransactionRequest }   from './models/transaction/ethereum/request/EthereumErcTokenTransactionRequest';
+export { EthereumTransactionRequest }           from './models/transaction/ethereum/request/EthereumTransactionRequest';
 
-export * from './models/transaction/gochain/request/GochainErc20TransactionRequest';
-export * from './models/transaction/gochain/request/GochainTransactionRequest';
+export { GochainErc20TransactionRequest }       from './models/transaction/gochain/request/GochainErc20TransactionRequest';
+export { GochainTransactionRequest }            from './models/transaction/gochain/request/GochainTransactionRequest';
 
-export * from './models/transaction/matic/request/MaticContractCallExecutionRequest';
-export * from './models/transaction/matic/request/MaticErc20TransactionRequest';
-export * from './models/transaction/matic/request/MaticErc721TransactionRequest';
-export * from './models/transaction/matic/request/MaticErcTokenTransactionRequest';
-export * from './models/transaction/matic/request/MaticTransactionRequest';
+export *                                        from './models/transaction/matic/request/MaticContractCallExecutionRequest';
+export { MaticErc20TransactionRequest }         from './models/transaction/matic/request/MaticErc20TransactionRequest';
+export { MaticErc721TransactionRequest }        from './models/transaction/matic/request/MaticErc721TransactionRequest';
+export { MaticErcTokenTransactionRequest }      from './models/transaction/matic/request/MaticErcTokenTransactionRequest';
+export { MaticTransactionRequest }              from './models/transaction/matic/request/MaticTransactionRequest';
 
-export * from './models/transaction/tron/request/TronContractCallExecutionRequest';
-export * from './models/transaction/tron/request/TronTransactionRequest';
+export *                                        from './models/transaction/tron/request/TronContractCallExecutionRequest';
+export { TronTransactionRequest }               from './models/transaction/tron/request/TronTransactionRequest';
 
-export * from './models/transaction/vechain/request/VechainContractCallExecutionRequest';
-export * from './models/transaction/vechain/request/VechainExecutableContractCall';
-export * from './models/transaction/vechain/request/VechainTransactionRequest';
-export * from './models/transaction/vechain/request/VechainVip180TransactionRequest';
+export { VechainContractCallExecutionRequest }  from './models/transaction/vechain/request/VechainContractCallExecutionRequest';
+export *                                        from './models/transaction/vechain/request/VechainExecutableContractCall';
+export *                                        from './models/transaction/vechain/request/VechainTransactionRequest';
+export *                                        from './models/transaction/vechain/request/VechainVip180TransactionRequest';
 
-export * from './models/transaction/bitcoin/request/BitcoinTransactionRequest';
-export * from './models/transaction/litecoin/request/LitecoinTransactionRequest';
+export { BitcoinTransactionRequest }            from './models/transaction/bitcoin/request/BitcoinTransactionRequest';
+export { LitecoinTransactionRequest }           from './models/transaction/litecoin/request/LitecoinTransactionRequest';
 
-export * from './models/wallet/CreateApplicationWalletRequest';
-export * from './models/wallet/CreateFirstWalletRequest';
-export * from './models/wallet/CreateWalletRequest';
-export * from './models/wallet/ImportWalletRequest';
-export * from './models/wallet/NFT';
-export * from './models/wallet/TokenBalance';
-export * from './models/wallet/Wallet';
-export * from './models/wallet/WalletBalance';
+export { CreateApplicationWalletRequest }       from './models/wallet/CreateApplicationWalletRequest';
+export { CreateFirstWalletRequest }             from './models/wallet/CreateFirstWalletRequest';
+export { CreateWalletRequest }                  from './models/wallet/CreateWalletRequest';
+export { ImportWalletRequest }                  from './models/wallet/ImportWalletRequest';
+export *                                        from './models/wallet/NFT';
+export { TokenBalance }                         from './models/wallet/TokenBalance';
+export *                                        from './models/wallet/Wallet';
+export { WalletBalance }                        from './models/wallet/WalletBalance';
 
-export * from './popup/PopupActions';
-export * from './popup/PopupResult';
+export { PopupActions }                         from './popup/PopupActions';
+export { PopupResult }                          from './popup/PopupResult';
 
 export * from './signer/PopupSigner';
 export * from './signer/RedirectSigner';
 export * from './signer/Signer';
 
-export * from './types/EventTypes';
+export { EventTypes } from './types/EventTypes';
 
 if (typeof window !== 'undefined') {
     (window as any).VenlyConnect = VenlyConnect;
