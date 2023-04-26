@@ -13,13 +13,13 @@ export class GeneralPopup extends Popup {
         });
         popup.focus();
         return popup.sendData(action, data && JSON.parse(JSON.stringify(data)))
-			.catch(() => {
-				popup.close();
-			})
-			.finally(() => {
-				if (!(options && options.closePopup == false))
-					popup.close();
-			}) as Promise<PopupResult>;
+            .catch(() => {
+              popup.close();
+            })
+            .finally(() => {
+              if (!(options && options.closePopup == false))
+                popup.close();
+            }) as Promise<PopupResult>;
     }
 
     public sendData(
