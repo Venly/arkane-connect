@@ -12,9 +12,14 @@ export class GeneralPopup extends Popup {
             popup.close();
         });
         popup.focus();
-        return popup.sendData(action, data && JSON.parse(JSON.stringify(data))).finally(() => {
-            popup.close();
-        })
+        return popup.sendData(action, data && JSON.parse(JSON.stringify(data)))
+			.catch(() => {
+				popup.close();
+			})
+			.finally(() => {
+				if (!(options && options.closePopup == false))
+					popup.close();
+			}) as Promise<PopupResult>;
     }
 
     public sendData(
