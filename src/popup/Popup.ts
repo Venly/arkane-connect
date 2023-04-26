@@ -130,5 +130,6 @@ export default abstract class Popup {
 }
 
 export interface PopupOptions {
-    useOverlay: boolean
+    useOverlay: boolean,
+    closePopup?: boolean,
 }

@@ -29,14 +29,16 @@ export class Flows {
     }
 
     public manageWallets(chain: string,
-                         options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode, useOverlayWithPopup?: boolean }): Promise<PopupResult | void> {
+                         options?: { redirectUri?: string, correlationID?: string, windowMode?: WindowMode, useOverlayWithPopup?: boolean,
+                         closePopup?: boolean }): Promise<PopupResult | void> {
         const windowMode = options && options.windowMode || this.connect.windowMode;
 
         const useOverlayWithPopup = options && options.useOverlayWithPopup != undefined ? options.useOverlayWithPopup : this.connect.useOverlayWithPopup;
+        const closePopup = options ? options.closePopup : undefined;
         if (windowMode === WindowMode.REDIRECT) {
             return this.manageWalletsRedirect(chain, options);
         } else {
-            return this.manageWalletsPopup(chain, {useOverlay: useOverlayWithPopup});
+            return this.manageWalletsPopup(chain, {useOverlay: useOverlayWithPopup, closePopup});
         }
     }
 
@@ -93,7 +95,7 @@ export class Flows {
             if (result.isAuthenticated) {
                 wallets = await this.connect.api.getWallets({secretType: chain.toUpperCase() as SecretType});
                 if (!(wallets && wallets.length > 0)) {
-                    const popupResult = await this.manageWallets(chain, {windowMode: WindowMode.POPUP});
+                    const popupResult = await this.manageWallets(chain, {windowMode: WindowMode.POPUP, closePopup: false});
                     if (popupResult && popupResult.status === 'SUCCESS') {
                         wallets = await this.connect.api.getWallets({secretType: chain.toUpperCase() as SecretType});
                     }
