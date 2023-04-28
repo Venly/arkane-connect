@@ -41,7 +41,10 @@ export class Api {
         return await fetch(`${this._baseUrl}/${url}`, {
             method: 'POST',
             body: JSON.stringify(body),
-            headers: { Authorization: `Bearer ${bearerToken}` }
+            headers: { 
+              Authorization: `Bearer ${bearerToken}`, 
+              'Content-Type': 'application/json' 
+            }
         }).then(response => response.json()).then(data => data as T);
     }
 
