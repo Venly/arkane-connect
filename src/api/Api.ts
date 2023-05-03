@@ -192,7 +192,7 @@ export class Api {
 
     private mapTransactionData = (secretType: SecretType,response: any): Promise<RestApiResponseTxStatus> => {
         switch (secretType) {
-            case SecretType.AVAC || SecretType.BSC || SecretType.ETHEREUM || SecretType.GOCHAIN || SecretType.MATIC:
+            case SecretType.AVAC || SecretType.BSC || SecretType.ETHEREUM || SecretType.GOCHAIN || SecretType.MATIC || SecretType.ARBITRUM:
                 return this.processResponse<EvmTxInfo>(response);
             case SecretType.HEDERA:
                 return this.processResponse<HederaTxInfo>(response);
