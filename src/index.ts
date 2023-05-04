@@ -27,6 +27,9 @@ export { TxStatus }                             from './models/transaction/TxSta
 
 export { BuildTransactionRequest }              from './models/transaction/build/BuildTransactionRequest';
 export { BuildContractExecutionRequestDto }     from './models/transaction/build/BuildContractExecutionRequestDto';
+export { BuildTransferRequestDto }              from './models/transaction/build/BuildTransferRequestDto';
+export { BuildTokenTransferRequestDto }         from './models/transaction/build/BuildTokenTransferRequestDto';
+export { BuildGasTransferRequestDto }           from './models/transaction/build/BuildGasTransferRequestDto';
 
 export *                                        from './models/transaction/ethereum/request/EthereumContractCallExecutionRequest';
 export { EthereumErc20TransactionRequest }      from './models/transaction/ethereum/request/EthereumErc20TransactionRequest';
@@ -42,6 +45,8 @@ export { MaticErc20TransactionRequest }         from './models/transaction/matic
 export { MaticErc721TransactionRequest }        from './models/transaction/matic/request/MaticErc721TransactionRequest';
 export { MaticErcTokenTransactionRequest }      from './models/transaction/matic/request/MaticErcTokenTransactionRequest';
 export { MaticTransactionRequest }              from './models/transaction/matic/request/MaticTransactionRequest';
+
+export { HederaTokenAssociationTransactionRequest } from './models/transaction/hedera/HederaTokenAssociationTransactionRequest';
 
 export *                                        from './models/transaction/arbitrum/request/ArbitrumContractCallExecutionRequest';
 export { ArbitrumErc20TransactionRequest }      from './models/transaction/arbitrum/request/ArbitrumErc20TransactionRequest';
