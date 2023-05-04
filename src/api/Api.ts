@@ -10,9 +10,9 @@ import { ContractReadRequest }     from '../models/contract/ContractReadRequest'
 import { ContractReadResult }      from '../models/contract/ContractReadResult';
 import { RestApiResponseTxStatus } from '../models/transaction/status/RestApiResponseTxStatus';
 import { EvmTxInfo }               from '../models/transaction/status/EvmTxInfo';
-import { HederaTxInfo } from '../models/transaction/status/HederaTxInfo';
-import { TronTxInfo } from '../models/transaction/status/TronTxInfo';
-import { VechainTxInfo } from '../models/transaction/status/VechainTxInfo';
+import { HederaTxInfo }            from '../models/transaction/status/HederaTxInfo';
+import { TronTxInfo }              from '../models/transaction/status/TronTxInfo';
+import { VechainTxInfo }           from '../models/transaction/status/VechainTxInfo';
 
 export class Api {
     private _baseUrl: string;
