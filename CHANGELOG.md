@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 2.0.0
 ### Added
-- Added `options.authenticationOptions.closePopup` option. If set to false, Venly popup will be kept open after authenticating.
+- Redesign login flow + new UI
+- Add `options.authenticationOptions.closePopup` option. If set to false, Venly popup will be kept open after authenticating.
   - For cases when you need to perform an action immediately after authenticating (such as signing a message)
 
 ### Changed
@@ -21,4 +22,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 
 
 ### Fixed
-- Fixed `readContract` method to use the correct `Content-Type` header
+- Fix `readContract` method to use the correct `Content-Type` header
