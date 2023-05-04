@@ -43,6 +43,12 @@ export { MaticErc721TransactionRequest }        from './models/transaction/matic
 export { MaticErcTokenTransactionRequest }      from './models/transaction/matic/request/MaticErcTokenTransactionRequest';
 export { MaticTransactionRequest }              from './models/transaction/matic/request/MaticTransactionRequest';
 
+export *                                        from './models/transaction/arbitrum/request/ArbitrumContractCallExecutionRequest';
+export { ArbitrumErc20TransactionRequest }      from './models/transaction/arbitrum/request/ArbitrumErc20TransactionRequest';
+export { ArbitrumErc721TransactionRequest }     from './models/transaction/arbitrum/request/ArbitrumErc721TransactionRequest';
+export { ArbitrumErcTokenTransactionRequest }   from './models/transaction/arbitrum/request/ArbitrumErcTokenTransactionRequest';
+export { ArbitrumTransactionRequest }           from './models/transaction/arbitrum/request/ArbitrumTransactionRequest';
+
 export *                                        from './models/transaction/tron/request/TronContractCallExecutionRequest';
 export { TronTransactionRequest }               from './models/transaction/tron/request/TronTransactionRequest';
 

@@ -11,5 +11,6 @@ export enum SecretType {
     NEO = 'NEO',
     TRON = 'TRON',
     VECHAIN = 'VECHAIN',
-    IMX = 'IMX'
+    IMX = 'IMX',
+    ARBITRUM = 'ARBITRUM'
 }
