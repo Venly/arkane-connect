@@ -30,6 +30,11 @@ export default class Utils {
                 connect: 'https://connect-staging.venly.io',
                 login: 'https://login-staging.arkane.network/auth',
             },
+            'sandbox': {
+                api: 'https://api-wallet-sandbox.venly.io/api',
+                connect: 'https://connect-sandbox.venly.io',
+                login: 'https://login-sandbox.venly.io/auth',
+            },
         }
     }
 
