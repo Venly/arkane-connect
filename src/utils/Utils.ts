@@ -1,5 +1,4 @@
 import { EventTypes }   from '../types/EventTypes';
-import * as QueryString from 'querystring';
 
 export default class Utils {
 
@@ -208,7 +207,7 @@ export default class Utils {
             addRequestParams: (url: string,
                                params: { [key: string]: string }): string => {
                 if (url && params) {
-                    const paramsAsString = QueryString.stringify(params);
+                    const paramsAsString = new URLSearchParams(params).toString();
                     if (url && url.indexOf('?') > 0) {
                         return `${url}&${paramsAsString}`;
                     } else {

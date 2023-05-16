@@ -43,10 +43,8 @@
   "homepage": "https://venly.io",
   "dependencies": {
     "@types/node": "^12.7.1",
-    "core-js": "^3.2.1",
     "es6-promise": "^4.2.8",
-    "keycloak-js": "11.0.2",
-    "querystring": "^0.2.0"
+    "keycloak-js": "11.0.2"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.1",
