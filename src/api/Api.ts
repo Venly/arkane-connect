@@ -10,9 +10,9 @@ import { ContractReadRequest }     from '../models/contract/ContractReadRequest'
 import { ContractReadResult }      from '../models/contract/ContractReadResult';
 import { RestApiResponseTxStatus } from '../models/transaction/status/RestApiResponseTxStatus';
 import { EvmTxInfo }               from '../models/transaction/status/EvmTxInfo';
-import { HederaTxInfo } from '../models/transaction/status/HederaTxInfo';
-import { TronTxInfo } from '../models/transaction/status/TronTxInfo';
-import { VechainTxInfo } from '../models/transaction/status/VechainTxInfo';
+import { HederaTxInfo }            from '../models/transaction/status/HederaTxInfo';
+import { TronTxInfo }              from '../models/transaction/status/TronTxInfo';
+import { VechainTxInfo }           from '../models/transaction/status/VechainTxInfo';
 
 export class Api {
     private _baseUrl: string;
@@ -41,7 +41,10 @@ export class Api {
         return await fetch(`${this._baseUrl}/${url}`, {
             method: 'POST',
             body: JSON.stringify(body),
-            headers: { Authorization: `Bearer ${bearerToken}` }
+            headers: { 
+              Authorization: `Bearer ${bearerToken}`, 
+              'Content-Type': 'application/json' 
+            }
         }).then(response => response.json()).then(data => data as T);
     }
 
@@ -189,7 +192,7 @@ export class Api {
 
     private mapTransactionData = (secretType: SecretType,response: any): Promise<RestApiResponseTxStatus> => {
         switch (secretType) {
-            case SecretType.AVAC || SecretType.BSC || SecretType.ETHEREUM || SecretType.GOCHAIN || SecretType.MATIC:
+            case SecretType.AVAC || SecretType.BSC || SecretType.ETHEREUM || SecretType.GOCHAIN || SecretType.MATIC || SecretType.ARBITRUM:
                 return this.processResponse<EvmTxInfo>(response);
             case SecretType.HEDERA:
                 return this.processResponse<HederaTxInfo>(response);

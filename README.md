@@ -9,3 +9,25 @@ Documentation on how to use it can be found on below pages:
 * Introduction: https://docs.venly.io/widget/widget/introduction
 * Getting started: https://docs.venly.io/widget/widget/getting-started
 * All of Venly's documentation: https://docs.venly.io/
+
+## v2 Migration Guide
+
+### Installation (changes only for head scripts)
+
+```javascript
+<script src="/node_modules/@venly/connect/umd/index.js"></script>
+```
+
+or when importing from a CDN
+
+```javascript
+<script src="https://unpkg.com/@venly/connect/umd/index.js"></script>
+```
+
+### Imports
+
+All types/objects are now imported directly from `@venly/connect`
+
+```javascript
+import { Wallet } from "@venly/connect";
+```

@@ -25,3 +25,5 @@ logs
 docs/*
 .npmrc
 *.tgz
+lib/
+umd/

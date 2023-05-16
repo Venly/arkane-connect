@@ -6,6 +6,7 @@ import { WindowMode }            from '../models/WindowMode';
 import { PopupWindowAsync }      from '../popup/PopupWindowAsync';
 import { EventTypes }            from '../types/EventTypes';
 import Utils                     from '../utils/Utils';
+import { DialogWindow }          from '../dialog/DialogWindow';
 
 export class Security {
 
@@ -30,6 +31,8 @@ export class Security {
         switch (options && options.windowMode) {
             case WindowMode.POPUP:
                 return Security.loginPopup(clientId, !!cid ? cid : Utils.uuidv4(), options);
+            case WindowMode.DIALOG:
+                return DialogWindow.openLoginDialog(clientId, options);
             default:
                 return Security.loginRedirect(clientId, options);
         }
@@ -40,9 +43,14 @@ export class Security {
         let config = Security.getConfig(clientId);
         const loginOptions: KeycloakLoginOptions = {};
         if (options && options.idpHint) {
-            loginOptions.idpHint = options.idpHint
+            loginOptions.idpHint = options.idpHint;
         }
-        return this.keycloakLogin(config, options);
+        if (options
+            && options.emailHint
+            && options.idpHint === 'password') {
+            loginOptions.loginHint = options.emailHint;
+        }
+        return this.keycloakLogin(config, loginOptions);
     }
 
     private static loginPopup(clientId: string,
@@ -55,10 +63,21 @@ export class Security {
         ]);
     }
 
-    public static checkAuthenticated(clientId: string): Promise<LoginResult> {
-        const authenticatedPromise = Security.initialiseAuthenticatedListener(clientId, EventTypes.CHECK_AUTHENTICATED, Utils.uuidv4());
-        Security.initialiseCheckAuthenticatedIFrame(clientId);
-        return authenticatedPromise;
+    public static checkAuthenticated(clientId: string, options: AuthenticationOptions): Promise<LoginResult> {
+        if ((options && options.windowMode) === WindowMode.REDIRECT) {
+            const initOptions: KeycloakInitOptions = {
+                onLoad: 'check-sso',
+                checkLoginIframe: false,
+            };
+            if (options.redirectUri) {
+                initOptions.redirectUri = options.redirectUri;
+            }
+            return Security.initKeycloak(Security.getConfig(clientId), initOptions);
+        } else {
+            const authenticatedPromise = Security.initialiseAuthenticatedListener(clientId, EventTypes.CHECK_AUTHENTICATED, Utils.uuidv4());
+            Security.initialiseCheckAuthenticatedIFrame(clientId);
+            return authenticatedPromise
+        }
     }
 
     public static logout(auth: Keycloak.KeycloakInstance): Promise<void> {
@@ -101,6 +120,12 @@ export class Security {
         if (Security.popupWindow && !Security.popupWindow.closed) {
             Security.popupWindow.close();
             delete Security.popupWindow;
+        }
+    }
+
+    public static focusPopupWindow() {
+        if (Security.popupWindow && !Security.popupWindow.closed) {
+            Security.popupWindow.focus();
         }
     }
 
@@ -166,7 +191,7 @@ export class Security {
                                     resolve({authenticated: false});
                                 }
                             } else if (auth.reason && auth.reason === Security.THIRD_PARTY_COOKIES_DISABLED) {
-                                const loginResult = await Security.initKeycloak(Security.getConfig(clientId), {onLoad: 'check-sso'});
+                                const loginResult = await Security.initKeycloak(Security.getConfig(clientId), {onLoad: 'check-sso', checkLoginIframe: false});
                                 resolve({
                                     keycloak: loginResult.keycloak,
                                     authenticated: loginResult.authenticated,
@@ -218,6 +243,12 @@ export class Security {
         if (options && options.idpHint) {
             let kcIdpHint = options.idpHint;
             url += "&" + QueryString.stringify({kc_idp_hint: kcIdpHint});
+        }
+        if (options
+            && options.emailHint
+            && options.idpHint === 'password') {
+            const loginHint = options.emailHint;
+            url += "&" + QueryString.stringify({login_hint: loginHint});
         }
         this.popupWindow = await PopupWindowAsync.openNew(url, cid, {useOverlay: false});
         return Security.initialiseIsLoginPopupClosedInterval(cid);

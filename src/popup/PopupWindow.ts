@@ -15,7 +15,7 @@ export class PopupWindow {
         const mergedOptions = Object.assign({
             title: 'Venly Connect',
             w: 350,
-            h: 685,
+            h: 728,
             useOverlay: true
         }, options);
         const left = (screen.width / 2) - (mergedOptions.w / 2);
@@ -107,49 +107,47 @@ export class PopupWindow {
 
     static openOverlay(id: string, useOverlay: boolean, focus: () => void, close: () => void): void {
         if (useOverlay) {
-            //remove existing overlay divs
-            const overlayDiv: HTMLDivElement = document.createElement('div');
-            overlayDiv.id = id;
-            overlayDiv.classList.add(PopupWindow.CONST.overlayClassName);
-            overlayDiv.style.zIndex = '2147483647';
-            overlayDiv.style.display = 'flex';
-            overlayDiv.style.alignItems = 'center';
-            overlayDiv.style.justifyContent = 'center';
-            overlayDiv.style.textAlign = 'center';
-            overlayDiv.style.position = 'fixed';
-            overlayDiv.style.left = '0px';
-            overlayDiv.style.right = '0px';
-            overlayDiv.style.top = '0px';
-            overlayDiv.style.bottom = '0px';
-            overlayDiv.style.background = 'rgba(0,0,0,0.80)';
-            overlayDiv.style.color = 'white';
-            overlayDiv.style.border = '2px solid #f1f1f1';
-            overlayDiv.innerHTML = `<div style="max-width: 350px;">` +
-                `<div style="margin-bottom: 1rem">${PopupWindow.CONST.overlayMessage}</div>` +
-                `<div><a style="${PopupWindow.CONST.overlayLinkStyle}" href="javascript:void(0)" class="${PopupWindow.CONST.overlayLinkClassName}">${PopupWindow.CONST.overlayLinkMessage}</a></div>` +
-                `<a style="${PopupWindow.CONST.overlayLinkStyle} position: absolute; right: 1rem; top: 1rem;" href="javascript:void(0)" class="${PopupWindow.CONST.overlayCloseLinkClassName}">X</a>` +
-                `</div>`;
-            let existingOverlays = document.getElementsByClassName(PopupWindow.CONST.overlayClassName);
-            for (var i = 0; i < existingOverlays.length; i++) {
-                let existingOverlay = existingOverlays.item(i);
-                if (existingOverlay) {
-                    existingOverlay.remove();
-                }
-            }
-            document.body.appendChild(overlayDiv);
-            const link = overlayDiv.querySelector(`#${id} .${PopupWindow.CONST.overlayLinkClassName}`);
-            const closeLink = overlayDiv.querySelector(`#${id} .${PopupWindow.CONST.overlayCloseLinkClassName}`);
-            if (link) {
-                link.addEventListener('click', () => {
-                    focus();
+            fetch('https://connect-qa.venly.io/static/html/re-focus-layout.html')
+                .then(response => response.text())
+                .then(template => {
+                    const overlayContainer = this.createOverlayContainer(id);
+                    const container = document.createElement('div');
+                    const shadowRoot = container.attachShadow({ mode: 'open' });
+                    container.classList.add('venly-connect-refocus-container');
+                    shadowRoot.innerHTML = template;
+                    container.style.position = 'absolute';
+                    container.style.top = 'calc(50% - 218px)';
+                    container.style.left = 'calc(50% - 147.5px)';
+                    container.style.zIndex = '2147483647';
+                    overlayContainer.appendChild(container);
+                    document.body.appendChild(overlayContainer);
+
+                    this.addRefocusListeners(shadowRoot, focus);
                 });
-            }
-            if (closeLink) {
-                closeLink.addEventListener('click', () => {
-                    close();
-                })
-            }
         }
+    }
+
+    private static addRefocusListeners(root: ShadowRoot, focus: () => void) {
+        const reopenAction = root.querySelector('.venly-connect-re-focus-wrapper .reopen-action');
+
+        if (reopenAction) {
+            reopenAction.addEventListener('click', () => focus());
+        }
+    }
+
+    private static createOverlayContainer(id: string): HTMLDivElement {
+        const overlayContainer = document.createElement('div');
+        overlayContainer.id = id;
+        overlayContainer.classList.add('overlay-container');
+        overlayContainer.style.position = 'fixed';
+        overlayContainer.style.zIndex = '2147483647';
+        overlayContainer.style.top = '0';
+        overlayContainer.style.left = '0';
+        overlayContainer.style.height = '100%';
+        overlayContainer.style.background = 'rgba(33, 37, 41, 0.5)';
+        overlayContainer.style.width = '100%';
+
+        return overlayContainer;
     }
 }
 
