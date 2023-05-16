@@ -1,5 +1,4 @@
 import { KeycloakConfig, KeycloakInitOptions, KeycloakInstance, KeycloakLoginOptions } from 'keycloak-js';
-import QueryString                                                                     from 'querystring';
 
 import { AuthenticationOptions } from './connect';
 import { WindowMode }            from '../models/WindowMode';
@@ -239,16 +238,16 @@ export class Security {
                                               cid: string,
                                               options?: AuthenticationOptions): Promise<LoginResult> {
         const origin = window.location.href.replace(window.location.search, '');
-        let url = `${Security.authenticateURI}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
+        let url = `${Security.authenticateURI}?${new URLSearchParams({clientId: clientId, origin: origin, env: Utils.rawEnvironment}).toString()}`;
         if (options && options.idpHint) {
             let kcIdpHint = options.idpHint;
-            url += "&" + QueryString.stringify({kc_idp_hint: kcIdpHint});
+            url += "&" + new URLSearchParams({kc_idp_hint: kcIdpHint}).toString();
         }
         if (options
             && options.emailHint
             && options.idpHint === 'password') {
             const loginHint = options.emailHint;
-            url += "&" + QueryString.stringify({login_hint: loginHint});
+            url += "&" + new URLSearchParams({login_hint: loginHint}).toString();
         }
         this.popupWindow = await PopupWindowAsync.openNew(url, cid, {useOverlay: false});
         return Security.initialiseIsLoginPopupClosedInterval(cid);
@@ -292,7 +291,7 @@ export class Security {
         }
 
         const origin = window.location.href.replace(window.location.search, '');
-        iframe.src = `${uri}?${QueryString.stringify({clientId: clientId, origin: origin, env: Utils.rawEnvironment})}`;
+        iframe.src = `${uri}?${new URLSearchParams({clientId: clientId, origin: origin, env: Utils.rawEnvironment}).toString()}`;
         iframe.hidden = true;
         iframe.id = iframeID;
         iframe.setAttribute('style', 'display: none!important;');
