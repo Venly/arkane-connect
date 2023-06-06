@@ -9,8 +9,8 @@ export class PopupWindowAsync {
                                 options?: OpenWindowOptions): Promise<PopupWindowAsync> {
         const mergedOptions = Object.assign({
             title: 'Venly Connect',
-            w: 375,
-            h: 812,
+            w: 350,
+            h: 700,
             useOverlay: true
         }, options);
         const left = (screen.width / 2) - (mergedOptions.w / 2);
