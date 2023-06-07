@@ -15,7 +15,7 @@ export class PopupWindow {
         const mergedOptions = Object.assign({
             title: 'Venly Connect',
             w: 350,
-            h: 728,
+            h: 700,
             useOverlay: true
         }, options);
         const left = (screen.width / 2) - (mergedOptions.w / 2);
