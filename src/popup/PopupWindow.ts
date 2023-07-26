@@ -107,7 +107,7 @@ export class PopupWindow {
 
     static openOverlay(id: string, useOverlay: boolean, focus: () => void, close: () => void): void {
         if (useOverlay) {
-            fetch('https://connect-qa.venly.io/static/html/re-focus-layout.html')
+            fetch('https://connect-v2-qa.venly.io/static/html/re-focus-layout.html')
                 .then(response => response.text())
                 .then(template => {
                     const overlayContainer = this.createOverlayContainer(id);

@@ -10,24 +10,24 @@ export class DialogWindow {
 
     switch ((options as AuthenticationOptions).idpHint) {
       case 'google':
-        templateUrl = 'https://connect-qa.venly.io/static/html/login-google-idp-hint.html';
+        templateUrl = 'https://connect-v2-qa.venly.io/static/html/login-google-idp-hint.html';
         break;
       case 'apple':
-        templateUrl = 'https://connect-qa.venly.io/static/html/login-apple-idp-hint.html';
+        templateUrl = 'https://connect-v2-qa.venly.io/static/html/login-apple-idp-hint.html';
         break;
       case 'twitter':
       case 'arkane-twitter':
-        templateUrl = 'https://connect-qa.venly.io/static/html/login-twitter-idp-hint.html';
+        templateUrl = 'https://connect-v2-qa.venly.io/static/html/login-twitter-idp-hint.html';
         break;
       case 'facebook':
       case 'arkane-facebook':
-        templateUrl = 'https://connect-qa.venly.io/static/html/login-facebook-idp-hint.html';
+        templateUrl = 'https://connect-v2-qa.venly.io/static/html/login-facebook-idp-hint.html';
         break;
       case 'password':
-        templateUrl = 'https://connect-qa.venly.io/static/html/login-password-idp-hint.html';
+        templateUrl = 'https://connect-v2-qa.venly.io/static/html/login-password-idp-hint.html';
         break;
       default:
-        templateUrl = 'https://connect-qa.venly.io/static/html/login-none-idp-hint.html';
+        templateUrl = 'https://connect-v2-qa.venly.io/static/html/login-none-idp-hint.html';
         break;
     }
 
@@ -84,7 +84,7 @@ export class DialogWindow {
   }
 
   private static addFonts() {
-    const style = 'https://connect-qa.venly.io/static/css/connect/fonts.css';
+    const style = 'https://connect-v2-qa.venly.io/static/css/connect/fonts.css';
     const stylesheet = document.createElement('link');
     stylesheet.setAttribute('rel', 'stylesheet');
     stylesheet.setAttribute('href', style);
@@ -108,7 +108,7 @@ export class DialogWindow {
           renderer: 'svg',
           loop: true,
           autoplay: true,
-          path: 'https://connect-qa.venly.io/static/animations/login-animation.json'
+          path: 'https://connect-v2-qa.venly.io/static/animations/login-animation.json'
         });
         clearInterval(interval);
       }
@@ -192,7 +192,7 @@ export class DialogWindow {
   }
 
   private static showRefocusLayout() {
-    fetch('https://connect-qa.venly.io/static/html/re-focus-layout.html')
+    fetch('https://connect-v2-qa.venly.io/static/html/re-focus-layout.html')
       .then(response => response.text())
       .then(template => {
         const overlayContainer = this.createOverlayContainer();
