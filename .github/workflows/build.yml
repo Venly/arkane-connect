@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - develop
+  workflow_dispatch:
 env:
   AWS_REGION: "eu-west-1"
 jobs:
