@@ -1,6 +1,6 @@
 {
   "name": "@venly/connect",
-  "version": "2.3.0-develop.13",
+  "version": "2.3.0-develop.14",
   "description": "Venly Connect SDK",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
