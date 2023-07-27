@@ -14,8 +14,6 @@ inputs:
     required: true
 runs:
   using: "composite"
-  container:
-    image: 'node:{{ inputs.node_version_tag }}'
   steps:
     - name: Branch to Build
       shell: bash
@@ -26,11 +24,11 @@ runs:
       with:
         ref: ${{ github.ref }}
     
-    - name: Prepare
-      run: npm install
-
     - name: Build & Test
-      run: ${{ inputs.command }}
+      shell: bash
+      run: |
+        docker pull "node:${{ inputs.node_version_tag }}"
+        docker run -v $PWD:/app -w /app "node:${{ inputs.node_version_tag }}" bash -c "${{ inputs.command }}"
 
     # Create Output Cache
     - name: 📺 Set Outputs 📺
