@@ -205,18 +205,6 @@ runs:
       env:
         TASK_DEF: ${{ steps.task-def-version.outputs.task-definition }}
     
-    - name: ℹ Slack Notification ℹ
-      if: ${{ inputs.environment == 'staging' || inputs.environment == 'prd' }}
-      uses: rtCamp/action-slack-notify@v2
-      env:
-        SLACK_CHANNEL: github-approvals
-        SLACK_COLOR: "#420084"
-        SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
-        SLACK_MESSAGE: "A Approval to deploy ${{ inputs.service_name }} on ${{ inputs.environment }} is waiting...  :rocket:"
-        SLACK_TITLE: ${{ inputs.service_name }}-${{ inputs.environment }} Approval
-        SLACK_USERNAME: github
-        SLACK_WEBHOOK: https://hooks.slack.com/services/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
-    
     # - uses: trstringer/manual-approval@v1
     #   if: ${{ inputs.environment == 'staging' || inputs.environment == 'prd' }}
     #   with:
