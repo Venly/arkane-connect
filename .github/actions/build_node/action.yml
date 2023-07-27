@@ -24,11 +24,13 @@ runs:
       with:
         ref: ${{ github.ref }}
     
+    - name: Prepare
+      shell: bash
+      run: npm install
+
     - name: Build & Test
       shell: bash
-      run: |
-        docker pull "node:${{ inputs.node_version_tag }}"
-        docker run -v $PWD:/app -w /app "node:${{ inputs.node_version_tag }}" bash -c "${{ inputs.command }}"
+      run: ${{ inputs.command }}
 
     # Create Output Cache
     - name: 📺 Set Outputs 📺
