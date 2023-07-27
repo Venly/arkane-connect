@@ -29,7 +29,7 @@ runs:
       run: |
         npm install -g npm
         npm cache clean --force
-        npm install
+        npm install --force
 
     - name: Build & Test
       shell: bash

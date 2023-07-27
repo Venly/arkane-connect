@@ -9,13 +9,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - name: 'build'
-            command: 'npm run build'
-          - name: 'dependencies_check'
-            command: 'npm audit || true'
     permissions:
       id-token: write
       contents: write
@@ -37,7 +30,7 @@ jobs:
         with:
           aws_region: ${{ env.AWS_REGION }}
           node_version_tag: 16
-          command: ${{ matrix.command }}
+          command: 'npm run build' # Was a Matrix
       - name: echo output from build
         run: |
           echo "Sha Tag: ${{ steps.app_info.outputs.sha_tag }}"
