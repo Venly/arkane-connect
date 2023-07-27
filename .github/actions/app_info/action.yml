@@ -1,0 +1,78 @@
+name: "Build NodeJs container"
+description: "Build NodeJs container"
+inputs:
+  branch:
+    description: name of the branch
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Branch to Build
+      shell: bash
+      run: echo -e "\U1F7E3 \U1F7E3 Following branch will be build ${{ github.ref }} \U1F7E3 \U1F7E3"
+    # Checkout code
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ inputs.branch }}
+    # Check Application Type
+    - name: ❔ Determine Application Type ❔
+      id: app-type
+      shell: bash
+      run: |
+        if [ -f package.json ]; then
+            echo "app_type=node" >> $GITHUB_ENV
+          elif [ -f pom.xml ]; then
+            echo "app_type=java" >> $GITHUB_ENV
+          else
+            echo "app_type=unknown" >> $GITHUB_ENV
+        fi
+    # Get version for Node Application
+    - name: ❔ get-npm-version ❔
+      if: ${{ env.app_type == 'node' }}
+      id: package-version
+      uses: martinbeentjes/npm-get-version-action@v1.3.1
+    # Get version for Java Application
+    - name: ❔ get-pom-version ❔
+      if: ${{ env.app_type == 'java' }}
+      id: pom-version
+      uses: PERES-Richard/maven-get-version-action@v2.0.0
+    # Set Application Version
+    - name: 🏁 Set Application Version 🏁
+      id: app-version
+      shell: bash
+      run: |
+        if [[ ${{ env.app_type }} == 'java' ]]; then
+            echo "app_version=${{ steps.pom-version.outputs.current-version }}" >> $GITHUB_ENV
+            echo "app_version=${{ steps.pom-version.outputs.current-version }}" >> $GITHUB_OUTPUT
+            echo "Java Application Version: ${{ steps.pom-version.outputs.current-version }}"
+          elif [ ${{ env.app_type }} == 'node' ]; then
+            echo "app_version=${{ steps.package-version.outputs.current-version }}" >> $GITHUB_ENV
+            echo "app_version=${{ steps.package-version.outputs.current-version }}" >> $GITHUB_OUTPUT
+            echo "Node Application Version: ${{ steps.package-version.outputs.current-version }}"
+          else
+            echo "app_version=unknown" >> $GITHUB_ENV
+        fi
+    - name: 🏁 Set Git Info 🏁
+      id: git_info
+      shell: bash
+      env:
+        SHA_TAG: ${{ github.sha }}
+        BRANCH_TAG: ${{ github.ref_name }}
+      run: |
+        echo ${{ env.ECR_REPO }}
+        echo "ecr_repo=${{ env.ECR_REPO }}" >> $GITHUB_OUTPUT
+        echo "sha_tag=${{ env.SHA_TAG }}" >> $GITHUB_OUTPUT
+        echo "branch_tag=${{ env.BRANCH_TAG }}" >> $GITHUB_OUTPUT
+
+
+outputs:
+  app_version:
+    description: "Application Version"
+    value: ${{ steps.app-version.outputs.app_version }}
+  sha_tag:
+    description: "The SHA tag"
+    value: ${{ steps.git_info.outputs.sha_tag }}
+  branch_tag:
+    description: "The branch tag"
+    value: ${{ steps.git_info.outputs.branch_tag }}

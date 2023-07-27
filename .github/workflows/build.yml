@@ -28,12 +28,12 @@ jobs:
     steps:
       - name: App Info
         id: app_info
-        uses: ArkaneNetwork/venly-github-workflows/.github/actions/app_info@main
+        uses: ./.github/actions/app_info
         with: 
           branch: ${{ github.ref }}
       - name: Build Application
         id: build
-        uses: ArkaneNetwork/venly-github-workflows/.github/actions/build_node@main
+        uses: ./.github/actions/build_node
         with:
           aws_region: ${{ env.AWS_REGION }}
           node_version_tag: 16
@@ -65,7 +65,7 @@ jobs:
       - name: build-and-deploy-docker
         if: ${{ success() && (github.ref_name == 'main'  || github.ref_name == 'master' || github.ref_name == 'develop' || github.ref_name == 'release-*' || github.ref_name == 'hotfix-*' || github.ref_name == 'VLDEVOPS-135-update-ecs-deploys') }}
         id: build-deploy-docker
-        uses: ArkaneNetwork/venly-github-workflows/.github/actions/build_docker@main
+        uses: ./.github/actions/build_docker
         with:
           aws_role: ${{ secrets.RESOURCES_DEPLOY_ROLE }}
           docker_context: ${{ matrix.docker_context }}
