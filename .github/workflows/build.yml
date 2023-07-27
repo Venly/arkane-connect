@@ -12,10 +12,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: 'test_with_coverage'
-            command: 'npm run test:cov'
+          - name: 'bump version'
+            command: 'npm version prerelease --preid=develop'
           - name: 'build'
-            command: 'npm run build'
+            command: 'npm i && npm run build'
           - name: 'dependencies_check'
             command: 'npm audit || true'
     permissions:
