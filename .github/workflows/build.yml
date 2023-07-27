@@ -8,7 +8,7 @@ env:
   AWS_REGION: "eu-west-1"
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
@@ -44,7 +44,7 @@ jobs:
           echo "Version Tag: ${{ steps.app_info.outputs.app_version }}"
           echo "Branch Tag: ${{ steps.app_info.outputs.branch_tag }}"
   docker:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: build
     permissions:
       id-token: write
@@ -60,7 +60,7 @@ jobs:
         include:
         - service: connect-v2
           ecr: venly-connectv2-eu-west-1
-          folder_path: src
+          docker_context: src
     steps:
       - name: build-and-deploy-docker
         if: ${{ success() && (github.ref_name == 'main'  || github.ref_name == 'master' || github.ref_name == 'develop' || github.ref_name == 'release-*' || github.ref_name == 'hotfix-*' || github.ref_name == 'VLDEVOPS-135-update-ecs-deploys') }}
@@ -68,6 +68,7 @@ jobs:
         uses: ArkaneNetwork/venly-github-workflows/.github/actions/build_docker@main
         with:
           aws_role: ${{ secrets.RESOURCES_DEPLOY_ROLE }}
+          docker_context: ${{ matrix.docker_context }}
           ecr_repo: ${{ matrix.ecr }}
           sha_tag: ${{ needs.build.outputs.sha_tag }}
           version_tag: ${{ needs.build.outputs.version_tag }}
