@@ -1,0 +1,74 @@
+name: Build
+on:
+  push:
+    branches:
+      - develop
+env:
+  AWS_REGION: "eu-west-1"
+jobs:
+  build:
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - name: 'test_with_coverage'
+            command: 'npm run test:cov'
+          - name: 'build'
+            command: 'npm run build'
+          - name: 'dependencies_check'
+            command: 'npm audit || true'
+    permissions:
+      id-token: write
+      contents: write
+    outputs:
+      sha_tag: ${{ steps.app_info.outputs.sha_tag }}
+      version_tag: ${{ steps.app_info.outputs.app_version }}
+      branch_tag: ${{ steps.app_info.outputs.branch_tag }}
+    steps:
+      - name: App Info
+        id: app_info
+        uses: ArkaneNetwork/venly-github-workflows/.github/actions/app_info@main
+        with: 
+          branch: ${{ github.ref }}
+      - name: Build Application
+        id: build
+        uses: ArkaneNetwork/venly-github-workflows/.github/actions/build_node@main
+        with:
+          aws_region: ${{ env.AWS_REGION }}
+          node_version_tag: 16
+          command: ${{ matrix.command }}
+      - name: echo output from build
+        run: |
+          echo "Sha Tag: ${{ steps.app_info.outputs.sha_tag }}"
+          echo "Version Tag: ${{ steps.app_info.outputs.app_version }}"
+          echo "Branch Tag: ${{ steps.app_info.outputs.branch_tag }}"
+  docker:
+    runs-on: self-hosted
+    needs: build
+    permissions:
+      id-token: write
+      contents: write
+    strategy:
+      matrix:
+        microservice:
+          - connect-v2
+        ecr:
+          - venly-connectv2-eu-west-1
+        docker_context:
+          - src
+        include:
+        - service: connect-v2
+          ecr: venly-connectv2-eu-west-1
+          folder_path: src
+    steps:
+      - name: build-and-deploy-docker
+        if: ${{ success() && (github.ref_name == 'main'  || github.ref_name == 'master' || github.ref_name == 'develop' || github.ref_name == 'release-*' || github.ref_name == 'hotfix-*' || github.ref_name == 'VLDEVOPS-135-update-ecs-deploys') }}
+        id: build-deploy-docker
+        uses: ArkaneNetwork/venly-github-workflows/.github/actions/build_docker@main
+        with:
+          aws_role: ${{ secrets.RESOURCES_DEPLOY_ROLE }}
+          ecr_repo: ${{ matrix.ecr }}
+          sha_tag: ${{ needs.build.outputs.sha_tag }}
+          version_tag: ${{ needs.build.outputs.version_tag }}
+          branch_tag: ${{ needs.build.outputs.branch_tag }}
+          push_image: false
