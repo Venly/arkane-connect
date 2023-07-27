@@ -12,10 +12,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: 'bump version'
-            command: 'npm version prerelease --preid=develop'
           - name: 'build'
-            command: 'npm i && npm run build'
+            command: 'npm run build'
           - name: 'dependencies_check'
             command: 'npm audit || true'
     permissions:
