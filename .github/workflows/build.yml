@@ -29,7 +29,7 @@ jobs:
         uses: ./.github/actions/build_node
         with:
           aws_region: ${{ env.AWS_REGION }}
-          node_version_tag: 16
+          node_version_tag: 14
           command: 'npm run build' # Was a Matrix
       - name: echo output from build
         run: |
