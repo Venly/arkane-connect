@@ -21,7 +21,7 @@ export default class Utils {
         return {
             'qa': {
                 api: 'https://api-wallet-qa.venly.io/api',
-                connect: 'https://connect-v2-qa.venly.io',
+                connect: 'https://connect-qa.venly.io',
                 login: 'https://login-qa.arkane.network/auth',
             },
             'staging': {
