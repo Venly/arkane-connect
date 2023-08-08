@@ -22,17 +22,17 @@ export default class Utils {
             'qa': {
                 api: 'https://api-wallet-qa.venly.io/api',
                 connect: 'https://connect-qa.venly.io',
-                login: 'https://login-qa.arkane.network/auth',
+                login: 'https://login-qa.venly.io/auth',
             },
             'staging': {
                 api: 'https://api-wallet-staging.venly.io/api',
                 connect: 'https://connect-staging.venly.io',
-                login: 'https://login-staging.arkane.network/auth',
+                login: 'https://login-staging.venly.io/auth',
             },
             'sandbox': {
                 api: 'https://api-wallet-sandbox.venly.io/api',
                 connect: 'https://connect-sandbox.venly.io',
-                login: 'https://login-sandbox.venly.io/auth',
+                login: 'https://login-staging.venly.io/auth',
             },
         }
     }
