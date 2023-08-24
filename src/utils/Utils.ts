@@ -1,4 +1,4 @@
-import { EventTypes }   from '../types/EventTypes';
+import { EventTypes } from '../types/EventTypes';
 
 export default class Utils {
 
@@ -17,27 +17,30 @@ export default class Utils {
         return Utils.rawEnvironmentHolder;
     }
 
-    public static environments(): { [key: string]: { api: string, connect: string, login: string }; } {
+    public static environments(): { [key: string]: { api: string, connect: string, login: string, storage: string }; } {
         return {
             'qa': {
                 api: 'https://api-wallet-qa.venly.io/api',
                 connect: 'https://connect-qa.venly.io',
                 login: 'https://login-qa.venly.io/auth',
+                storage: 'https://storage-qa.venly.io/production',
             },
             'staging': {
                 api: 'https://api-wallet-staging.venly.io/api',
                 connect: 'https://connect-staging.venly.io',
                 login: 'https://login-staging.venly.io/auth',
+                storage: 'https://storage-staging.venly.io/production',
             },
             'sandbox': {
                 api: 'https://api-wallet-sandbox.venly.io/api',
                 connect: 'https://connect-sandbox.venly.io',
                 login: 'https://login-staging.venly.io/auth',
+                storage: 'https://storage.venly.io/sandbox',
             },
         }
     }
 
-    public static get urls(): { api: string, connect: string, login: string } {
+    public static get urls(): { api: string, connect: string, login: string, storage: string } {
         let postfix = '';
         switch (Utils.environment) {
             case 'local':
@@ -57,12 +60,14 @@ export default class Utils {
                 api: environment.api,
                 connect: Utils.environment === 'local' || Utils.connectEnvironment === 'local' ? 'http://127.0.0.1:8181' : environment.connect,
                 login: environment.login,
+                storage: environment.storage,
             }
         } else {
             return {
-                api: `https://api-wallet.venly.io/api`,
-                connect: `https://connect.venly.io`,
-                login: `https://login.arkane.network/auth`,
+                api: 'https://api-wallet.venly.io/api',
+                connect: 'https://connect.venly.io',
+                login: 'https://login.arkane.network/auth',
+                storage: 'https://storage.venly.io/production',
             };
         }
     }
