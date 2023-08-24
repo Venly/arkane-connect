@@ -66,7 +66,7 @@ export default class Utils {
             return {
                 api: 'https://api-wallet.venly.io/api',
                 connect: 'https://connect.venly.io',
-                login: 'https://login.arkane.network/auth',
+                login: 'https://login.venly.io/auth',
                 storage: 'https://storage.venly.io/production',
             };
         }
