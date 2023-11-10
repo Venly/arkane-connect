@@ -41,13 +41,16 @@ export class Security {
                                  options?: AuthenticationOptions): Promise<LoginResult> {
         let config = Security.getConfig(clientId);
         const loginOptions: KeycloakLoginOptions = {};
-        if (options && options.idpHint) {
-            loginOptions.idpHint = options.idpHint;
-        }
-        if (options
-            && options.emailHint
-            && options.idpHint === 'password') {
-            loginOptions.loginHint = options.emailHint;
+        if (options) {
+            if (options.idpHint) {
+                loginOptions.idpHint = options.idpHint;
+                if (options.idpHint === 'password' && options.emailHint) {
+                    loginOptions.loginHint = options.emailHint;
+                }
+            }
+            if (options.redirectUri) {
+                loginOptions.redirectUri = options.redirectUri;
+            }
         }
         return this.keycloakLogin(config, loginOptions);
     }
