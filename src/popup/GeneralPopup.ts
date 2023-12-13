@@ -3,6 +3,7 @@ import Popup, { PopupOptions } from './Popup';
 import Utils                   from '../utils/Utils';
 import { PopupActions } from './PopupActions';
 import { PopupResult }  from './PopupResult';
+import { DialogWindow } from '../dialog/DialogWindow';
 
 export class GeneralPopup extends Popup {
 
@@ -17,8 +18,11 @@ export class GeneralPopup extends Popup {
               popup.close();
             })
             .finally(() => {
-              if (!(options && options.closePopup == false))
+              if (!(options && options.closePopup == false)) {
                 popup.close();
+                DialogWindow.removeBackdrop();
+                DialogWindow.closeRefocusLayout();
+              }
             }) as Promise<PopupResult>;
     }
 

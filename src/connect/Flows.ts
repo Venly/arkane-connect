@@ -9,6 +9,7 @@ import { SecretType }                                                from '../mo
 import { Wallet }                                                    from '../models/wallet/Wallet';
 import { WindowMode }                                                from '../models/WindowMode';
 import { PopupOptions }                                              from '../popup/Popup';
+import { DialogWindow } from '../dialog/DialogWindow';
 
 export class Flows {
     private clientId: string;
@@ -132,7 +133,10 @@ export class Flows {
 
     private manageWalletsPopup(chain: string,
                                options: PopupOptions): Promise<PopupResult> {
-        return GeneralPopup.openNewPopup(PopupActions.MANAGE_WALLETS, this.connect._bearerTokenProvider, {chain: chain.toLowerCase()}, options);
+        return DialogWindow.openActionDialog(this.clientId, 'connect-wallet')
+            .then(() => {
+                return GeneralPopup.openNewPopup(PopupActions.MANAGE_WALLETS, this.connect._bearerTokenProvider, {chain: chain.toLowerCase()}, options);
+            })
     }
 
     private linkWalletsRedirect(options?: { redirectUri?: string, correlationID?: string }): Promise<void> {
@@ -156,7 +160,10 @@ export class Flows {
     }
 
     private linkWalletsPopup(options?: PopupOptions): Promise<PopupResult> {
-        return GeneralPopup.openNewPopup(PopupActions.LINK_WALLET, this.connect._bearerTokenProvider, undefined, options);
+        return DialogWindow.openActionDialog(this.clientId, 'connect-wallet')
+            .then(() => {
+                return GeneralPopup.openNewPopup(PopupActions.LINK_WALLET, this.connect._bearerTokenProvider, undefined, options);
+            })
     }
 
     private performKYCPopup(options?: PopupOptions): Promise<PopupResult> {
