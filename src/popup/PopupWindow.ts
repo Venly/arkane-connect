@@ -1,3 +1,4 @@
+import { DialogWindow } from '../dialog/DialogWindow';
 import Utils from '../utils/Utils';
 
 export class PopupWindow {
@@ -97,57 +98,15 @@ export class PopupWindow {
     }
 
     static closeOverlay(id: string, useOverlay: boolean): void {
-        if (useOverlay) {
-            const overlay = document.querySelector(`#${id}`);
-            if (overlay && overlay.parentNode) {
-                overlay.parentNode.removeChild(overlay);
-            }
-        }
+        const overlayContainer = document.querySelector(`#venly-overlay-container, #${id}`);
+        if (overlayContainer)
+          overlayContainer.remove();
     }
 
     static openOverlay(id: string, useOverlay: boolean, focus: () => void, close: () => void): void {
         if (useOverlay) {
-            fetch(`${Utils.urls.connect}/static/html/re-focus-layout.html`)
-                .then(response => response.text())
-                .then(template => {
-                    const overlayContainer = this.createOverlayContainer(id);
-                    const container = document.createElement('div');
-                    const shadowRoot = container.attachShadow({mode: 'open'});
-                    container.classList.add('venly-connect-refocus-container');
-                    shadowRoot.innerHTML = template;
-                    container.style.position = 'absolute';
-                    container.style.top = 'calc(50% - 218px)';
-                    container.style.left = 'calc(50% - 147.5px)';
-                    container.style.zIndex = '2147483647';
-                    overlayContainer.appendChild(container);
-                    document.body.appendChild(overlayContainer);
-
-                    this.addRefocusListeners(shadowRoot, focus);
-                });
+            DialogWindow.showRefocusLayout(id, focus);
         }
-    }
-
-    private static addRefocusListeners(root: ShadowRoot, focus: () => void) {
-        const reopenAction = root.querySelector('.venly-connect-re-focus-wrapper .reopen-action');
-
-        if (reopenAction) {
-            reopenAction.addEventListener('click', () => focus());
-        }
-    }
-
-    private static createOverlayContainer(id: string): HTMLDivElement {
-        const overlayContainer = document.createElement('div');
-        overlayContainer.id = id;
-        overlayContainer.classList.add('overlay-container');
-        overlayContainer.style.position = 'fixed';
-        overlayContainer.style.zIndex = '2147483647';
-        overlayContainer.style.top = '0';
-        overlayContainer.style.left = '0';
-        overlayContainer.style.height = '100%';
-        overlayContainer.style.background = 'rgba(33, 37, 41, 0.5)';
-        overlayContainer.style.width = '100%';
-
-        return overlayContainer;
     }
 }
 
