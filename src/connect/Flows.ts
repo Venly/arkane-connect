@@ -181,6 +181,9 @@ export class Flows {
     }
 
     private claimWalletsPopup(options?: PopupOptions): Promise<PopupResult> {
-        return GeneralPopup.openNewPopup(PopupActions.CLAIM_WALLETS, this.connect._bearerTokenProvider, undefined, options);
+        return DialogWindow.openActionDialog(this.clientId, 'claim-wallet')
+            .then(() => {
+                return GeneralPopup.openNewPopup(PopupActions.CLAIM_WALLETS, this.connect._bearerTokenProvider, undefined, options);
+            })
     }
 }
