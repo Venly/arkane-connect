@@ -258,9 +258,11 @@ export class DialogWindow {
       shadowRoot.innerHTML = template;
       container.style.position = 'absolute';
       container.style.zIndex = '2147483647';
-      container.style.display = 'block';
-      container.style.top = `${(window.innerWidth > 450 ? '0' : '50%')}`;
-      container.style.left = `${(window.innerWidth > 450 ? 'calc(50% - 200px)' : '50%')}`;
+      container.style.display = 'flex';
+      container.style.justifyContent = 'center';
+      container.style.width = '100%';
+      container.style.height = '100%';
+
 
       const companyLogo = shadowRoot.querySelector('.connect-company-logo');
       (companyLogo as HTMLImageElement).src = `${Utils.urls.storage}/clients/logos/${clientId}.png`;
