@@ -11,39 +11,50 @@ import { BuildNftTransferRequestDto }       from '../models/transaction/build/Bu
 import { BuildGasTransferRequestDto }       from '../models/transaction/build/BuildGasTransferRequestDto';
 import { BuildGenericTransferRequestDto }   from '../models/transaction/build/BuildGenericTransferRequestDto';
 import { BuildContractExecutionRequestDto } from '../models/transaction/build/BuildContractExecutionRequestDto';
-import { BuildContractExecutionRequest } from '../models/transaction/build/BuildContractExecutionRequest';
-import { GenericSignatureRequest }       from '../models/transaction/GenericSignatureRequest';
-import { TransactionRequest }            from '../models/transaction/TransactionRequest';
-import Popup, { PopupOptions }           from '../popup/Popup';
-import { Signer, SignerResult }          from './Signer';
-import { EventTypes }                    from '../types/EventTypes';
-import Utils                             from '../utils/Utils';
-import { BuildMessageSignRequestDto }    from '../models/transaction/build/BuildMessageSignRequestDto';
-import { BuildMessageSignRequest }       from '../models/transaction/build/BuildMessageSignRequest';
-import { BuildEip712SignRequestDto }     from '../models/transaction/build/BuildEip712SignRequestDto';
-import { BuildEip712SignRequest }        from '../models/transaction/build/BuildEip712SignRequest';
-import { ImportWalletRequest }           from '../models/wallet/ImportWalletRequest';
+import { BuildContractExecutionRequest }    from '../models/transaction/build/BuildContractExecutionRequest';
+import { GenericSignatureRequest }          from '../models/transaction/GenericSignatureRequest';
+import { TransactionRequest }               from '../models/transaction/TransactionRequest';
+import Popup, { PopupOptions }              from '../popup/Popup';
+import { Signer, SignerResult }             from './Signer';
+import { EventTypes }                       from '../types/EventTypes';
+import Utils                                from '../utils/Utils';
+import { BuildMessageSignRequestDto }       from '../models/transaction/build/BuildMessageSignRequestDto';
+import { BuildMessageSignRequest }          from '../models/transaction/build/BuildMessageSignRequest';
+import { BuildEip712SignRequestDto }        from '../models/transaction/build/BuildEip712SignRequestDto';
+import { BuildEip712SignRequest }           from '../models/transaction/build/BuildEip712SignRequest';
+import { ImportWalletRequest }              from '../models/wallet/ImportWalletRequest';
+import { DialogWindow }                     from '../dialog/DialogWindow';
 
 export class PopupSigner implements Signer {
 
-    private popup: PopupSignerPopup;
+    private popup?: PopupSignerPopup;
     private bearerTokenProvider: () => string;
+    private options?: PopupOptions;
+    private clientId: string;
 
-    constructor(bearerTokenProvider: () => string,
-                options?: PopupOptions) {
+    constructor(bearerTokenProvider: () => string, clientId: string, options?: PopupOptions) {
         this.bearerTokenProvider = bearerTokenProvider;
-        this.popup = new PopupSignerPopup(`${Utils.urls.connect}/popup/transaction/init.html`, this.bearerTokenProvider, options);
+        this.options = options;
+        this.clientId = clientId;
+    }
+
+    public openPopup() {
+        this.popup = new PopupSignerPopup(`${Utils.urls.connect}/popup/transaction/init.html`, this.bearerTokenProvider, this.options);
         window.addEventListener('beforeunload', () => {
             this.closePopup();
         });
     }
 
     public closePopup() {
-        this.popup.close();
+        if (this.popup)
+            this.popup.close();
     }
 
     public isOpen(): boolean {
-        return this.popup.isOpen();
+        if (this.popup)
+            return this.popup.isOpen();
+        else
+            return false;
     }
 
     public async sign(signatureRequest: GenericSignatureRequest): Promise<SignerResult> {
@@ -53,11 +64,11 @@ export class PopupSigner implements Signer {
     }
 
     public async signMessage(buildDate: BuildMessageSignRequestDto): Promise<SignerResult> {
-        return this.signRequest(BuildMessageSignRequest.fromData(buildDate));
+        return this.signData(BuildMessageSignRequest.fromData(buildDate));
     }
 
     public async signEip712(buildDate: BuildEip712SignRequestDto): Promise<SignerResult> {
-        return this.signRequest(BuildEip712SignRequest.fromData(buildDate));
+        return this.signData(BuildEip712SignRequest.fromData(buildDate));
     }
 
     /** Deprecated since 1.1.9. Use sign instead */
@@ -115,21 +126,37 @@ export class PopupSigner implements Signer {
     }
 
     public async confirm(request: ConfirmationRequest): Promise<SignerResult> {
-        return this.handleRequest('confirm', request);
+        return DialogWindow.openActionDialog(this.clientId, 'import-wallet').then(() => {
+            this.openPopup();
+            return this.handleRequest('confirm', request);
+        });
     }
 
     private async execute(requestData: RequestDataType): Promise<SignerResult> {
-        return this.handleRequest('execute', requestData);
+        return DialogWindow.openActionDialog(this.clientId, 'execute-transaction').then(() => {
+            this.openPopup();
+            return this.handleRequest('execute', requestData);
+        });
+    }
+
+    private async signData(requestData: RequestDataType): Promise<SignerResult> {
+        return DialogWindow.openActionDialog(this.clientId, 'sign-data').then(() => {
+            this.openPopup();
+            return this.handleRequest('sign', requestData);
+        });
     }
 
     private async signRequest(requestData: RequestDataType): Promise<SignerResult> {
-        return this.handleRequest('sign', requestData);
+        return DialogWindow.openActionDialog(this.clientId, 'sign-transaction').then(() => {
+            this.openPopup();
+            return this.handleRequest('sign', requestData);
+        });
     }
 
     private async handleRequest(action: string,
                                 requestData: RequestDataType): Promise<SignerResult> {
-        this.popup.focus();
-        return this.popup
+        this.popup!.focus();
+        return this.popup!
                    .sendData(action, Object.assign({}, requestData))
                    .finally(() => {
                        this.closePopup()

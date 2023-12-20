@@ -70,7 +70,7 @@ export class DialogWindow {
         .then(template => {
           const { overlayContainer, container, shadowRoot } = this.createTemplate(template, clientId);
           
-          shadowRoot.querySelector('.action-btn')!.addEventListener('click', event => {
+          shadowRoot.querySelector('.action-btn')!.addEventListener('click', () => {
             this.closeLoginDialog();
             resolve(true);
           });
@@ -159,13 +159,13 @@ export class DialogWindow {
     }
   }
 
-  private static addCloseListeners(root: ShadowRoot, reject: () => void) {
+  private static addCloseListeners(root: ShadowRoot, reject: (reason?: any) => void) {
     const close = root.querySelector('.venly-connect-close-dialog');
     if (close) {
       close.addEventListener('click', () => {
         this.closeLoginDialog();
         this.removeBackdrop();
-        reject();
+        reject({ status: 'ABORTED', errors: [] });
       });
     }
   }

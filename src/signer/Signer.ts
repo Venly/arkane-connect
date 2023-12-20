@@ -50,10 +50,10 @@ export interface Signer {
 
 export class SignerFactory {
 
-    public static createSignerFor(signMethod: WindowMode, bearerTokenProvider: () => string, popupOptions?: PopupOptions): Signer {
+    public static createSignerFor(signMethod: WindowMode, bearerTokenProvider: () => string, clientId: string, popupOptions?: PopupOptions): Signer {
         switch (signMethod) {
             case WindowMode.POPUP:
-                return new PopupSigner(bearerTokenProvider, popupOptions);
+                return new PopupSigner(bearerTokenProvider, clientId, popupOptions);
             case WindowMode.REDIRECT:
                 return new RedirectSigner(bearerTokenProvider);
             default:
