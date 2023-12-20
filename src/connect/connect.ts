@@ -38,6 +38,10 @@ export class VenlyConnect {
         this.flows = new Flows(this, this.clientId);
     }
 
+    public get signer() {
+      return SignerFactory.createSignerFor(this.windowMode, this._bearerTokenProvider, this.clientId, { useOverlay: this.useOverlayWithPopup });
+    }
+
     public async checkAuthenticated(options?: AuthenticationOptions): Promise<AuthenticationResult> {
         if (this.loginResult) {
             return this.afterAuthentication(this.loginResult);
@@ -77,12 +81,13 @@ export class VenlyConnect {
         }
     }
 
+    /* Deprecated - Use VenlyConnect.signer directly instead */
     public createSigner(windowMode?: WindowMode,
                         popupOptions?: PopupOptions): Signer {
         if (!popupOptions || popupOptions.useOverlay == undefined) {
             popupOptions = {useOverlay: this.useOverlayWithPopup}
         }
-        return SignerFactory.createSignerFor(windowMode || this.signUsing || this.windowMode, this._bearerTokenProvider, popupOptions);
+        return SignerFactory.createSignerFor(windowMode || this.signUsing || this.windowMode, this._bearerTokenProvider, this.clientId, popupOptions);
     }
 
     public isPopupSigner(signer: Signer): signer is PopupSigner {
