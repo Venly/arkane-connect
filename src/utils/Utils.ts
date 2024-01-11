@@ -5,12 +5,14 @@ export default class Utils {
     private static rawEnvironmentHolder: string = '';
     public static environment: string = '';
     public static connectEnvironment: string = '';
+    public static keycloakEnvironment: string = '';
 
     public static set rawEnvironment(env: string) {
         Utils.rawEnvironmentHolder = env;
         const split = env.split('-');
         Utils.environment = split[0];
         Utils.connectEnvironment = split.length > 1 && split[1] || '';
+        Utils.keycloakEnvironment = split.length > 2 && split[2] || '';
     };
 
     public static get rawEnvironment() {
@@ -59,7 +61,7 @@ export default class Utils {
             return {
                 api: environment.api,
                 connect: Utils.environment === 'local' || Utils.connectEnvironment === 'local' ? 'http://localhost:8181' : environment.connect,
-                login: environment.login,
+                login: Utils.keycloakEnvironment === 'local' ? 'https://localhost:8443' : environment.login,
                 storage: environment.storage,
             }
         } else {
