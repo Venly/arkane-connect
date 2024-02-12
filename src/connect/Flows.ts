@@ -82,7 +82,7 @@ export class Flows {
 
         try {
             // POPUP is mandatory for this flow
-            const authenticationOptions: AuthenticationOptions = {windowMode: WindowMode.POPUP, closePopup: false};
+            const authenticationOptions: AuthenticationOptions = {windowMode: WindowMode.POPUP};
             if (options && options.idpHint) {
                 authenticationOptions.idpHint = options.idpHint;
             }
@@ -96,7 +96,7 @@ export class Flows {
             if (result.isAuthenticated) {
                 wallets = await this.connect.api.getWallets({secretType: chain.toUpperCase() as SecretType});
                 if (!(wallets && wallets.length > 0)) {
-                    const popupResult = await this.manageWallets(chain, {windowMode: WindowMode.POPUP, closePopup: false});
+                    const popupResult = await this.manageWallets(chain, {windowMode: WindowMode.POPUP});
                     if (popupResult && popupResult.status === 'SUCCESS') {
                         wallets = await this.connect.api.getWallets({secretType: chain.toUpperCase() as SecretType});
                     }
@@ -109,7 +109,7 @@ export class Flows {
             console.error(e);
         }
 
-        if (Security.hasPopupWindow() && !(options && options.closePopup == false)) {
+        if (Security.hasPopupWindow()) {
             Security.closePopupWindow();
         }
 
