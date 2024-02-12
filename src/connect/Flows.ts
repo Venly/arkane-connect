@@ -82,7 +82,7 @@ export class Flows {
 
         try {
             // POPUP is mandatory for this flow
-            const authenticationOptions: AuthenticationOptions = {windowMode: WindowMode.POPUP, closePopup: false};
+            const authenticationOptions: AuthenticationOptions = {windowMode: WindowMode.POPUP};
             if (options && options.idpHint) {
                 authenticationOptions.idpHint = options.idpHint;
             }
