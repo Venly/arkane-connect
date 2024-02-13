@@ -82,7 +82,7 @@ export class DialogWindow {
     });
   }
 
-  private static addFonts() {
+  public static addFonts() {
     const href = `${Utils.urls.connect}/static/css/connect/fonts.css`;
 
     if (!document.querySelector(`link[href="${href}"]`)) {
