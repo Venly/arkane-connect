@@ -18,10 +18,10 @@ export class VenlyConnect {
     public windowMode: WindowMode;
     public useOverlayWithPopup: boolean;
     public _bearerTokenProvider: () => string;
+    public loginResult?: LoginResult;
 
     private clientId: string;
     private auth?: KeycloakInstance;
-    private loginResult?: LoginResult;
 
     constructor(clientId: string,
                 options?: ConstructorOptions) {

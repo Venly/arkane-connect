@@ -76,7 +76,7 @@ export class Flows {
 
     public async getAccount(chain: SecretType,
                             options?: AuthenticationOptions): Promise<Account> {
-        let loginResult: any = {};
+        let loginResult: any = this.connect.loginResult || {};
         let wallets: Wallet[] = [];
         const correlationId = Utils.uuidv4();
 
@@ -89,7 +89,8 @@ export class Flows {
             if (options && options.emailHint) {
                 authenticationOptions.emailHint = options.emailHint;
             }
-            loginResult = await Security.login(this.clientId, authenticationOptions, correlationId);
+            if (!loginResult || !loginResult.authenticated)
+              loginResult = await Security.login(this.clientId, authenticationOptions, correlationId);
 
             let result = this.connect._afterAuthenticationForFlowUse(loginResult);
 
