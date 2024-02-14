@@ -9,6 +9,7 @@ import { Signer, SignerFactory, SignMethod } from '../signer/Signer';
 import Utils                                 from '../utils/Utils';
 import { Flows }                             from './Flows';
 import { PopupOptions }                      from '../popup/Popup';
+import { DialogWindow }                      from '../dialog/DialogWindow';
 
 export class VenlyConnect {
 
@@ -36,6 +37,7 @@ export class VenlyConnect {
         }
 
         this.flows = new Flows(this, this.clientId);
+        DialogWindow.addFonts();
     }
 
     public get signer() {
