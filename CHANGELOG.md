@@ -4,9 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [Unreleased]
 
-## 2.0.0
+## [2.4.0]
+### Added
+- Preload fonts when `VenlyConnect` is initialized in order to minimize font/layout shifting.
+
+### Fixed
+- Fix issue with `getAccount()` always triggering authentication
+
+## [2.3.1]
+### Fixed
+- Fix issue with authentication popup staying open during `getAccount()`
+
+## [2.3.0]
+### Added
+- New modals for all actions in `VenlyConnect.flows`. 
+  - Users must click on the modal to initiate the popup. This should prevent issues with popup blocking.
+
+## [2.0.0]
 ### Added
 - Redesign login flow + new UI
 - Add `options.authenticationOptions.closePopup` option. If set to false, Venly popup will be kept open after authenticating.
