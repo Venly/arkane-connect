@@ -127,34 +127,31 @@ export class PopupSigner implements Signer {
 
     public async confirm(request: ConfirmationRequest): Promise<SignerResult> {
         return DialogWindow.openActionDialog(this.clientId, 'import-wallet').then(() => {
-            this.openPopup();
             return this.handleRequest('confirm', request);
         });
     }
 
     private async execute(requestData: RequestDataType): Promise<SignerResult> {
         return DialogWindow.openActionDialog(this.clientId, 'execute-transaction').then(() => {
-            this.openPopup();
             return this.handleRequest('execute', requestData);
         });
     }
 
     private async signData(requestData: RequestDataType): Promise<SignerResult> {
         return DialogWindow.openActionDialog(this.clientId, 'sign-data').then(() => {
-            this.openPopup();
             return this.handleRequest('sign', requestData);
         });
     }
 
     private async signRequest(requestData: RequestDataType): Promise<SignerResult> {
         return DialogWindow.openActionDialog(this.clientId, 'sign-transaction').then(() => {
-            this.openPopup();
             return this.handleRequest('sign', requestData);
         });
     }
 
     private async handleRequest(action: string,
                                 requestData: RequestDataType): Promise<SignerResult> {
+        this.openPopup();
         this.popup!.focus();
         return this.popup!
                    .sendData(action, Object.assign({}, requestData))
