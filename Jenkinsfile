@@ -49,9 +49,8 @@ pipeline {
                         sh 'npm publish --tag ${BRANCH_NAME}'
                     }
                 }
-                withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                    sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ArkaneNetwork/arkane-connect.git HEAD:refs/heads/${BRANCH_NAME}'
-                    sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ArkaneNetwork/arkane-connect.git --tags'
+                withCredentials([gitUsernamePassword(credentialsId: 'GITHUB_CRED', gitToolName: 'Default')]) {
+                    sh 'git push --tags origin HEAD:refs/heads/${BRANCH_NAME}'
                 }
             }
             post {
@@ -69,7 +68,7 @@ pipeline {
             }
             steps {
                 sh 'echo "Merging back branch to develop"'
-                withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                withCredentials([gitUsernamePassword(credentialsId: 'GITHUB_CRED', gitToolName: 'Default')]) {
                     sh 'git reset --hard'
                     sh 'git checkout ${GIT_COMMIT}'
                     script {
