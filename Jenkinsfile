@@ -67,7 +67,6 @@ pipeline {
                 }
             }
             steps {
-                sh 'echo "Merging back branch to develop"'
                 withCredentials([gitUsernamePassword(credentialsId: 'GITHUB_CRED', gitToolName: 'Default')]) {
                     sh 'git reset --hard'
                     sh 'git checkout ${GIT_COMMIT}'
