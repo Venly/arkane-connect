@@ -69,12 +69,22 @@ pipeline {
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                    sh 'git remote add mergeBack https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ArkaneNetwork/arkane-connect.git'
-                    sh 'git fetch --no-tags mergeBack'
                     sh 'git reset --hard'
-                    sh 'git checkout -b develop --track mergeBack/develop'
+                    script {
+                        def packageFile = readJSON file: 'package.json'
+                        env.BRANCH_VERSION = packageFile.version
+                    }
+                    sh "git checkout develop"
+                    script {
+                        def packageFile = readJSON file: 'package.json'
+                        env.DEVELOP_VERSION = packageFile.version
+                    }
+                    sh "npm version ${BRANCH_VERSION} --git-tag-version=false"
+                    sh 'git commit -am "Update develop to branch version to avoid merge conflicts"'
                     sh 'git merge ${GIT_COMMIT}'
-                    sh 'git push mergeBack'
+                    sh "npm version ${DEVELOP_VERSION} --git-tag-version=false"
+                    sh 'git commit -am "Update develop version back to pre-merge state"'
+                    sh 'git push'
                 }
             }
             post {
