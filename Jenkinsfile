@@ -49,9 +49,8 @@ pipeline {
                         sh 'npm publish --tag ${BRANCH_NAME}'
                     }
                 }
-                withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                    sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ArkaneNetwork/arkane-connect.git HEAD:refs/heads/${BRANCH_NAME}'
-                    sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ArkaneNetwork/arkane-connect.git --tags'
+                withCredentials([gitUsernamePassword(credentialsId: 'GITHUB_CRED', gitToolName: 'Default')]) {
+                    sh 'git push --tags origin HEAD:refs/heads/${BRANCH_NAME}'
                 }
             }
             post {
@@ -68,12 +67,15 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                sh 'echo "Merging back branch to develop"'
+                withCredentials([gitUsernamePassword(credentialsId: 'GITHUB_CRED', gitToolName: 'Default')]) {
                     sh 'git reset --hard'
+                    sh 'git checkout ${GIT_COMMIT}'
                     script {
                         def packageFile = readJSON file: 'package.json'
                         env.BRANCH_VERSION = packageFile.version
                     }
+                    sh 'git fetch --no-tags origin develop:develop'
                     sh "git checkout develop"
                     script {
                         def packageFile = readJSON file: 'package.json'
@@ -84,7 +86,7 @@ pipeline {
                     sh 'git merge ${GIT_COMMIT}'
                     sh "npm version ${DEVELOP_VERSION} --git-tag-version=false"
                     sh 'git commit -am "Update develop version back to pre-merge state"'
-                    sh 'git push'
+                    sh 'git push origin develop:develop'
                 }
             }
             post {
