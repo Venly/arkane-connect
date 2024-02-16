@@ -87,7 +87,7 @@ pipeline {
                     sh 'git merge ${GIT_COMMIT}'
                     sh "npm version ${DEVELOP_VERSION} --git-tag-version=false"
                     sh 'git commit -am "Update develop version back to pre-merge state"'
-                    sh 'git push'
+                    sh 'git push origin develop:develop'
                 }
             }
             post {
