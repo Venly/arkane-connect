@@ -71,6 +71,7 @@ pipeline {
                 sh 'echo "Merging back branch to develop"'
                 withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                     sh 'git reset --hard'
+                    sh 'git checkout ${GIT_COMMIT}'
                     script {
                         def packageFile = readJSON file: 'package.json'
                         env.BRANCH_VERSION = packageFile.version
@@ -83,7 +84,7 @@ pipeline {
                     }
                     sh "npm version ${BRANCH_VERSION} --git-tag-version=false"
                     sh 'git commit -am "Update develop to branch version to avoid merge conflicts"'
-                    sh 'git merge origin/${BRANCH_NAME}'
+                    sh 'git merge ${GIT_COMMIT}'
                     sh "npm version ${DEVELOP_VERSION} --git-tag-version=false"
                     sh 'git commit -am "Update develop version back to pre-merge state"'
                     sh 'git push'
