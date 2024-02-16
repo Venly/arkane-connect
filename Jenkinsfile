@@ -75,6 +75,7 @@ pipeline {
                         def packageFile = readJSON file: 'package.json'
                         env.BRANCH_VERSION = packageFile.version
                     }
+                    sh 'git fetch --no-tags origin develop:develop'
                     sh "git checkout develop"
                     script {
                         def packageFile = readJSON file: 'package.json'
