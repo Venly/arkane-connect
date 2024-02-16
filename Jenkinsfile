@@ -83,7 +83,7 @@ pipeline {
                     }
                     sh "npm version ${BRANCH_VERSION} --git-tag-version=false"
                     sh 'git commit -am "Update develop to branch version to avoid merge conflicts"'
-                    sh 'git merge ${GIT_COMMIT}'
+                    sh 'git merge ${BRANCH_NAME}'
                     sh "npm version ${DEVELOP_VERSION} --git-tag-version=false"
                     sh 'git commit -am "Update develop version back to pre-merge state"'
                     sh 'git push'
