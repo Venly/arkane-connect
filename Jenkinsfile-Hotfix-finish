@@ -13,7 +13,7 @@
                 sh "git config --global user.email \"jenkins@arkane.network\""
                 sh "git config --global user.name \"Jenkins\""
                 withCredentials([gitUsernamePassword(credentialsId: 'GITHUB_CRED', gitToolName: 'Default')]) {
-                    sh 'git fetch -p'
+                    sh 'git fetch --no-tags -p'
                 }
                 script {
                     env.HOTFIX_BRANCH = sh (script: 'git branch -a | grep origin/hotfix- | cut -d \'/\' -f 3', returnStdout: true).trim()

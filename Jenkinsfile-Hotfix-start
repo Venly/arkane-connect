@@ -13,7 +13,7 @@ pipeline {
                 sh "git config --global user.email \"jenkins@arkane.network\""
                 sh "git config --global user.name \"Jenkins\""
                 withCredentials([gitUsernamePassword(credentialsId: 'GITHUB_CRED', gitToolName: 'Default')]) {
-                    sh 'git fetch -p'
+                    sh 'git fetch --no-tags -p'
                 }
             }
         }
@@ -37,16 +37,19 @@ pipeline {
         }
         stage('Merge hotfix-branch back to develop') {
             steps {
-                sh 'git checkout develop'
-                script {
-                    def packageFile = readJSON file: 'package.json'
-                    env.DEVELOP_VERSION = packageFile.version
+                withCredentials([gitUsernamePassword(credentialsId: 'GITHUB_CRED', gitToolName: 'Default')]) {
+                    sh "git checkout develop"
+                    script {
+                        def packageFile = readJSON file: 'package.json'
+                        env.DEVELOP_VERSION = packageFile.version
+                    }
+                    sh "npm version ${RAW_HOTFIX_VERSION} --git-tag-version=false"
+                    sh 'git commit -am "Update develop to hotfix version to avoid merge conflicts"'
+                    sh "git merge hotfix-${HOTFIX_VERSION}"
+                    sh "npm version ${DEVELOP_VERSION} --git-tag-version=false"
+                    sh 'git commit -am "Update develop version back to pre-merge state"'
+                    sh 'git push origin develop:develop'
                 }
-                sh "npm version ${RAW_HOTFIX_VERSION} --git-tag-version=false"
-                sh 'git commit -am "Update develop to hotfix version to avoid merge conflicts"'
-                sh "git merge hotfix-${HOTFIX_VERSION}"
-                sh "npm version ${DEVELOP_VERSION} --git-tag-version=false"
-                sh 'git commit -am "Update develop version back to pre-merge state"'
             }
         }
     }
