@@ -27,8 +27,8 @@ export class VenlyConnect {
     constructor(clientId: string,
                 options?: ConstructorOptions) {
         this.clientId = clientId;
-        this.signUsing = (options && options.signUsing as unknown as WindowMode) || WindowMode.POPUP;
         this.windowMode = (options && options.windowMode) || WindowMode.POPUP;
+        this.signUsing = (options && options.signUsing as unknown as WindowMode) || this.windowMode;
         this.useOverlayWithPopup = (options && options.useOverlayWithPopup != undefined) ? options.useOverlayWithPopup : true;
         Utils.rawEnvironment = options && options.environment || 'prod';
         this._bearerTokenProvider = options && options.bearerTokenProvider || (() => this.loginResult && this.loginResult.authenticated && this.auth && this.auth.token || '');
