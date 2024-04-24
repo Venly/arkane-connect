@@ -77,7 +77,9 @@ export class PopupSigner implements Signer {
     }
 
     public async executeNativeTransaction(transactionRequest: TransactionRequest): Promise<SignerResult> {
-        return this.handleRequest(`execute/${transactionRequest.type}`, transactionRequest);
+        return DialogWindow.openActionDialog(this.clientId, 'execute-transaction').then(() => {
+            return this.handleRequest(`execute/${transactionRequest.type}`, transactionRequest);
+        });
     }
 
     /** Deprecated since 1.4.0. Use transfer functions instead */
@@ -110,11 +112,15 @@ export class PopupSigner implements Signer {
     }
 
     public executeSavedTransaction(transactionId: string): Promise<SignerResult> {
-        return this.handleRequest(`execute/${transactionId}`, {});
+        return DialogWindow.openActionDialog(this.clientId, 'execute-transaction').then(() => {
+            return this.handleRequest(`execute/${transactionId}`, {});
+        });
     }
 
     public resubmitTransaction(transactionId: string): Promise<SignerResult> {
-        return this.handleRequest('resubmit', {transactionId});
+        return DialogWindow.openActionDialog(this.clientId, 'execute-transaction').then(() => {
+            return this.handleRequest('resubmit', {transactionId});
+        });
     }
 
     public cancelTransaction(transactionId: string): Promise<SignerResult> {
