@@ -50,7 +50,7 @@ export class DialogWindow {
               this.closeRefocusLayout();
               resolve(authResult)
             });
-          } 
+          }
           else {
             overlayContainer.appendChild(container);
             this.addAuthEventListeners(clientId, options as AuthenticationOptions, resolve, shadowRoot);
@@ -69,12 +69,12 @@ export class DialogWindow {
         .then(response => response.text())
         .then(template => {
           const { overlayContainer, container, shadowRoot } = this.createTemplate(template, clientId);
-          
+
           shadowRoot.querySelector('.action-btn')!.addEventListener('click', () => {
             this.closeLoginDialog();
             resolve(true);
           });
-          
+
           overlayContainer.appendChild(container);
           document.body.appendChild(overlayContainer);
           this.addCloseListeners(shadowRoot, reject);
@@ -90,6 +90,7 @@ export class DialogWindow {
       stylesheet.setAttribute('rel', 'stylesheet');
       stylesheet.setAttribute('href', href);
       stylesheet.setAttribute('type', 'text/css');
+      stylesheet.setAttribute('crossorigin', 'anonymous');
       (document.querySelector('head') as HTMLHeadElement).appendChild(stylesheet);
     }
   }
@@ -197,7 +198,7 @@ export class DialogWindow {
         container.style.zIndex = '2147483647';
 
         const existingContainer = document.querySelector('.overlay-container');
-        if (existingContainer) 
+        if (existingContainer)
           existingContainer.appendChild(container);
         else {
           overlayContainer.appendChild(this.createBackdrop());
@@ -212,7 +213,7 @@ export class DialogWindow {
   public static closeRefocusLayout(closePopup: boolean = true) {
     if (closePopup)
       Security.closePopupWindow();
-    
+
     const backdrop = document.body.querySelector('#venly-overlay-container');
     if (backdrop)
       backdrop.remove();
@@ -272,7 +273,7 @@ export class DialogWindow {
       this.addFonts();
       this.addAnimationScript(shadowRoot);
       overlayContainer.appendChild(container);
-      
+
       return { overlayContainer, container, shadowRoot };
   }
 }
