@@ -337,6 +337,15 @@ export class Security {
         );
     }
 
+    public static async forceUpdateToken(): Promise<void> {
+        const refreshed = await Security.keycloak?.updateToken(300);
+        if (refreshed) {
+            if (Security.onTokenUpdate && Security.keycloak.token) {
+                Security.onTokenUpdate(Security.keycloak.token);
+            }
+        }
+    }
+
     private static async keycloakLogin(config: any,
                                        loginOptions?: KeycloakLoginOptions): Promise<LoginResult> {
         const Keycloak: { default: (config?: KeycloakConfig | string | undefined) => KeycloakInstance } = await import ('keycloak-js');

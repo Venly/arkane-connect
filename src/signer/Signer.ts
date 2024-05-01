@@ -14,7 +14,7 @@ import { PopupOptions }                     from '../popup/Popup';
 import { BuildMessageSignRequestDto }       from '../models/transaction/build/BuildMessageSignRequestDto';
 import { BuildEip712SignRequestDto }        from '../models/transaction/build/BuildEip712SignRequestDto';
 import { ImportWalletRequest }              from '../models/wallet/ImportWalletRequest';
-
+import { Security }                         from '../connect/Security'; 
 
 export interface Signer {
     /** Deprecated since 1.4.0 Use specific transfer functions */
@@ -51,6 +51,7 @@ export interface Signer {
 export class SignerFactory {
 
     public static createSignerFor(signMethod: WindowMode, bearerTokenProvider: () => string, clientId: string, popupOptions?: PopupOptions): Signer {
+        Security.forceUpdateToken();
         switch (signMethod) {
             case WindowMode.POPUP:
                 return new PopupSigner(bearerTokenProvider, clientId, popupOptions);
