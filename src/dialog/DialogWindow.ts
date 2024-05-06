@@ -83,6 +83,10 @@ export class DialogWindow {
   }
 
   public static addFonts() {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     const href = `${Utils.urls.connect}/static/css/connect/fonts.css`;
 
     if (!document.querySelector(`link[href="${href}"]`)) {

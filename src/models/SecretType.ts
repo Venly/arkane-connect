@@ -12,5 +12,7 @@ export enum SecretType {
     TRON = 'TRON',
     VECHAIN = 'VECHAIN',
     IMX = 'IMX',
-    ARBITRUM = 'ARBITRUM'
+    ARBITRUM = 'ARBITRUM',
+    XPLA = 'XPLA',
+    BASE = 'BASE'
 }
