@@ -176,15 +176,11 @@ export class DialogWindow {
   }
 
   private static closeLoginDialog() {
-    const dialogContainer = document.body.querySelector('.venly-connect-dialog-container');
-    if (dialogContainer)
-      dialogContainer.remove();
+    document.querySelectorAll('.venly-connect-dialog-container').forEach(e => e.remove());
   }
 
   public static removeBackdrop() {
-    const backdrop = document.body.querySelector('#venly-overlay-container');
-    if (backdrop)
-      backdrop.remove();
+    document.querySelectorAll('.overlay-container').forEach(e => e.remove());
   }
 
   public static showRefocusLayout(id?: string, focus?: Function) {
@@ -215,12 +211,10 @@ export class DialogWindow {
   }
 
   public static closeRefocusLayout(closePopup: boolean = true) {
+    document.querySelectorAll('.overlay-container').forEach(e => e.remove());
+    document.querySelectorAll('.venly-connect-refocus-container').forEach(e => e.remove());
     if (closePopup)
       Security.closePopupWindow();
-
-    const backdrop = document.body.querySelector('#venly-overlay-container');
-    if (backdrop)
-      backdrop.remove();
   }
 
   private static addRefocusListeners(root: ShadowRoot, focus: Function = Security.focusPopupWindow) {
