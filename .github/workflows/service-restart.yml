@@ -1,0 +1,82 @@
+name: 🔁 Restart Service
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        type: choice
+        description: "Which service to restart?"
+        required: true
+        options:
+          - imx-blockchain-arceus
+          - imx-blockchain-gateway
+          - imx-blockchain-signer
+      environment:
+        type: choice
+        description: "Which environment?"
+        required: true
+        default: "qa"
+        options:
+          - prd
+          - qa
+          - staging
+env:
+  AWS_REGION: "eu-west-1"
+  CLUSTER_NAME_PREFIX: imx-blockchain
+permissions:
+  actions: read
+  checks: read
+  contents: write
+  deployments: read
+  id-token: write
+  issues: read
+  discussions: read
+  packages: read
+  pages: read
+  pull-requests: read
+  repository-projects: read
+  security-events: read
+  statuses: read
+run-name: 🔁 Restart ${{ inputs.environment }} ${{ inputs.service }}
+jobs:
+  restart-qa:
+    if: ${{ inputs.environment == 'qa' }}
+    runs-on: docker-runner
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: 🔁 Restart ${{ inputs.environment }} ${{ inputs.service }}
+        uses: ArkaneNetwork/venly-github-workflows/.github/actions/ecs_restart_service@main
+        with:
+          aws_region: eu-west-1
+          aws_role: ${{ secrets.WALLET_NONPRD_DEPLOY_ROLE }}
+          cluster_name: ${{ env.CLUSTER_NAME_PREFIX }}-${{ github.event.inputs.environment }}-cluster
+          service_name: ${{ inputs.service }}-${{ github.event.inputs.environment }}-service-fargate
+  restart-staging:
+    if: ${{ inputs.environment == 'staging' }}
+    runs-on: docker-runner
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: 🔁 Restart ${{ inputs.environment }} ${{ inputs.service }}
+        uses: ArkaneNetwork/venly-github-workflows/.github/actions/ecs_restart_service@main
+        with:
+          aws_region: eu-west-1
+          aws_role: ${{ secrets.WALLET_NONPRD_DEPLOY_ROLE }}
+          cluster_name: ${{ env.CLUSTER_NAME_PREFIX }}-${{ github.event.inputs.environment }}-cluster
+          service_name: ${{ inputs.service }}-${{ github.event.inputs.environment }}-service-fargate
+  restart-prd:
+    if: ${{ inputs.environment == 'prd' }}
+    runs-on: docker-runner
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: 🔁 Restart ${{ inputs.environment }} ${{ inputs.service }}
+        uses: ArkaneNetwork/venly-github-workflows/.github/actions/ecs_restart_service@main
+        with:
+          aws_region: eu-west-1
+          aws_role: ${{ secrets.WALLET_PRD_DEPLOY_ROLE }}
+          cluster_name: ${{ env.CLUSTER_NAME_PREFIX }}-${{ github.event.inputs.environment }}-cluster
+          service_name: ${{ inputs.service }}-${{ github.event.inputs.environment }}-service-fargate

@@ -1,0 +1,73 @@
+name: 🔄 Restart Cluster
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: "Which cluster to restart?"
+        required: true
+        default: "qa"
+        options:
+          - prd
+          - qa
+          - sandbox
+          - staging
+env:
+  AWS_REGION: "eu-west-1"
+  CLUSTER_NAME_PREFIX: imx-blockchain
+permissions:
+  actions: read
+  checks: read
+  contents: write
+  deployments: read
+  id-token: write
+  issues: read
+  discussions: read
+  packages: read
+  pages: read
+  pull-requests: read
+  repository-projects: read
+  security-events: read
+  statuses: read
+run-name: 🔄 restart-cluster ${{ inputs.environment }}
+jobs:
+  restart-qa:
+    if: ${{ inputs.environment == 'qa' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Restart Cluster ${{ inputs.environment }}
+        uses: ArkaneNetwork/venly-github-workflows/.github/actions/ecs_restart_cluster@main
+        with:
+          aws_region: eu-west-1
+          aws_role: ${{ secrets.WALLET_NONPRD_DEPLOY_ROLE }}
+          cluster_name: ${{ env.CLUSTER_NAME_PREFIX }}-${{ github.event.inputs.environment }}-cluster
+  restart-staging:
+    if: ${{ inputs.environment == 'staging' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Restart Cluster ${{ inputs.environment }}
+        uses: ArkaneNetwork/venly-github-workflows/.github/actions/ecs_restart_cluster@main
+        with:
+          aws_region: eu-west-1
+          aws_role: ${{ secrets.WALLET_NONPRD_DEPLOY_ROLE }}
+          cluster_name: ${{ env.CLUSTER_NAME_PREFIX }}-${{ github.event.inputs.environment }}-cluster
+  restart-sandbox:
+    if: ${{ inputs.environment == 'sandbox' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Restart Cluster ${{ inputs.environment }}
+        uses: ArkaneNetwork/venly-github-workflows/.github/actions/ecs_restart_cluster@main
+        with:
+          aws_region: eu-west-1
+          aws_role: ${{ secrets.WALLET_PRD_DEPLOY_ROLE }}
+          cluster_name: ${{ env.CLUSTER_NAME_PREFIX }}-${{ github.event.inputs.environment }}-cluster
+  restart-prd:
+    if: ${{ inputs.environment == 'prd' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Restart Cluster ${{ inputs.environment }}
+        uses: ArkaneNetwork/venly-github-workflows/.github/actions/ecs_restart_cluster@main
+        with:
+          aws_region: eu-west-1
+          aws_role: ${{ secrets.WALLET_PRD_DEPLOY_ROLE }}
+          cluster_name: ${{ env.CLUSTER_NAME_PREFIX }}-${{ github.event.inputs.environment }}-cluster

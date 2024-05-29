@@ -1,0 +1,88 @@
+name: 🏗️ Build
+on:
+  push:
+    paths-ignore:
+      - .github/**
+  pull_request:
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  AWS_REGION: "eu-west-1"
+permissions:
+  actions: read
+  checks: write
+  contents: write
+  deployments: read
+  id-token: write
+  issues: read
+  discussions: read
+  packages: read
+  pages: read
+  pull-requests: read
+  repository-projects: read
+  security-events: read
+  statuses: read
+run-name: 🏗️ Build ${{ github.ref_name	}}
+jobs:
+  # =====================================================
+  # Job: Build
+  # =====================================================
+  build:
+    runs-on: docker-runner
+    outputs:
+      sha_tag: ${{ steps.app_info.outputs.sha_tag }}
+      version_tag: ${{ steps.app_info.outputs.app_version }}
+      branch_tag: ${{ steps.app_info.outputs.branch_tag }}
+    strategy:
+      matrix:
+        node_version: [18, 20]
+      fail-fast: false
+    steps:
+      - name: ✅ Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build
+        id: build_node
+        uses: ArkaneNetwork/venly-github-workflows/.github/actions/build_node@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          node_version: ${{ matrix.node_version }}
+          commands: |
+            npm install
+            npm run build
+
+      - name: App Info
+        id: app_info
+        uses: ArkaneNetwork/venly-github-workflows/.github/actions/app_info@main
+        with:
+          branch: ${{ github.ref }}
+
+      - name: 📄 Show Build Information
+        run: |
+          echo "Sha Tag: ${{ steps.app_info.outputs.sha_tag }}"
+          echo "Version Tag: ${{ steps.app_info.outputs.app_version }}"
+          echo "Branch Tag: ${{ steps.app_info.outputs.branch_tag }}"
+  # =====================================================
+  # Job: Merge Back
+  # =====================================================
+  merge-back:
+    if: startsWith(github.ref, 'refs/heads/hotfix-') || startsWith(github.ref, 'refs/heads/release-')
+    runs-on: docker-runner
+    outputs:
+      runner_name: ${{ runner.name }}
+    steps:
+      - name: ✅ Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.VENLY_GITHUB_ACTIONS_TOKEN }}
+
+      - name: Merge Back To Develop
+        id: merge_back
+        uses: ArkaneNetwork/venly-github-workflows/.github/actions/merge_back@main
+        with:
+          branch: ${{ github.ref }}
+          token: ${{ secrets.VENLY_GITHUB_ACTIONS_TOKEN }}
