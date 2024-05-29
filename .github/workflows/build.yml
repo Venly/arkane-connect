@@ -30,7 +30,7 @@ jobs:
   # Job: Build
   # =====================================================
   build:
-    runs-on: docker-runner
+    runs-on: ubuntu-latest
     outputs:
       sha_tag: ${{ steps.app_info.outputs.sha_tag }}
       version_tag: ${{ steps.app_info.outputs.app_version }}
@@ -71,7 +71,7 @@ jobs:
   # =====================================================
   merge-back:
     if: startsWith(github.ref, 'refs/heads/hotfix-') || startsWith(github.ref, 'refs/heads/release-')
-    runs-on: docker-runner
+    runs-on: ubuntu-latest
     outputs:
       runner_name: ${{ runner.name }}
     steps:
