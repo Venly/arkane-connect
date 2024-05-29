@@ -1,5 +1,6 @@
 Venly Connect SDK
 ===
+[![🏗️ Build](https://github.com/ArkaneNetwork/arkane-connect/actions/workflows/build.yml/badge.svg)](https://github.com/ArkaneNetwork/arkane-connect/actions/workflows/build.yml)
 
 Venly Connect is a javascript SDK specifically designed to perform common blockchain tasks. It is created as a way to perform tasks that are otherwise not possible due to security
 implications (e.g: creating signatures). Venly Connect wraps all of Venly's functionalities within a JavaScript layer in order to facilitate development.
