@@ -18,13 +18,13 @@ permissions:
 run-name: 🤕 hotfix-start
 jobs:
   hotfix:
-    runs-on: docker-runner
+    runs-on: ubuntu-latest
     steps:
       - name: ✅ Checkout
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.VENLY_GITHUB_ACTIONS_TOKEN }}
           fetch-depth: 0
-      - uses: ArkaneNetwork/venly-github-workflows/.github/actions/hotfix_node_start@main
+      - uses: ./.github/actions/hotfix_start
         with:
           token: ${{ secrets.VENLY_GITHUB_ACTIONS_TOKEN }}

@@ -1,0 +1,80 @@
+name: 🚀 Publish
+description: "Reads the version number from package.json"
+
+inputs:
+  npm_token:
+    description: The npm Token
+    required: true
+  token:
+    description: The Github PAT Token
+    required: true
+outputs:
+  published_version:
+    description: "Published Version from package.json"
+    value: ${{ steps.publish.outputs.published_version }}
+
+runs:
+  using: "composite"
+  steps:
+    # - name: 🚀 Publish to npm
+    #   id: publish
+    #   shell: bash
+    #   env:
+    #     NPM_KEY: ${{ inputs.token }}
+    #   run: |
+    #     #!/bin/bash
+    #     set -x
+
+    #     # Authenticate with npm using the token
+    #     echo "//registry.npmjs.org/:_authToken=$NPM_KEY" > ~/.npmrc
+
+    #     # Publish the npm package and capture the output
+    #     if [ "${GITHUB_REF}" == "refs/heads/master" ]; then
+    #         npm publish
+    #     else
+    #         npm publish --tag $(echo "${GITHUB_REF}" | sed 's|refs/heads/||')
+    #     fi
+
+    #     # Capture the version from package.json
+    #     published_version=$(jq -r '.version' package.json)
+
+    #     # Output the version
+    #     echo "Published version: $published_version"
+
+    #     # Export the version to GitHub Actions environment variables
+    #     echo "published_version=$published_version" >> $GITHUB_ENV
+    #     echo "published_version=$published_version" >> $GITHUB_OUTPUT
+    - name: 🚀 Test npm publish step
+      id: publish
+      shell: bash
+      env:
+        NPM_KEY: ${{ inputs.npm_token }}
+      run: |
+        #!/bin/bash
+        set -e  # Exit immediately if a command exits with a non-zero status
+        set -x  # Print commands and their arguments as they are executed
+
+        # Authenticate with npm using the token
+        echo "//registry.npmjs.org/:_authToken=$NPM_KEY" > ~/.npmrc
+
+        # Pack the npm package and capture the output
+        if [ "${GITHUB_REF}" == "refs/heads/master" ]; then
+            npm pack
+        else
+            npm pack
+        fi
+
+        # Capture the version from package.json
+        published_version=$(jq -r '.version' package.json)
+
+        # Output the version
+        echo "Packaged version: $published_version"
+
+        # Export the version to GitHub Actions environment variables
+        echo "published_version=$published_version" >> $GITHUB_ENV
+        echo "published_version=$published_version" >> $GITHUB_OUTPUT
+
+    - name: 🏷️ Push Github Tags
+      shell: bash
+      run: |
+        git push --tags origin HEAD:refs/heads/${{ github.ref_name }}
