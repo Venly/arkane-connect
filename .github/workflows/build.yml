@@ -63,7 +63,7 @@ jobs:
           token: ${{ secrets.VENLY_GITHUB_ACTIONS_TOKEN }}
 
       - name: 🔄 Merge Back
-        if: (startsWith(github.ref, 'refs/heads/hotfix-') || startsWith(github.ref, 'refs/heads/release-'))
+        if: startsWith(github.ref, 'refs/heads/hotfix-') || startsWith(github.ref, 'refs/heads/release-')
         uses: ./.github/actions/merge_back
         with:
           branch: ${{ github.ref_name }}
