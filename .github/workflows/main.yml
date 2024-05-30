@@ -9,6 +9,11 @@ jobs:
   version:
     runs-on: ubuntu-latest
     steps:
+      - name: ✅ Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.VENLY_GITHUB_ACTIONS_TOKEN }}
+
       - name: Get Version
         uses: ./.github/actions/get_version
 
