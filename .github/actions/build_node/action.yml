@@ -1,0 +1,113 @@
+name: "Build NodeJs"
+description: "Build NodeJs"
+inputs:
+  aws_region:
+    default: eu-west-1
+    description: name of the aws region to deploy to
+    required: false
+  cache_folder:
+    description: Optional Cache folder
+    required: false
+  commands:
+    description: The command to execute for build and test.
+    required: true
+  node_version:
+    default: 16.x
+    description: Version of node to use
+    required: false
+  sonar_token:
+    description: The SONAR_TOKEN
+    required: false
+  token:
+    description: The VENLY_GITHUB_ACTIONS_TOKEN
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Branch to Build
+      shell: bash
+      run: echo -e "🔧 Following branch will be build ${{ github.ref }} 🔧"
+
+    - name: ❔ get-npm-version ❔
+      id: package-version
+      shell: bash
+      run: |
+        #!/bin/bash
+        set -x
+        PACKAGE_JSON_PATH="./package.json"
+        if [[ -f "$PACKAGE_JSON_PATH" ]]; then
+            VERSION=$(jq -r '.version' "$PACKAGE_JSON_PATH")
+            if [[ "$VERSION" == "null" || -z "$VERSION" ]]; then
+              echo "No version field found in $PACKAGE_JSON_PATH"
+              echo "current-version=0.0.0" >> $GITHUB_ENV
+            else
+              echo "Version in $PACKAGE_JSON_PATH is $VERSION"
+              echo "current-version=$VERSION" >> $GITHUB_ENV
+            fi
+        else
+            echo "$PACKAGE_JSON_PATH not found"
+            echo "current-version=0.0.0" >> $GITHUB_ENV
+        fi
+
+    - name: Create NPM Cache Path
+      shell: bash
+      run: |
+        mkdir -p /root/.npm
+
+    - name: Use Node.js ${{ inputs.node_version }}
+      uses: actions/setup-node@v3
+      id: node_setup
+      with:
+        node-version: ${{ inputs.node_version }}
+
+    - name: Install dependencies if cache miss
+      shell: bash
+      env:
+        SYSTEM: build
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: npm ci
+
+    - name: Build & Test
+      shell: bash
+      id: build
+      env:
+        SONAR_TOKEN: ${{ inputs.sonar_token }}
+      run: |
+        ${{ inputs.commands }}
+
+    - name: package-version-to-git-tag
+      uses: pkgdeps/git-tag-action@v2
+      with:
+        github_token: ${{ inputs.token }}
+        github_repo: ${{ github.repository }}
+        version: ${{ env.current-version }}
+        git_commit_sha: ${{ github.sha }}
+        git_tag_prefix: "v"
+
+    # Create Output Cache
+    - name: 📺 Set Outputs 📺
+      id: outputs
+      shell: bash
+      env:
+        SHA_TAG: ${{ github.sha }}
+        BRANCH_TAG: ${{ github.ref_name }}
+        NPM_CACHE: " /root/.npm"
+      run: |
+        echo "sha_tag=${{ env.SHA_TAG }}" >> $GITHUB_OUTPUT
+        echo "branch_tag=${{ env.BRANCH_TAG }}" >> $GITHUB_OUTPUT
+        echo "cache_dependency_path=${{ env.NPM_CACHE }}" >> $GITHUB_OUTPUT
+        echo "local_cache_folder=/cache/${{ github.workspace }}-${{ inputs.cache_folder }}" >> $GITHUB_OUTPUT
+
+outputs:
+  sha_tag:
+    description: "The SHA tag"
+    value: ${{ steps.outputs.outputs.sha_tag }}
+  branch_tag:
+    description: "The branch tag"
+    value: ${{ steps.outputs.outputs.branch_tag }}
+  cache-dependency-path:
+    description: "Node Cache Dependency Path"
+    value: ${{ steps.outputs.outputs.cache_dependency_path }}
+  local_cache_folder:
+    description: "Local Cache Folder"
+    value: ${{ steps.outputs.outputs.local_cache_folder }}
