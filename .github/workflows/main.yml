@@ -1,4 +1,4 @@
-name: CI/CD Default branch
+name: Main
 
 on:
   workflow_dispatch:
