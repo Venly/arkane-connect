@@ -3,9 +3,14 @@ name: CI/CD Default branch
 on:
   workflow_dispatch:
 
+env:
+  BRANCH: ${{ github.ref_name}}
 jobs:
   version:
-    uses: ./.github/actions/get_version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Version
+        uses: ./.github/actions/get_version
 
   # quality:
   #   needs: variables
