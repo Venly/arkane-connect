@@ -26,7 +26,7 @@ runs:
         set -x
 
         # Authenticate with npm using the token
-        echo "//registry.npmjs.org/:_authToken=$NPM_KEY" > ~/.npmrc
+        printf '//registry.npmjs.org/:_authToken=' > .npmrc && printf '${NPM_KEY}' >> .npmrc
 
         # Publish the npm package and capture the output
         if [ "${GITHUB_REF}" == "refs/heads/master" ]; then
