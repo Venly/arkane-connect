@@ -4,6 +4,12 @@ inputs:
   token:
     description: The VENLY_GITHUB_ACTIONS_TOKEN
     required: true
+  node_version:
+    default: 18.x
+    description: Node Version to use
+  work_directory:
+    description: Optional path to set for the working directory
+    required: false
 runs:
   using: "composite"
   steps:
@@ -55,12 +61,35 @@ runs:
       uses: actions/setup-node@v3
       id: node_setup
       with:
-        node-version: 16.x
+        node-version: ${{ inputs.node_version }}
 
     # =====================================================
     # Hotfix
     # =====================================================
     # Get the Name of the Hotfix Branch
+    - name: Check for multiple hotfix branches
+      shell: bash
+      run: |
+        #!/bin/bash
+        set -x
+        # Fetch all branches from the remote
+        git fetch --all
+
+        # Get a list of hotfix branches
+        hotfix_branches=$(git branch -r | grep -o 'origin/hotfix-[0-9]*\.[0-9]*\.[0-9]*')
+
+        # Count the number of hotfix branches
+        branch_count=$(echo "$hotfix_branches" | wc -l)
+
+        if [ "$branch_count" -gt 1 ]; then
+          echo "Error: Multiple hotfix branches found. Please resolve the following hotfix branches:"
+          echo "$hotfix_branches" | sort -V
+          exit 1
+        elif [ "$branch_count" -eq 1 ]; then
+          echo "One hotfix branch found. Proceeding with the pipeline."
+        else
+          echo "No hotfix branch found. Proceeding with the pipeline."
+        fi
     - name: 🔍 Get Hotfix Branch
       shell: bash
       run: |
@@ -111,44 +140,48 @@ runs:
       run: |
         #!/bin/bash
         set -x
+        if [ -n "${{ inputs.work_directory }}" ]; then
+          cd "${{ inputs.work_directory }}"
+        fi
+        PACKAGE_JSON_PATH="./package.json"
+
         echo "📚 Reading the version from package.json for the hotfix..."
-        find . -name 'package.json' | while read -r PACKAGE_JSON_PATH; do
-          if [[ -n "$PACKAGE_JSON_PATH" ]]; then
-            VERSION=$(jq -r '.version' "$PACKAGE_JSON_PATH")
-            if [[ "$VERSION" == "null" || -z "$VERSION" ]]; then
-              echo "No version field found in $PACKAGE_JSON_PATH"
-              echo "hotfix_version="0.0.0"" >> $GITHUB_ENV
-            else
-              echo "Version in $PACKAGE_JSON_PATH is $VERSION"
-              echo "hotfix_version=$VERSION" >> $GITHUB_ENV
-            fi
+        if [[ -n "$PACKAGE_JSON_PATH" ]]; then
+          VERSION=$(jq -r '.version' "$PACKAGE_JSON_PATH")
+          if [[ "$VERSION" == "null" || -z "$VERSION" ]]; then
+            echo "No version field found in $PACKAGE_JSON_PATH"
+            echo "hotfix_version="0.0.0"" >> $GITHUB_ENV
+          else
+            echo "Version in $PACKAGE_JSON_PATH is $VERSION"
+            echo "hotfix_version=$VERSION" >> $GITHUB_ENV
           fi
-        done
+        fi
 
     # Merge to Production Branch
     - name: 🔀 Checkout and Merge to Production Branch
       shell: bash
       run: |
-        #!/bin/bash
         set -x
-        echo "🔄 Switching to the production branch and merging the hotfix..."
+        echo "🔄 Fetching and switching to the production branch..."
+        git fetch origin
         git checkout ${{ env.production_branch }}
-        # Try to merge and capture the exit status
-        set +e  # Disable immediate exit on error
-        git merge ${{ env.hotfix_branch }}
+        git pull origin ${{ env.production_branch }}
+
+        echo "🔄 Merging the hotfix branch..."
+        git merge ${{ env.hotfix_branch }} --no-commit --no-ff
         MERGE_STATUS=$?
-        set -e  # Re-enable immediate exit on error
 
         if [ $MERGE_STATUS -ne 0 ]; then
           echo "Merge conflict detected, listing conflicts..."
-          # List all files with conflicts
           git diff --name-only --diff-filter=U
+          git diff --diff-filter=U
           echo "Please resolve the above conflicts and push the changes manually."
-          exit 1  # Exit with an error status
+          exit 1
+        else
+          echo "✅ Merge successful. Committing the merge..."
+          git commit -m "Merge hotfix branch ${{ env.hotfix_branch }} into ${{ env.production_branch }}"
+          git push origin ${{ env.production_branch }}
         fi
-
-        # Push the changes to remote repository
-        git push origin ${{ env.production_branch }}
 
     # Publish Hotfix
     - name: 🚀 Publish Hotfix
@@ -173,19 +206,22 @@ runs:
       run: |
         #!/bin/bash
         set -x
+        if [ -n "${{ inputs.work_directory }}" ]; then
+          cd "${{ inputs.work_directory }}"
+        fi
+        PACKAGE_JSON_PATH="./package.json"
+
         echo "📚 Reading the version from package.json for the develop branch..."
-        find . -name 'package.json' | while read -r PACKAGE_JSON_PATH; do
-          if [[ -n "$PACKAGE_JSON_PATH" ]]; then
-            VERSION=$(jq -r '.version' "$PACKAGE_JSON_PATH")
-            if [[ "$VERSION" == "null" || -z "$VERSION" ]]; then
-              echo "No version field found in $PACKAGE_JSON_PATH"
-              echo "develop_version="0.0.0"" >> $GITHUB_ENV
-            else
-              echo "Version in $PACKAGE_JSON_PATH is $VERSION"
-              echo "develop_version=$VERSION" >> $GITHUB_ENV
-            fi
+        if [[ -n "$PACKAGE_JSON_PATH" ]]; then
+          VERSION=$(jq -r '.version' "$PACKAGE_JSON_PATH")
+          if [[ "$VERSION" == "null" || -z "$VERSION" ]]; then
+            echo "No version field found in $PACKAGE_JSON_PATH"
+            echo "develop_version="0.0.0"" >> $GITHUB_ENV
+          else
+            echo "Version in $PACKAGE_JSON_PATH is $VERSION"
+            echo "develop_version=$VERSION" >> $GITHUB_ENV
           fi
-        done
+        fi
 
     # Merge Back to develop
     - name: 🔀 Merge To Develop

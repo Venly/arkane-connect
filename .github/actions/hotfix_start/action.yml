@@ -4,6 +4,12 @@ inputs:
   token:
     description: The VENLY_GITHUB_ACTIONS_TOKEN
     required: true
+  node_version:
+    default: 18.x
+    description: Node Version to use
+  work_directory:
+    description: Optional path to set for the working directory
+    required: false
 runs:
   using: "composite"
   steps:
@@ -55,7 +61,7 @@ runs:
       uses: actions/setup-node@v3
       id: node_setup
       with:
-        node-version: 16.x
+        node-version: ${{ inputs.node_version }}
 
     # =====================================================
     # Hotfix
@@ -73,25 +79,28 @@ runs:
 
     # Read package.json for version
 
-    - name: get-npm-version ❔
-      id: raw_hotfix_version
+    - name: ❔ get-npm-version ❔
+      id: package-version
       shell: bash
       run: |
         #!/bin/bash
         set -x
+        if [ -n "${{ inputs.work_directory }}" ]; then
+          cd "${{ inputs.work_directory }}"
+        fi
+        PACKAGE_JSON_PATH="./package.json"
+
         echo "🔍 Reading package.json for version..."
-        find . -name 'package.json' | while read -r PACKAGE_JSON_PATH; do
-          if [[ -n "$PACKAGE_JSON_PATH" ]]; then
-            VERSION=$(jq -r '.version' "$PACKAGE_JSON_PATH")
-            if [[ "$VERSION" == "null" || -z "$VERSION" ]]; then
-              echo "No version field found in $PACKAGE_JSON_PATH"
-              echo "hotfix_version_raw="0.0.0"" >> $GITHUB_ENV
-            else
-              echo "Version in $PACKAGE_JSON_PATH is $VERSION"
-              echo "hotfix_version_raw=$VERSION" >> $GITHUB_ENV
-            fi
+        if [[ -n "$PACKAGE_JSON_PATH" ]]; then
+          VERSION=$(jq -r '.version' "$PACKAGE_JSON_PATH")
+          if [[ "$VERSION" == "null" || -z "$VERSION" ]]; then
+            echo "No version field found in $PACKAGE_JSON_PATH"
+            echo "hotfix_version_raw="0.0.0"" >> $GITHUB_ENV
+          else
+            echo "Version in $PACKAGE_JSON_PATH is $VERSION"
+            echo "hotfix_version_raw=$VERSION" >> $GITHUB_ENV
           fi
-        done
+        fi
 
     # Extract semantic version
     - name: Extract semantic version
@@ -108,6 +117,22 @@ runs:
           echo $HOTFIX_VERSION
         else
           echo "No version found"
+        fi
+
+    - name: Check for existing hotfix branch
+      shell: bash
+      run: |
+        #!/bin/bash
+        set -x
+        # Fetch all branches from the remote
+        git fetch --all
+
+        # Check if any branch contains the keyword "hotfix"
+        if git branch -r | grep -q "origin/hotfix"; then
+          echo "Error: A hotfix branch already exists. Please resolve or merge the existing hotfix branch before creating a new one."
+          exit 1
+        else
+          echo "No existing hotfix branch found. Proceeding..."
         fi
 
     - name: Create Hotfix Branch
@@ -133,19 +158,22 @@ runs:
       run: |
         #!/bin/bash
         set -x
+        if [ -n "${{ inputs.work_directory }}" ]; then
+          cd "${{ inputs.work_directory }}"
+        fi
+        PACKAGE_JSON_PATH="./package.json"
+
         echo "📚 Reading the version from package.json for the develop branch..."
-        find . -name 'package.json' | while read -r PACKAGE_JSON_PATH; do
-          if [[ -n "$PACKAGE_JSON_PATH" ]]; then
-            VERSION=$(jq -r '.version' "$PACKAGE_JSON_PATH")
-            if [[ "$VERSION" == "null" || -z "$VERSION" ]]; then
-              echo "⚠️ No version field found in $PACKAGE_JSON_PATH"
-              echo "current-version-develop="0.0.0"" >> $GITHUB_ENV
-            else
-              echo "✅ Version in $PACKAGE_JSON_PATH is $VERSION"
-              echo "current-version-develop=$VERSION" >> $GITHUB_ENV
-            fi
+        if [[ -n "$PACKAGE_JSON_PATH" ]]; then
+          VERSION=$(jq -r '.version' "$PACKAGE_JSON_PATH")
+          if [[ "$VERSION" == "null" || -z "$VERSION" ]]; then
+            echo "⚠️ No version field found in $PACKAGE_JSON_PATH"
+            echo "current-version-develop="0.0.0"" >> $GITHUB_ENV
+          else
+            echo "✅ Version in $PACKAGE_JSON_PATH is $VERSION"
+            echo "current-version-develop=$VERSION" >> $GITHUB_ENV
           fi
-        done
+        fi
 
     # Merge Back to develop
     - name: Merge To Develop Branch 🔄
