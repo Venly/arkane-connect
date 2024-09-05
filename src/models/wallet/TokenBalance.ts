@@ -1,3 +1,5 @@
+import { Exchange } from './Exchange';
+
 export class TokenBalance {
     public tokenAddress!: string;
     public rawBalance!: string;
@@ -6,4 +8,5 @@ export class TokenBalance {
     public logo!: string;
     public decimals!: number;
     public name!: string;
+    public exchange?: Exchange;
 }
