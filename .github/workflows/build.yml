@@ -38,7 +38,7 @@ jobs:
         uses: ./.github/actions/get_version
 
       - name: ⬆️ Bump Version
-        if: github.event_name == 'workflow_dispatch' && (startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/heads/hotfix-') || startsWith(github.ref, 'refs/heads/release-'))
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/heads/hotfix-') || startsWith(github.ref, 'refs/heads/release-'))
         uses: ./.github/actions/bump_version
         with:
           token: ${{ secrets.VENLY_GITHUB_ACTIONS_TOKEN }}
@@ -55,6 +55,10 @@ jobs:
           set -x
           npm i
           npm run build
+
+      - name: 📋 Log Current Version Before Publish
+        run: |
+          echo "Version before publishing: $(jq -r '.version' package.json)"
 
       - name: 🚀 Publish Npm
         uses: ./.github/actions/publish_npm
