@@ -25,6 +25,8 @@ runs:
         #!/bin/bash
         set -x
 
+        git push --tags origin HEAD:${{ github.ref_name }}
+
         # Authenticate with npm using the token
         printf '//registry.npmjs.org/:_authToken=${NPM_KEY}\n@venly:registry=https://registry.npmjs.org/' > .npmrc
 
