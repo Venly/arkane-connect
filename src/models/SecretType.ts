@@ -14,5 +14,6 @@ export enum SecretType {
     IMX = 'IMX',
     ARBITRUM = 'ARBITRUM',
     XPLA = 'XPLA',
-    BASE = 'BASE'
+    BASE = 'BASE',
+    OPTIMISM = 'OPTIMISM',
 }
