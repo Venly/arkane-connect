@@ -11,6 +11,7 @@ runs:
   steps:
     - name: Check if version bump
       id: version_bump_check
+      shell: bash
       run: |
         #!/bin/bash
         set -x
