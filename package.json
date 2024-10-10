@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Venly/arkane-connect"
+    "url": "git+https://github.com/Venly/connect-sdk"
   },
   "keywords": [
     "venly-connect",
@@ -38,7 +38,7 @@
   "author": "@venly <info@venly.io>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ArkaneNetwork/arkane-connect/issues"
+    "url": "https://github.com/Venly/connect-sdk/issues"
   },
   "homepage": "https://venly.io",
   "dependencies": {
