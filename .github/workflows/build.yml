@@ -44,7 +44,7 @@ jobs:
         if: (startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/heads/hotfix-') || startsWith(github.ref, 'refs/heads/release-'))
         uses: ./.github/actions/check_is_version_bump
 
-      - name: Skip if last commit is a version bump
+      - name: Not bumping the version or publishing to npm
         if: (steps.check_is_version_bump.outputs.is_version_bump == 'true')
         run: |
           #!/bin/bash
