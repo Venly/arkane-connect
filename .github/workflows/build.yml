@@ -49,7 +49,7 @@ jobs:
         run: |
           #!/bin/bash
           set -x
-          echo "Skipping the rest of this build because this is a version bump commit."
+          echo "Not bumping the version or publishing to npm because this is a version bump commit."
 
       - name: ⬆️ Bump Version
         if: ((steps.check_is_version_bump.outputs.is_version_bump != 'true') && (startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/heads/hotfix-') || startsWith(github.ref, 'refs/heads/release-')))
@@ -58,14 +58,12 @@ jobs:
           token: ${{ secrets.VENLY_GITHUB_ACTIONS_TOKEN }}
 
       - name: 🛠️ Setup Node.js 16.x
-        if: (steps.check_is_version_bump.outputs.is_version_bump != 'true')
         uses: actions/setup-node@v3
         id: node_setup
         with:
           node-version: 16.x
 
       - name: 🏗️ Build Node
-        if: (steps.check_is_version_bump.outputs.is_version_bump != 'true')
         run: |
           #!/bin/bash
           set -x
@@ -85,7 +83,7 @@ jobs:
           token: ${{ secrets.VENLY_GITHUB_ACTIONS_TOKEN }}
 
       - name: 🔄 Merge Back
-        if: ((steps.check_is_version_bump.outputs.is_version_bump != 'true') && (startsWith(github.ref, 'refs/heads/hotfix-') || startsWith(github.ref, 'refs/heads/release-')))
+        if: startsWith(github.ref, 'refs/heads/hotfix-') || startsWith(github.ref, 'refs/heads/release-')
         uses: ./.github/actions/merge_back
         with:
           branch: ${{ github.ref_name }}
